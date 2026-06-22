@@ -9,7 +9,7 @@ Site da **Juma Agro** (fertilizantes especiais e aminoácidos), feito pela agên
 - Banco: **Neon** (lê `process.env.DATABASE_URL`)
 - Gerenciador: **npm** (pnpm não foi instalado). Node 24.
 - A instalar conforme as fases: Cloudinary (mídia), Sentry (erros), Umami (analytics, Fase 2)
-- Animação: **GSAP + ScrollTrigger**, **Three.js/WebGL** (efeito de água), Framer Motion. (Skills instaladas: gsap-scrolltrigger, threejs-webgl, react-three-fiber, modern-web-design.)
+- Animação: **GSAP + ScrollTrigger**, **Three.js/WebGL** (efeito de água), React Three Fiber, Framer Motion, smooth scroll. Skills instaladas (disparam sozinhas): `gsap-scrolltrigger`, `threejs-webgl`, `react-three-fiber`, `motion-framer`, `locomotive-scroll`, `modern-web-design`, `web3d-integration-patterns`. Para smooth scroll, considerar **Lenis** (padrão atual) — a skill locomotive serve de referência, não obriga a usar locomotive.
 
 ## Como rodar
 
