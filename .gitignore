@@ -43,3 +43,14 @@ Thumbs.db
 
 # estado local de ferramentas
 .claude/
+
+# media local (upload do payload antes do cloudinary)
+/media
+
+# testes
+/coverage
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+.yarn/install-state.gz
