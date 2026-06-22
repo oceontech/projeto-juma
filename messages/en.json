@@ -1,0 +1,12 @@
+{
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "cultures": "Crops",
+    "calculator": "Calculator",
+    "experience": "Juma Experience",
+    "about": "About",
+    "articles": "Articles",
+    "contact": "Contact"
+  }
+}

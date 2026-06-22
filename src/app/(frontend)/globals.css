@@ -1,0 +1,192 @@
+@import "tailwindcss";
+
+/* ============================================================
+   JUMA AGRO — Design Tokens (Tailwind CSS v4)
+   Fonte de verdade: CLAUDE.md + docs/05-design-direction/
+   ============================================================ */
+
+@theme {
+  /* ── Cores da marca ─────────────────────────────────────── */
+  --color-primary: #004C26;
+  --color-primary-light: #006838;
+  --color-secondary: #302783;
+  --color-accent: #659357;
+  --color-background: #F2F6F2;
+  --color-foreground: #1A1A1A;
+  --color-white: #FFFFFF;
+
+  /* ── Cores por produto ──────────────────────────────────── */
+  --color-product-aminosan: #006838;
+  --color-product-fitofert: #006838;
+  --color-product-redutan-sili4: #006838;
+  --color-product-supermix: #388123;
+  --color-product-acorda-cana: #79AB34;
+  --color-product-acorda-cana-text: #1F2E0A;
+  --color-product-acorda-ultra: #008DC2;
+  --color-product-revigo: #312783;
+  --color-product-kmep-ultra: #AD1115;
+  --color-product-aduban: #AD1115;
+  --color-product-redutan-sili5: #7D252A;
+  --color-product-redutan-npk: #C2B400;
+  --color-product-redutan-npk-text: #3A3600;
+
+  /* ── Tipografia ─────────────────────────────────────────── */
+  --font-heading: var(--font-montserrat), "Montserrat", sans-serif;
+  --font-body: var(--font-montserrat), "Montserrat", sans-serif;
+
+  /* ── Espaçamento (escala de 4px) ────────────────────────── */
+  --spacing-xs: 0.25rem;  /*  4px */
+  --spacing-sm: 0.5rem;   /*  8px */
+  --spacing-md: 1rem;     /* 16px */
+  --spacing-lg: 1.5rem;   /* 24px */
+  --spacing-xl: 2rem;     /* 32px */
+  --spacing-2xl: 3rem;    /* 48px */
+  --spacing-3xl: 4rem;    /* 64px */
+  --spacing-4xl: 6rem;    /* 96px */
+  --spacing-5xl: 8rem;    /* 128px */
+
+  /* ── Bordas ─────────────────────────────────────────────── */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* ── Transição padrão ───────────────────────────────────── */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── Breakpoints ────────────────────────────────────────── */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* ============================================================
+   Estilos base (reset leve + fundação tipográfica)
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  font-weight: 300; /* Montserrat Light */
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-foreground);
+  background-color: var(--color-background);
+}
+
+/* ── Títulos (Montserrat Black 900) ───────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 900; /* Montserrat Black */
+  line-height: 1.1;
+  color: var(--color-foreground);
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: clamp(2.5rem, 5vw + 1rem, 5rem);
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: clamp(2rem, 4vw + 0.5rem, 3.5rem);
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  font-size: clamp(1.5rem, 3vw + 0.25rem, 2.25rem);
+}
+
+h4 {
+  font-size: clamp(1.25rem, 2vw + 0.25rem, 1.75rem);
+}
+
+/* ── Texto corrido ────────────────────────────────────────── */
+p {
+  max-width: 65ch;
+  margin-block: 1em;
+}
+
+/* ── Links ────────────────────────────────────────────────── */
+a {
+  color: var(--color-primary);
+  text-decoration-skip-ink: auto;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-primary-light);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Imagens ──────────────────────────────────────────────── */
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* ── Formulários ──────────────────────────────────────────── */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+/* ── Acessibilidade: prefers-reduced-motion ───────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Utilitários Juma ─────────────────────────────────────── */
+@utility text-heading {
+  font-family: var(--font-heading);
+  font-weight: 900;
+}
+
+@utility text-body {
+  font-family: var(--font-body);
+  font-weight: 300;
+}
+
+@utility text-body-regular {
+  font-family: var(--font-body);
+  font-weight: 400;
+}
