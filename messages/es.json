@@ -7,6 +7,206 @@
     "experience": "Juma Experience",
     "about": "Acerca de",
     "articles": "Artículos",
-    "contact": "Contacto"
+    "contact": "Contacto",
+    "jobs": "Vacantes"
+  },
+  "hero": {
+    "headlineLead": "Juntos alimentamos el",
+    "headlineHighlight": "mundo",
+    "headlineLine1": "Juntos",
+    "headlineLine2": "alimentamos",
+    "headlineLine3": "el mundo",
+    "subtitle": "Nutrición que construye productividad fase a fase en la soja, el maíz, el café, la caña y seis cultivos más. Con resultados medidos en ensayos de campo.",
+    "cta": "Quiero ese resultado en mi campo",
+    "ctaNote": "Responde el equipo técnico, en horario comercial. Sin compromiso.",
+    "imageAlt": "Campo al atardecer con un tractor al fondo"
+  },
+  "journey": {
+    "q1Title": "La productividad se construye fase a fase.",
+    "q1Subtitle": "Cada decisión del cultivo, desde la siembra hasta la cosecha, define lo que entra en el camión.",
+    "q2Kicker": "01 / HOJA",
+    "q2Title": "La nutrición en la fase correcta rinde más.",
+    "q2TitleHi": "rinde más.",
+    "q2Subtitle": "Una planta bien nutrida aprovecha mejor el agua, el fertilizante y el defensor que usted ya paga.",
+    "q2Seal": "Juntos alimentamos el mundo",
+    "q2L1": "Nutrición en el momento justo",
+    "q2S1": "cuando la planta más responde",
+    "q2L2": "Más respuesta del cultivo",
+    "q2S2": "al agua y al fertilizante que ya entran",
+    "q2L3": "Menos desperdicio",
+    "q2S3": "de lo que usted ya paga",
+    "q3Kicker": "02 / SUELO",
+    "q3Title": "El arranque decide mucho antes de la cosecha.",
+    "q3TitleHi": "mucho antes de la cosecha.",
+    "q3Subtitle": "Raíces profundas y rodal uniforme son el techo de la productividad.",
+    "q3Seal": "Juntos alimentamos el mundo",
+    "q4Kicker": "03 / GOTA",
+    "q4Title": "Más de 40 años ayudando al campo a cosechar más.",
+    "q4TitleHi": "a cosechar más.",
+    "q4Subtitle": "Vea dónde empezó todo.",
+    "videoAlt": "Secuencia del campo: del campo a la hoja, al suelo y a la gota de agua"
+  },
+  "common": {
+    "contactCta": "Contáctanos",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
+    "languageSwitcher": "Cambiar idioma",
+    "skipToContent": "Saltar al contenido"
+  },
+  "footer": {
+    "tagline": "Juntos, alimentamos el mundo",
+    "navTitle": "Navegación",
+    "socialTitle": "Sigue a Juma",
+    "contactTitle": "Contacto",
+    "whatsappLabel": "WhatsApp",
+    "emailLabel": "Correo",
+    "phoneLabel": "Teléfono",
+    "hoursLabel": "Horario",
+    "hoursValue": "Lun a jue, 7:30 a 17:15 · Vie, 7:30 a 16:00",
+    "addressBrTitle": "Brasil",
+    "addressUsTitle": "Estados Unidos",
+    "rights": "Todos los derechos reservados.",
+    "privacy": "Política de Privacidad"
+  },
+  "aminosanStory": {
+    "eyebrow": "1988",
+    "title": "El comienzo de todo.",
+    "titleHi": "todo.",
+    "body1": "En 1988, nació el primer frasco del Aminosan.",
+    "body2": "Creado para entregar nutrición vegetal en un momento en que ese concepto todavía daba sus primeros pasos en Brasil.",
+    "footerTag": "1988 — Una historia que nutre generaciones",
+    "oldBottleCaption": "El primer frasco del Aminosan.",
+    "oldBottleAlt": "El primer frasco del Aminosan, pieza histórica de la empresa exhibida como reliquia",
+    "newBottleAlt": "Frasco actual del Aminosan, producto vigente de la línea Juma Agro",
+    "videoAlt": "Transición del frasco antiguo del Aminosan al frasco actual",
+    "callout1": "Más de 40 años después, el mismo aminoácido.",
+    "callout2": "Hoy, en ocho cultivos: soja, maíz, café, algodón, frijol, cítricos, tomate y papa.",
+    "callout3Number": "+10 a +14 sc/ha",
+    "callout3Label": "En la soja, de 10 a 14 sacas más por hectárea en ensayo.",
+    "callout3Source": "Fuente: ensayos de DETEC (Taquarivaí, SP) y Terras Gerais (Lavras, MG).",
+    "callout4": "Y hoy, una línea completa: trece productos, de la siembra a la cosecha.",
+    "cta": "Conocer el Aminosan"
+  },
+  "ourStory": {
+    "eyebrow": "NUESTRA HISTORIA",
+    "titleDark": "UNA FAMILIA. UN PROPÓSITO.",
+    "titleGreen": "INNUMERABLES LOGROS.",
+    "body": "Hace más de 45 años, el Sr. Juvêncio de Oliveira dio el primer paso movido por coraje, trabajo y amor al campo. A su lado, sus hijos continúan el legado con excelencia, gestión y visión de futuro, llevando a Juma Agro a nuevos horizontes.",
+    "cta": "Un legado que genera futuro.",
+    "familyAlt": "Marcelo, Juvêncio y Mauro Oliveira, fundador y directores de Juma Agro, de pie y con los brazos cruzados",
+    "founders": {
+      "marcelo": { "name": "Marcelo Oliveira", "role": "Director Comercial" },
+      "juvencio": { "name": "Juvêncio de Oliveira", "role": "Fundador" },
+      "mauro": { "name": "Mauro Oliveira", "role": "Director de Operaciones" }
+    },
+    "stat1": "Gestión familiar con propósito",
+    "stat2": "Más de 45 años de historia",
+    "stat3": "Conectados con el agronegocio brasileño"
+  },
+  "proof": {
+    "title": "Resultados medidos en ensayo de campo.",
+    "cana": {
+      "unit": "t/ha",
+      "label": "más de tallos en la caña",
+      "source": "Acorda Cana · fuente: ensayos de campo Juma Agro"
+    },
+    "milho": {
+      "unit": "sacas/ha",
+      "label": "más en el maíz",
+      "source": "Acorda Ultra · fuente: ensayo de campo"
+    },
+    "soja": {
+      "unit": "sacas/ha",
+      "label": "más en la soja",
+      "source": "Aminosan · fuente: ensayo DETEC, Taquarivaí, SP"
+    },
+    "cafe": {
+      "unit": "%",
+      "label": "de control del minador de la hoja en el café",
+      "source": "KMEP Ultra · fuente: ensayo Rehagro"
+    }
+  },
+  "problem": {
+    "titleSentence": "La cuenta que suele pasar desapercibida está entre lo que el cultivo entrega y lo que podría entregar.",
+    "bodyRest": "Un rodal desuniforme en la siembra, una seca que detiene la planta en enero, una floración que aborta con el calor, una aplicación que el viento se lleva: cada uno de estos episodios descuenta sacas que nadie anota en una planilla, porque no aparecen como costo. Aparecen como cosecha menor.",
+    "paragraph2": "La diferencia entre un cultivo bueno y un cultivo récord casi nunca está en gastar más. Está en atravesar cada fase sin dejar potencial atrás."
+  },
+  "solution": {
+    "title": "El programa fase a fase",
+    "intro": "Para cada cultivo, Juma define la secuencia: qué producto entra, en qué fase, con qué objetivo. El programa empieza en el tratamiento de semillas y sigue hasta el llenado de granos, usando el calendario de aplicaciones que usted ya tiene. Cada combinación fue probada en ensayo de campo contra un testigo, y la fuente del resultado se publica junto al número.",
+    "stepsTitle": "Cómo funciona, en 3 pasos",
+    "step1": { "title": "Elija su cultivo.", "body": "Soja, maíz, café, caña y otros seis." },
+    "step2": { "title": "Vea el programa fase a fase.", "body": "Productos, momentos de aplicación y los resultados de ensayo de cada uno." },
+    "step3": { "title": "Converse con el equipo técnico.", "body": "El programa se ajusta a su área, su suelo y su manejo." },
+    "cta": "Quiero el programa de mi cultivo"
+  },
+  "lines": {
+    "kicker": "Líneas de producto",
+    "title": "Una línea para cada decisión del ciclo",
+    "viewLine": "Ver productos de la línea",
+    "nutricao": {
+      "title": "Para que la planta produzca en su potencial",
+      "support": "Aminosan, FitoFert, Línea Revigo, RevigoPhos Amino, Revigo Cobre Ultra"
+    },
+    "arranque": {
+      "title": "Para que la zafra empiece adelante",
+      "support": "Tratamiento de semillas y arranque: Acorda Ultra, Acorda Cana, Aduban"
+    },
+    "protecao": {
+      "title": "Para que el insecticida rinda más",
+      "support": "KMEP Ultra aumenta el rendimiento del defensivo que usted ya usa"
+    },
+    "manejos": {
+      "title": "Programas listos de maíz y pastura",
+      "support": "Revigo + Milho y Revigo + Pasto"
+    },
+    "aplicacao": {
+      "title": "Para que el caldo llegue al blanco",
+      "support": "Línea Redutan y Supermix"
+    }
+  },
+  "culturesGrid": {
+    "title": "Su cultivo tiene un programa",
+    "intro": "Cada campo decide la zafra en fases diferentes. Elija el suyo y vea los desafíos de cada fase y qué aplicar en cada una.",
+    "names": {
+      "soja": "Soja",
+      "milho": "Maíz",
+      "cafe": "Café",
+      "cana": "Caña de azúcar",
+      "algodao": "Algodón",
+      "feijao": "Frijol",
+      "citros": "Cítricos",
+      "batata": "Papa",
+      "tomate": "Tomate",
+      "pastagem": "Pastura"
+    }
+  },
+  "numbers": {
+    "title": "Lo que midieron los ensayos",
+    "soja": "Soja: +5,8 sacas/ha con Acorda Ultra y +10 a +14 sacas/ha con Aminosan, en ensayos de DETEC (Taquarivaí, SP) y Terras Gerais (Lavras, MG).",
+    "milho": "Maíz: +13,4 sacas/ha con Acorda Ultra y +9,33 sacas/ha en el manejo de la cigarrita con KMEP Ultra (Rehagro).",
+    "cana": "Caña de azúcar: +6,87 t/ha de tallos con Acorda Cana, en ensayos de campo.",
+    "cafe": "Café: hasta 74% de control del minador de la hoja con KMEP Ultra (Rehagro).",
+    "disclaimer": "Resultados de ensayo comparados con un testigo. En el campo, el número varía con el clima, el suelo y el manejo. Por eso publicamos la fuente de cada uno."
+  },
+  "experience": {
+    "title": "Visite la Juma por dentro",
+    "body": "Fábrica, laboratorio y la historia contada por quien la construyó: el Sr. Julio Matino recibe a los grupos de visitantes personalmente.",
+    "tagline": "Quien vive, entiende. Quien entiende, produce más.",
+    "cta": "Conocer Juma Experience"
+  },
+  "video": {
+    "title": "La Juma en 2 minutos",
+    "playLabel": "Ver el video institucional de Juma Agro"
+  },
+  "testimonials": {
+    "title": "Quien aplica, lo cuenta",
+    "placeholderNote": "Testimonios reales en espera de aprobación del cliente."
+  },
+  "ctaFinal": {
+    "title": "La próxima zafra puede ser la que confirme el número.",
+    "body": "Converse con el equipo técnico, reciba el programa fase a fase de su cultivo y compare en la cosecha.",
+    "cta": "Quiero ese resultado en mi campo",
+    "ctaNote": "Responde el equipo técnico, en horario comercial. Sin compromiso."
   }
 }

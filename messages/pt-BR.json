@@ -7,6 +7,206 @@
     "experience": "Juma Experience",
     "about": "Sobre",
     "articles": "Matérias",
-    "contact": "Contato"
+    "contact": "Contato",
+    "jobs": "Vagas"
+  },
+  "hero": {
+    "headlineLead": "Juntos alimentamos o",
+    "headlineHighlight": "mundo",
+    "headlineLine1": "Juntos",
+    "headlineLine2": "alimentamos",
+    "headlineLine3": "o mundo",
+    "subtitle": "Nutrição que constrói produtividade fase a fase na soja, no milho, no café, na cana e em mais seis culturas. Com resultado medido em ensaio de campo.",
+    "cta": "Quero esse resultado na minha lavoura",
+    "ctaNote": "Quem responde é o time técnico, em horário comercial. Sem compromisso.",
+    "imageAlt": "Lavoura ao entardecer com trator ao fundo"
+  },
+  "journey": {
+    "q1Title": "Produtividade se constrói fase a fase.",
+    "q1Subtitle": "Cada decisão da lavoura, do plantio à colheita, define o que entra no caminhão.",
+    "q2Kicker": "01 / FOLHA",
+    "q2Title": "Nutrição na fase certa rende mais.",
+    "q2TitleHi": "rende mais.",
+    "q2Subtitle": "A planta bem nutrida aproveita melhor a água, o adubo e o defensivo que você já paga.",
+    "q2Seal": "Juntos alimentamos o mundo",
+    "q2L1": "Nutrição no momento certo",
+    "q2S1": "quando a planta mais responde",
+    "q2L2": "Mais resposta da lavoura",
+    "q2S2": "à água e ao adubo que já entram",
+    "q2L3": "Menos desperdício",
+    "q2S3": "do que você já paga",
+    "q3Kicker": "02 / SOLO",
+    "q3Title": "O arranque decide muito antes da colheita.",
+    "q3TitleHi": "muito antes da colheita.",
+    "q3Subtitle": "Raiz funda e stand uniforme são o teto da produtividade.",
+    "q3Seal": "Juntos alimentamos o mundo",
+    "q4Kicker": "03 / GOTA",
+    "q4Title": "Mais de 40 anos ajudando o campo a colher mais.",
+    "q4TitleHi": "a colher mais.",
+    "q4Subtitle": "Veja onde tudo começou.",
+    "videoAlt": "Sequência da lavoura: do campo à folha, ao solo e à gota d'água"
+  },
+  "common": {
+    "contactCta": "Entrar em contato",
+    "openMenu": "Abrir menu",
+    "closeMenu": "Fechar menu",
+    "languageSwitcher": "Trocar idioma",
+    "skipToContent": "Pular para o conteúdo"
+  },
+  "footer": {
+    "tagline": "Juntos, alimentamos o mundo",
+    "navTitle": "Navegação",
+    "socialTitle": "Siga a Juma",
+    "contactTitle": "Contato",
+    "whatsappLabel": "WhatsApp",
+    "emailLabel": "E-mail",
+    "phoneLabel": "Telefone",
+    "hoursLabel": "Horário",
+    "hoursValue": "Seg a qui, 7h30 às 17h15 · Sex, 7h30 às 16h",
+    "addressBrTitle": "Brasil",
+    "addressUsTitle": "Estados Unidos",
+    "rights": "Todos os direitos reservados.",
+    "privacy": "Política de Privacidade"
+  },
+  "aminosanStory": {
+    "eyebrow": "1988",
+    "title": "O início de tudo.",
+    "titleHi": "tudo.",
+    "body1": "Em 1988, nasceu o primeiro frasco do Aminosan.",
+    "body2": "Criado para entregar nutrição vegetal em um momento em que esse conceito ainda dava seus primeiros passos no Brasil.",
+    "footerTag": "1988 — Uma história que nutre gerações",
+    "oldBottleCaption": "O primeiro frasco do Aminosan.",
+    "oldBottleAlt": "O primeiro frasco do Aminosan, peça histórica da empresa exposta como relíquia",
+    "newBottleAlt": "Frasco atual do Aminosan, produto vigente da linha Juma Agro",
+    "videoAlt": "Transição do frasco antigo do Aminosan para o frasco atual",
+    "callout1": "Mais de 40 anos depois, o mesmo aminoácido.",
+    "callout2": "Hoje, em oito culturas: soja, milho, café, algodão, feijão, citros, tomate e batata.",
+    "callout3Number": "+10 a +14 sc/ha",
+    "callout3Label": "Na soja, 10 a 14 sacas a mais por hectare em ensaio.",
+    "callout3Source": "Fonte: ensaios DETEC (Taquarivaí/SP) e Terras Gerais (Lavras/MG).",
+    "callout4": "E hoje, uma linha inteira: treze produtos, do plantio à colheita.",
+    "cta": "Conhecer o Aminosan"
+  },
+  "ourStory": {
+    "eyebrow": "NOSSA HISTÓRIA",
+    "titleDark": "UMA FAMÍLIA. UM PROPÓSITO.",
+    "titleGreen": "INÚMERAS CONQUISTAS.",
+    "body": "Há mais de 45 anos, o Sr. Juvêncio de Oliveira deu o primeiro passo movido por coragem, trabalho e amor ao campo. Ao seu lado, seus filhos seguem o legado com excelência, gestão e visão de futuro, conduzindo a Juma Agro a novos horizontes.",
+    "cta": "Legado que gera futuro.",
+    "familyAlt": "Marcelo, Juvêncio e Mauro Oliveira, fundador e diretores da Juma Agro, em pé e de braços cruzados",
+    "founders": {
+      "marcelo": { "name": "Marcelo Oliveira", "role": "Diretor Comercial" },
+      "juvencio": { "name": "Juvêncio de Oliveira", "role": "Fundador" },
+      "mauro": { "name": "Mauro Oliveira", "role": "Diretor de Operações" }
+    },
+    "stat1": "Gestão familiar com propósito",
+    "stat2": "Mais de 45 anos de história",
+    "stat3": "Conectados com o agronegócio brasileiro"
+  },
+  "proof": {
+    "title": "Resultado medido em ensaio de campo.",
+    "cana": {
+      "unit": "t/ha",
+      "label": "de colmos a mais na cana",
+      "source": "Acorda Cana · fonte: ensaios de campo Juma Agro"
+    },
+    "milho": {
+      "unit": "sc/ha",
+      "label": "a mais no milho",
+      "source": "Acorda Ultra · fonte: ensaio de campo"
+    },
+    "soja": {
+      "unit": "sc/ha",
+      "label": "a mais na soja",
+      "source": "Aminosan · fonte: ensaio DETEC, Taquarivaí/SP"
+    },
+    "cafe": {
+      "unit": "%",
+      "label": "de controle do bicho-mineiro no café",
+      "source": "KMEP Ultra · fonte: ensaio Rehagro"
+    }
+  },
+  "problem": {
+    "titleSentence": "A conta que costuma passar despercebida está entre o que a lavoura entrega e o que ela poderia entregar.",
+    "bodyRest": "Um stand desuniforme no plantio, um veranico que trava a planta em janeiro, uma florada que aborta no calor, uma aplicação que o vento carrega: cada um desses episódios desconta sacas que ninguém lança em planilha, porque não aparecem como custo. Aparecem como colheita menor.",
+    "paragraph2": "A diferença entre uma lavoura boa e uma lavoura recorde quase nunca está em gastar mais. Está em atravessar cada fase sem deixar potencial para trás."
+  },
+  "solution": {
+    "title": "O programa fase a fase",
+    "intro": "Para cada cultura, a Juma define a sequência: qual produto entra, em que fase, com que objetivo. O programa começa no tratamento de sementes e segue até o enchimento de grãos, usando o calendário de aplicações que você já tem. Cada combinação foi testada em ensaio de campo contra testemunha, e a fonte do resultado é publicada junto do número.",
+    "stepsTitle": "Como funciona, em 3 passos",
+    "step1": { "title": "Escolha sua cultura.", "body": "Soja, milho, café, cana e outras seis." },
+    "step2": { "title": "Veja o programa fase a fase.", "body": "Produtos, momentos de aplicação e os resultados de ensaio de cada um." },
+    "step3": { "title": "Converse com o time técnico.", "body": "O programa é ajustado para a sua área, o seu solo e o seu manejo." },
+    "cta": "Quero o programa da minha cultura"
+  },
+  "lines": {
+    "kicker": "Linhas de produto",
+    "title": "Uma linha para cada decisão do ciclo",
+    "viewLine": "Ver produtos da linha",
+    "nutricao": {
+      "title": "Para a planta produzir no potencial",
+      "support": "Aminosan, FitoFert, Linha Revigo, RevigoPhos Amino, Revigo Cobre Ultra"
+    },
+    "arranque": {
+      "title": "Para a safra começar na frente",
+      "support": "Tratamento de sementes e arranque: Acorda Ultra, Acorda Cana, Aduban"
+    },
+    "protecao": {
+      "title": "Para o inseticida render mais",
+      "support": "KMEP Ultra aumenta o rendimento do defensivo que você já usa"
+    },
+    "manejos": {
+      "title": "Programas prontos de milho e pasto",
+      "support": "Revigo + Milho e Revigo + Pasto"
+    },
+    "aplicacao": {
+      "title": "Para a calda chegar no alvo",
+      "support": "Linha Redutan e Supermix"
+    }
+  },
+  "culturesGrid": {
+    "title": "Sua cultura tem um programa",
+    "intro": "Cada lavoura decide a safra em fases diferentes. Escolha a sua e veja os desafios de cada fase e o que aplicar em cada uma.",
+    "names": {
+      "soja": "Soja",
+      "milho": "Milho",
+      "cafe": "Café",
+      "cana": "Cana",
+      "algodao": "Algodão",
+      "feijao": "Feijão",
+      "citros": "Citros",
+      "batata": "Batata",
+      "tomate": "Tomate",
+      "pastagem": "Pastagem"
+    }
+  },
+  "numbers": {
+    "title": "O que os ensaios mediram",
+    "soja": "Soja: +5,8 sc/ha com Acorda Ultra e +10 a +14 sc/ha com Aminosan, em ensaios da DETEC (Taquarivaí/SP) e da Terras Gerais (Lavras/MG).",
+    "milho": "Milho: +13,4 sc/ha com Acorda Ultra e +9,33 sc/ha no manejo de cigarrinha com KMEP Ultra (Rehagro).",
+    "cana": "Cana: +6,87 t/ha de colmos com Acorda Cana, em ensaios de campo.",
+    "cafe": "Café: até 74% de controle de bicho-mineiro com KMEP Ultra (Rehagro).",
+    "disclaimer": "Resultados de ensaio comparados com testemunha. Em campo, o número varia com clima, solo e manejo. É por isso que publicamos a fonte de cada um."
+  },
+  "experience": {
+    "title": "Visite a Juma por dentro",
+    "body": "Fábrica, laboratório e a história contada por quem a construiu: o Sr. Julio Matino recebe os grupos de visitantes pessoalmente.",
+    "tagline": "Quem vive, entende. Quem entende, produz mais.",
+    "cta": "Conhecer a Juma Experience"
+  },
+  "video": {
+    "title": "A Juma em 2 minutos",
+    "playLabel": "Assistir ao vídeo institucional da Juma Agro"
+  },
+  "testimonials": {
+    "title": "Quem aplica, conta",
+    "placeholderNote": "Depoimentos reais aguardando aprovação do cliente."
+  },
+  "ctaFinal": {
+    "title": "A próxima safra pode ser a que confirma o número.",
+    "body": "Converse com o time técnico, receba o programa fase a fase da sua cultura e compare na colheita.",
+    "cta": "Quero esse resultado na minha lavoura",
+    "ctaNote": "Quem responde é o time técnico, em horário comercial. Sem compromisso."
   }
 }

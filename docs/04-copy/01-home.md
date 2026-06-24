@@ -23,7 +23,7 @@
 
 ## [SEQUÊNCIA CINEMATOGRÁFICA — jornada + herança em scroll contínuo]
 
-> Segundo ato da home, num filme contínuo. A jornada agronômica entra na gota; a gota abre na origem da empresa; a origem desemboca no produto de hoje, que vira o primeiro card do scroll horizontal de produtos. Texto em HTML sobre o vídeo, no máximo 2 linhas por quadro. As fotos do fundador e do frasco antigo são do cliente. Ordem das seções da home governada por `docs/05-design-direction/01-home-e-animacao.md`.
+> Segundo ato da home, num filme contínuo. A jornada agronômica entra na gota; a gota abre na origem da empresa; a origem desemboca no produto de hoje, que vira o primeiro card do scroll horizontal de produtos. Texto em HTML sobre o vídeo, no máximo 2 linhas por quadro. As fotos do fundador e do frasco antigo são do cliente. Ordem das seções da home governada por `docs/01-prd/PRD.md` (seção 7).
 
 ### Quadro 1 (campo, trator ao entardecer)
 > **Produtividade se constrói fase a fase.**

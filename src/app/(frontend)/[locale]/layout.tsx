@@ -1,17 +1,37 @@
 import React from 'react'
-import { Montserrat } from 'next/font/google'
+import { Montserrat, Space_Grotesk, Fraunces } from 'next/font/google'
 import { NextIntlClientProvider, hasLocale } from 'next-intl'
 import { getMessages, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 
 import { routing } from '@/i18n/routing'
+import { Navbar } from '@/components/layout/Navbar'
+import { Footer } from '@/components/layout/Footer'
+import { SmoothScroll } from '@/features/animation/SmoothScroll'
 import '../globals.css'
 
 const montserrat = Montserrat({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-montserrat',
-  weight: ['300', '400', '900'], // Light, Regular, Black
+  weight: ['300', '400', '900'],
+})
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-space-grotesk',
+  weight: ['400', '500', '600', '700'],
+})
+
+// Fonte de destaque: serif + itálico para contraste tipográfico na palavra em cor de marca
+// dentro de títulos Montserrat Black. Fraunces suporta acentos PT nativamente.
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-fraunces',
+  weight: ['700', '900'],
+  style: ['italic'],
 })
 
 export function generateStaticParams() {
@@ -58,10 +78,16 @@ export default async function LocaleLayout(props: {
   const messages = await getMessages()
 
   return (
-    <html lang={locale} className={montserrat.variable}>
-      <body>
+    <html lang={locale} className={`${montserrat.variable} ${spaceGrotesk.variable} ${fraunces.variable}`}>
+      <body className="flex min-h-screen flex-col">
         <NextIntlClientProvider messages={messages}>
-          <main>{props.children}</main>
+          <SmoothScroll>
+            <Navbar />
+            <main id="main" className="flex-1">
+              {props.children}
+            </main>
+            <Footer />
+          </SmoothScroll>
         </NextIntlClientProvider>
       </body>
     </html>

@@ -73,4 +73,4 @@ Programa de imersão institucional — seção nova no site:
 
 ## 8. Pendências do briefing
 
-Ver [docs/03-pendencias/pendencias.md](../03-pendencias/pendencias.md).
+Ver [docs/05-pendencias/pendencias.md](../05-pendencias/pendencias.md).

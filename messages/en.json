@@ -7,6 +7,206 @@
     "experience": "Juma Experience",
     "about": "About",
     "articles": "Articles",
-    "contact": "Contact"
+    "contact": "Contact",
+    "jobs": "Careers"
+  },
+  "hero": {
+    "headlineLead": "Together we feed the",
+    "headlineHighlight": "world",
+    "headlineLine1": "Together",
+    "headlineLine2": "we feed",
+    "headlineLine3": "the world",
+    "subtitle": "Nutrition that builds productivity phase by phase in soybean, corn, coffee, sugarcane and six more crops. With results measured in field trials.",
+    "cta": "I want these results on my farm",
+    "ctaNote": "The technical team answers, during business hours. No commitment.",
+    "imageAlt": "Farmland at dusk with a tractor in the background"
+  },
+  "journey": {
+    "q1Title": "Productivity is built phase by phase.",
+    "q1Subtitle": "Every crop decision, from planting to harvest, defines what goes into the truck.",
+    "q2Kicker": "01 / LEAF",
+    "q2Title": "Nutrition at the right phase yields more.",
+    "q2TitleHi": "yields more.",
+    "q2Subtitle": "A well-nourished plant makes better use of the water, fertilizer, and pesticide you already pay for.",
+    "q2Seal": "Together we feed the world",
+    "q2L1": "Nutrition at the right time",
+    "q2S1": "when the plant responds most",
+    "q2L2": "More from the crop",
+    "q2S2": "of the water and fertilizer already applied",
+    "q2L3": "Less waste",
+    "q2S3": "of what you already pay for",
+    "q3Kicker": "02 / SOIL",
+    "q3Title": "The start decides well before harvest.",
+    "q3TitleHi": "well before harvest.",
+    "q3Subtitle": "Deep roots and uniform stand set the ceiling for productivity.",
+    "q3Seal": "Together we feed the world",
+    "q4Kicker": "03 / DROP",
+    "q4Title": "Over 40 years helping the land grow more.",
+    "q4TitleHi": "grow more.",
+    "q4Subtitle": "See where it all began.",
+    "videoAlt": "Field sequence: from the field to the leaf, the soil and the water drop"
+  },
+  "common": {
+    "contactCta": "Get in touch",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "languageSwitcher": "Change language",
+    "skipToContent": "Skip to content"
+  },
+  "footer": {
+    "tagline": "Together, we feed the world",
+    "navTitle": "Navigation",
+    "socialTitle": "Follow Juma",
+    "contactTitle": "Contact",
+    "whatsappLabel": "WhatsApp",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone",
+    "hoursLabel": "Hours",
+    "hoursValue": "Mon to Thu, 7:30am to 5:15pm · Fri, 7:30am to 4pm",
+    "addressBrTitle": "Brazil",
+    "addressUsTitle": "United States",
+    "rights": "All rights reserved.",
+    "privacy": "Privacy Policy"
+  },
+  "aminosanStory": {
+    "eyebrow": "1988",
+    "title": "Where it all began.",
+    "titleHi": "began.",
+    "body1": "In 1988, the first bottle of Aminosan was born.",
+    "body2": "Created to deliver plant nutrition at a time when the idea was still taking its first steps in Brazil.",
+    "footerTag": "1988 — A story that nourishes generations",
+    "oldBottleCaption": "The first bottle of Aminosan.",
+    "oldBottleAlt": "The first bottle of Aminosan, a historic piece displayed as a relic",
+    "newBottleAlt": "Current Aminosan bottle, the product in use across the Juma Agro line",
+    "videoAlt": "Transition from the old Aminosan bottle to the current bottle",
+    "callout1": "More than 40 years later, the same amino acid.",
+    "callout2": "Today, across eight crops: soybeans, corn, coffee, cotton, beans, citrus, tomato and potato.",
+    "callout3Number": "+10 to +14 bags/ha",
+    "callout3Label": "In soybeans, 10 to 14 extra bags per hectare in trials.",
+    "callout3Source": "Source: DETEC (Taquarivaí, SP) and Terras Gerais (Lavras, MG) field trials.",
+    "callout4": "And today, a full line: thirteen products, from planting to harvest.",
+    "cta": "Discover Aminosan"
+  },
+  "ourStory": {
+    "eyebrow": "OUR STORY",
+    "titleDark": "ONE FAMILY. ONE PURPOSE.",
+    "titleGreen": "COUNTLESS ACHIEVEMENTS.",
+    "body": "More than 45 years ago, Mr. Juvêncio de Oliveira took the first step, driven by courage, hard work and love for the land. By his side, his children carry the legacy forward with excellence, management and vision, leading Juma Agro to new horizons.",
+    "cta": "A legacy that builds the future.",
+    "familyAlt": "Marcelo, Juvêncio and Mauro Oliveira, founder and directors of Juma Agro, standing with arms crossed",
+    "founders": {
+      "marcelo": { "name": "Marcelo Oliveira", "role": "Commercial Director" },
+      "juvencio": { "name": "Juvêncio de Oliveira", "role": "Founder" },
+      "mauro": { "name": "Mauro Oliveira", "role": "Operations Director" }
+    },
+    "stat1": "Family-run, purpose-driven",
+    "stat2": "45+ years of history",
+    "stat3": "Connected to Brazilian agribusiness"
+  },
+  "proof": {
+    "title": "Results measured in field trials.",
+    "cana": {
+      "unit": "t/ha",
+      "label": "more stalks in sugarcane",
+      "source": "Acorda Cana · source: Juma Agro field trials"
+    },
+    "milho": {
+      "unit": "bags/ha",
+      "label": "more in corn",
+      "source": "Acorda Ultra · source: field trial"
+    },
+    "soja": {
+      "unit": "bags/ha",
+      "label": "more in soybeans",
+      "source": "Aminosan · source: DETEC trial, Taquarivaí, SP"
+    },
+    "cafe": {
+      "unit": "%",
+      "label": "control of coffee leaf miner",
+      "source": "KMEP Ultra · source: Rehagro trial"
+    }
+  },
+  "problem": {
+    "titleSentence": "The toll that usually goes unnoticed sits between what the field delivers and what it could deliver.",
+    "bodyRest": "An uneven stand at planting, a dry spell that stalls the plant in January, a bloom that aborts in the heat, a spray the wind carries away: each of these episodes costs bags that nobody enters in a spreadsheet, because they do not show up as cost. They show up as a smaller harvest.",
+    "paragraph2": "The difference between a good field and a record field is almost never about spending more. It is about getting through every phase without leaving potential behind."
+  },
+  "solution": {
+    "title": "The phase by phase program",
+    "intro": "For each crop, Juma defines the sequence: which product goes in, at which phase, for which purpose. The program starts at seed treatment and runs through grain fill, using the spray calendar you already follow. Every combination has been tested in field trials against a control, and the source of the result is published right next to the number.",
+    "stepsTitle": "How it works, in 3 steps",
+    "step1": { "title": "Choose your crop.", "body": "Soybeans, corn, coffee, sugarcane and six others." },
+    "step2": { "title": "See the phase by phase program.", "body": "Products, application timing and the trial results for each one." },
+    "step3": { "title": "Talk to the technical team.", "body": "The program is adjusted to your area, your soil and your management." },
+    "cta": "I want the program for my crop"
+  },
+  "lines": {
+    "kicker": "Product lines",
+    "title": "A line for every decision in the cycle",
+    "viewLine": "See the line's products",
+    "nutricao": {
+      "title": "For the plant to produce at full potential",
+      "support": "Aminosan, FitoFert, Revigo line, RevigoPhos Amino, Revigo Cobre Ultra"
+    },
+    "arranque": {
+      "title": "For the season to start ahead",
+      "support": "Seed treatment and establishment: Acorda Ultra, Acorda Cana, Aduban"
+    },
+    "protecao": {
+      "title": "For the insecticide to perform better",
+      "support": "KMEP Ultra increases the yield of the insecticide you already use"
+    },
+    "manejos": {
+      "title": "Ready made programs for corn and pasture",
+      "support": "Revigo + Milho and Revigo + Pasto"
+    },
+    "aplicacao": {
+      "title": "For the spray to reach the target",
+      "support": "Redutan line and Supermix"
+    }
+  },
+  "culturesGrid": {
+    "title": "Your crop has a program",
+    "intro": "Every field decides its season in different phases. Choose yours and see the challenges of each phase and what to apply in each one.",
+    "names": {
+      "soja": "Soybean",
+      "milho": "Corn",
+      "cafe": "Coffee",
+      "cana": "Sugarcane",
+      "algodao": "Cotton",
+      "feijao": "Beans",
+      "citros": "Citrus",
+      "batata": "Potato",
+      "tomate": "Tomato",
+      "pastagem": "Pasture"
+    }
+  },
+  "numbers": {
+    "title": "What the trials measured",
+    "soja": "Soybeans: +5.8 bags/ha with Acorda Ultra and +10 to +14 bags/ha with Aminosan, in DETEC (Taquarivaí, SP) and Terras Gerais (Lavras, MG) field trials.",
+    "milho": "Corn: +13.4 bags/ha with Acorda Ultra and +9.33 bags/ha in leafhopper management with KMEP Ultra (Rehagro).",
+    "cana": "Sugarcane: +6.87 t/ha of stalks with Acorda Cana, in field trials.",
+    "cafe": "Coffee: up to 74% control of leaf miner with KMEP Ultra (Rehagro).",
+    "disclaimer": "Trial results compared with an untreated control. In the field, the number varies with climate, soil and management. That is why we publish the source of each one."
+  },
+  "experience": {
+    "title": "Visit Juma from the inside",
+    "body": "Factory, lab and the story told by the people who built it: Mr. Julio Matino welcomes visiting groups in person.",
+    "tagline": "Whoever lives it, understands it. Whoever understands it, produces more.",
+    "cta": "Discover Juma Experience"
+  },
+  "video": {
+    "title": "Juma in 2 minutes",
+    "playLabel": "Watch Juma Agro's institutional video"
+  },
+  "testimonials": {
+    "title": "Hear from the growers who use it",
+    "placeholderNote": "Real testimonials awaiting client approval."
+  },
+  "ctaFinal": {
+    "title": "The next season could be the one that confirms the number.",
+    "body": "Talk to the technical team, get the phase by phase program for your crop and compare it at harvest.",
+    "cta": "I want these results on my farm",
+    "ctaNote": "The technical team answers, during business hours. No commitment."
   }
 }
