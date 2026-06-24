@@ -33,47 +33,79 @@ export function ProofStrip() {
     () => {
       if (reduced || !ref.current) return
 
-      // Cards entram em stagger suave ao scroll
       const cards = gsap.utils.toArray<HTMLElement>('[data-stat]', ref.current)
-      gsap.set(cards, { opacity: 0, y: 20 })
 
-      ScrollTrigger.batch(cards, {
-        start: 'top 88%',
-        once: true,
-        onEnter: (batch) =>
-          gsap.to(batch, {
-            opacity: 1, y: 0,
-            duration: 0.75, stagger: 0.1, ease: EASE.reveal,
-          }),
-      })
+      cards.forEach((card, i) => {
+        // numWrap: o container overflow-hidden do número (funciona p/ range e count-up)
+        const numWrap = card.querySelector<HTMLElement>('[data-num-wrap]')
+        const numEl   = card.querySelector<HTMLElement>('[data-count]')
+        const barEl   = card.querySelector<HTMLElement>('[data-bar]')
+        const metaEl  = card.querySelector<HTMLElement>('[data-meta]')
 
-      // Count-up: esconde o número real, anima de 0 até o target
-      STATS.forEach(({ key, value, decimals, prefix }) => {
-        if (value === null) return
-        const el = ref.current!.querySelector<HTMLElement>(`[data-num="${key}"]`)
-        if (!el) return
+        // Estado inicial
+        gsap.set(card, { opacity: 0 })
+        if (numWrap) gsap.set(numWrap, { clipPath: 'inset(0 0 100% 0)' })
+        if (barEl)   gsap.set(barEl,   { scaleX: 0, transformOrigin: 'left center' })
+        if (metaEl)  gsap.set(metaEl,  { y: 14, opacity: 0 })
 
-        gsap.set(el, { opacity: 0 })
+        const delay = i * 0.12
 
-        const obj = { v: 0 }
         ScrollTrigger.create({
-          trigger: el,
-          start: 'top 88%',
+          trigger: card,
+          start: 'top 85%',
           once: true,
           onEnter: () => {
-            gsap.to(el, { opacity: 1, duration: 0.25 })
-            gsap.to(obj, {
-              v: value,
-              duration: 1.9,
-              ease: 'power2.out',
-              onUpdate: () => {
-                const n = obj.v
-                el.textContent =
-                  prefix + (decimals > 0
-                    ? n.toFixed(decimals).replace('.', ',')
+            gsap.to(card, { opacity: 1, duration: 0.01 })
+
+            // Número emerge de baixo via clip-path (range e count-up)
+            if (numWrap) {
+              gsap.to(numWrap, {
+                clipPath: 'inset(0 0 0% 0)',
+                duration: 1.0,
+                delay,
+                ease: EASE.reveal,
+              })
+            }
+
+            // Count-up: apenas nos cards com valor numérico real
+            if (numEl) {
+              const target = parseFloat(numEl.dataset.count || '0')
+              const decs   = parseInt(numEl.dataset.decimals || '0')
+              const pfx    = numEl.dataset.prefix || ''
+              const obj    = { v: 0 }
+              gsap.to(obj, {
+                v: target,
+                duration: 2.2,
+                delay: delay + 0.15,
+                ease: 'power2.out',
+                onUpdate: () => {
+                  const n = obj.v
+                  numEl.textContent = pfx + (decs > 0
+                    ? n.toFixed(decs).replace('.', ',')
                     : Math.round(n).toString())
-              },
-            })
+                },
+              })
+            }
+
+            // Linha acento: cresce da esquerda
+            if (barEl) {
+              gsap.to(barEl, {
+                scaleX: 1,
+                duration: 1.1,
+                delay: delay + 0.35,
+                ease: 'power3.out',
+              })
+            }
+
+            // Label + fonte: sobem suavemente
+            if (metaEl) {
+              gsap.to(metaEl, {
+                y: 0, opacity: 1,
+                duration: 0.6,
+                delay: delay + 0.45,
+                ease: EASE.reveal,
+              })
+            }
           },
         })
       })
@@ -82,49 +114,64 @@ export function ProofStrip() {
   )
 
   return (
-    <section ref={ref} className="bg-primary">
-      {/* Kicker */}
-      <div className="border-b border-white/10">
-        <Container className="min-[1600px]:max-w-[90rem] py-md">
-          <p className="text-eyebrow text-[10px] uppercase tracking-[0.22em] text-white/50">
+    <section ref={ref} className="relative bg-primary overflow-hidden">
+      {/* Ruído sutil no fundo (SVG inline — zero custo de rede) */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.035]"
+        style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E\")", backgroundSize: '180px' }} />
+
+      <Container className="min-[1600px]:max-w-[90rem]">
+        {/* Kicker topo */}
+        <div className="flex items-center gap-md border-b border-white/10 py-md">
+          <span aria-hidden className="block h-px w-8 bg-white/30" />
+          <p className="text-eyebrow text-[10px] uppercase tracking-[0.24em] text-white/40">
             {t('title')}
           </p>
-        </Container>
-      </div>
+        </div>
 
-      {/* Grid de métricas */}
-      <Container className="min-[1600px]:max-w-[90rem] py-2xl lg:py-3xl">
-        <div className="grid grid-cols-2 gap-x-lg gap-y-2xl lg:grid-cols-4 lg:divide-x lg:divide-white/10">
-          {STATS.map(({ key, value, rangeStr, prefix, initial }, i) => {
+        {/* Grid 2×2 mobile / 4 colunas desktop */}
+        <div className="grid grid-cols-2 gap-x-md gap-y-3xl py-3xl lg:grid-cols-4 lg:gap-x-0 lg:py-5xl">
+          {STATS.map(({ key, value, rangeStr, prefix, initial, decimals }, i) => {
             const isRange = value === null
             return (
               <div
                 key={key}
                 data-stat
-                className={`flex flex-col gap-sm ${i > 0 ? 'lg:pl-2xl' : ''}`}
+                className={`flex flex-col gap-md ${i > 0 ? 'lg:border-l lg:border-white/10 lg:pl-2xl' : ''} ${i >= 2 ? 'border-t border-white/10 pt-2xl lg:border-t-0 lg:pt-0' : ''}`}
               >
-                {/* Número + unidade */}
-                <div className="flex flex-wrap items-baseline gap-x-xs">
+                {/* NÚMERO — protagonista visual */}
+                <div data-num-wrap className="overflow-hidden">
                   <span
-                    data-num={!isRange ? key : undefined}
-                    className="font-black text-[clamp(2rem,4.5vw,3.5rem)] leading-none tracking-tight text-white"
+                    data-count={!isRange ? String(value!) : undefined}
+                    data-decimals={!isRange ? String(decimals) : undefined}
+                    data-prefix={!isRange ? prefix : undefined}
+                    className="block font-black leading-[0.88] tracking-tight text-white"
+                    style={{ fontSize: 'clamp(3.25rem, 8.5vw, 8rem)' }}
                   >
                     {isRange ? rangeStr : initial}
                   </span>
-                  <span className="text-eyebrow text-sm font-semibold text-white/55">
-                    {t(`${key}.unit` as any)}
-                  </span>
                 </div>
 
-                {/* Rótulo */}
-                <p className="text-subtitle text-sm leading-snug text-white/80 max-w-[13rem]">
-                  {t(`${key}.label` as any)}
-                </p>
+                {/* Unidade */}
+                <span className="text-eyebrow text-xs font-semibold text-white/45 -mt-xs">
+                  {t(`${key}.unit` as any)}
+                </span>
 
-                {/* Fonte */}
-                <p className="text-body-regular text-[10px] leading-relaxed text-white/35">
-                  {t(`${key}.source` as any)}
-                </p>
+                {/* Barra acento */}
+                <span
+                  data-bar
+                  aria-hidden
+                  className="block h-[1.5px] w-full rounded-full bg-white/20"
+                />
+
+                {/* Label + fonte */}
+                <div data-meta className="flex flex-col gap-xs">
+                  <p className="text-subtitle text-sm leading-snug text-white/75 m-0 max-w-none">
+                    {t(`${key}.label` as any)}
+                  </p>
+                  <p className="text-body-regular text-[10px] leading-relaxed text-white/30 m-0 max-w-none">
+                    {t(`${key}.source` as any)}
+                  </p>
+                </div>
               </div>
             )
           })}

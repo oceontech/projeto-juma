@@ -6,6 +6,7 @@ import { AminosanStory } from '@/features/home/components/AminosanStory'
 import { ProofStrip } from '@/features/home/components/ProofStrip'
 import { Problem } from '@/features/home/components/Problem'
 import { Solution } from '@/features/home/components/Solution'
+import { Lines } from '@/features/home/components/Lines'
 
 export default async function HomePage(props: {
   params: Promise<{ locale: string }>
@@ -21,6 +22,7 @@ export default async function HomePage(props: {
       <ProofStrip />
       <Problem />
       <Solution />
+      <Lines />
     </>
   )
 }

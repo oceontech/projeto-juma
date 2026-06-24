@@ -95,9 +95,18 @@
     "cta": "A legacy that builds the future.",
     "familyAlt": "Marcelo, Juvêncio and Mauro Oliveira, founder and directors of Juma Agro, standing with arms crossed",
     "founders": {
-      "marcelo": { "name": "Marcelo Oliveira", "role": "Commercial Director" },
-      "juvencio": { "name": "Juvêncio de Oliveira", "role": "Founder" },
-      "mauro": { "name": "Mauro Oliveira", "role": "Operations Director" }
+      "marcelo": {
+        "name": "Marcelo Oliveira",
+        "role": "Commercial Director"
+      },
+      "juvencio": {
+        "name": "Juvêncio de Oliveira",
+        "role": "Founder"
+      },
+      "mauro": {
+        "name": "Mauro Oliveira",
+        "role": "Operations Director"
+      }
     },
     "stat1": "Family-run, purpose-driven",
     "stat2": "45+ years of history",
@@ -127,6 +136,7 @@
     }
   },
   "problem": {
+    "kicker": "The gap that defines the harvest",
     "titleSentence": "The toll that usually goes unnoticed sits between what the field delivers and what it could deliver.",
     "bodyRest": "An uneven stand at planting, a dry spell that stalls the plant in January, a bloom that aborts in the heat, a spray the wind carries away: each of these episodes costs bags that nobody enters in a spreadsheet, because they do not show up as cost. They show up as a smaller harvest.",
     "paragraph2": "The difference between a good field and a record field is almost never about spending more. It is about getting through every phase without leaving potential behind."
@@ -135,9 +145,18 @@
     "title": "The phase by phase program",
     "intro": "For each crop, Juma defines the sequence: which product goes in, at which phase, for which purpose. The program starts at seed treatment and runs through grain fill, using the spray calendar you already follow. Every combination has been tested in field trials against a control, and the source of the result is published right next to the number.",
     "stepsTitle": "How it works, in 3 steps",
-    "step1": { "title": "Choose your crop.", "body": "Soybeans, corn, coffee, sugarcane and six others." },
-    "step2": { "title": "See the phase by phase program.", "body": "Products, application timing and the trial results for each one." },
-    "step3": { "title": "Talk to the technical team.", "body": "The program is adjusted to your area, your soil and your management." },
+    "step1": {
+      "title": "Choose your crop.",
+      "body": "Soybeans, corn, coffee, sugarcane and six others."
+    },
+    "step2": {
+      "title": "See the phase by phase program.",
+      "body": "Products, application timing and the trial results for each one."
+    },
+    "step3": {
+      "title": "Talk to the technical team.",
+      "body": "The program is adjusted to your area, your soil and your management."
+    },
     "cta": "I want the program for my crop"
   },
   "lines": {

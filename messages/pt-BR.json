@@ -95,9 +95,18 @@
     "cta": "Legado que gera futuro.",
     "familyAlt": "Marcelo, Juvêncio e Mauro Oliveira, fundador e diretores da Juma Agro, em pé e de braços cruzados",
     "founders": {
-      "marcelo": { "name": "Marcelo Oliveira", "role": "Diretor Comercial" },
-      "juvencio": { "name": "Juvêncio de Oliveira", "role": "Fundador" },
-      "mauro": { "name": "Mauro Oliveira", "role": "Diretor de Operações" }
+      "marcelo": {
+        "name": "Marcelo Oliveira",
+        "role": "Diretor Comercial"
+      },
+      "juvencio": {
+        "name": "Juvêncio de Oliveira",
+        "role": "Fundador"
+      },
+      "mauro": {
+        "name": "Mauro Oliveira",
+        "role": "Diretor de Operações"
+      }
     },
     "stat1": "Gestão familiar com propósito",
     "stat2": "Mais de 45 anos de história",
@@ -127,6 +136,7 @@
     }
   },
   "problem": {
+    "kicker": "O intervalo que define a safra",
     "titleSentence": "A conta que costuma passar despercebida está entre o que a lavoura entrega e o que ela poderia entregar.",
     "bodyRest": "Um stand desuniforme no plantio, um veranico que trava a planta em janeiro, uma florada que aborta no calor, uma aplicação que o vento carrega: cada um desses episódios desconta sacas que ninguém lança em planilha, porque não aparecem como custo. Aparecem como colheita menor.",
     "paragraph2": "A diferença entre uma lavoura boa e uma lavoura recorde quase nunca está em gastar mais. Está em atravessar cada fase sem deixar potencial para trás."
@@ -135,9 +145,18 @@
     "title": "O programa fase a fase",
     "intro": "Para cada cultura, a Juma define a sequência: qual produto entra, em que fase, com que objetivo. O programa começa no tratamento de sementes e segue até o enchimento de grãos, usando o calendário de aplicações que você já tem. Cada combinação foi testada em ensaio de campo contra testemunha, e a fonte do resultado é publicada junto do número.",
     "stepsTitle": "Como funciona, em 3 passos",
-    "step1": { "title": "Escolha sua cultura.", "body": "Soja, milho, café, cana e outras seis." },
-    "step2": { "title": "Veja o programa fase a fase.", "body": "Produtos, momentos de aplicação e os resultados de ensaio de cada um." },
-    "step3": { "title": "Converse com o time técnico.", "body": "O programa é ajustado para a sua área, o seu solo e o seu manejo." },
+    "step1": {
+      "title": "Escolha sua cultura.",
+      "body": "Soja, milho, café, cana e outras seis."
+    },
+    "step2": {
+      "title": "Veja o programa fase a fase.",
+      "body": "Produtos, momentos de aplicação e os resultados de ensaio de cada um."
+    },
+    "step3": {
+      "title": "Converse com o time técnico.",
+      "body": "O programa é ajustado para a sua área, o seu solo e o seu manejo."
+    },
     "cta": "Quero o programa da minha cultura"
   },
   "lines": {

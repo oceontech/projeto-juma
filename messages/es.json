@@ -95,9 +95,18 @@
     "cta": "Un legado que genera futuro.",
     "familyAlt": "Marcelo, Juvêncio y Mauro Oliveira, fundador y directores de Juma Agro, de pie y con los brazos cruzados",
     "founders": {
-      "marcelo": { "name": "Marcelo Oliveira", "role": "Director Comercial" },
-      "juvencio": { "name": "Juvêncio de Oliveira", "role": "Fundador" },
-      "mauro": { "name": "Mauro Oliveira", "role": "Director de Operaciones" }
+      "marcelo": {
+        "name": "Marcelo Oliveira",
+        "role": "Director Comercial"
+      },
+      "juvencio": {
+        "name": "Juvêncio de Oliveira",
+        "role": "Fundador"
+      },
+      "mauro": {
+        "name": "Mauro Oliveira",
+        "role": "Director de Operaciones"
+      }
     },
     "stat1": "Gestión familiar con propósito",
     "stat2": "Más de 45 años de historia",
@@ -127,6 +136,7 @@
     }
   },
   "problem": {
+    "kicker": "La brecha que define la cosecha",
     "titleSentence": "La cuenta que suele pasar desapercibida está entre lo que el cultivo entrega y lo que podría entregar.",
     "bodyRest": "Un rodal desuniforme en la siembra, una seca que detiene la planta en enero, una floración que aborta con el calor, una aplicación que el viento se lleva: cada uno de estos episodios descuenta sacas que nadie anota en una planilla, porque no aparecen como costo. Aparecen como cosecha menor.",
     "paragraph2": "La diferencia entre un cultivo bueno y un cultivo récord casi nunca está en gastar más. Está en atravesar cada fase sin dejar potencial atrás."
@@ -135,9 +145,18 @@
     "title": "El programa fase a fase",
     "intro": "Para cada cultivo, Juma define la secuencia: qué producto entra, en qué fase, con qué objetivo. El programa empieza en el tratamiento de semillas y sigue hasta el llenado de granos, usando el calendario de aplicaciones que usted ya tiene. Cada combinación fue probada en ensayo de campo contra un testigo, y la fuente del resultado se publica junto al número.",
     "stepsTitle": "Cómo funciona, en 3 pasos",
-    "step1": { "title": "Elija su cultivo.", "body": "Soja, maíz, café, caña y otros seis." },
-    "step2": { "title": "Vea el programa fase a fase.", "body": "Productos, momentos de aplicación y los resultados de ensayo de cada uno." },
-    "step3": { "title": "Converse con el equipo técnico.", "body": "El programa se ajusta a su área, su suelo y su manejo." },
+    "step1": {
+      "title": "Elija su cultivo.",
+      "body": "Soja, maíz, café, caña y otros seis."
+    },
+    "step2": {
+      "title": "Vea el programa fase a fase.",
+      "body": "Productos, momentos de aplicación y los resultados de ensayo de cada uno."
+    },
+    "step3": {
+      "title": "Converse con el equipo técnico.",
+      "body": "El programa se ajusta a su área, su suelo y su manejo."
+    },
     "cta": "Quiero el programa de mi cultivo"
   },
   "lines": {
