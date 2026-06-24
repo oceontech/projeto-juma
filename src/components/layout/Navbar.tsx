@@ -115,84 +115,93 @@ export function Navbar() {
     >
       {/* max-w-[80rem] (1280px) em telas xl/2xl (notebooks), expandindo para max-w-[90rem] (1440px) em monitores grandes (min-width: 1600px) */}
       <Container className="min-[1600px]:max-w-[90rem]">
-        <div className="flex items-stretch gap-sm">
-          {/* Pílula principal */}
-          <div className="flex flex-1 items-center justify-between gap-sm xl:gap-md rounded-full border border-white/20 bg-gradient-to-r from-white/40 to-white/20 py-sm pl-md xl:pl-lg pr-sm backdrop-blur-xl border-t border-t-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06),_0_0_0_1px_rgba(0,0,0,0.08),_inset_0_1px_2px_rgba(255,255,255,0.5)]">
-            {/* Logo com recorte do rodapé roxo */}
-            <Link
-              href="/"
-              aria-label="Juma Agro — início"
-              className="shrink-0 block h-9 overflow-hidden relative"
-            >
-              <Image
-                src="/brand/logo-juma-agro.png"
-                alt="Juma Agro"
-                width={160}
-                height={81}
-                priority
-                className="h-[46px] w-auto object-cover object-top"
-              />
-            </Link>
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_auto_1fr] items-stretch gap-sm mx-auto w-full max-w-[1280px] min-[1600px]:max-w-[1440px]">
+          {/* Col 1: espaço vazio — contrapeso simétrico que centraliza matematicamente a pílula na viewport */}
+          <div className="hidden xl:block" />
 
-            {/* Navegação desktop */}
-            <nav aria-label="Principal" className="hidden xl:block">
-              <ul className="flex items-center gap-md xl:gap-lg min-[1600px]:gap-xl">
-                {navLinks.map((link) => (
-                  <li key={link.key}>
-                    <Link
-                      href={link.href}
-                      aria-current={isActive(link.href) ? 'page' : undefined}
-                      className={
-                        isActive(link.href)
-                          ? 'text-heading whitespace-nowrap text-[11px] xl:text-xs uppercase tracking-wide text-primary'
-                          : 'text-body-regular whitespace-nowrap text-[11px] xl:text-xs uppercase tracking-wide text-foreground/70 transition-colors hover:text-primary'
-                      }
-                    >
-                      {t(link.key)}
-                    </Link>
-                  </li>
-                ))}
-                <li>
-                  <a
-                    href={jobsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-xs text-body-regular whitespace-nowrap text-[11px] xl:text-xs uppercase tracking-wide text-foreground/70 transition-colors hover:text-primary"
-                  >
-                    {t('jobs')}
-                    <ArrowUpRight className="h-2.5 w-2.5 xl:h-3 xl:w-3" />
-                  </a>
-                </li>
-              </ul>
-            </nav>
+          {/* Col 2: Pílula principal — coluna auto, matematicamente centrada pelo grid */}
+          <div id="main-nav-pill" className="rounded-full border border-white/20 bg-gradient-to-r from-white/40 to-white/20 backdrop-blur-xl border-t border-t-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06),_0_0_0_1px_rgba(0,0,0,0.08),_inset_0_1px_2px_rgba(255,255,255,0.5)] origin-center overflow-hidden" style={{ willChange: 'width, opacity' }}>
+              <div className="flex justify-between items-center gap-xl mx-auto w-full p-sm">
+                {/* Logo com recorte do rodapé roxo */}
+                <Link
+                  href="/"
+                  aria-label="Juma Agro — início"
+                  className="shrink-0 block h-9 overflow-hidden relative"
+                >
+                  <Image
+                    src="/brand/logo-juma-agro.png"
+                    alt="Juma Agro"
+                    width={160}
+                    height={81}
+                    priority
+                    className="h-[46px] w-auto object-cover object-top shrink-0"
+                  />
+                </Link>
 
-            {/* CTA desktop */}
-            <Link
-              href="/contato"
-              className="hidden whitespace-nowrap rounded-full btn-metallic-blue px-md py-[10px] text-body-regular text-[10px] xl:text-[11px] uppercase tracking-wider items-center justify-center gap-1.5 xl:inline-flex"
-            >
-              <span>{tc('contactCta')}</span>
-              <ArrowRight className="h-3.5 w-3.5 shrink-0" />
-            </Link>
+                {/* Navegação desktop */}
+                <nav id="nav-desktop-links" aria-label="Principal" className="hidden xl:block shrink-0">
+                  <ul className="flex items-center gap-md xl:gap-lg min-[1300px]:gap-xl">
+                    {navLinks.map((link) => (
+                      <li key={link.key}>
+                        <Link
+                          href={link.href}
+                          aria-current={isActive(link.href) ? 'page' : undefined}
+                          className={
+                            isActive(link.href)
+                              ? 'text-heading whitespace-nowrap text-[11px] xl:text-xs uppercase tracking-wide text-primary'
+                              : 'text-body-regular whitespace-nowrap text-[11px] xl:text-xs uppercase tracking-wide text-foreground/70 transition-colors hover:text-primary'
+                          }
+                        >
+                          {t(link.key)}
+                        </Link>
+                      </li>
+                    ))}
+                    <li>
+                      <a
+                        href={jobsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-xs text-body-regular whitespace-nowrap text-[11px] xl:text-xs uppercase tracking-wide text-foreground/70 transition-colors hover:text-primary"
+                      >
+                        {t('jobs')}
+                        <ArrowUpRight className="h-2.5 w-2.5 xl:h-3 xl:w-3" />
+                      </a>
+                    </li>
+                  </ul>
+                </nav>
 
-            {/* Botão hambúrguer (mobile/tablet) */}
-            <button
-              type="button"
-              onClick={() => setOpen((v) => !v)}
-              aria-expanded={open}
-              aria-controls="mobile-menu"
-              aria-label={open ? tc('closeMenu') : tc('openMenu')}
-              className="flex h-10 w-10 items-center justify-center rounded-full text-primary transition-colors hover:bg-primary/5 xl:hidden"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden width="22" height="22">
-                {open ? <path d="M6 6 18 18M18 6 6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
-              </svg>
-            </button>
-          </div>
+                {/* CTA desktop — ml-auto empurra para a borda direita da pílula */}
+                <Link
+                  id="nav-cta-btn"
+                  href="/contato"
+                  className="whitespace-nowrap rounded-full btn-metallic-blue px-md py-[10px] text-body-regular text-[10px] xl:text-[11px] uppercase tracking-wider items-center justify-center gap-1.5 hidden xl:inline-flex shrink-0"
+                >
+                  <span>{tc('contactCta')}</span>
+                  <ArrowRight className="h-3.5 w-3.5 shrink-0" />
+                </Link>
 
-          {/* Pílula de idioma — separada, ao lado, mesma altura */}
-          <div className="hidden items-center rounded-full border border-white/20 bg-gradient-to-r from-white/40 to-white/20 px-sm xl:px-md backdrop-blur-xl border-t border-t-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06),_0_0_0_1px_rgba(0,0,0,0.08),_inset_0_1px_2px_rgba(255,255,255,0.5)] xl:flex">
-            <LanguageSwitcher className="text-xs xl:text-sm" />
+                {/* Botão hambúrguer (mobile/tablet) */}
+                <button
+                  type="button"
+                  onClick={() => setOpen((v) => !v)}
+                  aria-expanded={open}
+                  aria-controls="mobile-menu"
+                  aria-label={open ? tc('closeMenu') : tc('openMenu')}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-primary transition-colors hover:bg-primary/5 xl:hidden"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden width="22" height="22">
+                    {open ? <path d="M6 6 18 18M18 6 6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+          {/* Col 3: Seletor de idioma — blur-in via GSAP após a pílula expandir */}
+          <div className="hidden h-full xl:flex items-center justify-end gap-sm shrink-0">
+            {/* Pílula de Idioma */}
+            <div id="nav-lang-pill" className="flex h-full items-center justify-center rounded-full border border-white/20 bg-gradient-to-r from-white/40 to-white/20 px-md backdrop-blur-xl border-t border-t-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06),_0_0_0_1px_rgba(0,0,0,0.08),_inset_0_1px_2px_rgba(255,255,255,0.5)]">
+              <LanguageSwitcher className="text-xs xl:text-sm shrink-0" />
+            </div>
           </div>
         </div>
 

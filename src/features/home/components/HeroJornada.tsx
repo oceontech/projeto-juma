@@ -49,10 +49,7 @@ export function HeroJornada() {
   const autoRewindRef    = useRef(false)
 
   // Refs da entrada cinematográfica
-  const line1Ref        = useRef<HTMLSpanElement>(null)
-  const line2Ref        = useRef<HTMLSpanElement>(null)
-  const line3Ref        = useRef<HTMLSpanElement>(null)
-  const line3GreenRef   = useRef<HTMLSpanElement>(null)
+  const titleWrapRef    = useRef<HTMLHeadingElement>(null)
   const glowRef         = useRef<HTMLDivElement>(null)
   const supportRef      = useRef<HTMLDivElement>(null)
   const accentLineRef   = useRef<HTMLSpanElement>(null)
@@ -81,54 +78,90 @@ export function HeroJornada() {
       if (!enhanced || entranceRanRef.current) return
       entranceRanRef.current = true
 
-      const nav      = document.querySelector('header')
-      const l1       = line1Ref.current
-      const l2       = line2Ref.current
-      const l3       = line3Ref.current
-      const l3g      = line3GreenRef.current
-      const glow     = glowRef.current
-      const support  = supportRef.current
-      const accent   = accentLineRef.current
-      const leaves   = leafContainerRef.current
+      const mainNav   = document.querySelector<HTMLElement>('#main-nav-pill')
+      const navLinks  = document.querySelector<HTMLElement>('#nav-desktop-links')
+      const langPill  = document.querySelector<HTMLElement>('#nav-lang-pill')
+      const ctaBtn    = document.querySelector<HTMLElement>('#nav-cta-btn')
+      const titleWrap = titleWrapRef.current
+      const glow      = glowRef.current
+      const support   = supportRef.current
+      const accent    = accentLineRef.current
+      const leaves    = leafContainerRef.current
       const scrollInd = scrollIndicatorRef.current
 
+      // Captura a largura natural ANTES de qualquer gsap.set
+      // (enquanto a pílula ainda tem seu tamanho real no DOM)
+      const naturalWidth = mainNav ? mainNav.offsetWidth : 960
+
       // Estado inicial — evita flash antes da timeline
-      gsap.set([l1, l2, l3], { y: FADE_Y * 1.5, opacity: 0 })
-      gsap.set(l3g,     { clipPath: 'inset(0 100% 0 0)' })
+      gsap.set(titleWrap, { y: 220, opacity: 0 })
       gsap.set(glow,    { opacity: 0 })
-      gsap.set(support, { y: FADE_Y, opacity: 0 })
+      gsap.set(support, { y: 40, opacity: 0, filter: 'blur(10px)' })
       gsap.set(accent,  { scaleX: 0, transformOrigin: 'left center' })
       gsap.set(leaves,  { opacity: 0 })
       gsap.set(scrollInd, { opacity: 0 })
 
+      if (langPill) gsap.set(langPill, { opacity: 0, filter: 'blur(10px)' })
+      if (ctaBtn)   gsap.set(ctaBtn,   { opacity: 0, filter: 'blur(10px)' })
+      if (navLinks) gsap.set(navLinks,  { opacity: 0, filter: 'blur(8px)' })
+
       const tl = gsap.timeline({ defaults: { overwrite: 'auto' } })
 
-      // 0.0s — Navbar aparece de cima; limpa styles inline ao terminar para o CSS voltar a controlar
-      if (nav) {
-        gsap.set(nav, { y: -28, opacity: 0 })
-        tl.to(nav, {
-          y: 0, opacity: 1, duration: 0.7, ease: EASE.reveal,
-          onComplete: () => gsap.set(nav, { clearProps: 'y,opacity,transform' }),
+      // 1. Navbar — pílula expande do centro exato da tela (200px → largura natural)
+      //    Anima `width` (não maxWidth) para compatibilidade com grid-cols-[1fr_auto_1fr]
+      if (mainNav) {
+        gsap.set(mainNav, { width: 200, opacity: 0, overflow: 'hidden' })
+        tl.to(mainNav, {
+          width: naturalWidth, opacity: 1, duration: 1.4, ease: 'power2.inOut',
+          onComplete: () => gsap.set(mainNav, { clearProps: 'width,opacity,overflow' }),
         }, 0)
       }
 
-      // 0.15s — Headline sobe DE TRÁS das montanhas (z-10 < z-20 do campo); stagger por linha
-      tl.to([l1, l2, l3], { y: 0, opacity: 1, duration: DUR.title, ease: EASE.reveal, stagger: STAGGER.line }, 0.15)
+      // 2. Links de menu + CTA — blur-in simultâneo após a pílula expandir
+      //    CTA agora está dentro da pílula, surge junto com os links
+      const navInnerItems = [navLinks, ctaBtn].filter(Boolean) as HTMLElement[]
+      if (navInnerItems.length > 0) {
+        tl.to(navInnerItems, {
+          opacity: 1, filter: 'blur(0px)', duration: 0.7, ease: 'power2.out',
+          onComplete: () => navInnerItems.forEach(el => gsap.set(el, { clearProps: 'opacity,filter' })),
+        }, 1.2)
+      }
 
-      // 0.75s — "o mundo" entra em verde via clip-path (varredura esquerda→direita)
-      tl.to(l3g, { clipPath: 'inset(0 0% 0 0)', duration: 0.5, ease: 'power2.inOut' }, 0.75)
+      // 3. Pílula de idioma — blur-in
+      if (langPill) {
+        tl.to(langPill, {
+          opacity: 1, filter: 'blur(0px)', duration: 0.7, ease: 'power2.out',
+          onComplete: () => gsap.set(langPill, { clearProps: 'opacity,filter' }),
+        }, 1.35)
+      }
 
-      // 0.3s — Glow radial atrás do título
-      tl.to(glow, { opacity: 0.45, duration: 1.0, ease: 'power1.out' }, 0.3)
+      // 2. Headline — rises very slowly from far below the mountains
+      tl.to(titleWrap, {
+        opacity: 1,
+        y: 0,
+        duration: 2.5,
+        ease: 'power2.out'
+      }, '-=0.8')
 
-      // 0.65s — Subtítulo + CTA e linha-acento
-      tl.to(support, { y: 0, opacity: 1, duration: DUR.sub, ease: EASE.reveal }, 0.65)
-      tl.to(accent,  { scaleX: 1, duration: 0.45, ease: EASE.micro }, 0.65)
+      // 3. Mountain glow fades in as headline rises
+      tl.to(glow, { opacity: 0.45, duration: 2.0, ease: 'power1.out' }, '-=2.0')
 
-      // 0.25s — Folhas aparecem (mais tarde do que as demais camadas para emergir suavemente)
+      // 4. Shimmer inicia um pouco antes do texto terminar de subir
+      tl.call(() => {
+        if (titleWrap) titleWrap.classList.add('shimmer-active')
+      }, null, '-=0.3')
+
+      // 5. Complement text + accent line com blur-in (logo após shimmer)
+      tl.to(support, { 
+        opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.2, ease: 'power2.out',
+        onComplete: () => gsap.set(support, { clearProps: 'filter' })
+      }, '+=0.1')
+      tl.to(accent,  { scaleX: 1, duration: 0.45, ease: EASE.micro }, '<+=0.3')
+
+      // 6. Folhas aparecem (tempo absoluto no início da cena)
       tl.to(leaves, { opacity: 1, duration: 0.9, ease: 'power2.out' }, 0.25)
 
-      // 1.5s — Indicador de scroll surge
+      // 7. Indicador de scroll surge (tempo absoluto)
       tl.to(scrollInd, { opacity: 1, duration: 0.6, ease: EASE.micro }, 1.5)
     },
     { dependencies: [enhanced], scope: root },
@@ -430,9 +463,9 @@ export function HeroJornada() {
   if (!enhanced) {
     return (
       <section ref={root} className="relative bg-white">
-        <Container className="grid grid-cols-1 items-end gap-xl pb-2xl pt-[7.5rem] lg:grid-cols-12 min-[1600px]:max-w-[90rem]">
-          <Headline t={t} className="lg:col-span-7 text-center lg:text-left" />
-          <Support  t={t} className="lg:col-span-5 lg:items-start items-center text-center lg:text-left" />
+        <Container className="grid grid-cols-1 items-start gap-xl pb-2xl pt-[7.5rem] lg:grid-cols-12 min-[1600px]:max-w-[90rem]">
+          <Headline t={t} className="lg:col-span-7 text-left" />
+          <Support  t={t} className="lg:col-span-5 items-start text-left lg:items-end lg:text-right" />
         </Container>
         <div className="relative h-[40vh] w-full overflow-hidden sm:h-[46vh] lg:h-[60vh]">
           <Image
@@ -441,7 +474,7 @@ export function HeroJornada() {
             className="object-cover object-center"
           />
           <div className="pointer-events-none absolute inset-0">
-            <div className="absolute" style={{ left: '-12%', right: '-12%', bottom: '-40%', transformOrigin: 'bottom center' }}>
+            <div className="absolute" style={isMobile ? { left: '-30%', right: '-30%', bottom: '-10%', transformOrigin: 'bottom center' } : { left: '-12%', right: '-12%', bottom: '-40%', transformOrigin: 'bottom center' }}>
               <Image
                 src={isMobile ? '/hero/mobile/overlay-folhas.png' : '/hero/desktop/overlay-folhas.png'}
                 alt="" aria-hidden width={1920} height={1080} priority className="w-full h-auto"
@@ -513,27 +546,12 @@ export function HeroJornada() {
                 style={{ background: 'radial-gradient(ellipse 75% 55% at 38% 52%, rgba(0,76,38,0.12), transparent 70%)' }}
               />
 
-              <h1 className="font-black uppercase leading-[0.92] tracking-tight text-[clamp(2.5rem,5.5vw,5rem)] min-[1600px]:text-[7.5rem] text-center lg:text-left">
-                {/* overflow-hidden em cada linha → máscara de slide (texto invisível abaixo da linha) */}
-                <span className="block overflow-hidden">
-                  <span ref={line1Ref} className="block">{t('headlineLine1')}</span>
-                </span>
-                <span className="block overflow-hidden">
-                  <span ref={line2Ref} className="block">{t('headlineLine2')}</span>
-                </span>
-                {/* Linha 3: texto branco base + overlay verde com clip-path (wipe esquerda→direita) */}
-                <span className="block overflow-hidden">
-                  <span ref={line3Ref} className="relative block">
-                    <span className="text-highlight">{t('headlineLine3')}</span>
-                    <span
-                      ref={line3GreenRef}
-                      aria-hidden
-                      className="text-highlight pointer-events-none absolute inset-0 text-primary"
-                      style={{ clipPath: 'inset(0 100% 0 0)' }}
-                    >
-                      {t('headlineLine3')}
-                    </span>
-                  </span>
+              <h1 ref={titleWrapRef} className="hero-title-shimmer relative font-black uppercase leading-[0.92] tracking-tight text-[clamp(2.5rem,8vw,5rem)] min-[1600px]:text-[7.5rem] text-left">
+                <span className="block text-foreground">{t('headlineLine1')}</span>
+                <span className="block text-foreground">{t('headlineLine2')}</span>
+                <span className="block">
+                  <span className="text-foreground">{t('headlineLine3').split(' ')[0]} </span>
+                  <span className="text-highlight text-primary">{t('headlineLine3').substring(t('headlineLine3').indexOf(' ') + 1)}</span>
                 </span>
               </h1>
             </div>
@@ -550,12 +568,43 @@ export function HeroJornada() {
           />
         </div>
 
+        {/* z-[25] — Selos (Mobile e Desktop). Atrás das folhas (z-30) */}
+        {/* Mobile Seal: Aparece após a imagem estabilizar. */}
+        <div
+          className={`pointer-events-none absolute top-[38%] left-[2%] z-[25] lg:hidden ease-out ${
+            cap === 2 && isPaused
+              ? 'opacity-100 transition-opacity duration-500'
+              : 'opacity-0 transition-opacity duration-200'
+          }`}
+        >
+          <div className="seal-spin-slow">
+            <Seal text={tj('q2Seal')} className="h-48 w-48 text-primary" />
+          </div>
+        </div>
+
+        {/* Desktop Seal */}
+        <div className="pointer-events-none absolute inset-0 z-[25] hidden lg:block w-full h-full">
+          <DesktopPhaseSeal show={cap === 2 && isPaused} text={tj('q2Seal')} alignRight={false} />
+        </div>
+
+        {/* z-[27] — Mobile Phase 2: frame-2-folha estática.
+             Folha opaca que fica na frente do selo (z-[25]), criando o efeito do selo atrás da folha. */}
+        <div
+          className={`pointer-events-none absolute inset-0 z-[27] lg:hidden transition-opacity duration-300 ease-out ${cap === 2 && isPaused ? 'opacity-100' : 'opacity-0'}`}
+        >
+          <Image
+            src="/hero/mobile/frame-2-folha.png"
+            alt="" aria-hidden fill
+            className="object-cover object-center"
+          />
+        </div>
+
         {/* z-30 — Folhas: 2 camadas com timing diferente criam profundidade de canópia */}
         <div data-rest ref={leafContainerRef} className="pointer-events-none absolute inset-0 z-30">
           {/* Camada traseira: mais lenta, semi-transparente, deslocada ligeiramente mais abaixo */}
           <div
             className="leaf-sway-2 absolute"
-            style={{ left: '-12%', right: '-12%', bottom: '-46%', transformOrigin: 'bottom center', opacity: 0.5 }}
+            style={isMobile ? { left: '-30%', right: '-30%', bottom: '-14%', transformOrigin: 'bottom center', opacity: 0.5 } : { left: '-12%', right: '-12%', bottom: '-46%', transformOrigin: 'bottom center', opacity: 0.5 }}
           >
             <Image
               src={isMobile ? '/hero/mobile/overlay-folhas.png' : '/hero/desktop/overlay-folhas.png'}
@@ -566,7 +615,7 @@ export function HeroJornada() {
           {/* Camada da frente: mais rápida, totalmente opaca */}
           <div
             className="leaf-sway-1 absolute"
-            style={{ left: '-12%', right: '-12%', bottom: '-42%', transformOrigin: 'bottom center' }}
+            style={isMobile ? { left: '-30%', right: '-30%', bottom: '-10%', transformOrigin: 'bottom center' } : { left: '-12%', right: '-12%', bottom: '-42%', transformOrigin: 'bottom center' }}
           >
             <Image
               src={isMobile ? '/hero/mobile/overlay-folhas.png' : '/hero/desktop/overlay-folhas.png'}
@@ -578,24 +627,23 @@ export function HeroJornada() {
 
         {/* z-40 — Subtítulo + CTA (repouso) */}
         <div data-rest className="absolute inset-x-0 top-0 z-40">
-          <Container className="min-[1600px]:max-w-[90rem] flex lg:justify-end justify-center pt-[22rem] lg:pt-[10.5rem]">
-            <div ref={supportRef} className="max-w-[24rem] w-full px-md lg:px-0">
+          <Container className="min-[1600px]:max-w-[90rem] flex lg:justify-end justify-start pt-[15rem] md:pt-[20rem] lg:pt-[10.5rem]">
               <div
-                className={`flex flex-col gap-md rounded-2xl bg-white/45 p-lg backdrop-blur-[2px] md:bg-transparent md:p-0 md:backdrop-blur-none ${isMobile ? 'items-center text-center' : 'items-end text-right'}`}
+                ref={supportRef}
+                className={`lg:w-1/3 flex flex-col gap-md rounded-2xl bg-transparent backdrop-blur-[2px] md:bg-transparent md:backdrop-blur-none items-start text-left lg:items-end lg:text-right`}
               >
                 <span ref={accentLineRef} aria-hidden className="block h-1 w-12 rounded-full bg-primary" />
                 <p className="text-subtitle text-base text-foreground/70 sm:text-lg">{t('subtitle')}</p>
-                <div className={`mt-sm flex flex-col gap-sm ${isMobile ? 'items-center' : 'items-end'}`}>
+                <div className={`flex flex-col gap-sm mx-auto lg:mx-0 items-center lg:items-end text-center lg:text-right`}>
                   <Link
                     href="/contato"
-                    className="text-body-regular pointer-events-auto inline-flex items-center justify-center rounded-full bg-primary px-xl py-md text-base text-white transition-colors hover:bg-primary-light"
+                    className="text-body-regular pointer-events-auto inline-flex items-center justify-center rounded-full bg-primary p-md text-sm md:text-lg text-white transition-colors hover:bg-primary-light"
                   >
                     {t('cta')}
                   </Link>
-                  <span className="text-body-regular text-xs text-foreground/50">{t('ctaNote')}</span>
+                  <span className="text-body-regular text-xs md:text-base text-foreground/50 font-semibold">{t('ctaNote')}</span>
                 </div>
               </div>
-            </div>
           </Container>
         </div>
 
@@ -617,7 +665,7 @@ export function HeroJornada() {
         {/* z-40 — Legendas das fases */}
         <div className="pointer-events-none absolute inset-0 z-40 w-full h-full">
           <PhaseLayout
-            show={cap === 2}
+            show={cap === 2 && isPaused}
             kicker={tj('q2Kicker')}
             title={tj('q2Title')}
             titleHi={tj('q2TitleHi')}
@@ -630,9 +678,10 @@ export function HeroJornada() {
             seal={tj('q2Seal')}
           />
           <PhaseLayout
-            show={cap === 3}
+            show={cap === 3 && isPaused}
             align="right"
             yShift="md:-translate-y-[14vh]"
+            mobileYShift="bottom-40"
             kicker={tj('q3Kicker')}
             title={tj('q3Title')}
             titleHi={tj('q3TitleHi')}
@@ -658,8 +707,13 @@ type TFn = ReturnType<typeof useTranslations>
 
 function Headline({ t, className = '' }: { t: TFn; className?: string }) {
   return (
-    <h1 className={`text-[clamp(2.5rem,4.5vw,5rem)] min-[1600px]:text-[7.5rem] font-black uppercase leading-[0.92] tracking-tight ${className}`}>
-      {t('headlineLead')} <span className="text-highlight text-primary">{t('headlineHighlight')}</span>.
+    <h1 className={`text-[clamp(2.75rem,8vw,5rem)] min-[1600px]:text-[7.5rem] font-black uppercase leading-[0.92] tracking-tight ${className}`}>
+      <span className="block text-foreground">{t('headlineLine1')}</span>
+      <span className="block text-foreground">{t('headlineLine2')}</span>
+      <span className="block">
+        <span className="text-foreground">{t('headlineLine3').split(' ')[0]} </span>
+        <span className="text-highlight text-primary">{t('headlineLine3').substring(t('headlineLine3').indexOf(' ') + 1)}</span>
+      </span>
     </h1>
   )
 }
@@ -669,7 +723,7 @@ function Support({ t, className = '' }: { t: TFn; className?: string }) {
     <div className={`flex flex-col gap-md ${className}`}>
       <span aria-hidden className="block h-1 w-12 rounded-full bg-primary" />
       <p className="text-subtitle text-base text-foreground/70 sm:text-lg">{t('subtitle')}</p>
-      <div className="mt-sm flex flex-col gap-sm">
+      <div className="mt-sm flex flex-col gap-sm items-start lg:items-end">
         <Link
           href="/contato"
           className="text-body-regular pointer-events-auto inline-flex items-center justify-center rounded-full bg-primary px-xl py-md text-base text-white transition-colors hover:bg-primary-light"
@@ -686,37 +740,38 @@ type PhaseIconName = 'sprout' | 'drop' | 'shield' | 'layers'
 type PhaseItem = { icon: PhaseIconName; lead: string; sub: string }
 
 /** Fases Q2/Q3: pílula + título bicolor + benefícios + selo; micro-stagger GSAP na entrada.
- *  `align` espelha o bloco (esquerda na fase 2, direita na fase 3 onde a planta fica à esquerda). */
-function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, align = 'left', yShift = '' }: {
+ *  `align` espelha o bloco (esquerda na fase 2, direita na fase 3 onde a planta fica à esquerda).
+ *  Mobile: headline flutua no topo, conteúdo ancora no canto inferior direito, seal como marca d'água. */
+function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, align = 'left', yShift = '', mobileYShift = 'bottom-22' }: {
   show: boolean; kicker: string; title: string; titleHi?: string; subtitle: string
-  items?: PhaseItem[]; seal?: string; align?: 'left' | 'right'; yShift?: string
+  items?: PhaseItem[]; seal?: string; align?: 'left' | 'right'; yShift?: string; mobileYShift?: string
 }) {
   const ref = useRef<HTMLDivElement>(null)
 
-  // Reveal disparado pelo estado `show` (scrub do vídeo), na mesma voz da fundação:
-  // título em linhas mascaradas (SplitText) + EASE.reveal + tokens de duração/stagger.
   useGSAP(
     () => {
       if (!show || !ref.current) return
-      const el       = ref.current
-      const kickerEl = el.querySelector<HTMLElement>('[data-pk]')
-      const titleEl  = el.querySelector<HTMLElement>('[data-pt]')
-      const lineEl   = el.querySelector<HTMLElement>('[data-pl]')
-      const subEl    = el.querySelector<HTMLElement>('[data-ps]')
-      const itemsEl  = el.querySelector<HTMLElement>('[data-pi]')
-      const sealEl   = el.querySelector<HTMLElement>('[data-pseal]')
+      const el     = ref.current
+      const mobile = window.innerWidth < 1024
+
+      const kickerEl = el.querySelector<HTMLElement>(mobile ? '[data-pk-m]' : '[data-pk]')
+      const titleEl  = el.querySelector<HTMLElement>(mobile ? '[data-pt-m]' : '[data-pt]')
+      const lineEl   = el.querySelector<HTMLElement>(mobile ? '[data-pl-m]' : '[data-pl]')
+      const subEl    = el.querySelector<HTMLElement>(mobile ? '[data-ps-m]' : '[data-ps]')
+      const itemsEl  = el.querySelector<HTMLElement>(mobile ? '[data-pi-m]' : '[data-pi]')
 
       const split = titleEl
         ? new SplitText(titleEl, { type: 'lines', mask: 'lines', linesClass: 'overflow-hidden' })
         : null
 
+      const lineOrigin = (mobile || align === 'right') ? 'right center' : 'left center'
+
       const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
       if (kickerEl) tl.fromTo(kickerEl, { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0)
       if (split)    tl.fromTo(split.lines, { yPercent: 110 }, { yPercent: 0, duration: DUR.title, stagger: STAGGER.line }, 0.05)
-      if (lineEl)   tl.fromTo(lineEl, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: DUR.sub, transformOrigin: 'left' }, 0.2)
+      if (lineEl)   tl.fromTo(lineEl, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: DUR.sub, transformOrigin: lineOrigin }, 0.2)
       if (subEl)    tl.fromTo(subEl, { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0.28)
       if (itemsEl)  tl.fromTo(itemsEl.children, { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub, stagger: STAGGER.card }, 0.34)
-      if (sealEl)   tl.fromTo(sealEl, { scale: 0.85, opacity: 0, rotate: -12 }, { scale: 1, opacity: 1, rotate: 0, duration: DUR.title, ease: EASE.micro }, 0.4)
 
       return () => { tl.kill(); split?.revert() }
     },
@@ -733,15 +788,50 @@ function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, alig
         show ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
       }`}
     >
-      <Container className={`min-[1600px]:max-w-[90rem] h-full flex items-center ${right ? 'justify-end' : 'justify-start'}`}>
-        <div className={`flex flex-col ${right ? 'items-end text-right' : 'items-start text-left'} ${yShift} max-w-[34rem] xl:max-w-[42rem] bg-white/40 backdrop-blur-[2px] p-lg rounded-2xl md:bg-transparent md:backdrop-blur-none md:p-0`}>
-          {/* Kicker em pílula com ícone */}
+      {/* ── MOBILE LAYOUT ────────────────────────────────────────── */}
+      <div className="lg:hidden absolute inset-0">
+        {/* Headline fora do card, posicionada no topo */}
+        <div className="absolute top-20 left-md right-md z-2">
+          <h2 data-pt-m className="font-black uppercase leading-[0.88] tracking-tight text-[clamp(2rem,9vw,3rem)] text-left">
+            <span className="text-foreground">{lead}</span>
+            {titleHi && <span className="block italic font-semibold text-primary">{titleHi}</span>}
+          </h2>
+        </div>
+
+        {/* Conteúdo (kicker + linha + subtítulo + items) — canto inferior direito */}
+        <div className={`absolute ${mobileYShift} right-md max-w-52 flex flex-col items-end text-right z-2`}>
+          <span data-pk-m className="mb-sm inline-flex items-center gap-xs rounded-full border border-primary/25 bg-white/60 px-xs py-[4px] backdrop-blur-sm">
+            <LeafGlyph className="h-3 w-3 text-primary" />
+            <span className="text-eyebrow text-primary text-[9px] uppercase tracking-widest">{kicker}</span>
+          </span>
+          <span data-pl-m aria-hidden className="block h-[2px] w-8 rounded-full bg-primary mb-sm self-end" />
+          <p data-ps-m className="text-subtitle text-[11px] text-foreground/80 leading-relaxed">{subtitle}</p>
+          {items && items.length > 0 && (
+            <ul data-pi-m className="mt-sm flex flex-col gap-[6px] w-full">
+              {items.map((it, i) => (
+                <li key={i} className="flex items-center gap-xs justify-end">
+                  <span className="flex flex-col text-right leading-tight">
+                    <span className="text-heading text-[9px] font-bold text-foreground">{it.lead}</span>
+                    <span className="text-body-regular text-[8px] text-foreground/60">{it.sub}</span>
+                  </span>
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-primary/25 text-primary">
+                    <PhaseIcon name={it.icon} className="h-3.5 w-3.5" />
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+
+      {/* ── DESKTOP LAYOUT (inalterado) ──────────────────────────── */}
+      <Container className={`hidden lg:flex min-[1600px]:max-w-360 h-full items-center ${right ? 'justify-end' : 'justify-start'}`}>
+        <div className={`flex flex-col ${right ? 'items-end text-right' : 'items-start text-left'} ${yShift} max-w-136 xl:max-w-168`}>
           <span data-pk className="mb-sm xl:mb-md inline-flex items-center gap-xs rounded-full border border-primary/25 bg-white/60 px-xs xl:px-sm py-[4px] xl:py-[6px] backdrop-blur-sm">
             <LeafGlyph className="h-3 w-3 xl:h-3.5 xl:w-3.5 text-primary" />
             <span className="text-eyebrow text-primary text-[9px] xl:text-[11px] uppercase tracking-widest">{kicker}</span>
           </span>
 
-          {/* Título bicolor */}
           <h2 data-pt className="font-black uppercase leading-[0.92] tracking-tight text-[clamp(1.75rem,3.2vw,3.75rem)] mb-sm">
             <span className="text-foreground">{lead}</span>
             {titleHi && <> <span className="text-highlight text-primary">{titleHi}</span></>}
@@ -749,9 +839,8 @@ function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, alig
 
           <span data-pl aria-hidden className="block h-[2px] xl:h-[3px] w-8 xl:w-10 rounded-full bg-primary mb-sm xl:mb-md" />
 
-          <p data-ps className="text-subtitle text-xs xl:text-sm sm:text-base text-foreground/80 leading-relaxed max-w-[28rem] xl:max-w-[34rem]">{subtitle}</p>
+          <p data-ps className="text-subtitle text-xs xl:text-sm sm:text-base text-foreground/80 leading-relaxed max-w-112 xl:max-w-136">{subtitle}</p>
 
-          {/* Fileira de benefícios */}
           {items && items.length > 0 && (
             <ul data-pi className={`mt-md xl:mt-lg flex flex-wrap gap-sm xl:gap-md sm:gap-lg ${right ? 'justify-end' : ''}`}>
               {items.map((it, i) => (
@@ -773,12 +862,6 @@ function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, alig
         </div>
       </Container>
 
-      {/* Selo circular com a tagline da marca */}
-      {seal && (
-        <div data-pseal className={`pointer-events-none absolute bottom-[6%] xl:bottom-[12%] hidden lg:block ${right ? 'left-[4%] xl:left-[6%]' : 'right-[4%] xl:right-[6%]'}`}>
-          <Seal text={seal} className="h-24 w-24 text-primary xl:h-40 xl:w-40" />
-        </div>
-      )}
     </div>
   )
 }
@@ -833,6 +916,34 @@ function Seal({ text, className }: { text: string; className?: string }) {
         <path d="M0 -3 C13 -3 19 -12 19 -20 C7 -20 0 -12 0 -3 Z" />
       </g>
     </svg>
+  )
+}
+
+function DesktopPhaseSeal({ show, text, alignRight }: { show: boolean, text: string, alignRight?: boolean }) {
+  const ref = useRef<HTMLDivElement>(null)
+  
+  useGSAP(
+    () => {
+      if (!show || !ref.current) return
+      const sealEl = ref.current.querySelector<HTMLElement>('[data-pseal-inner]')
+      if (sealEl) {
+        gsap.fromTo(sealEl, { scale: 0.85, opacity: 0, rotate: -12 }, { scale: 1, opacity: 1, rotate: 0, duration: DUR.title, ease: EASE.micro })
+      }
+    },
+    { dependencies: [show], scope: ref }
+  )
+
+  return (
+    <div
+      ref={ref}
+      className={`absolute inset-0 w-full h-full transition-opacity duration-200 ease-out ${
+        show ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+      }`}
+    >
+      <div data-pseal-inner className={`absolute bottom-[6%] xl:bottom-[12%] ${alignRight ? 'left-[4%] xl:left-[6%]' : 'right-[4%] xl:right-[6%]'}`}>
+        <Seal text={text} className="h-24 w-24 text-primary xl:h-40 xl:w-40" />
+      </div>
+    </div>
   )
 }
 
@@ -901,7 +1012,7 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, subtitle, onRevealCompl
 
         <span data-gline aria-hidden className="mx-auto mt-lg block h-[3px] w-12 rounded-full bg-primary" />
 
-        <p data-gs className="text-subtitle mt-lg text-base sm:text-lg text-foreground/70 leading-relaxed">{subtitle}</p>
+        <p data-gs className="text-subtitle mx-auto mt-lg text-base sm:text-lg text-foreground/70 leading-relaxed">{subtitle}</p>
       </div>
     </div>
   )

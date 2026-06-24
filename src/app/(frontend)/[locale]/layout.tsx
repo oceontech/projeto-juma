@@ -1,5 +1,5 @@
 import React from 'react'
-import { Montserrat, Space_Grotesk, Fraunces } from 'next/font/google'
+import { Montserrat, Space_Grotesk } from 'next/font/google'
 import { NextIntlClientProvider, hasLocale } from 'next-intl'
 import { getMessages, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
@@ -14,7 +14,8 @@ const montserrat = Montserrat({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-montserrat',
-  weight: ['300', '400', '900'],
+  weight: ['300', '400', '600', '900'],
+  style: ['normal', 'italic'],
 })
 
 const spaceGrotesk = Space_Grotesk({
@@ -24,15 +25,6 @@ const spaceGrotesk = Space_Grotesk({
   weight: ['400', '500', '600', '700'],
 })
 
-// Fonte de destaque: serif + itálico para contraste tipográfico na palavra em cor de marca
-// dentro de títulos Montserrat Black. Fraunces suporta acentos PT nativamente.
-const fraunces = Fraunces({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-fraunces',
-  weight: ['700', '900'],
-  style: ['italic'],
-})
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
@@ -78,7 +70,7 @@ export default async function LocaleLayout(props: {
   const messages = await getMessages()
 
   return (
-    <html lang={locale} className={`${montserrat.variable} ${spaceGrotesk.variable} ${fraunces.variable}`}>
+    <html lang={locale} className={`${montserrat.variable} ${spaceGrotesk.variable}`}>
       <body className="flex min-h-screen flex-col">
         <NextIntlClientProvider messages={messages}>
           <SmoothScroll>

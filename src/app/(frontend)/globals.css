@@ -37,9 +37,6 @@
   --font-sans: var(--font-montserrat), "Montserrat", sans-serif;
   /* Segunda fonte: pré-título (kicker) e subtítulo — voz técnica e geométrica. */
   --font-tech: var(--font-space-grotesk), "Space Grotesk", sans-serif;
-  /* Terceira fonte: destaque (palavra/linha em cor de marca dentro de um título).
-     Fraunces itálico cria contraste tipográfico quente contra o Montserrat Black. */
-  --font-accent: var(--font-fraunces), "Fraunces", serif;
 
   /* ── Espaçamento (escala de 4px) ────────────────────────── */
   /* ATENÇÃO: estes nomes (xs..5xl) sombreiam os tamanhos t-shirt do Tailwind.
@@ -259,6 +256,17 @@ html.lenis body { height: auto; }
   to   { transform: translateX(110%); }
 }
 
+@keyframes seal-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .seal-spin-slow {
+    animation: seal-spin 22s linear infinite;
+    will-change: transform;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   /* Camada frontal: 9 s, movimento de vento irregular */
   .leaf-sway-1 {
@@ -316,11 +324,10 @@ html.lenis body { height: auto; }
   font-weight: 400;
 }
 
-/* Destaque: palavra ou linha em cor de marca dentro de um título Montserrat.
-   Fraunces itálico cria contraste tipográfico intencional (serifada + itálico vs. sans Black). */
+/* Destaque: palavra ou linha em cor de marca dentro de um título Montserrat. */
 @utility text-highlight {
-  font-family: var(--font-accent);
-  font-weight: 700;
+  font-family: var(--font-heading);
+  font-weight: 600;
   font-style: italic;
 }
 
@@ -363,4 +370,23 @@ html.lenis body { height: auto; }
 .btn-metallic-blue:hover::after {
   left: 150%;
   transition: left 0.8s ease-in-out;
+}
+
+/* ── Shimmer Effect (Hero) ─────────────────────────────────────── */
+.hero-title-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 40%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0.5) 60%, transparent 100%);
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0;
+}
+.hero-title-shimmer.shimmer-active::after {
+  animation: hero-shimmer-sweep 0.8s ease-out forwards;
+}
+@keyframes hero-shimmer-sweep {
+  0% { left: -60%; opacity: 1; }
+  100% { left: 120%; opacity: 0; }
 }
