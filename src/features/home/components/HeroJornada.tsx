@@ -603,8 +603,8 @@ export function HeroJornada() {
               : 'opacity-0 transition-opacity duration-200'
           }`}
         >
-          <div className="seal-spin-slow">
-            <Seal text={tj('q2Seal')} className="h-48 w-48 text-primary" />
+          <div>
+            <Seal text={tj('q2Seal')} className="h-48 w-48 text-primary animate-[spin_12s_linear_infinite]" />
           </div>
         </div>
 
@@ -966,7 +966,7 @@ function DesktopPhaseSeal({ show, text, alignRight }: { show: boolean, text: str
       }`}
     >
       <div data-pseal-inner className={`absolute bottom-[6%] xl:bottom-[12%] ${alignRight ? 'left-[4%] xl:left-[6%]' : 'right-[4%] xl:right-[6%]'}`}>
-        <Seal text={text} className="h-24 w-24 text-primary xl:h-40 xl:w-40" />
+        <Seal text={text} className="h-24 w-24 text-primary xl:h-40 xl:w-40 animate-[spin_12s_linear_infinite]" />
       </div>
     </div>
   )
