@@ -488,7 +488,7 @@ export function HeroJornada() {
   // ── Versão estática (prefers-reduced-motion) ──────────────────────
   if (!enhanced) {
     return (
-      <section ref={root} className="relative bg-white">
+      <section ref={root} className="sticky top-0 z-0 bg-white">
         <Container className="grid grid-cols-1 items-start gap-xl pb-2xl pt-[7.5rem] lg:grid-cols-12 min-[1600px]:max-w-[90rem]">
           <Headline t={t} className="lg:col-span-7 text-left" />
           <Support  t={t} className="lg:col-span-5 items-start text-left lg:items-end lg:text-right" />
@@ -534,7 +534,7 @@ export function HeroJornada() {
 
   // ── Versão animada ────────────────────────────────────────────────
   return (
-    <section ref={root} className="relative bg-white">
+    <section ref={root} className="sticky top-0 z-0 bg-white">
       <div className="relative h-[100svh] w-full overflow-hidden">
 
         {/* z-0 — Vídeo desktop */}

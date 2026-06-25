@@ -16,8 +16,10 @@ export default async function HomePage(props: {
 
   return (
     <>
-      <HeroJornada />
-      <OurStory />
+      <div className="relative">
+        <HeroJornada />
+        <OurStory />
+      </div>
       <AminosanStory />
       <ProofStrip />
       <Problem />

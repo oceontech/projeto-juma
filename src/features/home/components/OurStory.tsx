@@ -46,7 +46,8 @@ export function OurStory() {
     return () => mq.removeEventListener('change', update)
   }, [])
 
-  const sectionRef    = useRef<HTMLElement>(null)
+  const sectionRef    = useRef<HTMLDivElement>(null)
+  const cardRef       = useRef<HTMLElement>(null)
   const photoRef       = useRef<HTMLDivElement>(null)
   const watermarkRef    = useRef<HTMLDivElement>(null)
   const labelsRootRef   = useRef<HTMLDivElement>(null)
@@ -59,7 +60,8 @@ export function OurStory() {
     () => {
       if (reduced) return
       const section = sectionRef.current
-      if (!section) return
+      const card = cardRef.current
+      if (!section || !card) return
 
       const photo     = photoRef.current
       const watermark = watermarkRef.current
@@ -132,6 +134,52 @@ export function OurStory() {
         onLeaveBack: () => { entry.pause(0); exit.restart() },
       })
 
+      // ── Container Scroll 3D Effect ──────────────────────────────────
+      const isMobile = window.innerWidth <= 768;
+      const startScale = isMobile ? 0.8 : 1.05;
+
+      gsap.fromTo(
+        card,
+        {
+          rotateX: 20,
+          scale: startScale,
+          boxShadow: '0 0 #0000004d, 0 9px 20px #0000004a, 0 37px 37px #00000042, 0 84px 50px #00000026, 0 149px 60px #0000000a, 0 233px 65px #00000003',
+        },
+        {
+          rotateX: 0,
+          scale: 1,
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(0, 0, 0, 0.1)',
+          ease: 'none',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top bottom',
+            end: 'top 10%',
+            scrub: 0.5,
+          },
+        }
+      )
+
+      gsap.fromTo(
+        card,
+        {
+          rotateX: 0,
+          scale: 1,
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(0, 0, 0, 0.1)',
+        },
+        {
+          rotateX: -20,
+          scale: startScale,
+          boxShadow: '0 0 #0000004d, 0 9px 20px #0000004a, 0 37px 37px #00000042, 0 84px 50px #00000026, 0 149px 60px #0000000a, 0 233px 65px #00000003',
+          ease: 'none',
+          scrollTrigger: {
+            trigger: section,
+            start: 'bottom 90%',
+            end: 'bottom top',
+            scrub: 0.5,
+          },
+        }
+      )
+
       return () => {
         trigger.kill()
         entry.kill()
@@ -143,8 +191,26 @@ export function OurStory() {
   )
 
   return (
-    <section ref={sectionRef} className="relative overflow-hidden bg-white">
-      <Container className="grid min-h-screen grid-cols-1 items-center gap-2xl py-xl lg:py-2xl xl:py-3xl lg:grid-cols-2 lg:gap-xl xl:gap-4xl min-[1600px]:max-w-[90rem]">
+    <div ref={sectionRef} className="w-full relative z-10 py-10 md:py-20" style={{ perspective: '1000px' }}>
+      
+      {/* ── Fundo branco com bordas superior e inferior esfumaçadas (blur) ── */}
+      <div className="pointer-events-none absolute inset-0 -z-10 flex flex-col">
+        {/* Topo esfumaçado */}
+        <div 
+          className="h-[6rem] w-full shrink-0 bg-gradient-to-b from-white/0 to-white backdrop-blur-md" 
+          style={{ WebkitMaskImage: 'linear-gradient(to bottom, transparent, black)', maskImage: 'linear-gradient(to bottom, transparent, black)' }} 
+        />
+        {/* Meio sólido */}
+        <div className="flex-1 w-full bg-white" />
+        {/* Base esfumaçada */}
+        <div 
+          className="h-[6rem] w-full shrink-0 bg-gradient-to-t from-white/0 to-white backdrop-blur-md" 
+          style={{ WebkitMaskImage: 'linear-gradient(to top, transparent, black)', maskImage: 'linear-gradient(to top, transparent, black)' }} 
+        />
+      </div>
+
+      <section ref={cardRef} className="relative overflow-hidden rounded-[2.5rem] max-w-[95vw] lg:max-w-[90rem] mx-auto border border-black/[0.06] bg-gradient-to-br from-black/[0.01] to-black/[0.04] backdrop-blur-xl" style={{ transformOrigin: 'top center' }}>
+        <Container className="grid min-h-screen grid-cols-1 items-center gap-2xl py-xl lg:py-2xl xl:py-3xl lg:grid-cols-2 lg:gap-xl xl:gap-4xl">
         {/* ── Coluna esquerda: família ──────────────────────────────── */}
         <div ref={photoRef} className="relative mx-auto aspect-[1402/974] w-full max-w-[40rem]">
           {/* Watermark gigante atrás da foto */}
@@ -224,7 +290,8 @@ export function OurStory() {
           </div>
         </div>
       </Container>
-    </section>
+      </section>
+    </div>
   )
 }
 
