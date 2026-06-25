@@ -283,7 +283,7 @@ export function OurStory() {
             </span>
           </div>
 
-          <div ref={statsRootRef} className="mt-xl lg:mt-2xl grid grid-cols-1 gap-md sm:grid-cols-3 sm:gap-lg lg:grid-cols-1 lg:gap-md xl:grid-cols-3 xl:gap-lg w-full">
+          <div ref={statsRootRef} className="mt-xl lg:mt-2xl grid gap-md grid-cols-2 sm:gap-lg lg:gap-md md:grid-cols-3 xl:gap-lg w-full">
             <Stat icon="users" label={t('stat1')} />
             <Stat icon="sprout" label={t('stat2')} />
             <Stat icon="network" label={t('stat3')} />
