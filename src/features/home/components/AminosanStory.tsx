@@ -12,6 +12,7 @@
  */
 import { useEffect, useRef, useState, type HTMLAttributes, type ReactNode, type RefObject } from 'react'
 import Image from 'next/image'
+import { Leaf, Dna, Sprout, ShieldCheck, BarChart3, CalendarCheck, Users } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 import { gsap, ScrollTrigger, SplitText, useGSAP } from '@/features/animation/gsap'
@@ -174,11 +175,8 @@ function CinematicVersion({ t }: { t: TFn }) {
   const scrimRef        = useRef<HTMLDivElement>(null)
   const act1Ref         = useRef<HTMLDivElement>(null)
   const oldCalloutRef   = useRef<HTMLDivElement>(null)
-  const ctaRef          = useRef<HTMLDivElement>(null)
-  const calloutTopRef   = useRef<HTMLDivElement>(null)
-  const calloutLeftRef  = useRef<HTMLDivElement>(null)
-  const calloutRightRef = useRef<HTMLDivElement>(null)
-  const calloutBotRef   = useRef<HTMLDivElement>(null)
+  const leftPanelRef    = useRef<HTMLDivElement>(null)
+  const counterRef      = useRef<HTMLSpanElement>(null)
 
   const lenis    = useLenis()
   const lenisRef = useRef(lenis)
@@ -195,9 +193,6 @@ function CinematicVersion({ t }: { t: TFn }) {
       const act1Items    = act1Ref.current ? gsap.utils.toArray<HTMLElement>('[data-a1]', act1Ref.current) : []
       const calloutLine  = oldCalloutRef.current?.querySelector<HTMLElement>('[data-line]') ?? null
       const calloutLabel = oldCalloutRef.current?.querySelector<HTMLElement>('[data-label]') ?? null
-      const act3Els      = [calloutTopRef.current, calloutLeftRef.current, calloutRightRef.current, calloutBotRef.current]
-        .filter(Boolean) as HTMLElement[]
-      const cta = ctaRef.current
 
       const titleSplit = titleEl
         ? new SplitText(titleEl, { type: 'lines', mask: 'lines', linesClass: 'overflow-hidden' })
@@ -210,12 +205,9 @@ function CinematicVersion({ t }: { t: TFn }) {
       gsap.set(act1Items,    { y: 14, opacity: 0 })
       gsap.set(calloutLine,  { scaleY: 0 })
       gsap.set(calloutLabel, { opacity: 0 })
-      gsap.set(cta,          { opacity: 0, y: 16, pointerEvents: 'none' })
-      act3Els.forEach((el) => {
-        gsap.set(el,                                  { opacity: 0 })
-        gsap.set(el.querySelectorAll('[data-line]'),  { scaleX: 0, scaleY: 0 })
-        gsap.set(el.querySelectorAll('[data-label]'), { opacity: 0 })
-      })
+      gsap.set(leftPanelRef.current, { opacity: 0, y: 16 })
+      gsap.set('[data-right-card]', { opacity: 0, x: 20 })
+      if (counterRef.current) counterRef.current.innerText = "+10 a +0"
 
       // ── Helpers de animação (retornam Promise para encadear com await)
 
@@ -242,29 +234,58 @@ function CinematicVersion({ t }: { t: TFn }) {
 
       const showAct3 = () => {
         const tl = gsap.timeline()
-        act3Els.forEach((el, i) => {
-          const pos = i * 0.08
-          tl.set(el,                                    { opacity: 1 }, pos)
-          tl.to(el.querySelectorAll('[data-line]'),  { scaleX: 1, scaleY: 1, duration: 0.35, ease: EASE.reveal }, pos)
-          tl.to(el.querySelectorAll('[data-label]'), { opacity: 1,            duration: 0.3                     }, pos + 0.08)
-        })
-        tl.set(cta, { pointerEvents: 'auto' }, 0.15)
-        tl.to(cta,  { opacity: 1, y: 0,        duration: 0.35, ease: EASE.reveal }, 0.15)
+        const rightCards = gsap.utils.toArray<HTMLElement>('[data-right-card]', root.current)
+        
+        // Left panel
+        tl.to(leftPanelRef.current, { y: 0, opacity: 1, duration: 0.5, ease: EASE.reveal })
+        
+        // Card 1
+        if (rightCards[0]) {
+          tl.to(rightCards[0], { x: 0, opacity: 1, duration: 0.5, ease: EASE.reveal }, 0.2)
+        }
+        
+        // Counter animation
+        tl.to({ val: 0 }, {
+          val: 14,
+          duration: 1.2,
+          ease: 'power2.out',
+          onUpdate: function() {
+            if (counterRef.current) {
+              counterRef.current.innerText = `+10 a +${Math.round(this.targets()[0].val)}`
+            }
+          }
+        }, '+=0.1')
+        
+        // Card 2
+        if (rightCards[1]) {
+          tl.to(rightCards[1], { x: 0, opacity: 1, duration: 0.5, ease: EASE.reveal }, '+=0.1')
+        }
+        
+        // Card 3
+        if (rightCards[2]) {
+          tl.to(rightCards[2], { x: 0, opacity: 1, duration: 0.5, ease: EASE.reveal }, '+=0.2')
+        }
+        
         return tl.then()
       }
 
       const hideAct3 = () => {
         const tl = gsap.timeline()
-        tl.set(cta, { pointerEvents: 'none' }, 0)
-        tl.to(cta,  { opacity: 0, y: 16, duration: 0.25, ease: EASE.micro }, 0)
-        act3Els.forEach((el) => {
-          tl.to(el.querySelectorAll('[data-line]'),  { scaleX: 0, scaleY: 0, duration: 0.25, ease: EASE.micro }, 0)
-          tl.to(el.querySelectorAll('[data-label]'), { opacity: 0,            duration: 0.2                    }, 0)
-          tl.to(el,                                  { opacity: 0,            duration: 0.05                   }, 0.25)
-        })
+        const rightCards = gsap.utils.toArray<HTMLElement>('[data-right-card]', root.current)
+        
+        tl.to(rightCards, { x: 20, opacity: 0, duration: 0.3, stagger: 0.05, ease: EASE.micro }, 0)
+        tl.to(leftPanelRef.current, { y: 16, opacity: 0, duration: 0.3, ease: EASE.micro }, 0)
+        
         // Crossfade simultâneo: oldImg e scrim cobrem o vídeo enquanto act3 some
         tl.to(scrimRef.current, { opacity: 1, duration: 0.45, ease: EASE.reveal }, 0)
         tl.to(oldImg,           { opacity: 1, duration: 0.5,  ease: EASE.reveal }, 0)
+        
+        tl.set({}, {
+          onComplete: () => {
+            if (counterRef.current) counterRef.current.innerText = "+10 a +0"
+          }
+        })
+        
         return tl.then()
       }
 
@@ -420,30 +441,66 @@ function CinematicVersion({ t }: { t: TFn }) {
         </span>
       </div>
 
-      {/* Callouts do Ato 3 */}
-      <Callout refEl={calloutTopRef} side="top" className="left-[65%] xl:left-[58%] top-[15%] xl:top-[12%] z-30">
-        {t('callout1')}
-      </Callout>
-      <Callout refEl={calloutLeftRef} side="left" className="left-[38%] xl:left-[40%] top-[40%] xl:top-[44%] z-30">
-        {t('callout2')}
-      </Callout>
-      <Callout refEl={calloutRightRef} side="right" className="right-[4%] xl:right-[6%] top-[40%] xl:top-[44%] z-30">
-        <span className="flex flex-col gap-[2px]">
-          <span className="text-highlight text-lg xl:text-xl text-primary">{t('callout3Number')}</span>
-          <span className="text-subtitle text-[11px] xl:text-xs text-foreground/75">{t('callout3Label')}</span>
-          <span className="text-[9px] xl:text-[10px] text-foreground/50">{t('callout3Source')}</span>
-        </span>
-      </Callout>
-      <Callout refEl={calloutBotRef} side="bottom" className="left-[65%] xl:left-[58%] bottom-[12%] xl:bottom-[16%] z-30">
-        {t('callout4')}
-      </Callout>
-
-      {/* CTA do Ato 3 */}
-      <div ref={ctaRef} className="absolute inset-x-0 bottom-[4%] xl:bottom-[6%] z-30 flex justify-center">
-        <Link href="/contato" className="text-body-regular inline-flex items-center justify-center rounded-full bg-primary px-lg xl:px-xl py-sm xl:py-md text-sm xl:text-base text-white transition-colors hover:bg-primary-light">
-          {t('cta')}
-        </Link>
+      {/* UI do Ato 3 - Painel Esquerdo */}
+      <div ref={leftPanelRef} className="absolute left-[2%] xl:left-[6%] top-1/2 -translate-y-1/2 z-30 flex flex-col items-start gap-3 xl:gap-4 max-w-[24rem] xl:max-w-[28rem] bg-white/70 backdrop-blur-md rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 xl:p-8">
+        <div className="flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[10px] xl:text-xs font-semibold">
+          <Leaf className="w-3 h-3 xl:w-4 xl:h-4" /> Nutrição que transforma
+        </div>
+        <h2 className="text-5xl xl:text-6xl font-black text-primary">Aminosan</h2>
+        <p className="text-lg xl:text-xl text-foreground/80 font-medium leading-tight">
+          Mais de 40 anos depois, o mesmo aminoácido, a mesma eficiência.
+        </p>
+        <div className="w-12 h-1 bg-primary/40 rounded-full my-1 xl:my-2" />
+        <p className="text-sm xl:text-base text-foreground/70">
+          Hoje, em oito culturas: <span className="font-bold text-primary">soja, milho, café, algodão, feijão, cítrus, tomate e batata.</span>
+        </p>
+        <div className="grid grid-cols-4 gap-2 xl:gap-4 mt-2 xl:mt-4 w-full">
+          <div className="flex flex-col items-center text-center gap-1 xl:gap-2">
+            <div className="p-2 bg-primary/5 rounded-xl"><Dna className="w-5 h-5 xl:w-6 xl:h-6 text-primary" /></div>
+            <span className="text-[9px] xl:text-[10px] text-foreground/70 leading-tight font-medium">Aminoácidos de alta qualidade</span>
+          </div>
+          <div className="flex flex-col items-center text-center gap-1 xl:gap-2">
+            <div className="p-2 bg-primary/5 rounded-xl"><Sprout className="w-5 h-5 xl:w-6 xl:h-6 text-primary" /></div>
+            <span className="text-[9px] xl:text-[10px] text-foreground/70 leading-tight font-medium">Maior eficiência nutricional</span>
+          </div>
+          <div className="flex flex-col items-center text-center gap-1 xl:gap-2">
+            <div className="p-2 bg-primary/5 rounded-xl"><ShieldCheck className="w-5 h-5 xl:w-6 xl:h-6 text-primary" /></div>
+            <span className="text-[9px] xl:text-[10px] text-foreground/70 leading-tight font-medium">Mais saúde e vigor para suas plantas</span>
+          </div>
+          <div className="flex flex-col items-center text-center gap-1 xl:gap-2">
+            <div className="p-2 bg-primary/5 rounded-xl"><BarChart3 className="w-5 h-5 xl:w-6 xl:h-6 text-primary" /></div>
+            <span className="text-[9px] xl:text-[10px] text-foreground/70 leading-tight font-medium">Resultados comprovados no campo</span>
+          </div>
+        </div>
       </div>
+
+      {/* UI do Ato 3 - Cards Direitos */}
+      <div className="absolute right-[2%] xl:right-[6%] top-1/2 -translate-y-1/2 z-30 flex flex-col gap-3 xl:gap-4">
+        <div data-right-card className="flex items-center gap-3 xl:gap-4 max-w-[20rem] xl:max-w-[24rem] bg-white/70 backdrop-blur-md rounded-[1.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-4 xl:p-6">
+          <div className="p-2 xl:p-3 bg-primary/10 rounded-2xl shrink-0"><CalendarCheck className="w-6 h-6 xl:w-8 xl:h-8 text-primary" /></div>
+          <div className="flex flex-col gap-1">
+            <span className="text-highlight text-2xl xl:text-3xl text-primary font-bold"><span ref={counterRef}>+10 a +0</span> sc/ha</span>
+            <span className="text-xs xl:text-sm text-foreground/80 leading-tight">Na soja, 10 a 14 sacas a mais por hectare em ensaios.</span>
+            <span className="text-[9px] xl:text-[10px] text-foreground/50 mt-1 leading-tight">Fonte: Resultados internos (2011) | Certificado (UFLA) e Embrapa Cerrados (2015)</span>
+          </div>
+        </div>
+        
+        <div data-right-card className="flex items-center gap-3 xl:gap-4 max-w-[20rem] xl:max-w-[24rem] bg-white/70 backdrop-blur-md rounded-[1.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-4 xl:p-6">
+          <div className="p-2 xl:p-3 bg-primary/10 rounded-2xl shrink-0"><Sprout className="w-6 h-6 xl:w-8 xl:h-8 text-primary" /></div>
+          <div className="flex flex-col gap-1">
+            <span className="text-sm xl:text-base text-foreground/80 leading-tight">E hoje, uma linha inteira traz produtos, do <span className="font-bold text-primary">plantio à colheita.</span></span>
+          </div>
+        </div>
+
+        <div data-right-card className="flex items-center gap-3 xl:gap-4 max-w-[20rem] xl:max-w-[24rem] bg-white/70 backdrop-blur-md rounded-[1.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-4 xl:p-6">
+          <div className="p-2 xl:p-3 bg-primary/10 rounded-2xl shrink-0"><Users className="w-6 h-6 xl:w-8 xl:h-8 text-primary" /></div>
+          <div className="flex flex-col gap-1">
+            <span className="text-sm xl:text-base text-foreground/80 leading-tight">Confiança que vem do campo e gera <span className="font-bold text-primary">resultados.</span></span>
+          </div>
+        </div>
+      </div>
+
+      
     </section>
   )
 }
@@ -462,47 +519,14 @@ function BicolorTitle({
   )
 }
 
-type CalloutSide = 'top' | 'bottom' | 'left' | 'right'
-
-function Callout({ side, className = '', refEl, children }: {
-  side: CalloutSide; className?: string; refEl?: RefObject<HTMLDivElement | null>; children: ReactNode
+function Callout({ className = '', labelClassName = 'max-w-[12rem] xl:max-w-[14rem]', refEl, children }: {
+  className?: string; labelClassName?: string; refEl?: RefObject<HTMLDivElement | null>; children: ReactNode
 }) {
-  const dot   = <span aria-hidden className="block h-1.5 w-1.5 flex-none rounded-full bg-primary" />
-  const label = (
-    <span data-label className="text-subtitle max-w-[10rem] rounded-lg bg-white/55 px-sm py-xs text-xs text-foreground/75 backdrop-blur-sm">
-      {children}
-    </span>
-  )
-
-  if (side === 'top') return (
-    <div ref={refEl} className={`absolute -translate-x-1/2 flex flex-col items-center gap-sm ${className}`}>
-      {label}
-      <span data-line aria-hidden className="block h-8 w-px bg-primary/50" style={{ transformOrigin: 'top' }} />
-      {dot}
-    </div>
-  )
-
-  if (side === 'bottom') return (
-    <div ref={refEl} className={`absolute -translate-x-1/2 flex flex-col items-center gap-sm ${className}`}>
-      {dot}
-      <span data-line aria-hidden className="block h-8 w-px bg-primary/50" style={{ transformOrigin: 'bottom' }} />
-      {label}
-    </div>
-  )
-
-  if (side === 'left') return (
-    <div ref={refEl} className={`absolute flex items-center gap-sm ${className}`}>
-      {label}
-      <span data-line aria-hidden className="block h-px w-8 bg-primary/50" style={{ transformOrigin: 'right' }} />
-      {dot}
-    </div>
-  )
-
   return (
-    <div ref={refEl} className={`absolute flex items-center gap-sm ${className}`}>
-      {dot}
-      <span data-line aria-hidden className="block h-px w-8 bg-primary/50" style={{ transformOrigin: 'left' }} />
-      {label}
+    <div ref={refEl} className={`absolute flex flex-col ${className}`}>
+      <span data-label className={`text-subtitle rounded-2xl bg-white/70 px-4 py-3 text-xs xl:text-sm text-foreground/80 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.04)] text-left block ${labelClassName}`}>
+        {children}
+      </span>
     </div>
   )
 }
