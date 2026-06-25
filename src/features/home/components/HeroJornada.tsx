@@ -548,13 +548,13 @@ export function HeroJornada() {
           <source src="/hero/desktop/journey.mp4" type="video/mp4" />
         </video>
 
-        {/* z-0 — Vídeo mobile */}
+        {/* z-[1] — Vídeo mobile (com multiply para revelar o selo por trás do branco) */}
         <video
           ref={isMobile ? videoRef : null}
           muted playsInline preload="auto"
           poster="/hero/mobile/journey-poster.jpg"
           aria-label={tj('videoAlt')}
-          className="absolute inset-0 z-0 h-full w-full object-cover block lg:hidden"
+          className="absolute inset-0 z-[1] h-full w-full object-cover block lg:hidden mix-blend-multiply"
         >
           <source src="/hero/mobile/journey.mp4" type="video/mp4" />
         </video>
@@ -594,10 +594,10 @@ export function HeroJornada() {
           />
         </div>
 
-        {/* z-[25] — Selos (Mobile e Desktop). Atrás das folhas (z-30) */}
+        {/* z-[0] — Selos (Mobile e Desktop). Atrás do vídeo (que usará mix-blend-multiply) */}
         {/* Mobile Seal: Aparece após a imagem estabilizar. */}
         <div
-          className={`pointer-events-none absolute top-[38%] left-[2%] z-[25] lg:hidden ease-out ${
+          className={`pointer-events-none absolute top-[38%] left-[2%] z-[0] lg:hidden ease-out ${
             cap === 2 && isPaused
               ? 'opacity-100 transition-opacity duration-500'
               : 'opacity-0 transition-opacity duration-200'
@@ -613,17 +613,7 @@ export function HeroJornada() {
           <DesktopPhaseSeal show={cap === 2 && isPaused} text={tj('q2Seal')} alignRight={false} />
         </div>
 
-        {/* z-[27] — Mobile Phase 2: frame-2-folha estática.
-             Folha opaca que fica na frente do selo (z-[25]), criando o efeito do selo atrás da folha. */}
-        <div
-          className={`pointer-events-none absolute inset-0 z-[27] lg:hidden transition-opacity duration-300 ease-out ${cap === 2 && isPaused ? 'opacity-100' : 'opacity-0'}`}
-        >
-          <Image
-            src="/hero/mobile/frame-2-folha.png"
-            alt="" aria-hidden fill
-            className="object-cover object-center"
-          />
-        </div>
+
 
         {/* z-30 — Folhas: 2 camadas com timing diferente criam profundidade de canópia */}
         <div data-rest ref={leafContainerRef} className="pointer-events-none absolute inset-0 z-30">
