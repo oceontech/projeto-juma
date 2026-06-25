@@ -90,8 +90,9 @@ export function HeroJornada() {
       const scrollInd = scrollIndicatorRef.current
 
       // Captura a largura natural ANTES de qualquer gsap.set
-      // (enquanto a pílula ainda tem seu tamanho real no DOM)
-      const naturalWidth = mainNav ? mainNav.offsetWidth : 960
+      // (enquanto as pílulas ainda têm seu tamanho real no DOM)
+      const naturalWidth     = mainNav  ? mainNav.offsetWidth  : 960
+      const naturalLangWidth = langPill ? langPill.offsetWidth : 80
 
       // Estado inicial — evita flash antes da timeline
       gsap.set(titleWrap, { y: 220, opacity: 0 })
@@ -101,7 +102,7 @@ export function HeroJornada() {
       gsap.set(leaves,  { opacity: 0 })
       gsap.set(scrollInd, { opacity: 0 })
 
-      if (langPill) gsap.set(langPill, { opacity: 0, filter: 'blur(10px)' })
+      if (langPill) gsap.set(langPill, { width: 0, opacity: 0, overflow: 'hidden' })
       if (ctaBtn)   gsap.set(ctaBtn,   { opacity: 0, filter: 'blur(10px)' })
       if (navLinks) gsap.set(navLinks,  { opacity: 0, filter: 'blur(8px)' })
 
@@ -110,10 +111,12 @@ export function HeroJornada() {
       // 1. Navbar — pílula expande do centro exato da tela (200px → largura natural)
       //    Anima `width` (não maxWidth) para compatibilidade com grid-cols-[1fr_auto_1fr]
       if (mainNav) {
-        gsap.set(mainNav, { width: 200, opacity: 0, overflow: 'hidden' })
+        // marginLeft/Right: auto centraliza a pílula no flex; como width cresce,
+        // o browser redistribui as margens simetricamente → expansão para os dois lados
+        gsap.set(mainNav, { flex: 'none', width: 200, opacity: 0, overflow: 'hidden', marginLeft: 'auto', marginRight: 'auto' })
         tl.to(mainNav, {
           width: naturalWidth, opacity: 1, duration: 1.4, ease: 'power2.inOut',
-          onComplete: () => gsap.set(mainNav, { clearProps: 'width,opacity,overflow' }),
+          onComplete: () => gsap.set(mainNav, { clearProps: 'flex,width,opacity,overflow,marginLeft,marginRight' }),
         }, 0)
       }
 
@@ -127,12 +130,12 @@ export function HeroJornada() {
         }, 1.2)
       }
 
-      // 3. Pílula de idioma — blur-in
+      // 3. Pílula de idioma — expand lateral (começa após 0.8s, mesma elegância da pílula principal)
       if (langPill) {
         tl.to(langPill, {
-          opacity: 1, filter: 'blur(0px)', duration: 0.7, ease: 'power2.out',
-          onComplete: () => gsap.set(langPill, { clearProps: 'opacity,filter' }),
-        }, 1.35)
+          width: naturalLangWidth, opacity: 1, duration: 0.7, ease: 'power2.inOut',
+          onComplete: () => gsap.set(langPill, { clearProps: 'width,opacity,overflow' }),
+        }, 0.8)
       }
 
       // 2. Headline — rises very slowly from far below the mountains
@@ -637,11 +640,10 @@ export function HeroJornada() {
                 <div className={`flex flex-col gap-sm mx-auto lg:mx-0 items-center lg:items-end text-center lg:text-right`}>
                   <Link
                     href="/contato"
-                    className="text-body-regular pointer-events-auto inline-flex items-center justify-center rounded-full bg-primary p-md text-sm md:text-lg text-white transition-colors hover:bg-primary-light"
+                    className="text-body-regular pointer-events-auto inline-flex items-center justify-center rounded-full bg-primary px-lg py-sm text-sm text-white transition-colors hover:bg-primary-light"
                   >
                     {t('cta')}
                   </Link>
-                  <span className="text-body-regular text-xs md:text-base text-foreground/50 font-semibold">{t('ctaNote')}</span>
                 </div>
               </div>
           </Container>
@@ -726,11 +728,10 @@ function Support({ t, className = '' }: { t: TFn; className?: string }) {
       <div className="mt-sm flex flex-col gap-sm items-start lg:items-end">
         <Link
           href="/contato"
-          className="text-body-regular pointer-events-auto inline-flex items-center justify-center rounded-full bg-primary px-xl py-md text-base text-white transition-colors hover:bg-primary-light"
+          className="text-body-regular pointer-events-auto inline-flex items-center justify-center rounded-full bg-primary px-lg py-sm text-sm text-white transition-colors hover:bg-primary-light"
         >
           {t('cta')}
         </Link>
-        <span className="text-body-regular text-xs text-foreground/50">{t('ctaNote')}</span>
       </div>
     </div>
   )

@@ -115,12 +115,9 @@ export function Navbar() {
     >
       {/* max-w-[80rem] (1280px) em telas xl/2xl (notebooks), expandindo para max-w-[90rem] (1440px) em monitores grandes (min-width: 1600px) */}
       <Container className="min-[1600px]:max-w-[90rem]">
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_auto_1fr] items-stretch gap-sm mx-auto w-full max-w-[1280px] min-[1600px]:max-w-[1440px]">
-          {/* Col 1: espaço vazio — contrapeso simétrico que centraliza matematicamente a pílula na viewport */}
-          <div className="hidden xl:block" />
-
-          {/* Col 2: Pílula principal — coluna auto, matematicamente centrada pelo grid */}
-          <div id="main-nav-pill" className="rounded-full border border-white/20 bg-gradient-to-r from-white/40 to-white/20 backdrop-blur-xl border-t border-t-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06),_0_0_0_1px_rgba(0,0,0,0.08),_inset_0_1px_2px_rgba(255,255,255,0.5)] origin-center overflow-hidden" style={{ willChange: 'width, opacity' }}>
+        <div className="flex items-stretch gap-sm mx-auto w-full max-w-[1280px] min-[1600px]:max-w-[1440px]">
+          {/* Pílula principal — flex-1 para ocupar toda a largura disponível */}
+          <div id="main-nav-pill" className="flex-1 rounded-full border border-white/20 bg-gradient-to-r from-white/40 to-white/20 backdrop-blur-xl border-t border-t-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06),_0_0_0_1px_rgba(0,0,0,0.08),_inset_0_1px_2px_rgba(255,255,255,0.5)] origin-center overflow-hidden" style={{ willChange: 'width, opacity' }}>
               <div className="flex justify-between items-center gap-xl mx-auto w-full p-sm">
                 {/* Logo com recorte do rodapé roxo */}
                 <Link
@@ -196,10 +193,10 @@ export function Navbar() {
               </div>
             </div>
 
-          {/* Col 3: Seletor de idioma — blur-in via GSAP após a pílula expandir */}
-          <div className="hidden h-full xl:flex items-center justify-end gap-sm shrink-0">
+          {/* Col 3: Seletor de idioma — expand via GSAP após a pílula principal */}
+          <div className="hidden xl:flex items-stretch justify-end gap-sm shrink-0">
             {/* Pílula de Idioma */}
-            <div id="nav-lang-pill" className="flex h-full items-center justify-center rounded-full border border-white/20 bg-gradient-to-r from-white/40 to-white/20 px-md backdrop-blur-xl border-t border-t-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06),_0_0_0_1px_rgba(0,0,0,0.08),_inset_0_1px_2px_rgba(255,255,255,0.5)]">
+            <div id="nav-lang-pill" className="flex items-center justify-center rounded-full border border-white/20 bg-gradient-to-r from-white/40 to-white/20 px-md backdrop-blur-xl border-t border-t-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06),_0_0_0_1px_rgba(0,0,0,0.08),_inset_0_1px_2px_rgba(255,255,255,0.5)]">
               <LanguageSwitcher className="text-xs xl:text-sm shrink-0" />
             </div>
           </div>

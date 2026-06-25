@@ -14,7 +14,7 @@ const montserrat = Montserrat({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-montserrat',
-  weight: ['300', '400', '600', '900'],
+  weight: ['300', '400', '500', '600', '900'],
   style: ['normal', 'italic'],
 })
 

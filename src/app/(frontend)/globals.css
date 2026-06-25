@@ -96,16 +96,12 @@
     /* scroll-behavior: smooth removido — o Lenis conduz o smooth scroll (conflita).
        Em reduced-motion o Lenis não monta e o browser usa scroll nativo. */
     /* Reserva o espaço da scrollbar mesmo com overflow:hidden (evita layout shift na jornada) */
-    scrollbar-gutter: stable;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0, 76, 38, 0.22) transparent;
+    scrollbar-width: none;
+    overflow-x: hidden;
   }
 
-  /* Scrollbar minimalista — WebKit/Blink */
-  html::-webkit-scrollbar           { width: 4px; }
-  html::-webkit-scrollbar-track     { background: transparent; }
-  html::-webkit-scrollbar-thumb     { background: rgba(0,76,38,0.22); border-radius: 9999px; }
-  html::-webkit-scrollbar-thumb:hover{ background: rgba(0,76,38,0.42); }
+  /* Remove scrollbar completamente — WebKit/Blink */
+  html::-webkit-scrollbar { display: none; }
 
   body {
     font-family: var(--font-body);
@@ -327,7 +323,7 @@ html.lenis body { height: auto; }
 /* Destaque: palavra ou linha em cor de marca dentro de um título Montserrat. */
 @utility text-highlight {
   font-family: var(--font-heading);
-  font-weight: 600;
+  font-weight: 500;
   font-style: italic;
 }
 
