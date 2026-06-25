@@ -71,14 +71,10 @@ export function Problem() {
 
       } else {
         // Mobile / tablet: linha por linha com clip-path
-        const split = new SplitText(title, {
-          type: 'lines',
-          mask: 'lines',
-          linesClass: 'overflow-hidden pb-[0.2em] -mb-[0.2em] pt-[0.1em] -mt-[0.1em]',
-        })
+        const split = new SplitText(title, { type: 'chars,lines' })
 
         gsap.set(title, { opacity: 0 })
-        gsap.set(split.lines, { yPercent: 108 })
+        gsap.set(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
         if (body) gsap.set(body, { y: 24, opacity: 0 })
 
         const tl = gsap.timeline({
@@ -86,10 +82,12 @@ export function Problem() {
         })
 
         tl.set(title, { opacity: 1 })
-          .to(split.lines, {
-            yPercent: 0,
+          .to(split.chars, {
+            x: 0,
+            opacity: 1,
+            filter: 'blur(0px)',
             duration: DUR.title,
-            stagger: STAGGER.line,
+            stagger: STAGGER.char,
             ease: EASE.reveal,
           })
 

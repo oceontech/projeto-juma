@@ -22,7 +22,7 @@ type RevealTextProps = {
   /** Atraso (s) antes do reveal começar. */
   delay?: number
   /** Quebra por palavra em vez de por linha (títulos curtos com destaque). */
-  splitBy?: 'lines' | 'words'
+  splitBy?: 'lines' | 'words' | 'chars'
   /** Ponto de disparo do ScrollTrigger (default: 'top 80%'). */
   start?: string
 }
@@ -42,23 +42,24 @@ export function RevealText({
     () => {
       if (reduced || !ref.current) return
 
+      const typeStr = splitBy === 'chars' ? 'chars,lines' : splitBy === 'words' ? 'words' : 'lines'
+
       const split = new SplitText(ref.current, {
-        type: splitBy === 'words' ? 'words' : 'lines',
-        // máscara: cada parte ganha um wrapper overflow-hidden
-        mask: splitBy === 'words' ? 'words' : 'lines',
-        linesClass: 'overflow-hidden pb-[0.2em] -mb-[0.2em] pt-[0.1em] -mt-[0.1em]',
-        wordsClass: 'overflow-hidden pb-[0.2em] -mb-[0.2em] pt-[0.1em] -mt-[0.1em]',
+        type: typeStr,
       })
 
-      const targets = splitBy === 'words' ? split.words : split.lines
+      const targets = splitBy === 'chars' ? split.chars : splitBy === 'words' ? split.words : split.lines
+      const staggerTime = splitBy === 'chars' ? STAGGER.char : splitBy === 'words' ? STAGGER.word : STAGGER.line
 
-      gsap.set(targets, { yPercent: 110 })
+      gsap.set(targets, { x: 20, opacity: 0, filter: 'blur(10px)' })
       gsap.to(targets, {
-        yPercent: 0,
+        x: 0,
+        opacity: 1,
+        filter: 'blur(0px)',
         duration: DUR.title,
         ease: EASE.reveal,
         delay,
-        stagger: splitBy === 'words' ? STAGGER.word : STAGGER.line,
+        stagger: staggerTime,
         scrollTrigger: { trigger: ref.current, start, once: true },
         onComplete: () => split.revert(),
       })

@@ -42,10 +42,12 @@ export function HeroJornada() {
   const directionRef     = useRef<'forward' | 'backward' | null>(null)
   const lastTimeRef      = useRef<number>(0)
   const entranceRanRef   = useRef(false)
-  // Ao voltar pro topo (scrollY<=2) depois de já ter saído da jornada, a gota
+  // autoRewindRef: Ao voltar pro topo (scrollY<=2) depois de já ter saído da jornada, a gota
   // re-trava — mas sozinha ela não chega no rest: sem isto o usuário precisa
   // de um segundo gesto de scroll só pra "destravar" a gota.
   const autoRewindRef    = useRef(false)
+  const gotaAnimCompleteRef = useRef(false)
+  const hasLeftTopRef    = useRef(false)
 
   // Refs da entrada cinematográfica
   const titleWrapRef    = useRef<HTMLHeadingElement>(null)
@@ -335,7 +337,13 @@ export function HeroJornada() {
         const targets = getTargets()
         if (phaseRef.current === 'rest') { startJourney(); return false }
         if (phaseRef.current === 'done') return true
-        if (atLastPause()) { release(); return true }
+        if (atLastPause()) { 
+          if (gotaAnimCompleteRef.current) {
+            release(); return true; 
+          } else {
+            return false;
+          }
+        }
         if (playingRef.current && directionRef.current === 'backward') {
           const nextStep = stepRef.current + 1
           if (nextStep < targets.length) { stepRef.current = nextStep; startPlayback('forward', targets[nextStep]) }
@@ -372,7 +380,13 @@ export function HeroJornada() {
         const ph = phaseRef.current
         if (ph === 'done') return
         if (ph === 'rest' && e.deltaY <= 0) return
-        if (ph === 'animating' && e.deltaY > 0 && atLastPause()) { release(); return }
+        if (ph === 'animating' && e.deltaY > 0 && atLastPause()) { 
+          if (gotaAnimCompleteRef.current) {
+            release(); return 
+          } else {
+            e.preventDefault(); return
+          }
+        }
         e.preventDefault()
         if (e.deltaY > 0) handleForward()
         else if (e.deltaY < 0 && ph === 'animating') handleBackward()
@@ -387,7 +401,13 @@ export function HeroJornada() {
         const up   = upKeys.includes(e.key)
         if (!down && !up) return
         if (ph === 'rest' && !down) return
-        if (ph === 'animating' && down && atLastPause()) { release(); return }
+        if (ph === 'animating' && down && atLastPause()) { 
+          if (gotaAnimCompleteRef.current) {
+            release(); return 
+          } else {
+            e.preventDefault(); return
+          }
+        }
         e.preventDefault()
         if (down) handleForward()
         else if (up && ph === 'animating') handleBackward()
@@ -421,20 +441,26 @@ export function HeroJornada() {
       const onScroll = () => {
         const video = videoRef.current
         if (!video) return
-        if (phaseRef.current === 'done' && window.scrollY <= 2) {
-          // Reset imediato antes de qualquer wheel event
-          phaseRef.current = 'animating'
-          stepRef.current  = 3
-          lockScroll(true)
-          setCap(4)
-          setIsPaused(true)
-          const targets = getTargets()
-          try { video.currentTime = targets[targets.length - 1] } catch {}
-          // Voltar ao topo é intenção clara de ir pra home: a gota reaparece
-          // (continuidade visual), mas a reversão segue sozinha até o rest.
-          autoRewindRef.current = true
-          stepRef.current = 2
-          startPlayback('backward', targets[2])
+        
+        if (phaseRef.current === 'done') {
+          if (window.scrollY > 10) {
+            hasLeftTopRef.current = true;
+          } else if (window.scrollY <= 2 && hasLeftTopRef.current) {
+            hasLeftTopRef.current = false;
+            // Reset imediato antes de qualquer wheel event
+            phaseRef.current = 'animating'
+            stepRef.current  = 3
+            lockScroll(true)
+            setCap(4)
+            setIsPaused(true)
+            const targets = getTargets()
+            try { video.currentTime = targets[targets.length - 1] } catch {}
+            // Voltar ao topo é intenção clara de ir pra home: a gota reaparece
+            // (continuidade visual), mas a reversão segue sozinha até o rest.
+            autoRewindRef.current = true
+            stepRef.current = 2
+            startPlayback('backward', targets[2])
+          }
         }
       }
 
@@ -691,7 +717,9 @@ export function HeroJornada() {
             kicker={tj('q4Kicker')}
             title={tj('q4Title')}
             titleHi={tj('q4TitleHi')}
+            titleHiOptions={[tj('q4TitleHi'), tj('q4TitleHi2'), tj('q4TitleHi3')]}
             subtitle={tj('q4Subtitle')}
+            onRevealComplete={(done) => { gotaAnimCompleteRef.current = done }}
           />
         </div>
       </div>
@@ -758,14 +786,14 @@ function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, alig
       const itemsEl  = el.querySelector<HTMLElement>(mobile ? '[data-pi-m]' : '[data-pi]')
 
       const split = titleEl
-        ? new SplitText(titleEl, { type: 'lines', mask: 'lines', linesClass: 'overflow-hidden pb-[0.2em] -mb-[0.2em] pt-[0.1em] -mt-[0.1em]' })
+        ? new SplitText(titleEl, { type: 'chars,lines' })
         : null
 
       const lineOrigin = (mobile || align === 'right') ? 'right center' : 'left center'
 
       const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
       if (kickerEl) tl.fromTo(kickerEl, { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0)
-      if (split)    tl.fromTo(split.lines, { yPercent: 110 }, { yPercent: 0, duration: DUR.title, stagger: STAGGER.line }, 0.05)
+      if (split)    tl.fromTo(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' }, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, 0.05)
       if (lineEl)   tl.fromTo(lineEl, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: DUR.sub, transformOrigin: lineOrigin }, 0.2)
       if (subEl)    tl.fromTo(subEl, { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0.28)
       if (itemsEl)  tl.fromTo(itemsEl.children, { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub, stagger: STAGGER.card }, 0.34)
@@ -946,11 +974,12 @@ function DesktopPhaseSeal({ show, text, alignRight }: { show: boolean, text: str
 
 /** Fase Q4 (Gota): reveal cinematográfico ao final da animação do vídeo — sem interação de mouse.
  *  Pílula de kicker + título bicolor em máscara por palavra (cortina sobe) + linha + subtítulo. */
-function PhaseGotaLayout({ show, kicker, title, titleHi, subtitle }: {
-  show: boolean; kicker: string; title: string; titleHi?: string; subtitle: string
+function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitle, onRevealComplete }: {
+  show: boolean; kicker: string; title: string; titleHi?: string; titleHiOptions?: string[]; subtitle: string; onRevealComplete?: (done: boolean) => void
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const titleRef     = useRef<HTMLHeadingElement>(null)
+  const hiRef        = useRef<HTMLSpanElement>(null)
 
   // Cena da gota: tela branca + reveal por palavra mascarada (SplitText) na voz da fundação.
   // Disparado pelo estado `show` (fim da animação do vídeo), não por scroll. Enquanto o texto
@@ -959,23 +988,92 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, subtitle }: {
   // no instante exato do fim do texto passa direto sem ler.
   useGSAP(
     () => {
-      if (!show || !containerRef.current) return
+      if (!show || !containerRef.current) {
+        onRevealComplete?.(false)
+        return
+      }
       const el       = containerRef.current
       const kickerEl = el.querySelector<HTMLElement>('[data-gk]')
       const lineEl   = el.querySelector<HTMLElement>('[data-gline]')
       const subEl    = el.querySelector<HTMLElement>('[data-gs]')
 
       const split = titleRef.current
-        ? new SplitText(titleRef.current, { type: 'words', mask: 'words', wordsClass: 'overflow-hidden pb-[0.2em] -mb-[0.2em] pt-[0.1em] -mt-[0.1em]' })
+        ? new SplitText(titleRef.current, { type: 'chars,words' })
         : null
 
-      const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
+      let rotatorTl: gsap.core.Timeline | null = null;
+
+      const tl = gsap.timeline({ 
+        defaults: { ease: EASE.reveal },
+        onComplete: () => {
+          onRevealComplete?.(true)
+          
+          if (titleHiOptions && titleHiOptions.length > 1 && titleRef.current) {
+            split?.revert()
+            const activeHiEl = titleRef.current.querySelector('.text-highlight') as HTMLSpanElement;
+            if (!activeHiEl) return;
+
+            // Converte a tag do destaque para grid para que as palavras fiquem sobrepostas
+            activeHiEl.className = "text-highlight text-primary inline-grid min-w-max";
+            activeHiEl.innerText = "";
+            
+            const spans = titleHiOptions.map((opt, i) => {
+               const s = document.createElement('span');
+               s.innerText = opt;
+               s.className = "col-start-1 row-start-1 leading-[1.05]";
+               s.style.opacity = i === 0 ? "1" : "0";
+               s.style.filter = i === 0 ? "blur(0px)" : "blur(8px)";
+               s.style.transform = i === 0 ? "translateX(0)" : "translateX(20px)";
+               activeHiEl.appendChild(s);
+               return s;
+            });
+
+            rotatorTl = gsap.timeline({ repeat: -1 })
+            
+            for (let i = 0; i < spans.length; i++) {
+               const currentEl = spans[i];
+               const nextEl = spans[(i + 1) % spans.length];
+
+               // label dinâmico para garantir que o crossfade ocorra ao mesmo tempo
+               const label = `step${i}`;
+               
+               // Adiciona 3 segundos de "respiro" (timeline parada) ANTES deste passo
+               rotatorTl.addLabel(label, "+=3")
+               
+               rotatorTl.to(currentEl, {
+                  opacity: 0,
+                  filter: 'blur(8px)',
+                  duration: 1,
+                  ease: 'power2.inOut'
+               }, label)
+               
+               rotatorTl.fromTo(nextEl, {
+                  x: 20,
+                  opacity: 0,
+                  filter: 'blur(8px)'
+               }, {
+                  x: 0,
+                  opacity: 1,
+                  filter: 'blur(0px)',
+                  duration: 1,
+                  ease: 'power2.out',
+                  immediateRender: false
+               }, label)
+            }
+          }
+        }
+      })
       if (kickerEl) tl.fromTo(kickerEl, { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0)
-      if (split)    tl.fromTo(split.words, { yPercent: 115 }, { yPercent: 0, duration: DUR.title, stagger: STAGGER.word }, 0.12)
+      if (split)    tl.fromTo(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' }, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, 0.12)
       if (lineEl)   tl.fromTo(lineEl, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: DUR.sub }, 0.55)
       if (subEl)    tl.fromTo(subEl, { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0.7)
 
-      return () => { tl.kill(); split?.revert() }
+      return () => { 
+        tl.kill(); 
+        rotatorTl?.kill();
+        split?.revert(); 
+        onRevealComplete?.(false);
+      }
     },
     { dependencies: [show], scope: containerRef },
   )
@@ -997,7 +1095,7 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, subtitle }: {
 
         <h2 ref={titleRef} className="font-black uppercase leading-[1.05] tracking-tight text-[clamp(2rem,5vw,4.25rem)]">
           <span className="text-foreground">{lead}</span>
-          {titleHi && <> <span className="text-highlight text-primary">{titleHi}</span></>}
+          {titleHi && <> <span ref={hiRef} className="text-highlight text-primary inline-block">{titleHi}</span></>}
         </h2>
 
         <span data-gline aria-hidden className="mx-auto mt-lg block h-[3px] w-12 rounded-full bg-primary" />

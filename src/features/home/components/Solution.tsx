@@ -28,12 +28,12 @@ export function Solution() {
 
       // Título: SplitText por linha (mesma voz do Hero e OurStory)
       const split = title
-        ? new SplitText(title, { type: 'lines', mask: 'lines', linesClass: 'overflow-hidden pb-[0.2em] -mb-[0.2em] pt-[0.1em] -mt-[0.1em]' })
+        ? new SplitText(title, { type: 'chars,lines' })
         : null
-      const lines = split?.lines ?? []
+      const chars = split?.chars ?? []
 
       if (title) gsap.set(title, { opacity: 0 })
-      if (lines.length) gsap.set(lines, { yPercent: 108 })
+      if (chars.length) gsap.set(chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
       if (intro) gsap.set(intro, { y: 20, opacity: 0 })
       if (cta) gsap.set(cta, { y: 16, opacity: 0 })
 
@@ -42,8 +42,8 @@ export function Solution() {
         scrollTrigger: { trigger: ref.current, start: 'top 72%', once: true },
       })
       if (title) tlHead.set(title, { opacity: 1 }, 0)
-      if (lines.length)
-        tlHead.to(lines, { yPercent: 0, duration: DUR.title, stagger: STAGGER.line, ease: EASE.reveal }, 0)
+      if (chars.length)
+        tlHead.to(chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char, ease: EASE.reveal }, 0)
       if (intro)
         tlHead.to(intro, { y: 0, opacity: 1, duration: DUR.sub, ease: EASE.reveal }, 0.35)
 

@@ -84,14 +84,14 @@ export function OurStory() {
       // roda uma única vez aqui fora das timelines — re-tригgar é só reanimar
       // yPercent dos spans já existentes, sem custo de novo split a cada ciclo.
       const titleSplit = title
-        ? new SplitText(title, { type: 'lines', mask: 'lines', linesClass: 'overflow-hidden pb-[0.2em] -mb-[0.2em] pt-[0.1em] -mt-[0.1em]' })
+        ? new SplitText(title, { type: 'chars,lines' })
         : null
-      const titleLines = titleSplit ? titleSplit.lines : title ? [title] : []
+      const titleChars = titleSplit ? titleSplit.chars : title ? [title] : []
 
       // ── Estado inicial ──────────────────────────────────────────────
       gsap.set(photo, { y: 24, opacity: 0 })
       gsap.set(title, { opacity: 0 })
-      gsap.set(titleLines, { yPercent: 110 })
+      gsap.set(titleChars, { x: 20, opacity: 0, filter: 'blur(10px)' })
       gsap.set(body,  { y: 12, opacity: 0 })
       gsap.set(cta,   { y: 12, opacity: 0 })
       gsap.set(stats, { y: 10, opacity: 0 })
@@ -110,7 +110,7 @@ export function OurStory() {
         entry.to(labels, { opacity: 1, duration: 0.4, stagger: 0.08 }, 0.25)
       }
       entry.set(title, { opacity: 1 }, 0.15)
-      entry.to(titleLines, { yPercent: 0, duration: DUR.title, stagger: STAGGER.line }, 0.15)
+      entry.to(titleChars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, 0.15)
       entry.to(body,   { y: 0, opacity: 1, duration: 0.5 }, 0.35)
       entry.to(cta,    { y: 0, opacity: 1, duration: 0.45 }, 0.45)
       entry.to(stats,  { y: 0, opacity: 1, duration: 0.45, stagger: 0.06 }, 0.5)
@@ -118,7 +118,7 @@ export function OurStory() {
       // ── Saída: fade simples, sem y para evitar "giro" pesado ────────
       const exit = gsap.timeline({ paused: true, defaults: { ease: 'power2.in' } })
       exit.to([title, body, cta, stats], { opacity: 0, duration: 0.25 }, 0)
-      exit.set(titleLines, { yPercent: 110 }, 0.25)
+      exit.set(titleChars, { x: 20, opacity: 0, filter: 'blur(10px)' }, 0.25)
       if (isDesktop) exit.to(labels, { opacity: 0, duration: 0.2 }, 0)
       exit.to(photo, { y: -10, opacity: 0, duration: 0.3 }, 0.05)
 

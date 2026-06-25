@@ -36,6 +36,8 @@ export const STAGGER = {
   line: 0.08,
   /** Por palavra. */
   word: 0.04,
+  /** Por caractere. */
+  char: 0.02,
   /** Por card de grid. */
   card: 0.08,
 } as const

@@ -199,9 +199,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const calloutLabel = oldCalloutRef.current?.querySelector<HTMLElement>('[data-label]') ?? null
 
       const titleSplit = titleEl
-        ? new SplitText(titleEl, { type: 'lines', mask: 'lines', linesClass: 'overflow-hidden pb-[0.2em] -mb-[0.2em] pt-[0.1em] -mt-[0.1em]' })
+        ? new SplitText(titleEl, { type: 'chars,lines' })
         : null
-      const titleLines = titleSplit?.lines ?? (titleEl ? [titleEl] : [])
+      const titleChars = titleSplit?.chars ?? (titleEl ? [titleEl] : [])
 
       // ── Estado inicial: tudo invisível
       gsap.set(videoFwd,     { opacity: 0, zIndex: 1 })
@@ -209,7 +209,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       gsap.set(newImgRef.current, { opacity: 0 })
       gsap.set(oldImg,       { scale: 1.04, opacity: 1, yPercent: 100 })
       gsap.set(scrimRef.current, { opacity: 0 })
-      gsap.set(titleLines,   { yPercent: 110 })
+      gsap.set(titleChars,   { x: 20, opacity: 0, filter: 'blur(10px)' })
       gsap.set(act1Items,    { y: 14, opacity: 0 })
       gsap.set(calloutLine,  { scaleY: 0 })
       gsap.set(calloutLabel, { opacity: 0 })
@@ -224,7 +224,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const introTl = gsap.timeline()
       introTl.to(scrimRef.current, { opacity: 1,                duration: 0.4,                          ease: 'none' }, 0)
       introTl.to(oldImg,           { scale: 1, yPercent: 0,                 duration: 0.5,           ease: 'none' }, 0)
-      introTl.to(titleLines,       { yPercent: 0,               duration: 0.5, stagger: 0.05,           ease: 'none' }, 0.05)
+      introTl.to(titleChars,       { x: 0, opacity: 1, filter: 'blur(0px)', duration: 0.5, stagger: STAGGER.char,           ease: 'none' }, 0.05)
       introTl.to(act1Items,        { y: 0, opacity: 1,          duration: 0.45, stagger: 0.05,          ease: 'none' }, 0.1)
       introTl.to(calloutLine,      { scaleY: 1,                 duration: 0.35, transformOrigin: 'top', ease: 'none' }, 0.35)
       introTl.to(calloutLabel,     { opacity: 1,                duration: 0.3                                        }, 0.5)
@@ -351,7 +351,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         gsap.set([act1Ref.current, oldCalloutRef.current], { opacity: 1 })
 
         // Oculta UI do Act 1 revertendo a animação de entrada (stagger, movimento e opacidade)
-        gsap.to(titleLines, { yPercent: 110, duration: fwdDur * 0.4, stagger: 0.05, ease: 'power1.inOut' })
+        gsap.to(titleChars, { x: 20, opacity: 0, filter: 'blur(10px)', duration: fwdDur * 0.4, stagger: STAGGER.char, ease: 'power1.inOut' })
         gsap.to(act1Items, { y: 14, opacity: 0, duration: fwdDur * 0.4, stagger: 0.05, ease: 'power1.inOut' })
         gsap.to(calloutLine, { scaleY: 0, duration: fwdDur * 0.3, ease: 'power1.inOut' })
         gsap.to(calloutLabel, { opacity: 0, duration: fwdDur * 0.3, ease: 'power1.inOut' })
@@ -408,7 +408,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         gsap.set([act1Ref.current, oldCalloutRef.current], { opacity: 1 })
 
         // Restaura UI do Act 1 refazendo a animação de entrada com delay para casar com o fim do vídeo
-        gsap.to(titleLines, { yPercent: 0, duration: revDur * 0.4, stagger: 0.05, ease: 'power1.inOut', delay: revDur * 0.5 })
+        gsap.to(titleChars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: revDur * 0.4, stagger: STAGGER.char, ease: 'power1.inOut', delay: revDur * 0.5 })
         gsap.to(act1Items, { y: 0, opacity: 1, duration: revDur * 0.4, stagger: 0.05, ease: 'power1.inOut', delay: revDur * 0.5 })
         gsap.to(calloutLine, { scaleY: 1, duration: revDur * 0.3, ease: 'power1.inOut', delay: revDur * 0.5 })
         gsap.to(calloutLabel, { opacity: 1, duration: revDur * 0.3, ease: 'power1.inOut', delay: revDur * 0.5 })
