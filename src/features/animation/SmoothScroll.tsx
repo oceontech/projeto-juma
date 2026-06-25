@@ -32,6 +32,13 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
+    // Previne que o navegador tente restaurar o scroll em recarregamentos (F5)
+    // forçando a volta para o topo e evitando quebra das animações do GSAP.
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual'
+    }
+    window.scrollTo(0, 0)
+
     const instance = new Lenis({ lerp: 0.1, smoothWheel: true })
     lenisRef.current = instance
     setLenis(instance)
