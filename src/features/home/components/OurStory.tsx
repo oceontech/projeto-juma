@@ -84,7 +84,7 @@ export function OurStory() {
       // roda uma única vez aqui fora das timelines — re-tригgar é só reanimar
       // yPercent dos spans já existentes, sem custo de novo split a cada ciclo.
       const titleSplit = title
-        ? new SplitText(title, { type: 'lines', mask: 'lines', linesClass: 'overflow-hidden' })
+        ? new SplitText(title, { type: 'lines', mask: 'lines', linesClass: 'overflow-hidden pb-[0.2em] -mb-[0.2em] pt-[0.1em] -mt-[0.1em]' })
         : null
       const titleLines = titleSplit ? titleSplit.lines : title ? [title] : []
 

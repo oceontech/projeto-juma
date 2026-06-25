@@ -199,7 +199,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const calloutLabel = oldCalloutRef.current?.querySelector<HTMLElement>('[data-label]') ?? null
 
       const titleSplit = titleEl
-        ? new SplitText(titleEl, { type: 'lines', mask: 'lines', linesClass: 'overflow-hidden' })
+        ? new SplitText(titleEl, { type: 'lines', mask: 'lines', linesClass: 'overflow-hidden pb-[0.2em] -mb-[0.2em] pt-[0.1em] -mt-[0.1em]' })
         : null
       const titleLines = titleSplit?.lines ?? (titleEl ? [titleEl] : [])
 

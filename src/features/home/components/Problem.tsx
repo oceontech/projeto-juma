@@ -74,7 +74,7 @@ export function Problem() {
         const split = new SplitText(title, {
           type: 'lines',
           mask: 'lines',
-          linesClass: 'overflow-hidden',
+          linesClass: 'overflow-hidden pb-[0.2em] -mb-[0.2em] pt-[0.1em] -mt-[0.1em]',
         })
 
         gsap.set(title, { opacity: 0 })

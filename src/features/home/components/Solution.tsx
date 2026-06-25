@@ -28,7 +28,7 @@ export function Solution() {
 
       // Título: SplitText por linha (mesma voz do Hero e OurStory)
       const split = title
-        ? new SplitText(title, { type: 'lines', mask: 'lines', linesClass: 'overflow-hidden' })
+        ? new SplitText(title, { type: 'lines', mask: 'lines', linesClass: 'overflow-hidden pb-[0.2em] -mb-[0.2em] pt-[0.1em] -mt-[0.1em]' })
         : null
       const lines = split?.lines ?? []
 

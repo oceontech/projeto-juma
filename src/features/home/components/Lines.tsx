@@ -34,7 +34,7 @@ export function Lines() {
       // Título: SplitText linhas
       const title = titleRef.current
       const split = title
-        ? new SplitText(title, { type: 'lines', mask: 'lines', linesClass: 'overflow-hidden' })
+        ? new SplitText(title, { type: 'lines', mask: 'lines', linesClass: 'overflow-hidden pb-[0.2em] -mb-[0.2em] pt-[0.1em] -mt-[0.1em]' })
         : null
       const lines = split?.lines ?? []
 

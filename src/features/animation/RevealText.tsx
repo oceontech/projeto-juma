@@ -46,7 +46,8 @@ export function RevealText({
         type: splitBy === 'words' ? 'words' : 'lines',
         // máscara: cada parte ganha um wrapper overflow-hidden
         mask: splitBy === 'words' ? 'words' : 'lines',
-        linesClass: 'overflow-hidden',
+        linesClass: 'overflow-hidden pb-[0.2em] -mb-[0.2em] pt-[0.1em] -mt-[0.1em]',
+        wordsClass: 'overflow-hidden pb-[0.2em] -mb-[0.2em] pt-[0.1em] -mt-[0.1em]',
       })
 
       const targets = splitBy === 'words' ? split.words : split.lines

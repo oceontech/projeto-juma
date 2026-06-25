@@ -758,7 +758,7 @@ function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, alig
       const itemsEl  = el.querySelector<HTMLElement>(mobile ? '[data-pi-m]' : '[data-pi]')
 
       const split = titleEl
-        ? new SplitText(titleEl, { type: 'lines', mask: 'lines', linesClass: 'overflow-hidden' })
+        ? new SplitText(titleEl, { type: 'lines', mask: 'lines', linesClass: 'overflow-hidden pb-[0.2em] -mb-[0.2em] pt-[0.1em] -mt-[0.1em]' })
         : null
 
       const lineOrigin = (mobile || align === 'right') ? 'right center' : 'left center'
@@ -966,7 +966,7 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, subtitle }: {
       const subEl    = el.querySelector<HTMLElement>('[data-gs]')
 
       const split = titleRef.current
-        ? new SplitText(titleRef.current, { type: 'words', mask: 'words' })
+        ? new SplitText(titleRef.current, { type: 'words', mask: 'words', wordsClass: 'overflow-hidden pb-[0.2em] -mb-[0.2em] pt-[0.1em] -mt-[0.1em]' })
         : null
 
       const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
