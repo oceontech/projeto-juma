@@ -214,6 +214,24 @@ export function HeroJornada() {
         }
       }
 
+      const updateLeavesParallax = (time: number) => {
+        const leaves = leafContainerRef.current
+        if (!leaves) return
+        
+        // Progress for parallax (0 to 1 as current goes 0 to 1.5)
+        const progress = Math.min(time / 1.5, 1)
+        const yOffset = progress * 150 // move down 150px
+        const scale = 1 + progress * 0.3 // scale up 30%
+        
+        // Opacity: 1 until 1.5, then fade to 0 between 1.5 and 2.0
+        let opacity = 1
+        if (time > 1.5) {
+          opacity = Math.max(0, 1 - (time - 1.5) / 0.5)
+        }
+        
+        gsap.set(leaves, { y: yOffset, scale: scale, opacity: opacity, transformOrigin: 'bottom center' })
+      }
+
       const getTargets = () => {
         const video = videoRef.current
         const fallback = isMobile ? 9.04 : 10.12
@@ -235,6 +253,7 @@ export function HeroJornada() {
         if (directionRef.current === 'forward') {
           if (video.paused) void video.play().catch(() => {})
           updateActivePhase(current)
+          updateLeavesParallax(current)
           const limit = target >= video.duration - 0.1 ? video.duration - 0.05 : target - 0.02
           if (current >= limit) { video.pause(); stopPlayback(); return }
         } else if (directionRef.current === 'backward') {
@@ -242,6 +261,7 @@ export function HeroJornada() {
           const nextTime = Math.max(0, current - elapsed)
           try { video.currentTime = nextTime } catch {}
           updateActivePhase(nextTime)
+          updateLeavesParallax(nextTime)
           if (nextTime <= target + 0.02) { stopPlayback(); return }
         }
         animationFrameRef.current = requestAnimationFrame(tick)
@@ -280,6 +300,7 @@ export function HeroJornada() {
         if (video) {
           try { video.currentTime = target } catch {}
           updateActivePhase(target)
+          updateLeavesParallax(target)
         }
         const i = stepRef.current
         if (i >= 1 && i <= capAtPause.length) setCap(capAtPause[i - 1])
@@ -616,7 +637,7 @@ export function HeroJornada() {
 
 
         {/* z-30 — Folhas: 2 camadas com timing diferente criam profundidade de canópia */}
-        <div data-rest ref={leafContainerRef} className="pointer-events-none absolute inset-0 z-30">
+        <div ref={leafContainerRef} className="pointer-events-none absolute inset-0 z-30">
           {/* Camada traseira: mais lenta, semi-transparente, deslocada ligeiramente mais abaixo */}
           <div
             className="leaf-sway-2 absolute"
