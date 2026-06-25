@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 
-import { gsap, SplitText, useGSAP } from '@/features/animation/gsap'
+import { gsap, ScrollTrigger, SplitText, useGSAP } from '@/features/animation/gsap'
 import { DUR, EASE, FADE_Y, STAGGER } from '@/features/animation/motion'
 import { useLenis } from '@/features/animation/SmoothScroll'
 import { Link } from '@/i18n/navigation'
@@ -42,7 +42,6 @@ export function HeroJornada() {
   const directionRef     = useRef<'forward' | 'backward' | null>(null)
   const lastTimeRef      = useRef<number>(0)
   const entranceRanRef   = useRef(false)
-  const gotaRevealDoneRef = useRef(false)
   // Ao voltar pro topo (scrollY<=2) depois de já ter saído da jornada, a gota
   // re-trava — mas sozinha ela não chega no rest: sem isto o usuário precisa
   // de um segundo gesto de scroll só pra "destravar" a gota.
@@ -193,6 +192,7 @@ export function HeroJornada() {
           document.body.style.overflow = ''
           // Retoma o smooth scroll global ao liberar a jornada
           lenisRef.current?.start()
+          requestAnimationFrame(() => ScrollTrigger.refresh())
         }
       }
       const fadeRest = (show: boolean) =>
@@ -326,9 +326,9 @@ export function HeroJornada() {
       }
 
       const targetsLength = 3
-      // No último passo (gota), só libera o scroll depois do texto terminar de revelar.
+      // No último passo (gota), libera o scroll imediatamente após o vídeo terminar.
       const atLastPause   = () =>
-        !playingRef.current && stepRef.current >= targetsLength && gotaRevealDoneRef.current
+        !playingRef.current && stepRef.current >= targetsLength
 
       const handleForward = (): boolean => {
         autoRewindRef.current = false
@@ -422,10 +422,7 @@ export function HeroJornada() {
         const video = videoRef.current
         if (!video) return
         if (phaseRef.current === 'done' && window.scrollY <= 2) {
-          // Reset imediato antes de qualquer wheel event: sem isso, atLastPause()
-          // retorna true (valor stale do run anterior) e o próximo scroll
-          // libera a gota sem esperar a animação refazer.
-          gotaRevealDoneRef.current = false
+          // Reset imediato antes de qualquer wheel event
           phaseRef.current = 'animating'
           stepRef.current  = 3
           lockScroll(true)
@@ -695,7 +692,6 @@ export function HeroJornada() {
             title={tj('q4Title')}
             titleHi={tj('q4TitleHi')}
             subtitle={tj('q4Subtitle')}
-            onRevealComplete={(done) => { gotaRevealDoneRef.current = done }}
           />
         </div>
       </div>
@@ -950,9 +946,8 @@ function DesktopPhaseSeal({ show, text, alignRight }: { show: boolean, text: str
 
 /** Fase Q4 (Gota): reveal cinematográfico ao final da animação do vídeo — sem interação de mouse.
  *  Pílula de kicker + título bicolor em máscara por palavra (cortina sobe) + linha + subtítulo. */
-function PhaseGotaLayout({ show, kicker, title, titleHi, subtitle, onRevealComplete }: {
+function PhaseGotaLayout({ show, kicker, title, titleHi, subtitle }: {
   show: boolean; kicker: string; title: string; titleHi?: string; subtitle: string
-  onRevealComplete?: (done: boolean) => void
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const titleRef     = useRef<HTMLHeadingElement>(null)
@@ -964,7 +959,6 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, subtitle, onRevealCompl
   // no instante exato do fim do texto passa direto sem ler.
   useGSAP(
     () => {
-      onRevealComplete?.(false)
       if (!show || !containerRef.current) return
       const el       = containerRef.current
       const kickerEl = el.querySelector<HTMLElement>('[data-gk]')
@@ -975,18 +969,13 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, subtitle, onRevealCompl
         ? new SplitText(titleRef.current, { type: 'words', mask: 'words' })
         : null
 
-      const HOLD_MS = 400
-      let holdTimeout: ReturnType<typeof setTimeout> | null = null
-      const tl = gsap.timeline({
-        defaults: { ease: EASE.reveal },
-        onComplete: () => { holdTimeout = setTimeout(() => onRevealComplete?.(true), HOLD_MS) },
-      })
+      const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
       if (kickerEl) tl.fromTo(kickerEl, { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0)
       if (split)    tl.fromTo(split.words, { yPercent: 115 }, { yPercent: 0, duration: DUR.title, stagger: STAGGER.word }, 0.12)
       if (lineEl)   tl.fromTo(lineEl, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: DUR.sub }, 0.55)
       if (subEl)    tl.fromTo(subEl, { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0.7)
 
-      return () => { tl.kill(); if (holdTimeout) clearTimeout(holdTimeout); split?.revert() }
+      return () => { tl.kill(); split?.revert() }
     },
     { dependencies: [show], scope: containerRef },
   )
