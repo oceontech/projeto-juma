@@ -292,15 +292,11 @@ function CinematicVersion({ t }: { t: TFn }) {
       const lockScroll = (on: boolean) => {
         if (on) {
           lenisRef.current?.stop()
-          const sw = window.innerWidth - document.documentElement.clientWidth
-          document.body.style.paddingRight = sw > 0 ? `${sw}px` : ''
-          document.body.style.overflow = 'hidden'
-          document.documentElement.style.overflow = 'hidden'
         } else {
-          document.body.style.paddingRight = ''
-          document.body.style.overflow = ''
-          document.documentElement.style.overflow = ''
           lenisRef.current?.start()
+          // Full refresh after unlock so pin spacers and all trigger start/end
+          // positions are recalculated correctly (update() only syncs scroll pos).
+          requestAnimationFrame(() => ScrollTrigger.refresh())
         }
       }
 

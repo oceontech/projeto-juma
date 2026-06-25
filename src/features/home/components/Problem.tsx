@@ -48,7 +48,6 @@ export function Problem() {
             end: '+=720',
             pin: true,
             scrub: 0.9,
-            anticipatePin: 1,
           },
         })
 

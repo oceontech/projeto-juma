@@ -145,7 +145,7 @@ export function ProofStrip() {
                     data-decimals={!isRange ? String(decimals) : undefined}
                     data-prefix={!isRange ? prefix : undefined}
                     className="block font-black leading-[0.88] tracking-tight text-white"
-                    style={{ fontSize: 'clamp(3.25rem, 8.5vw, 8rem)' }}
+                    style={{ fontSize: 'clamp(3.25rem, 8.5vw, 5rem)' }}
                   >
                     {isRange ? rangeStr : initial}
                   </span>
