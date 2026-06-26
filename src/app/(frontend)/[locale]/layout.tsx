@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
+import { Preloader } from '@/components/layout/Preloader'
 import { SmoothScroll } from '@/features/animation/SmoothScroll'
 import '../globals.css'
 
@@ -71,7 +72,8 @@ export default async function LocaleLayout(props: {
 
   return (
     <html lang={locale} className={`${montserrat.variable} ${spaceGrotesk.variable}`}>
-      <body className="flex min-h-screen flex-col">
+      <body className="flex min-h-screen flex-col" style={{ visibility: 'hidden' }}>
+        <Preloader />
         <NextIntlClientProvider messages={messages}>
           <SmoothScroll>
             <Navbar />

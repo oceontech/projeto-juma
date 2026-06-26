@@ -153,7 +153,7 @@ export function HeroJornada() {
       // 4. Shimmer inicia um pouco antes do texto terminar de subir
       tl.call(() => {
         if (titleWrap) titleWrap.classList.add('shimmer-active')
-      }, null, '-=0.3')
+      }, undefined, '-=0.3')
 
       // 5. Complement text + accent line com blur-in (logo após shimmer)
       tl.to(support, { 
