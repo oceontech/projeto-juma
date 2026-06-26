@@ -229,5 +229,286 @@
     "body": "Converse con el equipo técnico, reciba el programa fase a fase de su cultivo y compare en la cosecha.",
     "cta": "Quiero ese resultado en mi campo",
     "ctaNote": "Responde el equipo técnico, en horario comercial. Sin compromiso."
+  },
+  "productsPage": {
+    "eyebrow": "Nuestras Soluciones",
+    "titleStart": "Soluciones para cada",
+    "titleHighlight": "etapa",
+    "titleEnd": "del cultivo.",
+    "intro": "Trece productos diseñados para acompañar al productor desde el tratamiento de semillas hasta el manejo completo — formulados a lo largo de 40 años de campo brasileño.",
+    "filterCategory": "Categoría",
+    "filterCulture": "Cultivo",
+    "categories": {
+      "all": "Todos",
+      "tratamento": "Tratamiento de Semillas",
+      "nutricao": "Nutrición y Fisiología",
+      "protecao": "Protección de Cultivos",
+      "aplicacao": "Tecnología de Aplicación",
+      "manejo": "Manejo Completo"
+    },
+    "cultures": {
+      "all": "Todos",
+      "soja": "Soja",
+      "milho": "Maíz",
+      "cafe": "Café",
+      "cana": "Caña de azúcar",
+      "algodao": "Algodón",
+      "feijao": "Frijol",
+      "citros": "Cítricos",
+      "tomate": "Tomate",
+      "batata": "Papa",
+      "pastagem": "Pastura"
+    },
+    "products": {
+      "acordaCana": {
+        "tag": "Tratamiento de Semillas",
+        "description": "Enraizamiento, vigor y mayor productividad en la caña, desde la siembra."
+      },
+      "acordaUltra": {
+        "tag": "Tratamiento de Semillas",
+        "description": "Arranque fuerte y enraizamiento profundo desde el primer día en el suelo."
+      },
+      "aduban": {
+        "tag": "Tratamiento de Semillas",
+        "description": "Suelo equilibrado y mayor absorción de nutrientes por la planta joven."
+      },
+      "aminosan": {
+        "tag": "Nutrición y Fisiología",
+        "description": "Más de 40 años como referencia en aminoácidos en Brasil — vigor, raíces y resistencia."
+      },
+      "fitofert": {
+        "tag": "Nutrición y Fisiología",
+        "description": "Mejor cuajado, llenado de granos y productividad en la fase reproductiva."
+      },
+      "linhaRevigo": {
+        "tag": "Nutrición y Fisiología",
+        "description": "Línea completa de foliares para corregir deficiencias en cada cultivo."
+      },
+      "revigophosAmino": {
+        "tag": "Nutrición y Fisiología",
+        "description": "Energía rápida para la planta y recuperación acelerada tras estrés."
+      },
+      "revigoCobreUltra": {
+        "tag": "Nutrición y Fisiología",
+        "description": "Cobre complejado: fuerza fisiológica y resistencia de la planta."
+      },
+      "kmepUltra": {
+        "tag": "Protección de Cultivos",
+        "description": "Potencia insecticidas y mejora la eficiencia en el control de plagas."
+      },
+      "linhaRedutan": {
+        "tag": "Tecnología de Aplicación",
+        "description": "Calidad de caldo, menos deriva y mayor eficiencia operacional."
+      },
+      "supermix": {
+        "tag": "Tecnología de Aplicación",
+        "description": "Adyuvante para caldo uniforme, sin obstrucciones y mayor compatibilidad."
+      },
+      "revigoMilho": {
+        "tag": "Manejo Completo",
+        "description": "Nutrición estratégica para el maíz de segunda cosecha — ganancia real por hectárea."
+      },
+      "revigoPasto": {
+        "tag": "Manejo Completo",
+        "description": "Recuperación de la pastura, ganancia de peso y mayor carga por hectárea."
+      }
+    },
+    "productImageAlt": "Frasco del producto",
+    "emptyState": "Ningún producto corresponde a esa combinación.",
+    "clearFilters": "Limpiar filtros",
+    "ctaEyebrow": "Próximo paso",
+    "ctaTitleStart": "¿Encontró lo que",
+    "ctaTitleHighlight": "buscaba?",
+    "ctaBody": "Nuestro equipo agronómico le ayuda a armar el programa correcto para su cultivo y región.",
+    "ctaButton": "Hablar por WhatsApp"
+  },
+  "culturesPage": {
+    "eyebrow": "Cultivos",
+    "titleStart": "Soluciones pensadas para",
+    "titleHighlight": "su cultivo.",
+    "intro": "De granos a perennes, diez cultivos con programas nutricionales dedicados — desarrollados junto a productores en diferentes regiones de Brasil.",
+    "cultures": {
+      "soja": "Soja",
+      "milho": "Maíz",
+      "cafe": "Café",
+      "cana": "Caña de azúcar",
+      "algodao": "Algodón",
+      "feijao": "Frijol",
+      "citros": "Cítricos",
+      "batata": "Papa",
+      "tomate": "Tomate",
+      "pastagem": "Pastura"
+    },
+    "howEyebrow": "Cómo funciona",
+    "howTitle": "De la fase correcta al manejo completo.",
+    "howIntro": "Cada cultivo tiene sus exigencias por fase. Nuestros programas nutricionales se elaboran junto a los agrónomos de Juma para su manejo, su región y su suelo.",
+    "steps": {
+      "diagnosis": {
+        "title": "Diagnóstico por fase",
+        "desc": "Mapeamos con usted los puntos críticos del ciclo del cultivo — dónde nutrir y dónde corregir."
+      },
+      "program": {
+        "title": "Programa nutricional",
+        "desc": "Combinación correcta de productos para cada fase, con dosis y momento de aplicación."
+      },
+      "followup": {
+        "title": "Seguimiento de campo",
+        "desc": "Equipo técnico al lado del productor para ajustes durante la zafra y evaluación de resultados."
+      }
+    },
+    "ctaEyebrow": "Próximo paso",
+    "ctaTitleStart": "¿Cuál es su",
+    "ctaTitleHighlight": "cultivo?",
+    "ctaBody": "Hable con Juma y arme un programa nutricional a medida para su manejo.",
+    "ctaButton": "Hablar por WhatsApp"
+  },
+  "experiencePage": {
+    "eyebrow": "Juma Experience",
+    "titleStart": "Viva la Juma",
+    "titleHighlight": "de cerca.",
+    "intro": "Un programa de inmersión para conocer en la práctica cómo nacen y funcionan nuestras soluciones en el campo. Junto a investigadores, agrónomos y productores socios — del laboratorio a la cosecha.",
+    "btnParticipate": "Quiero participar",
+    "btnProgram": "Ver programa",
+    "programEyebrow": "Qué es",
+    "programTitle": "Tres días dentro de la operación Juma.",
+    "programIntro": "Inmersión completa: investigación, formulación, ensayos en campo y visitas a propiedades de productores socios.",
+    "days": {
+      "day1": {
+        "num": "01",
+        "title": "Día 1 · Investigación y formulación",
+        "desc": "Visita al laboratorio y a la unidad de producción. Cómo nace un producto Juma, de la molécula al envase."
+      },
+      "day2": {
+        "num": "02",
+        "title": "Día 2 · Ensayos en campo",
+        "desc": "Un día entero en parcelas experimentales, leyendo manejo, comparando lotes y conversando con agrónomos."
+      },
+      "day3": {
+        "num": "03",
+        "title": "Día 3 · Propiedades socias",
+        "desc": "Visita a fincas donde Juma ya entrega resultados — conversación directa entre productor y productor."
+      }
+    },
+    "benefitsEyebrow": "Lo que usted vivencia",
+    "benefitsTitle": "Resultado para llevar a su campo.",
+    "benefitsIntro": "Sale del programa con diagnóstico, conocimiento técnico y relación directa con nuestro equipo agronómico.",
+    "benefits": {
+      "b1": { "title": "Diagnóstico de su campo", "desc": "Cada productor sale con una lectura específica de su propia propiedad y cultivo." },
+      "b2": { "title": "Programa nutricional sugerido", "desc": "Recomendación técnica detallada para su próxima zafra, elaborada con el equipo Juma." },
+      "b3": { "title": "Red de productores socios", "desc": "Conexión con otros productores que usan las mismas tecnologías en la práctica." },
+      "b4": { "title": "Soporte técnico extendido", "desc": "Atención prioritaria del equipo agronómico de Juma durante toda la zafra siguiente." }
+    },
+    "galleryEyebrow": "Cómo es por aquí",
+    "galleryTitle": "El programa en fotos.",
+    "galleryIntro": "Imágenes de las últimas ediciones — sala de investigación, ensayos en campo e intercambio entre productores.",
+    "ctaEyebrow": "Inscripciones abiertas",
+    "ctaTitleStart": "Quiero",
+    "ctaTitleHighlight": "participar",
+    "ctaTitleEnd": "en el próximo grupo.",
+    "ctaBody": "Próximos grupos en julio y septiembre · cupos limitados. Contáctenos para reservar el suyo.",
+    "ctaButton": "Reservar por WhatsApp"
+  },
+  "aboutPage": {
+    "eyebrow": "Acerca de Juma",
+    "titleStart": "Más de 40 años en el campo, junto a quienes",
+    "titleHighlight": "producen.",
+    "intro": "Juma nació de la inquietud de un hombre de campo. Fundada por el Sr. Julio Matino, la empresa creció transformando el conocimiento agronómico en productos que aumentan la productividad del productor brasileño — sin perder nunca el contacto con el campo.",
+    "historyEyebrow": "Nuestra historia",
+    "historyTitle": "Cuatro décadas contadas en el campo.",
+    "historyIntro": "Hitos que muestran cómo Juma creció junto al productor brasileño.",
+    "timeline": {
+      "y1985": { "title": "El comienzo, en el interior paulista", "desc": "El Sr. Julio Matino funda Juma en Mogi Mirim con el objetivo de ofrecer al productor brasileño lo más avanzado en nutrición vegetal — comenzando con fertilizantes foliares formulados localmente." },
+      "y1992": { "title": "Lanzamiento del Aminosan®", "desc": "Llega al mercado el primer aminoácido de origen vegetal de Juma, que se convertiría, en las décadas siguientes, en referencia absoluta en el manejo nutricional del café, la soja y el maíz en Brasil." },
+      "y2003": { "title": "Expansión a otros cultivos", "desc": "Juma amplía su portafolio a la caña de azúcar, el algodón y los cultivos perennes. Nace la línea Revigo, foliares específicos para corregir deficiencias en cada cultivar." },
+      "y2015": { "title": "Tecnología de aplicación", "desc": "Con la llegada de las líneas Redutan y Supermix, Juma comienza a ofrecer también tecnología de caldo — calidad de aplicación, menos deriva y mayor eficiencia operacional." },
+      "y2024": { "title": "13 productos · 10 cultivos", "desc": "El portafolio actual de Juma — productos integrados en programas nutricionales completos, sustentando el manejo profesional de la siembra a la cosecha en todo Brasil." }
+    },
+    "valuesEyebrow": "Lo que nos mueve",
+    "valuesTitle": "Valores que nacen en el campo.",
+    "valuesIntro": "Principios que sostienen a Juma desde hace cuatro décadas — y siguen guiándonos.",
+    "values": {
+      "v1": { "title": "Al lado del productor", "desc": "Equipo agronómico en el campo, en todas las regiones. Decisiones tomadas donde ocurren los resultados." },
+      "v2": { "title": "Conocimiento aplicado", "desc": "Investigación continua y ensayos reales con productores socios — ciencia traducida en resultados." },
+      "v3": { "title": "Responsabilidad", "desc": "Productividad con manejo responsable, formulaciones eficientes y respeto por el suelo y el agua." }
+    },
+    "purposeEyebrow": "Propósito",
+    "purposeTitleStart": "Juntos",
+    "purposeTitleHighlight": "alimentamos",
+    "purposeTitleEnd": "el mundo.",
+    "purposeBody": "Más que un eslogan. Es lo que sustenta cada decisión que tomamos — del laboratorio al primer pulverizador que sale de madrugada en una propiedad.",
+    "galleryEyebrow": "En el campo",
+    "galleryTitle": "Dónde estamos.",
+    "galleryIntro": "Sede en Mogi Mirim, SP — equipo técnico actuando en más de 10 estados brasileños.",
+    "ctaEyebrow": "Próximo paso",
+    "ctaTitleStart": "¿Cultivamos",
+    "ctaTitleHighlight": "juntos?",
+    "ctaBody": "40 años de experiencia listos para trabajar por su próxima zafra.",
+    "ctaButton": "Hablar por WhatsApp"
+  },
+  "articlesPage": {
+    "eyebrow": "Del campo para usted",
+    "titleStart": "Contenido que ayuda a",
+    "titleHighlight": "producir mejor.",
+    "intro": "Conocimiento agronómico aplicado, escrito por quienes están en el campo cada día. Sin tecnicismos innecesarios — solo lo que le sirve para decidir y medir resultados.",
+    "filterLabel": "Categoría",
+    "categories": {
+      "all": "Todas",
+      "manejo": "Manejo",
+      "nutricao": "Nutrición",
+      "pecuaria": "Ganadería",
+      "pesquisa": "Investigación",
+      "sustentabilidade": "Sostenibilidad"
+    },
+    "featuredBadge": "Manejo · Destacado",
+    "featuredLabel": "En alza · 22 ABR 2026",
+    "featuredTitle": "Cómo reducir el estrés del cultivo en la sequía — sin perder productividad.",
+    "featuredBody": "Tres decisiones de manejo nutricional que mantienen su cultivo activo cuando el cielo se cierra. Una guía práctica basada en ensayos reales realizados con productores en MT, GO y BA.",
+    "readArticle": "Leer artículo",
+    "allArticlesEyebrow": "Todos los artículos",
+    "allArticlesTitle": "Últimas publicaciones.",
+    "allArticlesIntro": "Actualizamos semanalmente — reciba directo en WhatsApp.",
+    "readingTime": "DE LECTURA",
+    "emptyState": "No se encontraron artículos en esta categoría.",
+    "showAll": "Ver todos",
+    "loadMore": "Ver más artículos",
+    "ctaEyebrow": "Reciba cada semana",
+    "ctaTitleStart": "Contenido Juma directo",
+    "ctaTitleEnd": "a su WhatsApp.",
+    "ctaBody": "Cada semana un artículo nuevo, casos reales de campo y consejos del equipo agronómico — sin spam.",
+    "ctaButton": "Suscribirse por WhatsApp"
+  },
+  "contactPage": {
+    "eyebrow": "Contacto",
+    "titleStart": "Hablemos sobre",
+    "titleHighlight": "su zafra.",
+    "intro": "Cuéntenos qué produce y dónde está — elaboramos una recomendación técnica a medida para usted o programamos una visita de nuestro equipo agronómico.",
+    "formTitle": "Hable con Juma.",
+    "labelName": "Nombre completo",
+    "placeholderName": "Juan García",
+    "labelWhatsApp": "WhatsApp",
+    "labelEmail": "Correo electrónico",
+    "labelCulture": "Cultivo principal",
+    "labelRegion": "Región / Estado",
+    "placeholderRegion": "Sorriso · MT",
+    "labelProduct": "Producto de interés",
+    "productDefault": "No lo sé aún — quiero recomendación",
+    "labelMessage": "Mensaje",
+    "placeholderMessage": "Cuéntenos sobre su zafra, área sembrada o dudas específicas (opcional)",
+    "privacyNote": "Sus datos están protegidos. No los compartimos con terceros — los usamos solo para responder su consulta.",
+    "submitButton": "Hablar por WhatsApp",
+    "whatsappSubtitle": "WhatsApp comercial · respuesta el mismo día",
+    "phoneSubtitle": "Central de atención — Mogi Mirim, SP",
+    "emailSubtitle": "Prensa, alianzas y relaciones",
+    "hoursMain": "Lun–Jue 07:30 a 17:15",
+    "hoursAlt": "Vie 07:30 a 16:00 · horario de Brasilia",
+    "locationMain": "Mogi Mirim · SP",
+    "locationAlt": "Sede e industria · atención en todo Brasil",
+    "mapLabel": "Juma Agro · Mogi Mirim/SP",
+    "ctaEyebrow": "Respuesta rápida",
+    "ctaTitleLine1": "¿Sin tiempo que perder?",
+    "ctaTitleHighlight": "Hable",
+    "ctaTitleLine2": "directo conmigo.",
+    "ctaBody": "Nuestro equipo responde en WhatsApp en hasta 1 hora hábil, de lunes a viernes.",
+    "ctaButton": "Abrir WhatsApp"
   }
 }

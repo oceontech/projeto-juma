@@ -229,5 +229,286 @@
     "body": "Talk to the technical team, get the phase by phase program for your crop and compare it at harvest.",
     "cta": "I want these results on my farm",
     "ctaNote": "The technical team answers, during business hours. No commitment."
+  },
+  "productsPage": {
+    "eyebrow": "Our Solutions",
+    "titleStart": "Solutions for every",
+    "titleHighlight": "stage",
+    "titleEnd": "of the crop.",
+    "intro": "Thirteen products designed to support the grower from seed treatment to complete management — formulated over 40 years of Brazilian field experience.",
+    "filterCategory": "Category",
+    "filterCulture": "Crop",
+    "categories": {
+      "all": "All",
+      "tratamento": "Seed Treatment",
+      "nutricao": "Nutrition & Physiology",
+      "protecao": "Crop Protection",
+      "aplicacao": "Application Technology",
+      "manejo": "Complete Management"
+    },
+    "cultures": {
+      "all": "All",
+      "soja": "Soybean",
+      "milho": "Corn",
+      "cafe": "Coffee",
+      "cana": "Sugarcane",
+      "algodao": "Cotton",
+      "feijao": "Beans",
+      "citros": "Citrus",
+      "tomate": "Tomato",
+      "batata": "Potato",
+      "pastagem": "Pasture"
+    },
+    "products": {
+      "acordaCana": {
+        "tag": "Seed Treatment",
+        "description": "Rooting, vigor and higher productivity in sugarcane, from the very first day."
+      },
+      "acordaUltra": {
+        "tag": "Seed Treatment",
+        "description": "Strong establishment and deep rooting from the very first day in the soil."
+      },
+      "aduban": {
+        "tag": "Seed Treatment",
+        "description": "Balanced soil and better nutrient uptake for the young plant."
+      },
+      "aminosan": {
+        "tag": "Nutrition & Physiology",
+        "description": "40+ years as Brazil's reference amino acid — vigor, roots and stress tolerance."
+      },
+      "fitofert": {
+        "tag": "Nutrition & Physiology",
+        "description": "Better fruit set, grain fill and productivity in the reproductive phase."
+      },
+      "linhaRevigo": {
+        "tag": "Nutrition & Physiology",
+        "description": "Complete foliar line to correct deficiencies across every crop."
+      },
+      "revigophosAmino": {
+        "tag": "Nutrition & Physiology",
+        "description": "Fast energy for the plant and accelerated recovery after stress events."
+      },
+      "revigoCobreUltra": {
+        "tag": "Nutrition & Physiology",
+        "description": "Complexed copper: physiological strength and plant resistance."
+      },
+      "kmepUltra": {
+        "tag": "Crop Protection",
+        "description": "Boosts insecticides and improves efficiency in pest control."
+      },
+      "linhaRedutan": {
+        "tag": "Application Technology",
+        "description": "Spray quality, less drift and greater operational efficiency."
+      },
+      "supermix": {
+        "tag": "Application Technology",
+        "description": "Adjuvant for uniform spray, no clogging and greater compatibility."
+      },
+      "revigoMilho": {
+        "tag": "Complete Management",
+        "description": "Strategic nutrition for second-crop corn — real gain per hectare."
+      },
+      "revigoPasto": {
+        "tag": "Complete Management",
+        "description": "Pasture recovery, weight gain and higher stocking rate per hectare."
+      }
+    },
+    "productImageAlt": "Product bottle",
+    "emptyState": "No products match that combination.",
+    "clearFilters": "Clear filters",
+    "ctaEyebrow": "Next step",
+    "ctaTitleStart": "Found what you were",
+    "ctaTitleHighlight": "looking for?",
+    "ctaBody": "Our agronomic team helps you build the right program for your crop and region.",
+    "ctaButton": "Talk on WhatsApp"
+  },
+  "culturesPage": {
+    "eyebrow": "Crops",
+    "titleStart": "Solutions built for",
+    "titleHighlight": "your crop.",
+    "intro": "From grains to perennials, ten crops with dedicated nutritional programs — developed side by side with growers across different regions of Brazil.",
+    "cultures": {
+      "soja": "Soybean",
+      "milho": "Corn",
+      "cafe": "Coffee",
+      "cana": "Sugarcane",
+      "algodao": "Cotton",
+      "feijao": "Beans",
+      "citros": "Citrus",
+      "batata": "Potato",
+      "tomate": "Tomato",
+      "pastagem": "Pasture"
+    },
+    "howEyebrow": "How it works",
+    "howTitle": "From the right phase to complete management.",
+    "howIntro": "Each crop has its own phase-by-phase demands. Our nutritional programs are built together with Juma agronomists for your management, your region and your soil.",
+    "steps": {
+      "diagnosis": {
+        "title": "Phase diagnosis",
+        "desc": "We map with you the critical points of the crop cycle — where to nourish and where to correct."
+      },
+      "program": {
+        "title": "Nutritional program",
+        "desc": "The right product combination for each phase, with dosage and application timing."
+      },
+      "followup": {
+        "title": "Field follow-up",
+        "desc": "Technical team alongside the grower for adjustments throughout the season and result evaluation."
+      }
+    },
+    "ctaEyebrow": "Next step",
+    "ctaTitleStart": "What is your",
+    "ctaTitleHighlight": "crop?",
+    "ctaBody": "Talk to Juma and build a tailor-made nutritional program for your management.",
+    "ctaButton": "Talk on WhatsApp"
+  },
+  "experiencePage": {
+    "eyebrow": "Juma Experience",
+    "titleStart": "Experience Juma",
+    "titleHighlight": "up close.",
+    "intro": "An immersion program to see in practice how our solutions are born and work in the field. Side by side with researchers, agronomists and partner growers — from the lab to the harvest.",
+    "btnParticipate": "I want to join",
+    "btnProgram": "See program",
+    "programEyebrow": "What it is",
+    "programTitle": "Three days inside the Juma operation.",
+    "programIntro": "Full immersion: research, formulation, field trials and visits to partner farms.",
+    "days": {
+      "day1": {
+        "num": "01",
+        "title": "Day 1 · Research & formulation",
+        "desc": "Visit to the lab and production unit. How a Juma product is born, from the molecule to the bottle."
+      },
+      "day2": {
+        "num": "02",
+        "title": "Day 2 · Field trials",
+        "desc": "A full day in experimental plots, reading crop management, comparing areas and talking with agronomists."
+      },
+      "day3": {
+        "num": "03",
+        "title": "Day 3 · Partner farms",
+        "desc": "Visit to farms where Juma is already delivering results — grower to grower, face to face."
+      }
+    },
+    "benefitsEyebrow": "What you experience",
+    "benefitsTitle": "Results to take back to your farm.",
+    "benefitsIntro": "You leave the program with a diagnosis, technical knowledge and a direct relationship with our agronomic team.",
+    "benefits": {
+      "b1": { "title": "Your farm diagnosis", "desc": "Each grower leaves with a specific reading of their own property and crop." },
+      "b2": { "title": "Suggested nutritional program", "desc": "Detailed technical recommendation for your next season, built with the Juma team." },
+      "b3": { "title": "Partner grower network", "desc": "Connection with other growers who are using the same technologies in practice." },
+      "b4": { "title": "Extended technical support", "desc": "Priority service from Juma's agronomic team throughout the following season." }
+    },
+    "galleryEyebrow": "What it looks like",
+    "galleryTitle": "The program in photos.",
+    "galleryIntro": "Images from recent editions — research lab, field trials and grower exchange.",
+    "ctaEyebrow": "Open enrolments",
+    "ctaTitleStart": "I want to",
+    "ctaTitleHighlight": "participate",
+    "ctaTitleEnd": "in the next group.",
+    "ctaBody": "Next groups in July and September · limited spots. Get in touch to reserve yours.",
+    "ctaButton": "Reserve on WhatsApp"
+  },
+  "aboutPage": {
+    "eyebrow": "About Juma",
+    "titleStart": "Over 40 years in the field, alongside those who",
+    "titleHighlight": "produce.",
+    "intro": "Juma was born from the restlessness of a man of the land. Founded by Mr. Julio Matino, the company grew by turning agronomic knowledge into products that raise the productivity of the Brazilian grower — without ever losing touch with the field.",
+    "historyEyebrow": "Our story",
+    "historyTitle": "Four decades counted in the field.",
+    "historyIntro": "Milestones that show how Juma grew side by side with the Brazilian grower.",
+    "timeline": {
+      "y1985": { "title": "The beginning, in inland São Paulo", "desc": "Mr. Julio Matino founds Juma in Mogi Mirim with the goal of offering Brazilian growers the most advanced plant nutrition available — starting with locally formulated foliar fertilizers." },
+      "y1992": { "title": "Launch of Aminosan®", "desc": "The first plant-origin amino acid from Juma reaches the market and would go on, in the following decades, to become the absolute reference in nutritional management of coffee, soybeans and corn in Brazil." },
+      "y2003": { "title": "Expansion to other crops", "desc": "Juma broadens its portfolio to sugarcane, cotton and perennial crops. The Revigo line is born — crop-specific foliar products to correct deficiencies in every cultivar." },
+      "y2015": { "title": "Application technology", "desc": "With the arrival of the Redutan and Supermix lines, Juma begins offering spray technology — application quality, less drift and greater operational efficiency." },
+      "y2024": { "title": "13 products · 10 crops", "desc": "Juma's current portfolio — products integrated into complete nutritional programs, supporting professional management from planting to harvest across Brazil." }
+    },
+    "valuesEyebrow": "What drives us",
+    "valuesTitle": "Values born in the field.",
+    "valuesIntro": "Principles that have held Juma steady for four decades — and continue to guide us.",
+    "values": {
+      "v1": { "title": "Alongside the grower", "desc": "Agronomic team in the field, across every region. Decisions made where results happen." },
+      "v2": { "title": "Applied knowledge", "desc": "Continuous research and real trials with partner growers — science translated into results." },
+      "v3": { "title": "Responsibility", "desc": "Productivity through responsible management, efficient formulations and respect for soil and water." }
+    },
+    "purposeEyebrow": "Purpose",
+    "purposeTitleStart": "Together",
+    "purposeTitleHighlight": "we feed",
+    "purposeTitleEnd": "the world.",
+    "purposeBody": "More than a slogan. It is what sustains every decision we make — from the lab to the first sprayer leaving a farm at the break of dawn.",
+    "galleryEyebrow": "In the field",
+    "galleryTitle": "Where we are.",
+    "galleryIntro": "Headquarters in Mogi Mirim, SP — technical team operating across more than 10 Brazilian states.",
+    "ctaEyebrow": "Next step",
+    "ctaTitleStart": "Let's grow",
+    "ctaTitleHighlight": "together?",
+    "ctaBody": "40 years of experience ready to work for your next season.",
+    "ctaButton": "Talk on WhatsApp"
+  },
+  "articlesPage": {
+    "eyebrow": "From the field to you",
+    "titleStart": "Content that helps you",
+    "titleHighlight": "produce better.",
+    "intro": "Applied agronomic knowledge, written by those who are in the field every day. No unnecessary jargon — only what you need to decide and measure results.",
+    "filterLabel": "Category",
+    "categories": {
+      "all": "All",
+      "manejo": "Management",
+      "nutricao": "Nutrition",
+      "pecuaria": "Livestock",
+      "pesquisa": "Research",
+      "sustentabilidade": "Sustainability"
+    },
+    "featuredBadge": "Management · Featured",
+    "featuredLabel": "Trending · Apr 22 2026",
+    "featuredTitle": "How to reduce crop stress during drought — without losing productivity.",
+    "featuredBody": "Three nutritional management decisions that keep your crop active when the sky closes. A practical guide based on real trials conducted with growers in MT, GO and BA.",
+    "readArticle": "Read article",
+    "allArticlesEyebrow": "All articles",
+    "allArticlesTitle": "Latest publications.",
+    "allArticlesIntro": "We update weekly — receive directly on WhatsApp.",
+    "readingTime": "READ",
+    "emptyState": "No articles found in this category.",
+    "showAll": "Show all",
+    "loadMore": "Load more articles",
+    "ctaEyebrow": "Receive every week",
+    "ctaTitleStart": "Juma content straight to",
+    "ctaTitleEnd": "your WhatsApp.",
+    "ctaBody": "Every week a new article, real field cases and tips from our agronomic team — no spam.",
+    "ctaButton": "Subscribe on WhatsApp"
+  },
+  "contactPage": {
+    "eyebrow": "Contact",
+    "titleStart": "Let's talk about",
+    "titleHighlight": "your season.",
+    "intro": "Tell us what you grow and where you are — we build a tailored technical recommendation for you or schedule a visit from our agronomic team.",
+    "formTitle": "Talk to Juma.",
+    "labelName": "Full name",
+    "placeholderName": "John Smith",
+    "labelWhatsApp": "WhatsApp",
+    "labelEmail": "Email",
+    "labelCulture": "Main crop",
+    "labelRegion": "Region / State",
+    "placeholderRegion": "Sorriso · MT",
+    "labelProduct": "Product of interest",
+    "productDefault": "Not sure yet — I want a recommendation",
+    "labelMessage": "Message",
+    "placeholderMessage": "Tell us about your season, planted area, or specific questions (optional)",
+    "privacyNote": "Your data is protected. We do not share it with third parties — we only use it to respond to your enquiry.",
+    "submitButton": "Talk on WhatsApp",
+    "whatsappSubtitle": "Business WhatsApp · same-day response",
+    "phoneSubtitle": "Customer service — Mogi Mirim, SP",
+    "emailSubtitle": "Press, partnerships and relations",
+    "hoursMain": "Mon–Thu 07:30 to 17:15",
+    "hoursAlt": "Fri 07:30 to 16:00 · Brasília time",
+    "locationMain": "Mogi Mirim · SP",
+    "locationAlt": "HQ & plant · service across Brazil",
+    "mapLabel": "Juma Agro · Mogi Mirim/SP",
+    "ctaEyebrow": "Fast response",
+    "ctaTitleLine1": "No time to waste?",
+    "ctaTitleHighlight": "Talk",
+    "ctaTitleLine2": "to me directly.",
+    "ctaBody": "Our team responds on WhatsApp within 1 business hour, Monday to Friday.",
+    "ctaButton": "Open WhatsApp"
   }
 }
