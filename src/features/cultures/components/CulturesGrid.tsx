@@ -182,7 +182,7 @@ export function CulturesGrid() {
         {CULTURE_KEYS.map((culture) => (
           <Link
             key={culture.id}
-            href={`/cultura-${culture.id}`}
+            href={`/culturas/${culture.id}`}
             data-culture-card
             className="group relative flex flex-col justify-end h-64 sm:h-72 rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
           >

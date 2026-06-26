@@ -1,0 +1,15 @@
+export const PRODUCT_SLUGS = [
+  'acorda-cana',
+  'acorda-ultra',
+  'aduban',
+  'aminosan',
+  'fitofert',
+  'linha-revigo',
+  'revigophos-amino',
+  'revigo-cobre-ultra',
+  'kmep-ultra',
+  'linha-redutan',
+  'supermix',
+  'revigo-milho',
+  'revigo-pasto',
+] as const

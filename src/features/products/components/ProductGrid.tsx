@@ -40,7 +40,7 @@ const PRODUCTS = [
     categoryId: 'cat-tratamento',
     cultures: ['cul-cana'],
     color: '#79ab34',
-    href: '/produto-acorda-cana',
+    href: '/produtos/acorda-cana',
   },
   {
     id: 'acorda-ultra',
@@ -49,7 +49,7 @@ const PRODUCTS = [
     categoryId: 'cat-tratamento',
     cultures: ['cul-soja', 'cul-milho', 'cul-algodao', 'cul-feijao'],
     color: '#008dc2',
-    href: '/produto-acorda-ultra',
+    href: '/produtos/acorda-ultra',
   },
   {
     id: 'aduban',
@@ -58,7 +58,7 @@ const PRODUCTS = [
     categoryId: 'cat-tratamento',
     cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-feijao'],
     color: '#ad1115',
-    href: '/produto-aduban',
+    href: '/produtos/aduban',
   },
   {
     id: 'aminosan',
@@ -67,7 +67,7 @@ const PRODUCTS = [
     categoryId: 'cat-nutricao',
     cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-algodao', 'cul-feijao', 'cul-citros', 'cul-tomate', 'cul-batata', 'cul-cana'],
     color: '#006838',
-    href: '/produto-aminosan',
+    href: '/produtos/aminosan',
   },
   {
     id: 'fitofert',
@@ -76,7 +76,7 @@ const PRODUCTS = [
     categoryId: 'cat-nutricao',
     cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-citros', 'cul-tomate'],
     color: '#006838',
-    href: '/produto-fitofert',
+    href: '/produtos/fitofert',
   },
   {
     id: 'linha-revigo',
@@ -85,7 +85,7 @@ const PRODUCTS = [
     categoryId: 'cat-nutricao',
     cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-algodao', 'cul-feijao', 'cul-citros', 'cul-tomate', 'cul-batata'],
     color: '#312783',
-    href: '/produto-linha-revigo',
+    href: '/produtos/linha-revigo',
   },
   {
     id: 'revigophos-amino',
@@ -94,7 +94,7 @@ const PRODUCTS = [
     categoryId: 'cat-nutricao',
     cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-algodao', 'cul-feijao', 'cul-cana'],
     color: '#312783',
-    href: '/produto-revigophos-amino',
+    href: '/produtos/revigophos-amino',
   },
   {
     id: 'revigo-cobre-ultra',
@@ -103,7 +103,7 @@ const PRODUCTS = [
     categoryId: 'cat-nutricao',
     cultures: ['cul-soja', 'cul-cafe', 'cul-citros', 'cul-tomate', 'cul-batata'],
     color: '#312783',
-    href: '/produto-revigo-cobre-ultra',
+    href: '/produtos/revigo-cobre-ultra',
   },
   {
     id: 'kmep-ultra',
@@ -112,7 +112,7 @@ const PRODUCTS = [
     categoryId: 'cat-protecao',
     cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-algodao', 'cul-feijao', 'cul-tomate', 'cul-batata', 'cul-cana'],
     color: '#ad1115',
-    href: '/produto-kmep-ultra',
+    href: '/produtos/kmep-ultra',
   },
   {
     id: 'linha-redutan',
@@ -121,7 +121,7 @@ const PRODUCTS = [
     categoryId: 'cat-aplicacao',
     cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-algodao', 'cul-feijao', 'cul-citros', 'cul-tomate', 'cul-batata', 'cul-cana', 'cul-pastagem'],
     color: '#7d252a',
-    href: '/produto-linha-redutan',
+    href: '/produtos/linha-redutan',
   },
   {
     id: 'supermix',
@@ -130,7 +130,7 @@ const PRODUCTS = [
     categoryId: 'cat-aplicacao',
     cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-algodao', 'cul-feijao', 'cul-citros', 'cul-tomate', 'cul-batata', 'cul-cana', 'cul-pastagem'],
     color: '#388123',
-    href: '/produto-supermix',
+    href: '/produtos/supermix',
   },
   {
     id: 'revigo-milho',
@@ -139,7 +139,7 @@ const PRODUCTS = [
     categoryId: 'cat-manejo',
     cultures: ['cul-milho'],
     color: '#312783',
-    href: '/produto-revigo-milho',
+    href: '/produtos/revigo-milho',
   },
   {
     id: 'revigo-pasto',
@@ -148,7 +148,7 @@ const PRODUCTS = [
     categoryId: 'cat-manejo',
     cultures: ['cul-pastagem'],
     color: '#312783',
-    href: '/produto-revigo-pasto',
+    href: '/produtos/revigo-pasto',
   },
 ]
 

@@ -1,0 +1,881 @@
+'use client'
+
+import React, { useRef, useState, useCallback } from 'react'
+import { Link } from '@/i18n/navigation'
+import { Container } from '@/components/layout/Container'
+import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
+import { DUR, EASE } from '@/features/animation/motion'
+import { useReducedMotion } from '@/features/animation/useReducedMotion'
+
+const WHATSAPP = 'https://wa.me/5519999648186'
+
+type Challenge = { stage: string; title: string; desc: string }
+type ManagePhase = { label: string; fase: string; products: string[] }
+type RecommendedProduct = { slug: string; name: string; tag: string; desc: string; labelColor: string }
+type CalcProduct = { id: string; label: string; gainPerHa: number }
+
+type CultureData = {
+  name: string
+  badge: string
+  gradient: string
+  description: string
+  actua: string[]
+  challenges: Challenge[]
+  management: ManagePhase[]
+  recommended: RecommendedProduct[]
+  calcProducts: CalcProduct[]
+}
+
+const DATA: Record<string, CultureData> = {
+  cafe: {
+    name: 'Café',
+    badge: 'Cultura perene',
+    gradient: 'linear-gradient(165deg, #6c4226 0%, #2a1a10 100%)',
+    description:
+      'O café exige atenção em cada fase: cada estágio impacta diretamente a produtividade e a qualidade dos grãos colhidos. A Juma desenvolve programas nutricionais para sustentar o cafezal do enraizamento à maturação.',
+    actua: [
+      'Floradas uniformes e mais bem distribuídas ao longo do talhão.',
+      'Pegamento de frutos mais alto, menos queda de chumbinho.',
+      'Enchimento e qualidade dos grãos sustentados até a colheita.',
+      'Redução do impacto de estresses climáticos e veranicos.',
+      'Eficiência nutricional — cada nutriente aplicado bem absorvido.',
+    ],
+    challenges: [
+      { stage: '01 · Florada', title: 'Desuniformidade e baixo pegamento', desc: 'Floradas distribuídas em ondas, prejudicando colheita e uniformidade da produção.' },
+      { stage: '02 · Chumbinho', title: 'Queda de frutos', desc: 'Frutos recém-formados que caem antes de fixarem — perda direta de produtividade.' },
+      { stage: '03 · Granação', title: 'Baixo enchimento', desc: 'Grãos pequenos e leves, com perda de peneira alta e classificação reduzida.' },
+      { stage: '04 · Maturação', title: 'Perda de qualidade', desc: 'Maturação desigual e perda de bebida — impacto direto no preço por saca.' },
+      { stage: '05 · Clima', title: 'Estresses climáticos', desc: 'Veranicos, geadas e calor extremo comprometendo todo o investimento da safra.' },
+    ],
+    management: [
+      { label: 'Fase 01', fase: 'Pré-florada', products: ['FitoFert', 'Aminosan'] },
+      { label: 'Fase 02', fase: 'Pós-florada', products: ['Aminosan', 'Revigo CaB'] },
+      { label: 'Fase 03', fase: 'Chumbinho', products: ['Revigo', 'Revigo Zn Plus', 'Aminosan'] },
+      { label: 'Fase 04', fase: 'Granação', products: ['Revigo Nitrogênio Plus', 'RevigoPHOS Amino', 'FitoFert'] },
+      { label: 'Fase 05', fase: 'Maturação', products: ['RevigoPHOS Amino', 'Aminosan', 'Revigo K'] },
+    ],
+    recommended: [
+      { slug: 'aminosan', name: 'Aminosan®', tag: 'Nutrição e Fisiologia', desc: 'Vigor, raízes e resistência em todas as fases do café.', labelColor: '#659357' },
+      { slug: 'fitofert', name: 'Fitofert', tag: 'Nutrição e Fisiologia', desc: 'Pegamento, enchimento e produtividade na fase reprodutiva.', labelColor: '#659357' },
+      { slug: 'revigophos-amino', name: 'RevigoPhos Amino', tag: 'Nutrição e Fisiologia', desc: 'Energia e recuperação rápida em janelas críticas.', labelColor: '#302783' },
+    ],
+    calcProducts: [
+      { id: 'aminosan', label: 'Aminosan', gainPerHa: 6 },
+      { id: 'fitofert', label: 'Fitofert', gainPerHa: 4 },
+      { id: 'revigophos', label: 'RevigoPhos Amino', gainPerHa: 3 },
+    ],
+  },
+  soja: {
+    name: 'Soja',
+    badge: 'Grão',
+    gradient: 'linear-gradient(165deg, #5d7a3a, #2c3a18)',
+    description:
+      'A soja é a principal cultura do Brasil e exige precisão nutricional em cada fase do ciclo. A Juma desenvolve programas completos do tratamento de sementes ao enchimento de grãos.',
+    actua: [
+      'Enraizamento profundo e stand uniforme desde o plantio.',
+      'Nutrição vegetativa para alta produção de massa foliar.',
+      'Pegamento máximo de vagens no período reprodutivo.',
+      'Enchimento de grãos com peso e uniformidade superiores.',
+      'Resistência ao déficit hídrico em períodos críticos do ciclo.',
+    ],
+    challenges: [
+      { stage: '01 · Germinação', title: 'Stand desuniforme', desc: 'Emergência irregular que compromete o aproveitamento da área e dificulta o manejo.' },
+      { stage: '02 · Vegetativo', title: 'Baixo vigor foliar', desc: 'Plantas com crescimento lento e menor capacidade de interceptação de luz.' },
+      { stage: '03 · Florada', title: 'Baixo pegamento de vagens', desc: 'Flores que abortam antes de fixar, reduzindo diretamente o potencial produtivo.' },
+      { stage: '04 · Enchimento', title: 'Grãos leves', desc: 'Peso e classificação abaixo do potencial por déficit nutricional na granação.' },
+      { stage: '05 · Clima', title: 'Veranicos e estresses', desc: 'Déficit hídrico e altas temperaturas comprometendo fisiologia e produção.' },
+    ],
+    management: [
+      { label: 'Fase 01', fase: 'Tratamento de semente', products: ['Acorda Ultra', 'Aduban'] },
+      { label: 'Fase 02', fase: 'V3–V5', products: ['Aminosan'] },
+      { label: 'Fase 03', fase: 'R1–R2', products: ['FitoFert', 'Aminosan'] },
+      { label: 'Fase 04', fase: 'R5–R6', products: ['RevigoPHOS Amino', 'FitoFert'] },
+    ],
+    recommended: [
+      { slug: 'aminosan', name: 'Aminosan®', tag: 'Nutrição e Fisiologia', desc: 'Vigor, raízes e resistência em todo o ciclo da soja.', labelColor: '#659357' },
+      { slug: 'fitofert', name: 'Fitofert', tag: 'Nutrição e Fisiologia', desc: 'Pegamento e enchimento na fase reprodutiva.', labelColor: '#659357' },
+      { slug: 'acorda-ultra', name: 'Acorda Ultra', tag: 'Tratamento de Sementes', desc: 'Arranque forte desde o plantio.', labelColor: '#008dc2' },
+    ],
+    calcProducts: [
+      { id: 'aminosan', label: 'Aminosan', gainPerHa: 12 },
+      { id: 'fitofert', label: 'Fitofert', gainPerHa: 7 },
+      { id: 'acorda', label: 'Acorda Ultra', gainPerHa: 4 },
+    ],
+  },
+  milho: {
+    name: 'Milho',
+    badge: 'Grão',
+    gradient: 'linear-gradient(165deg, #c3a445, #6b4f15)',
+    description:
+      'O milho, especialmente o safrinha, exige programa nutricional preciso para aproveitar a janela de cultivo e maximizar o rendimento por hectare.',
+    actua: [
+      'Arranque vigoroso desde a emergência.',
+      'Nutrição para alta produção de massa verde e espigas bem formadas.',
+      'Pegamento e enchimento de grãos até a colheita.',
+      'Resistência ao estresse hídrico no período reprodutivo.',
+      'Programa integrado para milho safrinha de alta performance.',
+    ],
+    challenges: [
+      { stage: '01 · Emergência', title: 'Arranque lento', desc: 'Plântulas com desenvolvimento inicial lento que perdem janela produtiva.' },
+      { stage: '02 · Vegetativo', title: 'Déficit nutricional', desc: 'Plantas com crescimento irregular e menor acúmulo de biomassa.' },
+      { stage: '03 · Pendoamento', title: 'Estresse hídrico', desc: 'Período crítico com seca comprometendo o florescimento e o pegamento.' },
+      { stage: '04 · Enchimento', title: 'Grãos mal formados', desc: 'Espigas com falhas e grãos leves por deficiência nutricional na granação.' },
+    ],
+    management: [
+      { label: 'Fase 01', fase: 'Tratamento de semente', products: ['Acorda Ultra'] },
+      { label: 'Fase 02', fase: 'V3–V5', products: ['Aminosan', 'Linha Revigo'] },
+      { label: 'Fase 03', fase: 'V8–V10', products: ['Aminosan', 'FitoFert'] },
+      { label: 'Fase 04', fase: 'R1–R3', products: ['RevigoPHOS Amino', 'FitoFert'] },
+    ],
+    recommended: [
+      { slug: 'aminosan', name: 'Aminosan®', tag: 'Nutrição e Fisiologia', desc: 'Vigor e resistência para todo o ciclo.', labelColor: '#659357' },
+      { slug: 'revigo-milho', name: 'Revigo + Milho', tag: 'Manejo Completo', desc: 'Programa nutricional completo para milho safrinha.', labelColor: '#302783' },
+      { slug: 'fitofert', name: 'Fitofert', tag: 'Nutrição e Fisiologia', desc: 'Pegamento e enchimento de grãos.', labelColor: '#659357' },
+    ],
+    calcProducts: [
+      { id: 'aminosan', label: 'Aminosan', gainPerHa: 10 },
+      { id: 'revigo', label: 'Revigo + Milho', gainPerHa: 8 },
+      { id: 'fitofert', label: 'Fitofert', gainPerHa: 6 },
+    ],
+  },
+  cana: {
+    name: 'Cana-de-açúcar',
+    badge: 'Cultura semiperene',
+    gradient: 'linear-gradient(165deg, #7fa356, #364a1f)',
+    description:
+      'A cana exige nutrição desde o plantio até a maturação, com foco em arranque, perfilhamento e TCH. A Juma oferece soluções específicas para cada fase da cultura.',
+    actua: [
+      'Enraizamento acelerado no plantio de mudas.',
+      'Perfilhamento abundante para maior número de colmos por hectare.',
+      'Crescimento vigoroso sustentado ao longo do ciclo.',
+      'Resistência ao estresse hídrico e térmico.',
+      'Maturação uniforme para melhor qualidade industrial.',
+    ],
+    challenges: [
+      { stage: '01 · Plantio', title: 'Arranque lento de mudas', desc: 'Mudas com brotação irregular que comprometem o stand inicial.' },
+      { stage: '02 · Perfilhamento', title: 'Baixo perfilhamento', desc: 'Número insuficiente de colmos por hectare limitando o TCH.' },
+      { stage: '03 · Crescimento', title: 'Déficit nutricional', desc: 'Crescimento irregular por falta de nutrição adequada em cada fase.' },
+      { stage: '04 · Maturação', title: 'Maturação desigual', desc: 'Colmos em diferentes estágios dificultando o manejo da colheita.' },
+    ],
+    management: [
+      { label: 'Fase 01', fase: 'Plantio', products: ['Acorda Cana'] },
+      { label: 'Fase 02', fase: 'Perfilhamento', products: ['Aminosan', 'Linha Revigo'] },
+      { label: 'Fase 03', fase: 'Crescimento', products: ['Aminosan', 'RevigoPHOS Amino'] },
+    ],
+    recommended: [
+      { slug: 'acorda-cana', name: 'Acorda Cana', tag: 'Tratamento de Sementes', desc: 'Enraizamento e vigor desde o plantio.', labelColor: '#79ab34' },
+      { slug: 'aminosan', name: 'Aminosan®', tag: 'Nutrição e Fisiologia', desc: 'Vigor e resistência durante todo o crescimento.', labelColor: '#659357' },
+      { slug: 'linha-redutan', name: 'Linha Redutan', tag: 'Tecnologia de Aplicação', desc: 'Qualidade de calda para aplicações em cana.', labelColor: '#7d252a' },
+    ],
+    calcProducts: [
+      { id: 'acorda', label: 'Acorda Cana', gainPerHa: 8 },
+      { id: 'aminosan', label: 'Aminosan', gainPerHa: 5 },
+    ],
+  },
+  algodao: {
+    name: 'Algodão',
+    badge: 'Fibra',
+    gradient: 'linear-gradient(165deg, #e7dfc9, #87826a)',
+    description:
+      'O algodão é exigente em nutrição no período reprodutivo, quando floração, fixação de capulhos e enchimento de fibras definem a rentabilidade da safra.',
+    actua: [
+      'Arranque vigoroso e stand uniforme.',
+      'Nutrição equilibrada na fase vegetativa para alta carga produtiva.',
+      'Fixação de botões florais e capulhos.',
+      'Enchimento e maturação uniforme de fibras.',
+      'Resistência a estresses climáticos durante o ciclo.',
+    ],
+    challenges: [
+      { stage: '01 · Vegetativo', title: 'Crescimento irregular', desc: 'Plantas desuniformes que dificultam o manejo e reduzem a produtividade por área.' },
+      { stage: '02 · Florada', title: 'Baixa fixação de capulhos', desc: 'Botões florais que caem antes de fixar por deficiência nutricional ou estresse.' },
+      { stage: '03 · Enchimento', title: 'Fibra de baixa qualidade', desc: 'Comprimento e resistência de fibra abaixo do potencial por nutrição inadequada.' },
+    ],
+    management: [
+      { label: 'Fase 01', fase: 'Tratamento de semente', products: ['Acorda Ultra'] },
+      { label: 'Fase 02', fase: 'Vegetativo', products: ['Aminosan', 'Linha Revigo'] },
+      { label: 'Fase 03', fase: 'Reprodutivo', products: ['FitoFert', 'RevigoPHOS Amino'] },
+    ],
+    recommended: [
+      { slug: 'aminosan', name: 'Aminosan®', tag: 'Nutrição e Fisiologia', desc: 'Vigor e resistência para todo o ciclo.', labelColor: '#659357' },
+      { slug: 'fitofert', name: 'Fitofert', tag: 'Nutrição e Fisiologia', desc: 'Fixação e enchimento de capulhos.', labelColor: '#659357' },
+      { slug: 'acorda-ultra', name: 'Acorda Ultra', tag: 'Tratamento de Sementes', desc: 'Arranque forte desde o plantio.', labelColor: '#008dc2' },
+    ],
+    calcProducts: [
+      { id: 'aminosan', label: 'Aminosan', gainPerHa: 6 },
+      { id: 'fitofert', label: 'Fitofert', gainPerHa: 4 },
+    ],
+  },
+  feijao: {
+    name: 'Feijão',
+    badge: 'Grão',
+    gradient: 'linear-gradient(165deg, #8b5e3b, #2f1f12)',
+    description:
+      'O feijão tem ciclo curto e exige nutrição precisa no período reprodutivo. Pequenas deficiências em fases críticas causam perdas significativas de produtividade.',
+    actua: [
+      'Enraizamento e stand uniformes desde a germinação.',
+      'Nutrição vegetativa para desenvolvimento rápido e equilibrado.',
+      'Fixação de vagens e pegamento máximo na florada.',
+      'Enchimento de grãos com peso e uniformidade.',
+      'Resistência a estresses hídricos na fase crítica.',
+    ],
+    challenges: [
+      { stage: '01 · Germinação', title: 'Stand desuniforme', desc: 'Emergência irregular comprometendo o potencial produtivo da área.' },
+      { stage: '02 · Florada', title: 'Baixo pegamento de vagens', desc: 'Flores que abortam por deficiência nutricional ou estresse hídrico.' },
+      { stage: '03 · Granação', title: 'Grãos leves', desc: 'Peso e aspecto abaixo do potencial por nutrição insuficiente.' },
+    ],
+    management: [
+      { label: 'Fase 01', fase: 'Tratamento de semente', products: ['Acorda Ultra', 'Aduban'] },
+      { label: 'Fase 02', fase: 'V3–V4', products: ['Aminosan'] },
+      { label: 'Fase 03', fase: 'R1–R5', products: ['FitoFert', 'Aminosan'] },
+    ],
+    recommended: [
+      { slug: 'aminosan', name: 'Aminosan®', tag: 'Nutrição e Fisiologia', desc: 'Vigor e resistência em todo o ciclo.', labelColor: '#659357' },
+      { slug: 'fitofert', name: 'Fitofert', tag: 'Nutrição e Fisiologia', desc: 'Pegamento e enchimento de grãos.', labelColor: '#659357' },
+      { slug: 'acorda-ultra', name: 'Acorda Ultra', tag: 'Tratamento de Sementes', desc: 'Arranque forte desde o plantio.', labelColor: '#008dc2' },
+    ],
+    calcProducts: [
+      { id: 'aminosan', label: 'Aminosan', gainPerHa: 8 },
+      { id: 'fitofert', label: 'Fitofert', gainPerHa: 5 },
+    ],
+  },
+  citros: {
+    name: 'Citros',
+    badge: 'Cultura perene',
+    gradient: 'linear-gradient(165deg, #d3a52a, #5e4910)',
+    description:
+      'Os citros exigem nutrição contínua e equilibrada ao longo do ciclo. A Juma oferece programas para floração, pegamento de frutos e qualidade pós-colheita.',
+    actua: [
+      'Floração abundante e bem distribuída.',
+      'Alto pegamento de frutos e baixa queda pós-florada.',
+      'Desenvolvimento uniforme dos frutos durante a safra.',
+      'Qualidade de casca e teor de sólidos solúveis elevados.',
+      'Resistência a estresses e doenças fisiológicas.',
+    ],
+    challenges: [
+      { stage: '01 · Floração', title: 'Baixo pegamento de frutos', desc: 'Flores que caem antes de fixar, reduzindo a produção por árvore.' },
+      { stage: '02 · Desenvolvimento', title: 'Queda de frutos', desc: 'Frutos jovens que caem por déficit nutricional na fase de desenvolvimento.' },
+      { stage: '03 · Maturação', title: 'Qualidade comprometida', desc: 'Cor, teor de sólidos solúveis e aspecto abaixo do esperado pelo mercado.' },
+    ],
+    management: [
+      { label: 'Fase 01', fase: 'Pré-floração', products: ['Aminosan', 'FitoFert'] },
+      { label: 'Fase 02', fase: 'Pós-floração', products: ['Aminosan', 'Revigo CaB'] },
+      { label: 'Fase 03', fase: 'Desenvolvimento', products: ['Linha Revigo', 'RevigoPHOS Amino'] },
+    ],
+    recommended: [
+      { slug: 'aminosan', name: 'Aminosan®', tag: 'Nutrição e Fisiologia', desc: 'Vigor e resistência para todo o ciclo.', labelColor: '#659357' },
+      { slug: 'fitofert', name: 'Fitofert', tag: 'Nutrição e Fisiologia', desc: 'Pegamento e qualidade de frutos.', labelColor: '#659357' },
+      { slug: 'linha-revigo', name: 'Linha Revigo', tag: 'Nutrição e Fisiologia', desc: 'Foliares para correção de deficiências.', labelColor: '#302783' },
+    ],
+    calcProducts: [
+      { id: 'aminosan', label: 'Aminosan', gainPerHa: 5 },
+      { id: 'fitofert', label: 'Fitofert', gainPerHa: 4 },
+    ],
+  },
+  batata: {
+    name: 'Batata',
+    badge: 'Tubérculo',
+    gradient: 'linear-gradient(165deg, #a08562, #463623)',
+    description:
+      'A batata tem ciclo curto e demanda nutrição intensa desde o início. Qualidade de tubérculos e produtividade dependem de programa nutricional preciso em cada fase.',
+    actua: [
+      'Brotação uniforme e stand completo.',
+      'Desenvolvimento vegetativo vigoroso para alta interceptação de luz.',
+      'Enchimento de tubérculos com calibre e peso superiores.',
+      'Qualidade de superfície e resistência ao armazenamento.',
+      'Resistência a estresses e doenças fisiológicas.',
+    ],
+    challenges: [
+      { stage: '01 · Brotação', title: 'Emergência irregular', desc: 'Brotação desuniforme comprometendo o stand e o aproveitamento da área.' },
+      { stage: '02 · Tuberização', title: 'Baixo rendimento', desc: 'Número e peso de tubérculos abaixo do potencial por deficiência nutricional.' },
+      { stage: '03 · Enchimento', title: 'Calibre inadequado', desc: 'Tubérculos de tamanho pequeno com perda de classificação para mercado.' },
+    ],
+    management: [
+      { label: 'Fase 01', fase: 'Plantio', products: ['Aminosan'] },
+      { label: 'Fase 02', fase: 'Tuberização', products: ['FitoFert', 'Linha Revigo'] },
+      { label: 'Fase 03', fase: 'Enchimento', products: ['RevigoPHOS Amino', 'Aminosan'] },
+    ],
+    recommended: [
+      { slug: 'aminosan', name: 'Aminosan®', tag: 'Nutrição e Fisiologia', desc: 'Vigor e resistência para todo o ciclo.', labelColor: '#659357' },
+      { slug: 'fitofert', name: 'Fitofert', tag: 'Nutrição e Fisiologia', desc: 'Enchimento e qualidade de tubérculos.', labelColor: '#659357' },
+      { slug: 'linha-revigo', name: 'Linha Revigo', tag: 'Nutrição e Fisiologia', desc: 'Correção de deficiências nutricionais.', labelColor: '#302783' },
+    ],
+    calcProducts: [
+      { id: 'aminosan', label: 'Aminosan', gainPerHa: 7 },
+      { id: 'fitofert', label: 'Fitofert', gainPerHa: 5 },
+    ],
+  },
+  tomate: {
+    name: 'Tomate',
+    badge: 'Hortaliça',
+    gradient: 'linear-gradient(165deg, #b73a2a, #4e1410)',
+    description:
+      'O tomate é uma das culturas mais exigentes em nutrição. Floração, pegamento e qualidade dos frutos dependem de um programa nutricional preciso ao longo do ciclo.',
+    actua: [
+      'Desenvolvimento vegetativo equilibrado e uniforme.',
+      'Floração abundante com alto pegamento de frutos.',
+      'Enchimento homogêneo para frutos com calibre e coloração superiores.',
+      'Resistência a estresses e doenças fisiológicas como fundo preto.',
+      'Qualidade pós-colheita e vida de prateleira elevadas.',
+    ],
+    challenges: [
+      { stage: '01 · Florada', title: 'Baixo pegamento de frutos', desc: 'Flores que abortam antes de fixar por deficiência nutricional ou estresse.' },
+      { stage: '02 · Enchimento', title: 'Fundo preto e podridão apical', desc: 'Deficiência de cálcio em frutos em desenvolvimento — perda direta de qualidade.' },
+      { stage: '03 · Maturação', title: 'Coloração e firmeza inadequadas', desc: 'Frutos com coloração irregular e baixa firmeza comprometendo a comercialização.' },
+    ],
+    management: [
+      { label: 'Fase 01', fase: 'Vegetativo', products: ['Aminosan', 'Linha Revigo'] },
+      { label: 'Fase 02', fase: 'Florada', products: ['FitoFert', 'Aminosan'] },
+      { label: 'Fase 03', fase: 'Enchimento', products: ['Revigo CaB', 'RevigoPHOS Amino'] },
+    ],
+    recommended: [
+      { slug: 'aminosan', name: 'Aminosan®', tag: 'Nutrição e Fisiologia', desc: 'Vigor e resistência para todo o ciclo.', labelColor: '#659357' },
+      { slug: 'linha-revigo', name: 'Linha Revigo', tag: 'Nutrição e Fisiologia', desc: 'Correção de deficiências nutricionais.', labelColor: '#302783' },
+      { slug: 'fitofert', name: 'Fitofert', tag: 'Nutrição e Fisiologia', desc: 'Pegamento e enchimento de frutos.', labelColor: '#659357' },
+    ],
+    calcProducts: [
+      { id: 'aminosan', label: 'Aminosan', gainPerHa: 7 },
+      { id: 'fitofert', label: 'Fitofert', gainPerHa: 5 },
+    ],
+  },
+  pastagem: {
+    name: 'Pastagem',
+    badge: 'Forrageira',
+    gradient: 'linear-gradient(165deg, #80a558, #2c3e1d)',
+    description:
+      'A pastagem degradada é um dos principais problemas do pecuarista brasileiro. A Juma oferece programa nutricional para recuperação, maior lotação e ganho de peso.',
+    actua: [
+      'Recuperação de pastagens degradadas com baixa densidade.',
+      'Estímulo ao rebrote e perfilhamento das forrageiras.',
+      'Nutrição para maior produção de massa verde por hectare.',
+      'Qualidade nutritiva da forragem para melhor desempenho animal.',
+      'Maior lotação e ganho de peso por hectare.',
+    ],
+    challenges: [
+      { stage: '01 · Degradação', title: 'Pastagem com baixa densidade', desc: 'Forrageira rala com invasoras dominando e reduzindo a capacidade de suporte.' },
+      { stage: '02 · Rebrote', title: 'Crescimento lento', desc: 'Pastagem que não responde à chuva com rebrote rápido e uniforme.' },
+      { stage: '03 · Qualidade', title: 'Forragem de baixo valor nutricional', desc: 'Gramínea com baixo teor de proteína e energia comprometendo o desempenho animal.' },
+    ],
+    management: [
+      { label: 'Fase 01', fase: 'Recuperação', products: ['Linha Revigo', 'Aminosan'] },
+      { label: 'Fase 02', fase: 'Manutenção', products: ['Revigo + Pasto'] },
+    ],
+    recommended: [
+      { slug: 'revigo-pasto', name: 'Revigo + Pasto', tag: 'Manejo Completo', desc: 'Programa completo para recuperação e manutenção de pastagem.', labelColor: '#302783' },
+      { slug: 'aminosan', name: 'Aminosan®', tag: 'Nutrição e Fisiologia', desc: 'Vigor e resistência das forrageiras.', labelColor: '#659357' },
+      { slug: 'linha-redutan', name: 'Linha Redutan', tag: 'Tecnologia de Aplicação', desc: 'Eficiência nas aplicações de campo.', labelColor: '#7d252a' },
+    ],
+    calcProducts: [
+      { id: 'revigo', label: 'Revigo + Pasto', gainPerHa: 6 },
+      { id: 'aminosan', label: 'Aminosan', gainPerHa: 4 },
+    ],
+  },
+}
+
+/* ─── Shared UI components ─── */
+function Eyebrow({ dark, children }: { dark?: boolean; children: React.ReactNode }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-2 px-3.5 py-[7px] rounded-full text-[11px] font-semibold uppercase tracking-[0.16em] border ${
+        dark ? 'border-white/35 text-white' : 'border-black/[0.18] text-[#1A1A1A]'
+      }`}
+    >
+      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dark ? 'bg-[#F0E27A]' : 'bg-[#004B26]'}`} />
+      {children}
+    </span>
+  )
+}
+
+function SectionHead({ eyebrow, title, lede }: { eyebrow: string; title: React.ReactNode; lede?: string }) {
+  return (
+    <div className="flex flex-col gap-[18px] mb-14 max-w-[980px]">
+      <Eyebrow>{eyebrow}</Eyebrow>
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+        <h2 className="m-0 text-[#1A1A1A] font-black leading-[1.0] tracking-[-0.025em]" style={{ fontSize: 'clamp(32px,3.6vw,56px)', fontWeight: 720 }}>
+          {title}
+        </h2>
+        {lede && (
+          <p className="text-[#5A5A57] leading-[1.55] max-w-[44ch] text-[clamp(17px,1.25vw,20px)] m-0">
+            {lede}
+          </p>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function ArrowIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="w-[14px] h-[14px]">
+      <path d="M7 17 17 7M9 7h8v8" />
+    </svg>
+  )
+}
+
+/* ─── Calculator component ─── */
+function Calculator({ culture }: { culture: CultureData }) {
+  const [produto, setProduto] = useState(culture.calcProducts[0].id)
+  const [area, setArea] = useState(50)
+  const [preco, setPreco] = useState(culture.name === 'Café' ? 1280 : 100)
+  const [produtividade, setProdutividade] = useState(culture.name === 'Café' ? 30 : 60)
+
+  const selectedProduct = culture.calcProducts.find((p) => p.id === produto) ?? culture.calcProducts[0]
+  const sacasExtras = Math.round(area * selectedProduct.gainPerHa)
+  const receitaExtra = sacasExtras * preco
+
+  const fmt = useCallback((n: number) => new Intl.NumberFormat('pt-BR').format(n), [])
+
+  return (
+    <div
+      className="grid md:grid-cols-[1.05fr_1fr] bg-white border border-black/10 rounded-[24px] overflow-hidden"
+      style={{ boxShadow: '0 1px 2px rgba(20,30,20,.04), 0 12px 32px -18px rgba(20,30,20,.18)' }}
+    >
+      {/* Form */}
+      <div className="p-[clamp(28px,3vw,48px)]">
+        <div className="flex flex-col gap-2 mb-[18px]">
+          <label className="text-[12px] text-[#5A5A57] font-semibold uppercase tracking-[0.05em]">
+            Produto Juma
+          </label>
+          <div className="relative">
+            <select
+              value={produto}
+              onChange={(e) => setProduto(e.target.value)}
+              className="w-full h-[50px] px-4 rounded-[12px] border border-black/10 bg-white text-[16px] text-[#1A1A1A] font-[inherit] outline-none appearance-none focus:border-[#004B26] transition-colors pr-10"
+            >
+              {culture.calcProducts.map((p) => (
+                <option key={p.id} value={p.id}>{p.label}</option>
+              ))}
+            </select>
+            <svg className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none w-3 h-3 text-[#5A5A57]" viewBox="0 0 12 12" fill="none" aria-hidden>
+              <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3.5 mb-[18px]">
+          <div className="flex flex-col gap-2">
+            <label className="text-[12px] text-[#5A5A57] font-semibold uppercase tracking-[0.05em]">
+              Área (ha)
+            </label>
+            <input
+              type="number"
+              min={0}
+              step={1}
+              value={area}
+              onChange={(e) => setArea(Math.max(0, Number(e.target.value)))}
+              className="h-[50px] px-4 rounded-[12px] border border-black/10 bg-white text-[16px] text-[#1A1A1A] font-[inherit] outline-none focus:border-[#004B26] transition-colors"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-[12px] text-[#5A5A57] font-semibold uppercase tracking-[0.05em]">
+              Preço da saca (R$)
+            </label>
+            <input
+              type="number"
+              min={0}
+              step={1}
+              value={preco}
+              onChange={(e) => setPreco(Math.max(0, Number(e.target.value)))}
+              className="h-[50px] px-4 rounded-[12px] border border-black/10 bg-white text-[16px] text-[#1A1A1A] font-[inherit] outline-none focus:border-[#004B26] transition-colors"
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2 mb-3">
+          <label className="text-[12px] text-[#5A5A57] font-semibold uppercase tracking-[0.05em]">
+            Produtividade atual (sc/ha)
+          </label>
+          <input
+            type="number"
+            min={0}
+            step={1}
+            value={produtividade}
+            onChange={(e) => setProdutividade(Math.max(0, Number(e.target.value)))}
+            className="h-[50px] px-4 rounded-[12px] border border-black/10 bg-white text-[16px] text-[#1A1A1A] font-[inherit] outline-none focus:border-[#004B26] transition-colors"
+          />
+        </div>
+        <p className="text-[12px] text-[#7C7C78] leading-[1.4] m-0">
+          Estimativa para lavoura em produção. Para programa sob medida, fale com um técnico Juma.
+        </p>
+      </div>
+
+      {/* Result panel */}
+      <div
+        className="relative flex flex-col justify-between p-[clamp(28px,3vw,48px)] text-white overflow-hidden"
+        style={{ backgroundColor: '#004B26' }}
+      >
+        <div
+          className="absolute pointer-events-none"
+          style={{
+            inset: '-40% -10% auto auto',
+            width: '80%',
+            height: '80%',
+            background: 'radial-gradient(circle, rgba(240,226,122,.16), transparent 70%)',
+          }}
+        />
+        <div className="relative">
+          <div className="text-[12px] font-semibold uppercase tracking-[0.16em] text-white/60 mb-3">
+            Sacas extras estimadas
+          </div>
+          <div
+            className="text-[#F0E27A] leading-[1.0] font-[740] tracking-[-0.035em]"
+            style={{ fontSize: 'clamp(48px,5.2vw,84px)', fontFeatureSettings: '"tnum"' }}
+          >
+            {fmt(sacasExtras)}
+            <small className="text-[0.4em] font-semibold text-white/55 ml-2">sc</small>
+          </div>
+          <div className="text-[15px] text-white/78 mt-2">
+            Ganho médio de <strong className="text-white">+{selectedProduct.gainPerHa} sc/ha</strong> · projetado para sua área informada.
+          </div>
+
+          <hr className="border-none border-t border-white/[0.18] my-7" />
+
+          <div className="text-[12px] font-semibold uppercase tracking-[0.16em] text-white/60 mb-3">
+            Receita extra estimada
+          </div>
+          <div
+            className="text-white leading-[1.0] font-[740] tracking-[-0.035em]"
+            style={{ fontSize: 'clamp(32px,3.6vw,56px)', fontFeatureSettings: '"tnum"' }}
+          >
+            R$ {fmt(receitaExtra)}
+          </div>
+          <div className="text-[15px] text-white/78 mt-2">
+            Com base no preço médio da saca informado.
+          </div>
+        </div>
+
+        <div className="relative text-[12px] text-white/50 mt-8 pt-6 border-t border-white/[0.12]">
+          Estimativa baseada em dados médios de campo. Resultados reais variam conforme cultivar, manejo, solo e clima.
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function CulturePage({ slug }: { slug: string }) {
+  const culture = DATA[slug]
+  const reduced = useReducedMotion()
+  const heroRef = useRef<HTMLDivElement>(null)
+  const bodyRef = useRef<HTMLDivElement>(null)
+
+  useGSAP(
+    () => {
+      if (reduced || !heroRef.current) return
+      const els = heroRef.current.querySelectorAll('[data-hero-el]')
+      gsap.set(els, { y: 24, opacity: 0 })
+      gsap.to(els, { y: 0, opacity: 1, duration: DUR.sub, stagger: 0.09, ease: EASE.reveal, delay: 0.15 })
+    },
+    { scope: heroRef, dependencies: [reduced] },
+  )
+
+  useGSAP(
+    () => {
+      if (reduced || !bodyRef.current) return
+      const sections = bodyRef.current.querySelectorAll('[data-section]')
+      sections.forEach((section) => {
+        gsap.set(section, { y: 32, opacity: 0 })
+        ScrollTrigger.create({
+          trigger: section,
+          start: 'top 82%',
+          once: true,
+          onEnter: () => gsap.to(section, { y: 0, opacity: 1, duration: 0.8, ease: EASE.reveal }),
+        })
+      })
+    },
+    { scope: bodyRef, dependencies: [reduced] },
+  )
+
+  if (!culture) return null
+
+  return (
+    <div className="bg-[#F2F6F2]">
+      <Container>
+
+        {/* ══ HERO ══ */}
+        <div ref={heroRef} className="pt-8 pb-[clamp(56px,6vw,96px)]">
+          {/* Breadcrumb */}
+          <nav data-hero-el className="flex items-center gap-2 mb-8 text-[12.5px] font-medium uppercase tracking-[0.04em] text-[#5A5A57]">
+            <Link href="/culturas" className="hover:text-[#1A1A1A] border-b border-transparent hover:border-[#1A1A1A] transition-colors pb-px">
+              Culturas
+            </Link>
+            <span className="text-[#7C7C78]">·</span>
+            <span className="text-[#1A1A1A]">{culture.name}</span>
+          </nav>
+
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-10 lg:gap-20 items-center">
+            {/* Hero image placeholder */}
+            <div
+              data-hero-el
+              className="relative aspect-[4/5] rounded-[24px] overflow-hidden"
+              style={{
+                background: culture.gradient,
+                boxShadow: '0 1px 2px rgba(20,30,20,.04), 0 24px 60px -32px rgba(20,30,20,.25)',
+              }}
+            >
+              {/* Overlay gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+              {/* Badge */}
+              <span className="absolute top-[22px] left-[22px] bg-white/94 rounded-full px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.08em] text-[#1A1A1A]">
+                {culture.badge}
+              </span>
+              {/* Culture name watermark */}
+              <span
+                className="absolute bottom-6 left-6 text-white font-black uppercase leading-none select-none pointer-events-none"
+                style={{ fontSize: 'clamp(3rem,8vw,5rem)', opacity: 0.15 }}
+              >
+                {culture.name}
+              </span>
+            </div>
+
+            {/* Body */}
+            <div className="flex flex-col">
+              <span data-hero-el>
+                <Eyebrow>Cultura · {culture.name}</Eyebrow>
+              </span>
+              <h1
+                data-hero-el
+                className="text-[#1A1A1A] m-0 mt-[22px] mb-6 leading-[1.0] tracking-[-0.03em]"
+                style={{ fontSize: 'clamp(32px,3.6vw,56px)', fontWeight: 720, maxWidth: '14ch' }}
+              >
+                Manejo estratégico ao longo do{' '}
+                <em style={{ fontStyle: 'italic', fontFamily: 'Georgia, serif', fontWeight: 400 }}>ciclo produtivo.</em>
+              </h1>
+              <p
+                data-hero-el
+                className="text-[#5A5A57] leading-[1.55] m-0 mb-9 max-w-[50ch]"
+                style={{ fontSize: 'clamp(17px,1.25vw,20px)' }}
+              >
+                {culture.description}
+              </p>
+              <div data-hero-el className="flex flex-wrap gap-3">
+                <a
+                  href={WHATSAPP}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2.5 h-[54px] px-[26px] rounded-full text-[15px] font-semibold text-white bg-[#004B26] hover:bg-[#003A1D] transition-all hover:-translate-y-px"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="w-4 h-4">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                  </svg>
+                  Falar no WhatsApp
+                </a>
+                <a
+                  href="#manejo"
+                  className="inline-flex items-center gap-2.5 h-[54px] px-[26px] rounded-full text-[15px] font-semibold text-[#1A1A1A] border border-black/[0.18] hover:border-black transition-all hover:-translate-y-px"
+                >
+                  Ver manejo por fase
+                  <ArrowIcon />
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Container>
+
+      {/* ══ SEÇÕES DINÂMICAS ══ */}
+      <div ref={bodyRef}>
+
+        {/* Como a Juma atua */}
+        {culture.actua.length > 0 && (
+          <section data-section className="py-[clamp(80px,9vw,140px)]">
+            <Container>
+              <SectionHead
+                eyebrow="Como a Juma atua"
+                title={<>O que a Juma entrega<br />no {culture.name.toLowerCase()}.</>}
+                lede="Cinco frentes de atuação que aparecem na produção — e na renda do produtor."
+              />
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-3.5 list-none p-0 m-0">
+                {culture.actua.map((item, i) => (
+                  <li
+                    key={i}
+                    className="flex items-start gap-3.5 bg-white border border-black/10 rounded-[14px] p-[20px_22px] text-[15.5px] text-[#2A2A28]"
+                  >
+                    <span className="text-[13px] font-semibold text-[#004B26] tracking-[0.04em] flex-shrink-0 w-[22px]">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </Container>
+          </section>
+        )}
+
+        {/* Desafios por fase */}
+        {culture.challenges.length > 0 && (
+          <section data-section className="pt-0 pb-[clamp(80px,9vw,140px)]">
+            <Container>
+              <SectionHead
+                eyebrow="Desafios por fase"
+                title={<>Onde o ciclo do<br />{culture.name.toLowerCase()} cobra atenção.</>}
+                lede="Janelas críticas em que o manejo nutricional define o tamanho da safra."
+              />
+              <div
+                className="grid gap-3.5"
+                style={{ gridTemplateColumns: `repeat(${Math.min(culture.challenges.length, 5)}, 1fr)` }}
+              >
+                {culture.challenges.map((c, i) => (
+                  <article
+                    key={i}
+                    className="rounded-[20px] flex flex-col gap-3 p-[26px_22px_24px] min-h-[230px]"
+                    style={{ backgroundColor: i % 2 === 0 ? '#EFE9DB' : '#E8EFE2' }}
+                  >
+                    <span className="text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[#004B26]">
+                      {c.stage}
+                    </span>
+                    <h4 className="m-0 text-[18px] font-[650] tracking-[-0.01em] text-[#1A1A1A] leading-snug">{c.title}</h4>
+                    <p className="m-0 text-[13.5px] text-[#5A5A57] leading-[1.5]">{c.desc}</p>
+                  </article>
+                ))}
+              </div>
+            </Container>
+          </section>
+        )}
+
+        {/* Manejo por fase */}
+        {culture.management.length > 0 && (
+          <section id="manejo" data-section className="pt-0 pb-[clamp(80px,9vw,140px)]">
+            <Container>
+              <SectionHead
+                eyebrow="Manejo por fase"
+                title={<>Programa nutricional<br />do {culture.name.toLowerCase()} Juma.</>}
+                lede="Combinações de produtos pensadas para cada janela crítica do ciclo."
+              />
+              <div
+                className="mt-9 bg-white border border-black/10 rounded-[24px] overflow-hidden"
+                style={{ boxShadow: '0 1px 2px rgba(20,30,20,.04), 0 12px 32px -18px rgba(20,30,20,.18)' }}
+              >
+                {culture.management.map((phase, i) => (
+                  <div
+                    key={i}
+                    className="grid items-center border-t border-black/10 first:border-t-0"
+                    style={{ gridTemplateColumns: '220px 1fr' }}
+                  >
+                    {/* Fase */}
+                    <div className="flex flex-col gap-1.5 p-[28px] bg-[#E8EFE2] border-r border-black/10 h-full">
+                      <small className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#004B26] opacity-70">
+                        {phase.label}
+                      </small>
+                      <span className="text-[17px] font-[650] tracking-[-0.01em] text-[#1A1A1A]">
+                        {phase.fase}
+                      </span>
+                    </div>
+                    {/* Pills */}
+                    <div className="flex flex-wrap items-center gap-2 p-[22px_28px]">
+                      {phase.products.map((prod, j) => (
+                        <React.Fragment key={j}>
+                          <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-[#DDE6C8] text-[#004B26] text-[13.5px] font-semibold">
+                            {prod}
+                          </span>
+                          {j < phase.products.length - 1 && (
+                            <span className="text-[14px] text-[#7C7C78]">+</span>
+                          )}
+                        </React.Fragment>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Container>
+          </section>
+        )}
+
+        {/* Produtos recomendados */}
+        {culture.recommended.length > 0 && (
+          <section data-section className="pt-0 pb-[clamp(80px,9vw,140px)]">
+            <Container>
+              <SectionHead
+                eyebrow="Produtos recomendados"
+                title={<>A linha indicada<br />para o {culture.name.toLowerCase()}.</>}
+                lede="Os produtos que aparecem com mais frequência no manejo com a Juma."
+              />
+              <div
+                className="grid gap-[18px]"
+                style={{ gridTemplateColumns: `repeat(${Math.min(culture.recommended.length, 3)}, 1fr)` }}
+              >
+                {culture.recommended.map((prod) => (
+                  <Link
+                    key={prod.slug}
+                    href={`/produtos/${prod.slug}`}
+                    className="group flex flex-col rounded-[24px] overflow-hidden border border-black/10 hover:-translate-y-1 hover:shadow-[0_1px_2px_rgba(20,30,20,.04),0_24px_60px_-32px_rgba(20,30,20,.25)] transition-all duration-300"
+                  >
+                    <div
+                      className="relative flex items-center justify-center overflow-hidden"
+                      style={{ aspectRatio: '4/3', background: 'radial-gradient(80% 60% at 50% 70%, rgba(0,0,0,.10), transparent 70%), linear-gradient(160deg, #E8EFE2, #E4ECEA)' }}
+                    >
+                      <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-[0.12em] px-3 py-1.5 rounded-full text-[#004B26] bg-[#DDE6C8]">
+                        {prod.tag}
+                      </span>
+                      <div
+                        className="flex flex-col items-center gap-1 rounded-[6px] text-center text-white px-2 py-3 w-[6rem]"
+                        style={{ backgroundColor: prod.labelColor }}
+                      >
+                        <small style={{ fontSize: 8, letterSpacing: '0.08em', textTransform: 'uppercase', opacity: 0.8 }}>Juma Agro</small>
+                        <b style={{ fontSize: 14, fontWeight: 750, letterSpacing: '-0.01em' }}>{prod.name.replace('®', '').replace('+', '').trim()}</b>
+                      </div>
+                    </div>
+                    <div className="p-5 flex flex-col flex-1 bg-white">
+                      <h3 className="m-0 mb-2 text-[19px] font-[650] tracking-[-0.01em] text-[#1A1A1A] leading-snug">{prod.name}</h3>
+                      <p className="m-0 text-[14.5px] text-[#5A5A57] leading-[1.5] flex-1 mb-4">{prod.desc}</p>
+                      <div className="self-end flex items-center justify-center h-[42px] w-[42px] rounded-full border border-black/[0.18] text-[#1A1A1A]/60 group-hover:bg-[#004B26] group-hover:border-[#004B26] group-hover:text-white transition-all">
+                        <ArrowIcon />
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </Container>
+          </section>
+        )}
+
+        {/* Calculadora */}
+        <section data-section className="pt-0 pb-[clamp(80px,9vw,140px)]">
+          <Container>
+            <SectionHead
+              eyebrow="Calcule seu ganho"
+              title={<>Quanto a Juma rende<br />no seu {culture.name.toLowerCase()}?</>}
+              lede="Simule o ganho com base na sua área, no produto recomendado e no preço atual da saca."
+            />
+            <Calculator culture={culture} />
+          </Container>
+        </section>
+
+        {/* CTA Final */}
+        <section
+          className="relative overflow-hidden text-white text-center"
+          style={{ backgroundColor: '#004B26', paddingBlock: 'clamp(100px,10vw,160px)' }}
+        >
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{ background: 'radial-gradient(70% 80% at 50% 50%, rgba(240,226,122,.18), transparent 70%)' }}
+          />
+          <Container>
+            <div className="relative flex flex-col items-center gap-6">
+              <Eyebrow dark>Próximo passo</Eyebrow>
+              <h2
+                className="text-white m-0 leading-[0.95] tracking-[-0.035em] text-balance"
+                style={{ fontSize: 'clamp(56px,8vw,140px)', fontWeight: 750 }}
+              >
+                Pronto para a próxima{' '}
+                <em style={{ fontStyle: 'italic', fontWeight: 400, color: '#F0E27A', fontFamily: 'Georgia, serif' }}>safra?</em>
+              </h2>
+              <p className="text-white/78 max-w-[50ch] leading-[1.5] text-[19px] m-0">
+                Fale com a Juma e monte o programa nutricional para a sua lavoura de {culture.name.toLowerCase()}.
+              </p>
+              <a
+                href={WHATSAPP}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2.5 h-[54px] px-[26px] rounded-full text-[15px] font-semibold text-[#1A1A1A] bg-[#F0E27A] hover:bg-[#e8d96a] transition-all hover:-translate-y-px"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="w-4 h-4">
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                </svg>
+                Falar no WhatsApp · (19) 99964-8186
+              </a>
+            </div>
+          </Container>
+        </section>
+      </div>
+    </div>
+  )
+}
