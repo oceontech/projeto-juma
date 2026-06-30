@@ -835,7 +835,7 @@ function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, alig
         </div>
 
         {/* Conteúdo (kicker + linha + subtítulo + items) — canto inferior direito */}
-        <div className={`absolute ${mobileYShift} right-md max-w-72 flex flex-col items-end text-right text-sm z-2`}>
+        <div className={`absolute ${mobileYShift} right-md max-w-62 flex flex-col items-end text-right text-sm z-2`}>
           <span data-pk-m className="mb-sm inline-flex items-center gap-xs rounded-full border border-primary/25 bg-white/60 px-xs py-[4px] backdrop-blur-sm">
             <LeafGlyph className="h-3 w-3 text-primary" />
             <span className="text-eyebrow text-primary uppercase tracking-widest">{kicker}</span>
