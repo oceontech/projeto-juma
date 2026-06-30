@@ -835,20 +835,20 @@ function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, alig
         </div>
 
         {/* Conteúdo (kicker + linha + subtítulo + items) — canto inferior direito */}
-        <div className={`absolute ${mobileYShift} right-md max-w-52 flex flex-col items-end text-right z-2`}>
+        <div className={`absolute ${mobileYShift} right-md max-w-72 flex flex-col items-end text-right text-sm z-2`}>
           <span data-pk-m className="mb-sm inline-flex items-center gap-xs rounded-full border border-primary/25 bg-white/60 px-xs py-[4px] backdrop-blur-sm">
             <LeafGlyph className="h-3 w-3 text-primary" />
-            <span className="text-eyebrow text-primary text-[9px] uppercase tracking-widest">{kicker}</span>
+            <span className="text-eyebrow text-primary uppercase tracking-widest">{kicker}</span>
           </span>
           <span data-pl-m aria-hidden className="block h-[2px] w-8 rounded-full bg-primary mb-sm self-end" />
-          <p data-ps-m className="text-subtitle text-[11px] text-foreground/80 leading-relaxed">{subtitle}</p>
+          <p data-ps-m className="text-subtitle text-foreground/80 leading-relaxed">{subtitle}</p>
           {items && items.length > 0 && (
             <ul data-pi-m className="mt-sm flex flex-col gap-[6px] w-full">
               {items.map((it, i) => (
                 <li key={i} className="flex items-center gap-xs justify-end">
                   <span className="flex flex-col text-right leading-tight">
-                    <span className="text-heading text-[9px] font-bold text-foreground">{it.lead}</span>
-                    <span className="text-body-regular text-[8px] text-foreground/60">{it.sub}</span>
+                    <span className="text-heading font-bold text-foreground">{it.lead}</span>
+                    <span className="text-body-regular text-foreground/60">{it.sub}</span>
                   </span>
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-primary/25 text-primary">
                     <PhaseIcon name={it.icon} className="h-3.5 w-3.5" />
