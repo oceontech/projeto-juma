@@ -212,7 +212,11 @@ export function OurStory() {
       <section ref={cardRef} className="relative overflow-hidden rounded-[2.5rem] max-w-[95vw] lg:max-w-[90rem] mx-auto border border-black/[0.06] bg-gradient-to-br from-black/[0.01] to-black/[0.04] backdrop-blur-xl" style={{ transformOrigin: 'top center' }}>
         <Container className="grid min-h-screen grid-cols-1 items-center gap-2xl py-xl lg:py-2xl xl:py-3xl lg:grid-cols-2 lg:gap-xl xl:gap-4xl">
         {/* ── Coluna esquerda: família ──────────────────────────────── */}
-        <div ref={photoRef} className="relative mx-auto aspect-[1402/974] w-full max-w-[40rem]">
+        <div 
+          ref={photoRef} 
+          className="relative mx-auto aspect-[1402/974] w-full max-w-[40rem]"
+          style={{ WebkitMaskImage: 'linear-gradient(to top, transparent 0%, black 34%)', maskImage: 'linear-gradient(to top, transparent 0%, black 34%)' }}
+        >
           {/* Watermark gigante atrás da foto */}
           <div
             ref={watermarkRef}
@@ -230,12 +234,6 @@ export function OurStory() {
             sizes="(min-width: 1024px) 40rem, 90vw"
             className="relative z-10 object-contain object-bottom"
             priority
-          />
-
-          {/* Fade da base: dissolve foto + watermark no fundo off-white, sem borda dura */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[34%] bg-gradient-to-t from-white via-white/85 to-transparent"
           />
 
           {/* Rótulos + linhas conectoras (só desktop) */}
