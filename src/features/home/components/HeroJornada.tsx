@@ -1048,13 +1048,13 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitl
                // label dinâmico para garantir que o crossfade ocorra ao mesmo tempo
                const label = `step${i}`;
                
-               // Adiciona 3 segundos de "respiro" (timeline parada) ANTES deste passo
-               rotatorTl.addLabel(label, "+=3")
+               // Adiciona um tempo menor de "respiro" (timeline parada) ANTES deste passo
+               rotatorTl.addLabel(label, "+=1.5")
                
                rotatorTl.to(currentEl, {
                   opacity: 0,
                   filter: 'blur(8px)',
-                  duration: 1,
+                  duration: 0.5,
                   ease: 'power2.inOut'
                }, label)
                
@@ -1066,7 +1066,7 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitl
                   x: 0,
                   opacity: 1,
                   filter: 'blur(0px)',
-                  duration: 1,
+                  duration: 0.5,
                   ease: 'power2.out',
                   immediateRender: false
                }, label)
