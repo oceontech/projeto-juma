@@ -108,6 +108,7 @@ export function HeroJornada() {
       if (navLinks) gsap.set(navLinks,  { opacity: 0, filter: 'blur(8px)' })
 
       const tl = gsap.timeline({ defaults: { overwrite: 'auto' } })
+      tl.timeScale(1.5)
 
       // 1. Navbar — pílula expande do centro exato da tela (200px → largura natural)
       //    Anima `width` (não maxWidth) para compatibilidade com grid-cols-[1fr_auto_1fr]
@@ -359,11 +360,7 @@ export function HeroJornada() {
         if (phaseRef.current === 'rest') { startJourney(); return false }
         if (phaseRef.current === 'done') return true
         if (atLastPause()) { 
-          if (gotaAnimCompleteRef.current) {
-            release(); return true; 
-          } else {
-            return false;
-          }
+          release(); return true; 
         }
         if (playingRef.current && directionRef.current === 'backward') {
           const nextStep = stepRef.current + 1
@@ -402,11 +399,7 @@ export function HeroJornada() {
         if (ph === 'done') return
         if (ph === 'rest' && e.deltaY <= 0) return
         if (ph === 'animating' && e.deltaY > 0 && atLastPause()) { 
-          if (gotaAnimCompleteRef.current) {
-            release(); return 
-          } else {
-            e.preventDefault(); return
-          }
+          release(); return 
         }
         e.preventDefault()
         if (e.deltaY > 0) handleForward()
@@ -423,11 +416,7 @@ export function HeroJornada() {
         if (!down && !up) return
         if (ph === 'rest' && !down) return
         if (ph === 'animating' && down && atLastPause()) { 
-          if (gotaAnimCompleteRef.current) {
-            release(); return 
-          } else {
-            e.preventDefault(); return
-          }
+          release(); return 
         }
         e.preventDefault()
         if (down) handleForward()
@@ -835,20 +824,20 @@ function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, alig
         </div>
 
         {/* Conteúdo (kicker + linha + subtítulo + items) — canto inferior direito */}
-        <div className={`absolute ${mobileYShift} right-md max-w-52 flex flex-col items-end text-right z-2`}>
+        <div className={`absolute ${mobileYShift} right-md max-w-62 flex flex-col items-end text-right text-sm z-2`}>
           <span data-pk-m className="mb-sm inline-flex items-center gap-xs rounded-full border border-primary/25 bg-white/60 px-xs py-[4px] backdrop-blur-sm">
             <LeafGlyph className="h-3 w-3 text-primary" />
-            <span className="text-eyebrow text-primary text-[9px] uppercase tracking-widest">{kicker}</span>
+            <span className="text-eyebrow text-primary uppercase tracking-widest">{kicker}</span>
           </span>
           <span data-pl-m aria-hidden className="block h-[2px] w-8 rounded-full bg-primary mb-sm self-end" />
-          <p data-ps-m className="text-subtitle text-[11px] text-foreground/80 leading-relaxed">{subtitle}</p>
+          <p data-ps-m className="text-subtitle text-foreground/80 leading-relaxed">{subtitle}</p>
           {items && items.length > 0 && (
             <ul data-pi-m className="mt-sm flex flex-col gap-[6px] w-full">
               {items.map((it, i) => (
                 <li key={i} className="flex items-center gap-xs justify-end">
                   <span className="flex flex-col text-right leading-tight">
-                    <span className="text-heading text-[9px] font-bold text-foreground">{it.lead}</span>
-                    <span className="text-body-regular text-[8px] text-foreground/60">{it.sub}</span>
+                    <span className="text-heading font-bold text-foreground">{it.lead}</span>
+                    <span className="text-body-regular text-foreground/60">{it.sub}</span>
                   </span>
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-primary/25 text-primary">
                     <PhaseIcon name={it.icon} className="h-3.5 w-3.5" />
@@ -1048,13 +1037,13 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitl
                // label dinâmico para garantir que o crossfade ocorra ao mesmo tempo
                const label = `step${i}`;
                
-               // Adiciona 3 segundos de "respiro" (timeline parada) ANTES deste passo
-               rotatorTl.addLabel(label, "+=3")
+               // Adiciona um tempo menor de "respiro" (timeline parada) ANTES deste passo
+               rotatorTl.addLabel(label, "+=1.5")
                
                rotatorTl.to(currentEl, {
                   opacity: 0,
                   filter: 'blur(8px)',
-                  duration: 1,
+                  duration: 0.5,
                   ease: 'power2.inOut'
                }, label)
                
@@ -1066,7 +1055,7 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitl
                   x: 0,
                   opacity: 1,
                   filter: 'blur(0px)',
-                  duration: 1,
+                  duration: 0.5,
                   ease: 'power2.out',
                   immediateRender: false
                }, label)
