@@ -368,6 +368,494 @@ html.lenis body { height: auto; }
   transition: left 0.8s ease-in-out;
 }
 
+/* ============================================================
+   Home Product Showcase (.pcs-*)
+   Catálogo de produtos animado na home — seção 100vh fullscreen,
+   fundo que muda de cor por produto via CSS vars animadas pelo GSAP.
+   Carrossel de frascos + texto + stats, controlado pelo Observer
+   dentro de um ScrollTrigger pin. Protótipo de referência:
+   sessão catalogo produtos/src/Hero.tsx + index.css
+   ============================================================ */
+
+.pcs-root {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  /* Fundo sólido de segurança — evita flash branco antes do .pcs-bg renderizar */
+  background: var(--pcs-mid, #0a2a22);
+  /* Shared color vars (atualizadas via JS) — bg + podium herdam */
+  --pcs-base: #0c3b2e;
+  --pcs-mid: #0a2a22;
+  --pcs-accent: #34d399;
+}
+
+/* Illuminated background (driven by --pcs-base / --pcs-mid / --pcs-accent) */
+.pcs-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(
+    120% 95% at 50% 30%,
+    color-mix(in srgb, var(--pcs-accent) 30%, transparent) 0%,
+    var(--pcs-base) 44%,
+    var(--pcs-mid) 100%
+  );
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Subtle film grain for texture */
+.pcs-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.3;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.09'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  mix-blend-mode: overlay;
+}
+
+/* Concentric rings — CENTRADAS atrás do produto */
+.pcs-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1.5px solid color-mix(in srgb, var(--pcs-accent) 18%, transparent);
+  box-shadow: inset 0 0 90px color-mix(in srgb, var(--pcs-accent) 8%, transparent);
+}
+.pcs-ring-1 { width: min(820px, 80vh); height: min(820px, 80vh); }
+.pcs-ring-2 { width: min(580px, 58vh); height: min(580px, 58vh); border-color: color-mix(in srgb, var(--pcs-accent) 12%, transparent); }
+.pcs-ring-3 { width: min(380px, 38vh); height: min(380px, 38vh); border-color: color-mix(in srgb, var(--pcs-accent) 9%, transparent); }
+
+/* Glowing backlight centrada atrás do produto */
+.pcs-backlight {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(720px, 72vh);
+  height: min(720px, 72vh);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.45) 20%,
+    rgba(255, 255, 255, 0.12) 48%,
+    transparent 72%
+  );
+  filter: blur(20px);
+  mix-blend-mode: plus-lighter;
+  pointer-events: none;
+}
+
+/* Shared stage lighting (podium) */
+.pcs-composition {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+/* Rich floor shadow */
+.pcs-podium-glow {
+  position: absolute;
+  left: 50%;
+  bottom: 12vh;
+  transform: translate(-50%, 42%);
+  width: min(480px, 40vw);
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, var(--pcs-mid) 0%, transparent 75%);
+  filter: blur(18px);
+  mix-blend-mode: multiply;
+  opacity: 0.85;
+}
+/* Deeper contact shadow on floor */
+.pcs-podium-spec {
+  position: absolute;
+  left: 50%;
+  bottom: 12vh;
+  transform: translate(-50%, 8%);
+  width: min(280px, 24vw);
+  height: 36px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--pcs-mid) 70%, #000 30%) 0%, transparent 70%);
+  filter: blur(5px);
+  mix-blend-mode: multiply;
+  opacity: 0.90;
+}
+
+/* Pinned slideshow */
+.pcs-showcase {
+  position: relative;
+  z-index: 10;
+  height: 100svh;
+  overflow: hidden;
+}
+.pcs-stage {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+}
+
+/* Bottle theater — shared overlay for all product images */
+.pcs-bottle-theater {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Each bottle positioned freely; GSAP animates left/scale/filter/opacity */
+.pcs-theater-bottle {
+  position: absolute;
+  bottom: 8vh;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 68vh;
+  width: auto;
+  transform-origin: bottom center;
+  will-change: transform, filter, opacity;
+}
+
+.pcs-bottle-wrap {
+  position: relative;
+  height: 68vh;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  transform-style: preserve-3d;
+  will-change: transform, opacity, filter;
+}
+.pcs-bottle {
+  position: relative;
+  z-index: 3;
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 24px 30px rgba(0, 0, 0, 0.45));
+}
+
+/* Layered ground shadow */
+.pcs-ambient-shadow {
+  position: absolute;
+  z-index: 1;
+  bottom: -2%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120%;
+  height: 12%;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.34) 0%, rgba(0, 0, 0, 0.14) 45%, transparent 72%);
+  filter: blur(18px);
+  pointer-events: none;
+}
+.pcs-contact-shadow {
+  position: absolute;
+  z-index: 2;
+  bottom: 1%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 5%;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.35) 40%, transparent 70%);
+  filter: blur(7px);
+  pointer-events: none;
+}
+/* Glossy floor reflection */
+.pcs-reflection {
+  position: absolute;
+  z-index: 1;
+  top: 100%;
+  left: 50%;
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+  transform: translateX(-50%) scaleY(-1);
+  opacity: 0.16;
+  filter: blur(2px);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, transparent 42%);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, transparent 42%);
+  pointer-events: none;
+}
+
+/* Stacked, centered product panels — text + stats crossfade in place */
+.pcs-product {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr minmax(360px, 0.9fr) 1fr;
+  align-items: center;
+  padding: 0 3rem;
+}
+
+/* ----- Left text block ----- */
+.pcs-panel-text {
+  grid-column: 1;
+  max-width: 460px;
+  justify-self: start;
+  z-index: 3;
+  will-change: transform, opacity;
+}
+.pcs-panel-line {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 1.25rem;
+}
+.pcs-panel-title {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: clamp(2.75rem, 8vw, 8.25rem);
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+.pcs-panel-divider {
+  width: 64px;
+  height: 3px;
+  border-radius: 2px;
+  margin: 1.6rem 0 1.4rem;
+}
+.pcs-panel-copy {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
+  max-width: 380px;
+  margin: 0;
+}
+
+/* CTA no bloco de texto (esquerda) */
+.pcs-panel-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.25rem;
+  padding: 0.55rem 1.25rem;
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(6px);
+  transition: background 0.2s;
+  will-change: transform, opacity;
+}
+.pcs-panel-cta:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: inherit;
+}
+
+/* ----- Right stats ----- */
+.pcs-panel-stats {
+  grid-column: 3;
+  justify-self: end;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  z-index: 3;
+  will-change: transform, opacity;
+}
+.pcs-stat-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  will-change: transform, opacity;
+}
+.pcs-stat-icon {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  border: 1.5px solid;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+.pcs-stat-text {
+  display: flex;
+  flex-direction: column;
+}
+.pcs-stat-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+.pcs-stat-value {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 34px;
+  line-height: 1;
+  color: #fff;
+}
+.pcs-stat-unit {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+}
+.pcs-stat-label {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.75);
+  margin-top: 0.35rem;
+  max-width: 150px;
+}
+
+/* Scroll hint */
+.pcs-scroll-hint {
+  position: absolute;
+  bottom: 2.4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+.pcs-scroll-hint-line {
+  display: block;
+  width: 56px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.5);
+  overflow: hidden;
+  position: relative;
+}
+.pcs-scroll-hint-line::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  transform: translateX(-100%);
+  animation: pcs-hint-slide 1.8s ease-in-out infinite;
+}
+@keyframes pcs-hint-slide {
+  0% { transform: translateX(-100%); }
+  60%, 100% { transform: translateX(100%); }
+}
+
+/* ======================== Mobile ======================== */
+@media (max-width: 767px) {
+  /* Rings e backlight: usar vw para não exceder largura, descer top */
+  .pcs-ring      { top: 62%; }
+  .pcs-backlight { top: 62%; }
+  .pcs-ring-1    { width: min(320px, 82vw); height: min(320px, 82vw); }
+  .pcs-ring-2    { width: min(225px, 58vw); height: min(225px, 58vw); }
+  .pcs-ring-3    { width: min(145px, 37vw); height: min(145px, 37vw); }
+  .pcs-backlight { width: min(270px, 69vw); height: min(270px, 69vw); }
+
+  .pcs-theater-bottle {
+    bottom: auto;
+    top: 36vh;
+    height: 52vh;
+    transform-origin: center center;
+  }
+  /* bottle-wrap preenche o theater-bottle (52vh) */
+  .pcs-bottle-wrap    { height: 100%; }
+  /* Remover sombras e reflexo abaixo do frasco */
+  .pcs-ambient-shadow { display: none; }
+  .pcs-contact-shadow { display: none; }
+  .pcs-reflection     { display: none; }
+
+  .pcs-product {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    text-align: left;
+    padding: 5.5rem 1.5rem 2rem;
+    gap: 0;
+  }
+  .pcs-panel-text {
+    justify-self: auto;
+    max-width: 92%;
+  }
+  .pcs-panel-title {
+    font-size: clamp(2.5rem, 16vw, 4rem);
+  }
+  .pcs-panel-divider {
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .pcs-panel-copy {
+    margin-left: 0;
+    margin-right: 0;
+    max-width: 100%;
+  }
+  .pcs-panel-cta   { font-size: 0.62rem; padding: 0.4rem 0.9rem; }
+
+  /* Stats em linha no mobile */
+  .pcs-panel-stats {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+    width: 100%;
+  }
+  .pcs-stat-row {
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.45rem;
+    padding: 0.5rem 0.25rem;
+  }
+  .pcs-stat-icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+  }
+  .pcs-stat-value {
+    font-size: 20px;
+  }
+  .pcs-stat-value-row {
+    justify-content: center;
+  }
+  .pcs-stat-unit {
+    font-size: 0.62rem;
+  }
+  .pcs-stat-label {
+    font-size: 0.62rem;
+    max-width: none;
+    margin-top: 0.1rem;
+  }
+  .pcs-scroll-hint {
+    display: none;
+  }
+  .pcs-podium-glow {
+    bottom: auto;
+    top: 78vh;
+    width: 70vw;
+    height: 110px;
+  }
+  .pcs-podium-spec {
+    bottom: auto;
+    top: 79vh;
+    width: 56vw;
+    height: 52px;
+  }
+}
+
+/* ======================== Large Screens ======================== */
+@media (min-width: 1200px) {
+  .pcs-product {
+    padding: 0 5rem;
+  }
+}
+@media (min-width: 1600px) {
+  .pcs-product {
+    padding: 0 7rem;
+  }
+}
+
 /* ── Shimmer Effect (Hero) ─────────────────────────────────────── */
 .hero-title-shimmer::after {
   content: '';

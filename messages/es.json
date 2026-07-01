@@ -24,23 +24,23 @@
   "journey": {
     "q1Title": "La productividad se construye fase a fase.",
     "q1Subtitle": "Cada decisión del cultivo, desde la siembra hasta la cosecha, define lo que entra en el camión.",
-    "q2Kicker": "01 / HOJA",
-    "q2Title": "La nutrición en la fase correcta rinde más.",
+    "q2Kicker": "Eficiencia y Absorción",
+    "q2Title": "La nutrición en la etapa correcta rinde más.",
     "q2TitleHi": "rinde más.",
-    "q2Subtitle": "Una planta bien nutrida aprovecha mejor el agua, el fertilizante y el defensor que usted ya paga.",
-    "q2Seal": "Juntos alimentamos el mundo",
-    "q2L1": "Nutrición en el momento justo",
+    "q2Subtitle": "La planta bien nutrida aprovecha mejor el agua, el fertilizante y el defensivo que ya pagas.",
+    "q2Seal": "Juntos alimentamos al mundo",
+    "q2L1": "Nutrición en el momento adecuado",
     "q2S1": "cuando la planta más responde",
     "q2L2": "Más respuesta del cultivo",
     "q2S2": "al agua y al fertilizante que ya entran",
     "q2L3": "Menos desperdicio",
-    "q2S3": "de lo que usted ya paga",
-    "q3Kicker": "02 / SUELO",
+    "q2S3": "de lo que ya pagas",
+    "q3Kicker": "Arranque y Enraizamiento",
     "q3Title": "El arranque decide mucho antes de la cosecha.",
     "q3TitleHi": "mucho antes de la cosecha.",
-    "q3Subtitle": "Raíces profundas y rodal uniforme son el techo de la productividad.",
+    "q3Subtitle": "Raíz profunda y stand uniforme son el techo de la productividad.",
     "q3Seal": "Juntos alimentamos el mundo",
-    "q4Kicker": "03 / GOTA",
+    "q4Kicker": "Origen y Legado",
     "q4Title": "Más de 40 años ayudando al campo a cosechar más.",
     "q4TitleHi": "a cosechar más.",
     "q4TitleHi2": "a producir más.",
@@ -93,21 +93,21 @@
     "eyebrow": "NUESTRA HISTORIA",
     "titleDark": "UNA FAMILIA. UN PROPÓSITO.",
     "titleGreen": "INNUMERABLES LOGROS.",
-    "body": "Hace más de 45 años, el Sr. Juvêncio de Oliveira dio el primer paso movido por coraje, trabajo y amor al campo. A su lado, sus hijos continúan el legado con excelencia, gestión y visión de futuro, llevando a Juma Agro a nuevos horizontes.",
+    "body": "Hace más de 45 años, el Sr. Julio Matino dio el primer paso movido por coraje, trabajo y amor al campo. A su lado, sus hijos continúan el legado con excelencia, gestión y visión de futuro, llevando a Juma Agro a nuevos horizontes.",
     "cta": "Un legado que genera futuro.",
-    "familyAlt": "Marcelo, Juvêncio y Mauro Oliveira, fundador y directores de Juma Agro, de pie y con los brazos cruzados",
+    "familyAlt": "Fábio, Julio y Julio Matino, fundador y directores de Juma Agro, de pie y con los brazos cruzados",
     "founders": {
-      "marcelo": {
-        "name": "Marcelo Oliveira",
-        "role": "Director Comercial"
+      "fabio": {
+        "name": "Fábio Matino",
+        "role": "Director Financiero"
       },
-      "juvencio": {
-        "name": "Juvêncio de Oliveira",
+      "julio_fundador": {
+        "name": "Julio Matino",
         "role": "Fundador"
       },
-      "mauro": {
-        "name": "Mauro Oliveira",
-        "role": "Director de Operaciones"
+      "julio_comercial": {
+        "name": "Julio Matino",
+        "role": "Director Comercial"
       }
     },
     "stat1": "Gestión familiar con propósito",

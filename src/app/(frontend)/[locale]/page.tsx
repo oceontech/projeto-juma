@@ -3,8 +3,9 @@ import { setRequestLocale } from 'next-intl/server'
 import { HeroJornada }      from '@/features/home/components/HeroJornada'
 import { HomeMarquee }      from '@/features/home/components/HomeMarquee'
 import { OurStory }         from '@/features/home/components/OurStory'
-import { AminosanStory }    from '@/features/home/components/AminosanStory'
-import { HomeCultures }     from '@/features/home/components/HomeCultures'
+import { AminosanStory }         from '@/features/home/components/AminosanStory'
+import { HomeProductShowcase }   from '@/features/home/components/HomeProductShowcase'
+import { HomeCultures }          from '@/features/home/components/HomeCultures'
 import { HomeResults }      from '@/features/home/components/HomeResults'
 import { ProofStrip }       from '@/features/home/components/ProofStrip'
 import { Problem }          from '@/features/home/components/Problem'
@@ -30,6 +31,7 @@ export default async function HomePage(props: {
       </div>
       <HomeMarquee />
       <AminosanStory />
+      <HomeProductShowcase />
       <HomeCultures />
       <HomeResults />
       <ProofStrip />

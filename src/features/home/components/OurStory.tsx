@@ -28,9 +28,9 @@ type Founder = {
 }
 
 const FOUNDERS: Founder[] = [
-  { key: 'marcelo', align: 'left', x: 12, lineHeight: 64 },
-  { key: 'juvencio', align: 'center', x: 50, lineHeight: 36 },
-  { key: 'mauro', align: 'right', x: 88, lineHeight: 64 },
+  { key: 'fabio', align: 'left', x: 12, lineHeight: 24 },
+  { key: 'julio_fundador', align: 'center', x: 50, lineHeight: 12 },
+  { key: 'julio_comercial', align: 'right', x: 88, lineHeight: 24 },
 ]
 
 export function OurStory() {
@@ -212,7 +212,14 @@ export function OurStory() {
       <section ref={cardRef} className="relative overflow-hidden rounded-[2.5rem] max-w-[95vw] lg:max-w-[90rem] mx-auto border border-black/[0.06] bg-gradient-to-br from-black/[0.01] to-black/[0.04] backdrop-blur-xl" style={{ transformOrigin: 'top center' }}>
         <Container className="grid min-h-screen grid-cols-1 items-center gap-2xl py-xl lg:py-2xl xl:py-3xl lg:grid-cols-2 lg:gap-xl xl:gap-4xl">
         {/* ── Coluna esquerda: família ──────────────────────────────── */}
-        <div ref={photoRef} className="relative mx-auto aspect-[1402/974] w-full max-w-[40rem]">
+        <div
+          ref={photoRef}
+          className="relative mx-auto aspect-[1402/974] w-full max-w-[40rem]"
+          style={{
+            WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 95%)',
+            maskImage: 'linear-gradient(to bottom, black 60%, transparent 95%)'
+          }}
+        >
           {/* Watermark gigante atrás da foto */}
           <div
             ref={watermarkRef}
@@ -232,12 +239,6 @@ export function OurStory() {
             priority
           />
 
-          {/* Fade da base: dissolve foto + watermark no fundo off-white, sem borda dura */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[34%] bg-gradient-to-t from-white via-white/85 to-transparent"
-          />
-
           {/* Rótulos + linhas conectoras (só desktop) */}
           <div ref={labelsRootRef} className="pointer-events-none absolute inset-0 z-30 hidden lg:block">
             {FOUNDERS.map((f) => (
@@ -254,7 +255,7 @@ export function OurStory() {
         </div>
 
         {/* ── Coluna direita: conteúdo ──────────────────────────────── */}
-        <div className="flex flex-col items-start">
+        <div className="flex flex-col items-start w-full">
           <span className="mb-md inline-flex items-center gap-sm">
             <span aria-hidden className="block h-px w-6 bg-primary" />
             <span className="text-eyebrow text-xs uppercase tracking-[0.18em] text-primary">
@@ -283,7 +284,7 @@ export function OurStory() {
             </span>
           </div>
 
-          <div ref={statsRootRef} className="mt-xl lg:mt-2xl grid gap-md grid-cols-2 sm:gap-lg lg:gap-md md:grid-cols-3 xl:gap-lg w-full">
+          <div ref={statsRootRef} className="mt-xl lg:mt-2xl flex flex-col sm:flex-row gap-lg w-full">
             <Stat icon="users" label={t('stat1')} />
             <Stat icon="sprout" label={t('stat2')} />
             <Stat icon="network" label={t('stat3')} />
@@ -350,11 +351,11 @@ type StatIcon = 'users' | 'sprout' | 'network'
 
 function Stat({ icon, label }: { icon: StatIcon; label: string }) {
   return (
-    <div data-stat className="flex max-w-md items-start gap-sm">
+    <div data-stat className="flex items-start gap-sm flex-1 min-w-[180px]">
       <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full border border-primary/25 text-primary">
         <StatIconGlyph name={icon} className="h-4 w-4" />
       </span>
-      <span className="text-body-regular text-xs leading-snug text-foreground/70">{label}</span>
+      <span className="text-body-regular text-xs leading-snug text-foreground/70 flex-1">{label}</span>
     </div>
   )
 }

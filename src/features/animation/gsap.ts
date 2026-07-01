@@ -11,11 +11,12 @@
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { SplitText } from 'gsap/SplitText'
+import { Observer } from 'gsap/Observer'
 import { useGSAP } from '@gsap/react'
 
 // `registerPlugin` é idempotente; rodar no topo do módulo basta. Só no cliente.
 if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP)
+  gsap.registerPlugin(ScrollTrigger, SplitText, Observer, useGSAP)
 }
 
-export { gsap, ScrollTrigger, SplitText, useGSAP }
+export { gsap, ScrollTrigger, SplitText, Observer, useGSAP }

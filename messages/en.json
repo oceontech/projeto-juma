@@ -24,23 +24,23 @@
   "journey": {
     "q1Title": "Productivity is built phase by phase.",
     "q1Subtitle": "Every crop decision, from planting to harvest, defines what goes into the truck.",
-    "q2Kicker": "01 / LEAF",
-    "q2Title": "Nutrition at the right phase yields more.",
+    "q2Kicker": "Efficiency & Absorption",
+    "q2Title": "Nutrition at the right stage yields more.",
     "q2TitleHi": "yields more.",
-    "q2Subtitle": "A well-nourished plant makes better use of the water, fertilizer, and pesticide you already pay for.",
+    "q2Subtitle": "A well-nourished plant makes better use of the water, fertilizer and defense you already pay for.",
     "q2Seal": "Together we feed the world",
-    "q2L1": "Nutrition at the right time",
+    "q2L1": "Nutrition at the right moment",
     "q2S1": "when the plant responds most",
-    "q2L2": "More from the crop",
-    "q2S2": "of the water and fertilizer already applied",
+    "q2L2": "More crop response",
+    "q2S2": "to water and fertilizer already applied",
     "q2L3": "Less waste",
     "q2S3": "of what you already pay for",
-    "q3Kicker": "02 / SOIL",
-    "q3Title": "The start decides well before harvest.",
-    "q3TitleHi": "well before harvest.",
-    "q3Subtitle": "Deep roots and uniform stand set the ceiling for productivity.",
+    "q3Kicker": "Establishment & Rooting",
+    "q3Title": "The start decides long before the harvest.",
+    "q3TitleHi": "long before the harvest.",
+    "q3Subtitle": "Deep root and uniform stand are the ceiling of productivity.",
     "q3Seal": "Together we feed the world",
-    "q4Kicker": "03 / DROP",
+    "q4Kicker": "Origin & Legacy",
     "q4Title": "Over 40 years helping the land grow more.",
     "q4TitleHi": "grow more.",
     "q4TitleHi2": "produce more.",
@@ -93,21 +93,21 @@
     "eyebrow": "OUR STORY",
     "titleDark": "ONE FAMILY. ONE PURPOSE.",
     "titleGreen": "COUNTLESS ACHIEVEMENTS.",
-    "body": "More than 45 years ago, Mr. Juvêncio de Oliveira took the first step, driven by courage, hard work and love for the land. By his side, his children carry the legacy forward with excellence, management and vision, leading Juma Agro to new horizons.",
+    "body": "More than 45 years ago, Mr. Julio Matino took the first step, driven by courage, hard work and love for the land. By his side, his children carry the legacy forward with excellence, management and vision, leading Juma Agro to new horizons.",
     "cta": "A legacy that builds the future.",
-    "familyAlt": "Marcelo, Juvêncio and Mauro Oliveira, founder and directors of Juma Agro, standing with arms crossed",
+    "familyAlt": "Fábio, Julio and Julio Matino, founder and directors of Juma Agro, standing with arms crossed",
     "founders": {
-      "marcelo": {
-        "name": "Marcelo Oliveira",
-        "role": "Commercial Director"
+      "fabio": {
+        "name": "Fábio Matino",
+        "role": "Financial Director"
       },
-      "juvencio": {
-        "name": "Juvêncio de Oliveira",
+      "julio_fundador": {
+        "name": "Julio Matino",
         "role": "Founder"
       },
-      "mauro": {
-        "name": "Mauro Oliveira",
-        "role": "Operations Director"
+      "julio_comercial": {
+        "name": "Julio Matino",
+        "role": "Commercial Director"
       }
     },
     "stat1": "Family-run, purpose-driven",

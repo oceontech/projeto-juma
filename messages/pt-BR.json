@@ -24,7 +24,7 @@
   "journey": {
     "q1Title": "Produtividade se constrói fase a fase.",
     "q1Subtitle": "Cada decisão da lavoura, do plantio à colheita, define o que entra no caminhão.",
-    "q2Kicker": "01 / FOLHA",
+    "q2Kicker": "Eficiência e Absorção",
     "q2Title": "Nutrição na fase certa rende mais.",
     "q2TitleHi": "rende mais.",
     "q2Subtitle": "A planta bem nutrida aproveita melhor a água, o adubo e o defensivo que você já paga.",
@@ -35,12 +35,12 @@
     "q2S2": "à água e ao adubo que já entram",
     "q2L3": "Menos desperdício",
     "q2S3": "do que você já paga",
-    "q3Kicker": "02 / SOLO",
+    "q3Kicker": "Arranque e Enraizamento",
     "q3Title": "O arranque decide muito antes da colheita.",
     "q3TitleHi": "muito antes da colheita.",
     "q3Subtitle": "Raiz funda e stand uniforme são o teto da produtividade.",
     "q3Seal": "Juntos alimentamos o mundo",
-    "q4Kicker": "03 / GOTA",
+    "q4Kicker": "Origem e Legado",
     "q4Title": "Mais de 40 anos ajudando o campo a colher mais.",
     "q4TitleHi": "a colher mais.",
     "q4TitleHi2": "a produzir mais.",
@@ -93,21 +93,21 @@
     "eyebrow": "NOSSA HISTÓRIA",
     "titleDark": "UMA FAMÍLIA. UM PROPÓSITO.",
     "titleGreen": "INÚMERAS CONQUISTAS.",
-    "body": "Há mais de 45 anos, o Sr. Juvêncio de Oliveira deu o primeiro passo movido por coragem, trabalho e amor ao campo. Ao seu lado, seus filhos seguem o legado com excelência, gestão e visão de futuro, conduzindo a Juma Agro a novos horizontes.",
+    "body": "Há mais de 45 anos, o Sr. Julio Matino deu o primeiro passo movido por coragem, trabalho e amor ao campo. Ao seu lado, seus filhos seguem o legado com excelência, gestão e visão de futuro, conduzindo a Juma Agro a novos horizontes.",
     "cta": "Legado que gera futuro.",
-    "familyAlt": "Marcelo, Juvêncio e Mauro Oliveira, fundador e diretores da Juma Agro, em pé e de braços cruzados",
+    "familyAlt": "Fábio, Julio e Julio Matino, fundador e diretores da Juma Agro, em pé e de braços cruzados",
     "founders": {
-      "marcelo": {
-        "name": "Marcelo Oliveira",
-        "role": "Diretor Comercial"
+      "fabio": {
+        "name": "Fábio Matino",
+        "role": "Diretor Financeiro"
       },
-      "juvencio": {
-        "name": "Juvêncio de Oliveira",
+      "julio_fundador": {
+        "name": "Julio Matino",
         "role": "Fundador"
       },
-      "mauro": {
-        "name": "Mauro Oliveira",
-        "role": "Diretor de Operações"
+      "julio_comercial": {
+        "name": "Julio Matino",
+        "role": "Diretor Comercial"
       }
     },
     "stat1": "Gestão familiar com propósito",
