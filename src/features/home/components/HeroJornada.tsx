@@ -360,11 +360,7 @@ export function HeroJornada() {
         if (phaseRef.current === 'rest') { startJourney(); return false }
         if (phaseRef.current === 'done') return true
         if (atLastPause()) { 
-          if (gotaAnimCompleteRef.current) {
-            release(); return true; 
-          } else {
-            return false;
-          }
+          release(); return true; 
         }
         if (playingRef.current && directionRef.current === 'backward') {
           const nextStep = stepRef.current + 1
@@ -403,11 +399,7 @@ export function HeroJornada() {
         if (ph === 'done') return
         if (ph === 'rest' && e.deltaY <= 0) return
         if (ph === 'animating' && e.deltaY > 0 && atLastPause()) { 
-          if (gotaAnimCompleteRef.current) {
-            release(); return 
-          } else {
-            e.preventDefault(); return
-          }
+          release(); return 
         }
         e.preventDefault()
         if (e.deltaY > 0) handleForward()
@@ -424,11 +416,7 @@ export function HeroJornada() {
         if (!down && !up) return
         if (ph === 'rest' && !down) return
         if (ph === 'animating' && down && atLastPause()) { 
-          if (gotaAnimCompleteRef.current) {
-            release(); return 
-          } else {
-            e.preventDefault(); return
-          }
+          release(); return 
         }
         e.preventDefault()
         if (down) handleForward()
