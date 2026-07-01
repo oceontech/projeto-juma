@@ -108,6 +108,7 @@ export function HeroJornada() {
       if (navLinks) gsap.set(navLinks,  { opacity: 0, filter: 'blur(8px)' })
 
       const tl = gsap.timeline({ defaults: { overwrite: 'auto' } })
+      tl.timeScale(1.5)
 
       // 1. Navbar — pílula expande do centro exato da tela (200px → largura natural)
       //    Anima `width` (não maxWidth) para compatibilidade com grid-cols-[1fr_auto_1fr]
