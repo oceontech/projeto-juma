@@ -27,10 +27,10 @@ export function Problem() {
 
       const isDesktop = window.innerWidth >= 1024
 
-      if (isDesktop && pin) {
+      if (pin) {
         /*
-         * Desktop: Técnica "lâmpada por palavra".
-         * A seção pina em top: top e o ScrollTrigger com scrub=0.8
+         * Técnica "lâmpada por palavra".
+         * A seção pina em top: top e o ScrollTrigger com scrub
          * drive o progress da timeline. Cada palavra parte de
          * opacity 0.08 e vai para 1 conforme o usuário desce.
          */
@@ -45,7 +45,7 @@ export function Problem() {
           scrollTrigger: {
             trigger: pin,
             start: 'top top',
-            end: '+=720',
+            end: isDesktop ? '+=720' : '+=400',
             pin: true,
             scrub: 0.9,
           },
@@ -65,34 +65,6 @@ export function Problem() {
             onEnter: () =>
               gsap.to(body, { y: 0, opacity: 1, duration: 0.9, ease: EASE.reveal }),
           })
-        }
-
-        return () => split.revert()
-
-      } else {
-        // Mobile / tablet: linha por linha com clip-path
-        const split = new SplitText(title, { type: 'chars,lines' })
-
-        gsap.set(title, { opacity: 0 })
-        gsap.set(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
-        if (body) gsap.set(body, { y: 24, opacity: 0 })
-
-        const tl = gsap.timeline({
-          scrollTrigger: { trigger: sectionRef.current, start: 'top 74%', once: true },
-        })
-
-        tl.set(title, { opacity: 1 })
-          .to(split.chars, {
-            x: 0,
-            opacity: 1,
-            filter: 'blur(0px)',
-            duration: DUR.title,
-            stagger: STAGGER.char,
-            ease: EASE.reveal,
-          })
-
-        if (body) {
-          tl.to(body, { y: 0, opacity: 1, duration: 0.75, ease: EASE.reveal }, 0.4)
         }
 
         return () => split.revert()

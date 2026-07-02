@@ -1,0 +1,208 @@
+
+> juma-agro-site@0.1.0 dev
+> cross-env NODE_OPTIONS=--no-deprecation next dev
+
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://26.181.32.174:3000
+- Environments: .env
+✓ Ready in 1675ms
+- Experiments (use with caution):
+  ⨯ turbopackServerFastRefresh
+
+ GET / 200 in 5.1s (next.js: 4.2s, proxy.ts: 252ms, generate-params: 1228ms, application-code: 627ms)
+ GET / 200 in 247ms (next.js: 26ms, proxy.ts: 9ms, generate-params: 10ms, application-code: 212ms)
+ GET / 200 in 499ms (next.js: 28ms, proxy.ts: 26ms, generate-params: 11ms, application-code: 445ms)
+ GET /favicon.ico 404 in 163ms (next.js: 13ms, generate-params: 68µs, application-code: 150ms)
+[browser] Image with src "/brand/logo-juma-agro.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+ GET / 200 in 264ms (next.js: 25ms, proxy.ts: 12ms, generate-params: 11ms, application-code: 227ms)
+[browser] Image with src "/brand/logo-juma-agro.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+✓ Compiled in 393ms
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+✓ Compiled in 254ms
+⨯ ReferenceError: videoDesktopRef is not defined
+    at CinematicVersion (src\features\home\components\AminosanStory.tsx:592:34)
+  590 |         {/* Vídeo desktop */}
+  591 |         <video
+> 592 |           ref={isMobile ? null : videoDesktopRef}
+      |                                  ^
+  593 |           muted playsInline preload="auto"
+  594 |           poster="/heritage/desktop/morph-aminosan-1-antigo.png"
+  595 |           aria-label={t('videoAlt')} {
+  digest: '1312592160'
+}
+ GET / 500 in 1029ms (next.js: 345ms, proxy.ts: 31ms, generate-params: 11ms, application-code: 653ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+✓ Compiled in 214ms
+⨯ ReferenceError: videoDesktopRef is not defined
+    at CinematicVersion (src\features\home\components\AminosanStory.tsx:593:34)
+  591 |         {/* Vídeo desktop */}
+  592 |         <video
+> 593 |           ref={isMobile ? null : videoDesktopRef}
+      |                                  ^
+  594 |           muted playsInline preload="auto"
+  595 |           poster="/heritage/desktop/morph-aminosan-1-antigo.png"
+  596 |           aria-label={t('videoAlt')} {
+  digest: '1312592160'
+}
+ GET / 500 in 741ms (next.js: 216ms, proxy.ts: 18ms, generate-params: 11ms, application-code: 508ms)
+[browser] Uncaught ReferenceError: videoDesktopRef is not defined
+    at CinematicVersion (src/features/home/components/AminosanStory.tsx:593:34)
+    at AminosanStory (src/features/home/components/AminosanStory.tsx:47:9)
+    at HomePage (src\app\(frontend)\[locale]\page.tsx:33:7)
+  591 |         {/* Vídeo desktop */}
+  592 |         <video
+> 593 |           ref={isMobile ? null : videoDesktopRef}
+      |                                  ^
+  594 |           muted playsInline preload="auto"
+  595 |           poster="/heritage/desktop/morph-aminosan-1-antigo.png"
+  596 |           aria-label={t('videoAlt')}
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+✓ Compiled in 145ms
+⨯ ReferenceError: videoDesktopRef is not defined
+    at CinematicVersion (src\features\home\components\AminosanStory.tsx:611:34)
+  609 |         {/* Vídeo desktop */}
+  610 |         <video
+> 611 |           ref={isMobile ? null : videoDesktopRef}
+      |                                  ^
+  612 |           muted playsInline preload="auto"
+  613 |           poster="/heritage/desktop/morph-aminosan-1-antigo.png"
+  614 |           aria-label={t('videoAlt')} {
+  digest: '1312592160'
+}
+ GET / 500 in 669ms (next.js: 230ms, proxy.ts: 18ms, generate-params: 9ms, application-code: 421ms)
+[browser] Uncaught ReferenceError: videoDesktopRef is not defined
+    at CinematicVersion (src/features/home/components/AminosanStory.tsx:611:34)
+    at AminosanStory (src/features/home/components/AminosanStory.tsx:47:9)
+    at HomePage (src\app\(frontend)\[locale]\page.tsx:33:7)
+  609 |         {/* Vídeo desktop */}
+  610 |         <video
+> 611 |           ref={isMobile ? null : videoDesktopRef}
+      |                                  ^
+  612 |           muted playsInline preload="auto"
+  613 |           poster="/heritage/desktop/morph-aminosan-1-antigo.png"
+  614 |           aria-label={t('videoAlt')}
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+✓ Compiled in 133ms
+⨯ ReferenceError: videoDesktopRef is not defined
+    at CinematicVersion (src\features\home\components\AminosanStory.tsx:612:34)
+  610 |         {/* Vídeo desktop */}
+  611 |         <video
+> 612 |           ref={isMobile ? null : videoDesktopRef}
+      |                                  ^
+  613 |           muted playsInline preload="auto"
+  614 |           poster="/heritage/desktop/morph-aminosan-1-antigo.png"
+  615 |           aria-label={t('videoAlt')} {
+  digest: '1312592160'
+}
+ GET / 500 in 589ms (next.js: 191ms, proxy.ts: 10ms, generate-params: 9ms, application-code: 388ms)
+[browser] Uncaught ReferenceError: videoDesktopRef is not defined
+    at CinematicVersion (src/features/home/components/AminosanStory.tsx:612:34)
+    at AminosanStory (src/features/home/components/AminosanStory.tsx:47:9)
+    at HomePage (src\app\(frontend)\[locale]\page.tsx:33:7)
+  610 |         {/* Vídeo desktop */}
+  611 |         <video
+> 612 |           ref={isMobile ? null : videoDesktopRef}
+      |                                  ^
+  613 |           muted playsInline preload="auto"
+  614 |           poster="/heritage/desktop/morph-aminosan-1-antigo.png"
+  615 |           aria-label={t('videoAlt')}
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+✓ Compiled in 146ms
+ GET / 200 in 808ms (next.js: 220ms, proxy.ts: 12ms, generate-params: 14ms, application-code: 576ms)
+[browser] Image with src "/brand/logo-juma-agro.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+ GET / 200 in 544ms (next.js: 36ms, proxy.ts: 15ms, generate-params: 15ms, application-code: 493ms)
+ GET /favicon.ico 404 in 324ms (next.js: 28ms, generate-params: 72µs, application-code: 296ms)
+[browser] Image with src "/brand/logo-juma-agro.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+ GET / 200 in 552ms (next.js: 45ms, proxy.ts: 19ms, generate-params: 16ms, application-code: 488ms)
+[browser] Image with src "/brand/logo-juma-agro.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+ GET / 200 in 348ms (next.js: 37ms, proxy.ts: 17ms, generate-params: 13ms, application-code: 295ms)
+ GET /favicon.ico 404 in 147ms (next.js: 21ms, generate-params: 65µs, application-code: 125ms)
+[browser] Image with src "/brand/logo-juma-agro.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+✓ Compiled in 219ms
+✓ Compiled in 119ms
+ GET / 200 in 890ms (next.js: 257ms, proxy.ts: 25ms, generate-params: 10ms, application-code: 608ms)
+ GET /favicon.ico 404 in 146ms (next.js: 16ms, generate-params: 71µs, application-code: 130ms)
+[browser] Image with src "/brand/logo-juma-agro.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+ GET / 200 in 323ms (next.js: 32ms, proxy.ts: 10ms, generate-params: 11ms, application-code: 282ms)
+ GET / 200 in 253ms (next.js: 23ms, proxy.ts: 8ms, generate-params: 8ms, application-code: 222ms)
+ GET / 200 in 346ms (next.js: 38ms, proxy.ts: 11ms, generate-params: 15ms, application-code: 297ms)
+ GET /favicon.ico 404 in 122ms (next.js: 10ms, generate-params: 27µs, application-code: 112ms)
+[browser] Image with src "/brand/logo-juma-agro.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+ GET / 200 in 289ms (next.js: 33ms, proxy.ts: 11ms, generate-params: 13ms, application-code: 245ms)
+ GET / 200 in 319ms (next.js: 25ms, proxy.ts: 9ms, generate-params: 10ms, application-code: 285ms)
+[browser] Image with src "/brand/logo-juma-agro.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+ GET / 200 in 249ms (next.js: 22ms, proxy.ts: 9ms, generate-params: 8ms, application-code: 218ms)
+✓ Compiled in 338ms
+✓ Compiled in 169ms
+ GET / 200 in 910ms (next.js: 284ms, proxy.ts: 13ms, generate-params: 10ms, application-code: 613ms)
+ GET / 200 in 368ms (next.js: 36ms, proxy.ts: 27ms, generate-params: 12ms, application-code: 306ms)
+ GET /favicon.ico 404 in 169ms (next.js: 17ms, generate-params: 83µs, application-code: 152ms)
+ GET / 200 in 300ms (next.js: 27ms, proxy.ts: 10ms, generate-params: 11ms, application-code: 263ms)
+ GET /favicon.ico 404 in 97ms (next.js: 10ms, generate-params: 29µs, application-code: 87ms)
+ GET / 200 in 251ms (next.js: 26ms, proxy.ts: 12ms, generate-params: 10ms, application-code: 213ms)
+[browser] Image with src "/brand/logo-juma-agro.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+ GET / 200 in 239ms (next.js: 23ms, proxy.ts: 9ms, generate-params: 9ms, application-code: 207ms)
+ GET /favicon.ico 404 in 113ms (next.js: 10ms, generate-params: 47µs, application-code: 103ms)
+[browser] Image with src "/brand/logo-juma-agro.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+ GET / 200 in 286ms (next.js: 24ms, proxy.ts: 12ms, generate-params: 9ms, application-code: 251ms)
+ GET /favicon.ico 404 in 83ms (next.js: 10ms, generate-params: 25µs, application-code: 74ms)
+ GET / 200 in 256ms (next.js: 28ms, proxy.ts: 13ms, generate-params: 9ms, application-code: 216ms)
+ GET /favicon.ico 404 in 91ms (next.js: 10ms, generate-params: 103µs, application-code: 81ms)
+[browser] Image with src "/brand/logo-juma-agro.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+ GET / 200 in 404ms (next.js: 32ms, proxy.ts: 13ms, generate-params: 12ms, application-code: 359ms)
+ GET /favicon.ico 404 in 150ms (next.js: 16ms, generate-params: 59µs, application-code: 134ms)
+ GET / 200 in 307ms (next.js: 25ms, proxy.ts: 13ms, generate-params: 9ms, application-code: 269ms)
+ GET /favicon.ico 404 in 144ms (next.js: 23ms, generate-params: 78µs, application-code: 120ms)
+ GET / 200 in 379ms (next.js: 24ms, proxy.ts: 10ms, generate-params: 9ms, application-code: 345ms)
+ GET / 200 in 368ms (next.js: 27ms, proxy.ts: 13ms, generate-params: 11ms, application-code: 328ms)
+✓ Compiled in 292ms
+✓ Compiled in 141ms
+ GET / 200 in 967ms (next.js: 280ms, proxy.ts: 27ms, generate-params: 16ms, application-code: 660ms)
+ GET / 200 in 298ms (next.js: 30ms, proxy.ts: 10ms, generate-params: 13ms, application-code: 258ms)
+ GET / 200 in 346ms (next.js: 56ms, proxy.ts: 29ms, generate-params: 22ms, application-code: 260ms)
+ GET / 200 in 256ms (next.js: 23ms, proxy.ts: 11ms, generate-params: 8ms, application-code: 223ms)
+ GET /favicon.ico 404 in 126ms (next.js: 17ms, generate-params: 59µs, application-code: 109ms)
+ GET / 200 in 344ms (next.js: 29ms, proxy.ts: 12ms, generate-params: 10ms, application-code: 302ms)
+ GET /favicon.ico 404 in 127ms (next.js: 12ms, generate-params: 55µs, application-code: 115ms)
+[browser] Image with src "/brand/logo-juma-agro.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+ GET / 200 in 405ms (next.js: 61ms, proxy.ts: 21ms, generate-params: 13ms, application-code: 323ms)
+ GET /favicon.ico 404 in 242ms (next.js: 17ms, generate-params: 66µs, application-code: 226ms)
+[browser] Image with src "/brand/logo-juma-agro.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+ GET / 200 in 510ms (next.js: 57ms, proxy.ts: 34ms, generate-params: 16ms, application-code: 419ms)
+[browser] Image with src "/brand/logo-juma-agro.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+✓ Compiled in 444ms
+✓ Compiled in 168ms
+✓ Compiled in 123ms
+ GET / 200 in 722ms (next.js: 252ms, proxy.ts: 16ms, generate-params: 12ms, application-code: 454ms)
+ GET / 200 in 243ms (next.js: 27ms, proxy.ts: 10ms, generate-params: 11ms, application-code: 207ms)
+ GET /favicon.ico 404 in 107ms (next.js: 9ms, generate-params: 29µs, application-code: 98ms)
+ GET / 200 in 262ms (next.js: 25ms, proxy.ts: 9ms, generate-params: 8ms, application-code: 228ms)
+ GET /favicon.ico 404 in 128ms (next.js: 14ms, generate-params: 42µs, application-code: 114ms)
+[browser] Image with src "/brand/logo-juma-agro.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+ GET / 200 in 278ms (next.js: 31ms, proxy.ts: 13ms, generate-params: 11ms, application-code: 234ms)
+ GET /favicon.ico 404 in 98ms (next.js: 13ms, generate-params: 46µs, application-code: 85ms)
+[browser] Image with src "/brand/logo-juma-agro.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+ GET / 200 in 292ms (next.js: 29ms, proxy.ts: 11ms, generate-params: 13ms, application-code: 251ms)
+ GET / 200 in 294ms (next.js: 31ms, proxy.ts: 13ms, generate-params: 10ms, application-code: 250ms)
+ GET /favicon.ico 404 in 119ms (next.js: 11ms, generate-params: 33µs, application-code: 108ms)
+[browser] Image with src "/brand/logo-juma-agro.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+✓ Compiled in 315ms
