@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
@@ -114,7 +114,7 @@ export function HomeTestimonials() {
         </div>
 
         {/* Cards */}
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="hidden lg:grid lg:grid-cols-3 gap-4">
           {TESTIMONIALS.map((t, i) => (
             <article
               key={i}
@@ -159,7 +159,111 @@ export function HomeTestimonials() {
             </article>
           ))}
         </div>
+        
+        <MobileTestimonialsMarquee testimonials={TESTIMONIALS} />
       </Container>
     </section>
+  )
+}
+
+function MobileTestimonialsMarquee({ testimonials }: { testimonials: typeof TESTIMONIALS }) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [pausedIndex, setPausedIndex] = useState<number | null>(null)
+  const [isPaused, setIsPaused] = useState(false)
+  const reduced = useReducedMotion()
+
+  const items = [...testimonials, ...testimonials, ...testimonials]
+  const tlRef = useRef<gsap.core.Tween | null>(null)
+
+  useGSAP(() => {
+    if (reduced || !trackRef.current) return
+    const track = trackRef.current
+    const setWidth = 336 * testimonials.length // 320px + 16px gap = 336
+
+    tlRef.current = gsap.to(track, {
+      x: -setWidth,
+      ease: 'none',
+      duration: testimonials.length * 5.5,
+      repeat: -1,
+      modifiers: {
+        x: gsap.utils.unitize(x => parseFloat(x) % setWidth)
+      }
+    })
+
+    return () => { tlRef.current?.kill() }
+  }, { scope: containerRef, dependencies: [reduced, testimonials.length] })
+
+  useEffect(() => {
+    if (tlRef.current) {
+      if (isPaused) tlRef.current.pause()
+      else tlRef.current.play()
+    }
+  }, [isPaused])
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsPaused(false)
+        setPausedIndex(null)
+      }
+    }
+    document.addEventListener('click', handleOutsideClick)
+    return () => document.removeEventListener('click', handleOutsideClick)
+  }, [])
+
+  return (
+    <div ref={containerRef} data-testi-card className="w-screen relative left-1/2 -translate-x-1/2 overflow-hidden block lg:hidden pb-12 pt-4">
+      <div ref={trackRef} className="flex gap-4 w-max pl-6">
+        {items.map((t, idx) => {
+          const isClicked = pausedIndex === idx
+          return (
+            <article
+              key={idx}
+              onClick={() => {
+                if (pausedIndex === idx) {
+                  setIsPaused(false)
+                  setPausedIndex(null)
+                } else {
+                  setIsPaused(true)
+                  setPausedIndex(idx)
+                }
+              }}
+              className={`rounded-[24px] p-7 flex flex-col gap-5 w-[320px] shrink-0 transition-all duration-500 cursor-pointer ${isClicked ? 'scale-[1.03] shadow-2xl z-10 opacity-100' : isPaused ? 'scale-[0.98] opacity-50 shadow-sm z-0' : 'scale-100 opacity-100 hover:scale-[1.02]'}`}
+              style={{ backgroundColor: '#fff', border: '1px solid rgba(0,0,0,.07)' }}
+            >
+              <div
+                className="text-[80px] leading-none font-black select-none"
+                style={{ color: '#DDE6C8', lineHeight: 1 }}
+                aria-hidden
+              >
+                "
+              </div>
+              <p className="text-[16px] leading-[1.65] flex-1" style={{ color: '#1a2a12' }}>
+                {t.text}
+              </p>
+              <span
+                className="inline-block text-[12px] font-bold tracking-[0.06em] uppercase rounded-full px-3 py-1.5 w-fit"
+                style={{ backgroundColor: '#E8EFE2', color: '#004B26' }}
+              >
+                {t.badge}
+              </span>
+              <div className="flex items-center gap-3 pt-2" style={{ borderTop: '1px solid rgba(0,0,0,.06)' }}>
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-[14px]"
+                  style={{ backgroundColor: '#004B26', color: '#F0E27A' }}
+                >
+                  {t.initials}
+                </div>
+                <div>
+                  <div className="text-[14px] font-bold" style={{ color: '#0F1A0A' }}>{t.name}</div>
+                  <div className="text-[12px]" style={{ color: '#7a8f6e' }}>{t.location}</div>
+                </div>
+              </div>
+            </article>
+          )
+        })}
+      </div>
+    </div>
   )
 }

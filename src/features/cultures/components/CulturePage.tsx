@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef, useState, useCallback } from 'react'
+import React, { useRef, useState, useCallback, useEffect } from 'react'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
@@ -563,6 +563,92 @@ function Calculator({ culture }: { culture: CultureData }) {
   )
 }
 
+function MobileChallengesMarquee({ challenges }: { challenges: Challenge[] }) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [pausedIndex, setPausedIndex] = useState<number | null>(null)
+  const [isPaused, setIsPaused] = useState(false)
+  const reduced = useReducedMotion()
+
+  const items = [...challenges, ...challenges, ...challenges]
+
+  const tlRef = useRef<gsap.core.Tween | null>(null)
+
+  useGSAP(() => {
+    if (reduced || !trackRef.current) return
+    const track = trackRef.current
+    const setWidth = 296 * challenges.length
+
+    tlRef.current = gsap.to(track, {
+      x: -setWidth,
+      ease: 'none',
+      duration: challenges.length * 4.5,
+      repeat: -1,
+      modifiers: {
+        x: gsap.utils.unitize(x => parseFloat(x) % setWidth)
+      }
+    })
+
+    return () => { tlRef.current?.kill() }
+  }, { scope: containerRef, dependencies: [reduced, challenges.length] })
+
+  useEffect(() => {
+    if (tlRef.current) {
+      if (isPaused) {
+        tlRef.current.pause()
+      } else {
+        tlRef.current.play()
+      }
+    }
+  }, [isPaused])
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsPaused(false)
+        setPausedIndex(null)
+      }
+    }
+    document.addEventListener('click', handleOutsideClick)
+    return () => document.removeEventListener('click', handleOutsideClick)
+  }, [])
+
+  return (
+    <div ref={containerRef} className="w-screen relative left-1/2 -translate-x-1/2 overflow-hidden block lg:hidden pb-12 pt-4">
+      <div ref={trackRef} className="flex gap-4 w-max pl-6">
+        {items.map((c, idx) => {
+          const originalIndex = idx % challenges.length
+          const isClicked = pausedIndex === idx
+
+          return (
+            <article
+              key={idx}
+              onClick={() => {
+                if (pausedIndex === idx) {
+                  setIsPaused(false)
+                  setPausedIndex(null)
+                } else {
+                  setIsPaused(true)
+                  setPausedIndex(idx)
+                }
+              }}
+              className={`rounded-[20px] flex flex-col gap-3 p-[26px_22px_24px] w-[280px] shrink-0 transition-all duration-500 cursor-pointer ${isClicked ? 'scale-[1.05] shadow-2xl z-10 opacity-100' : isPaused ? 'scale-[0.98] opacity-50 shadow-sm z-0' : 'scale-100 opacity-100 hover:scale-[1.02]'}`}
+              style={{ backgroundColor: originalIndex % 2 === 0 ? '#EFE9DB' : '#E8EFE2' }}
+            >
+              <span className="text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[#004B26]">
+                {c.stage}
+              </span>
+              <h4 className="m-0 text-[18px] font-[650] tracking-[-0.01em] text-[#1A1A1A] leading-snug">{c.title}</h4>
+              <p className="m-0 text-[13.5px] text-[#5A5A57] leading-[1.5]">{c.desc}</p>
+            </article>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+
 export function CulturePage({ slug }: { slug: string }) {
   const culture = DATA[slug]
   const reduced = useReducedMotion()
@@ -772,7 +858,7 @@ export function CulturePage({ slug }: { slug: string }) {
                 lede="Janelas críticas em que o manejo nutricional define o tamanho da safra."
               />
               <div
-                className="grid gap-3.5"
+                className="hidden lg:grid gap-3.5"
                 style={{ gridTemplateColumns: `repeat(${Math.min(culture.challenges.length, 5)}, 1fr)` }}
               >
                 {culture.challenges.map((c, i) => (
@@ -790,6 +876,7 @@ export function CulturePage({ slug }: { slug: string }) {
                   </article>
                 ))}
               </div>
+              <MobileChallengesMarquee challenges={culture.challenges} />
             </Container>
           </section>
         )}
@@ -811,27 +898,26 @@ export function CulturePage({ slug }: { slug: string }) {
                 {culture.management.map((phase, i) => (
                   <div
                     key={i}
-                    className="grid items-center border-t border-black/10 first:border-t-0"
-                    style={{ gridTemplateColumns: '220px 1fr' }}
+                    className="grid items-stretch md:items-center border-t border-black/10 first:border-t-0 grid-cols-[120px_1fr] md:grid-cols-[220px_1fr]"
                   >
                     {/* Fase */}
-                    <div className="flex flex-col gap-1.5 p-[28px] bg-[#E8EFE2] border-r border-black/10 h-full">
-                      <small className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#004B26] opacity-70">
+                    <div className="flex flex-col gap-1 md:gap-1.5 p-4 md:p-[28px] bg-[#E8EFE2] border-r border-black/10 h-full justify-center">
+                      <small className="text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.08em] text-[#004B26] opacity-70">
                         {phase.label}
                       </small>
-                      <span className="text-[17px] font-[650] tracking-[-0.01em] text-[#1A1A1A]">
+                      <span className="text-[14px] md:text-[17px] font-[650] tracking-[-0.01em] text-[#1A1A1A] leading-tight md:leading-normal">
                         {phase.fase}
                       </span>
                     </div>
                     {/* Pills */}
-                    <div className="flex flex-wrap items-center gap-2 p-[22px_28px]">
+                    <div className="flex flex-wrap items-center gap-1.5 md:gap-2 p-4 md:p-[22px_28px]">
                       {phase.products.map((prod, j) => (
                         <React.Fragment key={j}>
-                          <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-[#DDE6C8] text-[#004B26] text-[13.5px] font-semibold">
+                          <span className="inline-flex items-center gap-2 px-3 py-1.5 md:px-3.5 md:py-2 rounded-full bg-[#DDE6C8] text-[#004B26] text-[12.5px] md:text-[13.5px] font-semibold leading-none">
                             {prod}
                           </span>
                           {j < phase.products.length - 1 && (
-                            <span className="text-[14px] text-[#7C7C78]">+</span>
+                            <span className="text-[12px] md:text-[14px] text-[#7C7C78]">+</span>
                           )}
                         </React.Fragment>
                       ))}

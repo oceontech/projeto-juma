@@ -109,8 +109,7 @@ export function HomeCultures() {
 
         {/* Grid */}
         <div
-          className="grid gap-3"
-          style={{ gridTemplateColumns: 'repeat(5, 1fr)', gridTemplateRows: 'repeat(2, 200px)' }}
+          className="grid grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 auto-rows-[140px] sm:auto-rows-[200px]"
         >
           {CULTURES.map((c) => (
             <Link
@@ -134,15 +133,15 @@ export function HomeCultures() {
                 className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
                 style={{ background: 'rgba(0,0,0,.2)' }}
               />
-              <div className="absolute inset-0 p-5 flex flex-col justify-between z-10 pointer-events-none">
+              <div className="absolute inset-0 p-3 sm:p-5 flex flex-col justify-between z-10 pointer-events-none">
                 <span
-                  className="text-[11px] font-bold tracking-[0.12em] uppercase"
+                  className="text-[10px] sm:text-[11px] font-bold tracking-[0.12em] uppercase"
                   style={{ color: 'rgba(255,255,255,.9)' }}
                 >
                   {c.idx}
                 </span>
                 <span
-                  className="text-[16px] font-bold text-white leading-tight tracking-[-0.01em]"
+                  className="text-[13px] sm:text-[16px] font-bold text-white leading-[1.1] tracking-[-0.01em]"
                 >
                   {c.label}
                 </span>

@@ -191,13 +191,13 @@ export function CulturesGrid() {
         </div>
 
         {/* Grade de Culturas */}
-        <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-32">
+        <div ref={gridRef} className="grid grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4 mb-32">
         {CULTURE_KEYS.map((culture) => (
           <Link
             key={culture.id}
             href={`/culturas/${culture.id}`}
             data-culture-card
-            className="group relative flex flex-col justify-end h-64 sm:h-72 rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
+            className="group relative flex flex-col justify-end h-36 sm:h-64 lg:h-72 rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
           >
             <Image
               src={culture.image}
@@ -206,15 +206,15 @@ export function CulturesGrid() {
               className="object-cover group-hover:scale-110 transition-transform duration-700"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 pointer-events-none" />
-            <div className="relative z-10 p-6 flex flex-col justify-end h-full pointer-events-none">
-              <span className="text-white/60 font-mono text-sm font-bold tracking-widest mb-1 group-hover:text-white/90 transition-colors">
+            <div className="relative z-10 p-3 sm:p-6 flex flex-col justify-end h-full pointer-events-none">
+              <span className="text-white/60 font-mono text-[10px] sm:text-sm font-bold tracking-widest mb-0.5 sm:mb-1 group-hover:text-white/90 transition-colors">
                 {culture.num}
               </span>
-              <span className="text-white font-montserrat text-2xl font-bold tracking-tight">
+              <span className="text-white font-montserrat text-[13px] sm:text-2xl font-bold tracking-tight leading-[1.1]">
                 {t(`cultures.${culture.id}`)}
               </span>
             </div>
-            <div className="absolute top-6 right-6 z-10 text-white opacity-0 -translate-x-4 translate-y-4 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-300">
+            <div className="hidden sm:block absolute top-6 right-6 z-10 text-white opacity-0 -translate-x-4 translate-y-4 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-300">
               <ArrowTopRightIcon className="h-6 w-6" />
             </div>
           </Link>
