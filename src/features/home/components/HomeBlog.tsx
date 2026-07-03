@@ -2,8 +2,8 @@
 
 import { useRef } from 'react'
 import { Link } from '@/i18n/navigation'
-import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
-import { EASE } from '@/features/animation/motion'
+import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
+import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
 
@@ -38,15 +38,51 @@ export function HomeBlog() {
   useGSAP(() => {
     if (reduced || !ref.current) return
     const cards = gsap.utils.toArray<HTMLElement>('[data-blog-card]', ref.current)
-    gsap.set(cards, { y: 24, opacity: 0 })
-    ScrollTrigger.create({
-      trigger: ref.current,
-      start: 'top 78%',
-      once: true,
-      onEnter: () => {
-        gsap.to(cards, { y: 0, opacity: 1, duration: 0.7, stagger: 0.1, ease: EASE.reveal })
-      },
+    gsap.set(cards, { y: 40, opacity: 0, filter: 'blur(12px)' })
+    
+    const header = ref.current.querySelector<HTMLElement>('[data-header]')
+    let split: SplitText | null = null;
+    if (header) {
+      const kicker = header.querySelector<HTMLElement>('[data-kicker]')
+      const title = header.querySelector<HTMLElement>('[data-title]')
+      const line = header.querySelector<HTMLElement>('[data-gline]')
+
+      split = title ? new SplitText(title, { type: 'chars,words' }) : null
+
+      if (kicker) gsap.set(kicker, { y: 14, opacity: 0 })
+      if (split) gsap.set(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
+      if (line) gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: header,
+          start: 'top 85%',
+          end: 'bottom 15%',
+          toggleActions: 'play reverse play reverse',
+        },
+        defaults: { ease: EASE.reveal }
+      })
+      if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub })
+      if (split) tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, '-=0.4')
+      if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: DUR.sub }, '-=0.4')
+    }
+
+    gsap.to(cards, {
+      y: 0,
+      opacity: 1,
+      filter: 'blur(0px)',
+      duration: 0.8,
+      stagger: 0.1,
+      ease: EASE.reveal,
+      scrollTrigger: {
+        trigger: ref.current,
+        start: 'top 78%',
+        end: 'bottom 15%',
+        toggleActions: 'play reverse play reverse',
+      }
     })
+    
+    return () => split?.revert()
   }, { scope: ref })
 
   return (
@@ -57,20 +93,21 @@ export function HomeBlog() {
       <Container>
         {/* Cabeçalho */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
-          <div>
-            <span
-              className="inline-flex items-center gap-2 text-[13px] font-medium tracking-[0.08em] uppercase border rounded-full px-4 py-2 mb-5"
-              style={{ borderColor: 'rgba(0,0,0,.15)', color: '#004B26' }}
-            >
-              <span className="w-[6px] h-[6px] rounded-full bg-[#004B26] inline-block" />
-              Do campo para você
-            </span>
+          <div data-header>
+            <div className="mb-8" data-kicker>
+              <span className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 border border-[#004B26]/20 bg-[#004B26]/5 text-[#004B26]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#004B26] inline-block" />
+                Do campo para você
+              </span>
+            </div>
             <h2
-              className="font-black text-[clamp(32px,4vw,52px)] leading-[1.05] tracking-[-0.02em]"
-              style={{ color: '#0F1A0A' }}
+              data-title
+              className="font-black uppercase leading-[1.05] tracking-tight"
+              style={{ color: '#0F1A0A', fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
             >
-              Conteúdo que ajuda<br />a produzir melhor.
+              Conteúdo que ajuda<br />a produzir <span className="text-[#004B26] text-highlight inline-block">melhor.</span>
             </h2>
+            <span data-gline aria-hidden className="mt-8 block h-[3px] w-12 rounded-full bg-[#004B26]" />
           </div>
           <p className="max-w-[38ch] text-[17px] leading-[1.6]" style={{ color: '#3d4d35' }}>
             Conhecimento agronômico aplicado, escrito para quem está no dia a dia do campo.

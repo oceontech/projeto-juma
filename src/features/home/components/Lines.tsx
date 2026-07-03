@@ -42,11 +42,23 @@ export function Lines() {
       if (chars.length) gsap.set(chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
 
       const tlHead = gsap.timeline({
-        scrollTrigger: { trigger: ref.current, start: 'top 72%', once: true },
+        scrollTrigger: {
+          trigger: ref.current,
+          start: 'top 85%',
+          end: 'bottom 15%',
+          toggleActions: 'play reverse play reverse',
+        },
       })
+      
+      const gline = ref.current.querySelector<HTMLElement>('[data-gline]')
+      if (gline) gsap.set(gline, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
+
       if (title) tlHead.set(title, { opacity: 1 }, 0)
       if (chars.length)
         tlHead.to(chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char, ease: EASE.reveal }, 0)
+        
+      if (gline)
+        tlHead.to(gline, { scaleX: 1, opacity: 1, duration: 0.8, ease: 'power3.out' }, 0.2)
 
       // Cards de linha: clip-path reveal, um por um
       const cards = gsap.utils.toArray<HTMLElement>('[data-line-card]', ref.current)
@@ -60,8 +72,8 @@ export function Lines() {
 
         ScrollTrigger.create({
           trigger: card,
-          start: 'top 82%',
-          once: true,
+          start: 'top 85%',
+          end: 'bottom 15%',
           onEnter: () => {
             const d = i * 0.08
             if (bar)
@@ -70,6 +82,7 @@ export function Lines() {
                 duration: 0.85,
                 delay: d,
                 ease: 'power3.out',
+                overwrite: 'auto'
               })
             if (content)
               gsap.to(content, {
@@ -77,8 +90,22 @@ export function Lines() {
                 duration: 0.6,
                 delay: d + 0.12,
                 ease: EASE.reveal,
+                overwrite: 'auto'
               })
           },
+          onLeave: () => {
+            if (bar) gsap.to(bar, { scaleY: 0, duration: 0.5, overwrite: 'auto' })
+            if (content) gsap.to(content, { y: 22, opacity: 0, duration: 0.5, overwrite: 'auto' })
+          },
+          onEnterBack: () => {
+            const d = i * 0.08
+            if (bar) gsap.to(bar, { scaleY: 1, duration: 0.85, delay: d, ease: 'power3.out', overwrite: 'auto' })
+            if (content) gsap.to(content, { y: 0, opacity: 1, duration: 0.6, delay: d + 0.12, ease: EASE.reveal, overwrite: 'auto' })
+          },
+          onLeaveBack: () => {
+            if (bar) gsap.to(bar, { scaleY: 0, duration: 0.5, overwrite: 'auto' })
+            if (content) gsap.to(content, { y: 22, opacity: 0, duration: 0.5, overwrite: 'auto' })
+          }
         })
       })
 
@@ -93,20 +120,21 @@ export function Lines() {
 
         {/* Cabeçalho */}
         <div className="mb-3xl max-w-[52rem]">
-          <div className="mb-xl flex items-center gap-md">
-            <span aria-hidden className="block h-px w-6 bg-primary/35" />
-            <span className="text-eyebrow text-[10px] uppercase tracking-[0.24em] text-primary/50">
+          <div className="mb-8">
+            <span className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 mb-6 border border-primary/20 bg-primary/5 text-primary">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
               {t('kicker')}
             </span>
           </div>
 
           <h2
             ref={titleRef}
-            className="font-black uppercase leading-[0.96] tracking-tight text-foreground"
-            style={{ fontSize: 'clamp(2.25rem, 5.2vw, 4.75rem)' }}
+            className="font-black uppercase leading-[1.05] tracking-tight text-foreground"
+            style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
           >
             {t('title')}
           </h2>
+          <span data-gline aria-hidden className="mt-8 block h-[3px] w-12 rounded-full bg-primary" />
         </div>
 
         {/* Grid de linhas — 1 col mobile, 2-3 desktop */}

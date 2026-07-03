@@ -1,8 +1,8 @@
 'use client'
 
 import { useRef } from 'react'
-import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
-import { EASE } from '@/features/animation/motion'
+import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
+import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
 
@@ -48,42 +48,84 @@ export function HomeResults() {
   useGSAP(() => {
     if (reduced || !ref.current) return
 
-    const cells = gsap.utils.toArray<HTMLElement>('[data-result-cell]', ref.current)
+      const cells = gsap.utils.toArray<HTMLElement>('[data-result-cell]', ref.current)
 
-    cells.forEach((cell, i) => {
-      const numEl = cell.querySelector<HTMLElement>('[data-count]')
-      const labelEl = cell.querySelector<HTMLElement>('[data-label]')
-
-      gsap.set(cell, { opacity: 0, y: 20 })
-
-      ScrollTrigger.create({
-        trigger: cell,
-        start: 'top 85%',
-        once: true,
-        onEnter: () => {
-          const delay = i * 0.12
-          gsap.to(cell, { opacity: 1, y: 0, duration: 0.6, delay, ease: EASE.reveal })
-          if (labelEl) gsap.to(labelEl, { opacity: 1, y: 0, duration: 0.5, delay: delay + 0.2, ease: EASE.reveal })
-
-          if (numEl) {
-            const target = parseFloat(numEl.dataset.count || '0')
-            const decs = parseInt(numEl.dataset.decimals || '0')
-            const pfx = numEl.dataset.prefix || ''
-            const obj = { v: 0 }
-            gsap.to(obj, {
-              v: target,
-              duration: 2,
-              delay: delay + 0.1,
-              ease: 'power2.out',
-              onUpdate() {
-                if (!numEl) return
-                numEl.textContent = pfx + obj.v.toFixed(decs).replace('.', ',')
-              },
-            })
-          }
-        },
+      cells.forEach((cell) => {
+        gsap.set(cell, { opacity: 0, y: 20, filter: 'blur(8px)' })
       })
-    })
+
+      // Animação do cabeçalho
+      const header = ref.current.querySelector<HTMLElement>('[data-header]')
+      let split: SplitText | null = null;
+      if (header) {
+        const kicker = header.querySelector<HTMLElement>('[data-kicker]')
+        const title = header.querySelector<HTMLElement>('[data-title]')
+        const line = header.querySelector<HTMLElement>('[data-gline]')
+
+        split = title ? new SplitText(title, { type: 'chars,words' }) : null
+
+        if (kicker) gsap.set(kicker, { y: 14, opacity: 0 })
+        if (split) gsap.set(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
+        if (line) gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
+
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: header,
+            start: 'top 85%',
+            end: 'bottom 15%',
+            toggleActions: 'play reverse play reverse',
+          },
+          defaults: { ease: EASE.reveal }
+        })
+        if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub })
+        if (split) tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, '-=0.4')
+        if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: DUR.sub }, '-=0.4')
+      }
+
+      cells.forEach((cell, i) => {
+        const numEl = cell.querySelector<HTMLElement>('[data-count]')
+        const labelEl = cell.querySelector<HTMLElement>('[data-label]')
+  
+        ScrollTrigger.create({
+          trigger: cell,
+          start: 'top 85%',
+          end: 'bottom 15%',
+          toggleActions: 'play reverse play reverse',
+          onEnter: () => {
+            const delay = i * 0.12
+            gsap.to(cell, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.8, delay, ease: EASE.reveal })
+            if (labelEl) gsap.to(labelEl, { opacity: 1, y: 0, duration: 0.5, delay: delay + 0.2, ease: EASE.reveal })
+
+            if (numEl) {
+              const target = parseFloat(numEl.dataset.count || '0')
+              const decs = parseInt(numEl.dataset.decimals || '0')
+              const pfx = numEl.dataset.prefix || ''
+              const obj = { v: 0 }
+              gsap.to(obj, {
+                v: target,
+                duration: 2.2,
+                delay: delay + 0.15,
+                ease: 'power2.out',
+                onUpdate: () => {
+                  const n = obj.v
+                  numEl.textContent = pfx + (decs > 0 ? n.toFixed(decs).replace('.', ',') : Math.round(n).toString())
+                },
+              })
+            }
+          },
+          onLeave: () => {
+            gsap.to(cell, { opacity: 0, y: -20, filter: 'blur(8px)', duration: 0.5 })
+          },
+          onEnterBack: () => {
+            gsap.to(cell, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.5 })
+          },
+          onLeaveBack: () => {
+            gsap.to(cell, { opacity: 0, y: 20, filter: 'blur(8px)', duration: 0.5 })
+          }
+        })
+      })
+
+    return () => split?.revert()
   }, { scope: ref })
 
   return (
@@ -93,19 +135,22 @@ export function HomeResults() {
     >
       <Container>
         {/* Cabeçalho */}
-        <div className="mb-14">
+        <div className="mb-14" data-header>
           <span
-            className="inline-flex items-center gap-2 text-[13px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 mb-5 border"
-            style={{ borderColor: 'rgba(255,255,255,.20)', color: 'rgba(255,255,255,.75)' }}
+            data-kicker
+            className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 mb-6 border"
+            style={{ borderColor: 'rgba(255,255,255,.20)', color: 'rgba(255,255,255,.80)' }}
           >
-            <span className="w-[6px] h-[6px] rounded-full bg-[#F0E27A] inline-block" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#F0E27A] inline-block" />
             Resultados comprovados
           </span>
           <h2
-            className="font-black text-[clamp(32px,4vw,52px)] leading-[1.05] tracking-[-0.02em] text-white max-w-[18ch]"
+            data-title
+            className="font-black text-[clamp(2.5rem,5vw,4.5rem)] leading-[1.05] tracking-tight text-white uppercase max-w-[18ch]"
           >
-            Números que vêm do campo.
+            Números que vêm do <span className="text-[#F0E27A] text-highlight inline-block">campo.</span>
           </h2>
+          <span data-gline aria-hidden className="mt-8 block h-[3px] w-12 rounded-full bg-[#F0E27A]" />
         </div>
 
         {/* Grid de resultados */}

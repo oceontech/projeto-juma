@@ -44,7 +44,7 @@ export function ProofStrip() {
 
         // Estado inicial
         gsap.set(card, { opacity: 0 })
-        if (numWrap) gsap.set(numWrap, { clipPath: 'inset(0 0 100% 0)' })
+        if (numWrap) gsap.set(numWrap, { clipPath: 'inset(0 0 100% 0)', filter: 'blur(10px)' })
         if (barEl)   gsap.set(barEl,   { scaleX: 0, transformOrigin: 'left center' })
         if (metaEl)  gsap.set(metaEl,  { y: 14, opacity: 0 })
 
@@ -53,14 +53,16 @@ export function ProofStrip() {
         ScrollTrigger.create({
           trigger: card,
           start: 'top 85%',
-          once: true,
+          end: 'bottom 15%',
+          toggleActions: 'play reverse play reverse',
           onEnter: () => {
             gsap.to(card, { opacity: 1, duration: 0.01 })
 
-            // Número emerge de baixo via clip-path (range e count-up)
+            // Número emerge de baixo via clip-path (range e count-up) com blur
             if (numWrap) {
               gsap.to(numWrap, {
                 clipPath: 'inset(0 0 0% 0)',
+                filter: 'blur(0px)',
                 duration: 1.0,
                 delay,
                 ease: EASE.reveal,
@@ -107,8 +109,33 @@ export function ProofStrip() {
               })
             }
           },
+          onLeave: () => {
+            gsap.to(card, { opacity: 0, duration: 0.5 })
+          },
+          onEnterBack: () => {
+            gsap.to(card, { opacity: 1, duration: 0.5 })
+          },
+          onLeaveBack: () => {
+            gsap.to(card, { opacity: 0, duration: 0.5 })
+          }
         })
       })
+
+      // Animação Kicker
+      const kicker = ref.current.querySelector<HTMLElement>('[data-kicker]')
+      if (kicker) {
+        gsap.set(kicker, { y: 14, opacity: 0 })
+        ScrollTrigger.create({
+          trigger: kicker,
+          start: 'top 85%',
+          end: 'bottom 15%',
+          toggleActions: 'play reverse play reverse',
+          onEnter: () => gsap.to(kicker, { y: 0, opacity: 1, duration: 0.8, ease: EASE.reveal }),
+          onLeave: () => gsap.to(kicker, { y: -14, opacity: 0, duration: 0.5 }),
+          onEnterBack: () => gsap.to(kicker, { y: 0, opacity: 1, duration: 0.8, ease: EASE.reveal }),
+          onLeaveBack: () => gsap.to(kicker, { y: 14, opacity: 0, duration: 0.5 }),
+        })
+      }
     },
     { scope: ref, dependencies: [reduced] },
   )
@@ -121,11 +148,11 @@ export function ProofStrip() {
 
       <Container className="min-[1600px]:max-w-[90rem]">
         {/* Kicker topo */}
-        <div className="flex items-center gap-md border-b border-white/10 py-md">
-          <span aria-hidden className="block h-px w-8 bg-white/30" />
-          <p className="text-eyebrow text-[10px] uppercase tracking-[0.24em] text-white/40">
+        <div className="pt-xl pb-md">
+          <span data-kicker className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 border border-white/20 text-white/80">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#F0E27A] inline-block" />
             {t('title')}
-          </p>
+          </span>
         </div>
 
         {/* Grid 2×2 mobile / 4 colunas desktop */}

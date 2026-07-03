@@ -2,8 +2,8 @@
 
 import { useRef } from 'react'
 import { Link } from '@/i18n/navigation'
-import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
-import { EASE } from '@/features/animation/motion'
+import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
+import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
 
@@ -15,17 +15,52 @@ export function HomeExperience() {
     if (reduced || !ref.current) return
     const visual = ref.current.querySelector<HTMLElement>('[data-exp-visual]')
     const body = ref.current.querySelector<HTMLElement>('[data-exp-body]')
-    if (visual) gsap.set(visual, { x: -30, opacity: 0 })
-    if (body) gsap.set(body, { x: 30, opacity: 0 })
-    ScrollTrigger.create({
-      trigger: ref.current,
-      start: 'top 75%',
-      once: true,
-      onEnter: () => {
-        if (visual) gsap.to(visual, { x: 0, opacity: 1, duration: 0.9, ease: EASE.reveal })
-        if (body) gsap.to(body, { x: 0, opacity: 1, duration: 0.9, delay: 0.1, ease: EASE.reveal })
+    
+    if (visual) gsap.set(visual, { x: -40, opacity: 0, filter: 'blur(10px)' })
+    
+    let split: SplitText | null = null;
+    if (body) {
+      const kicker = body.querySelector<HTMLElement>('[data-kicker]')
+      const title = body.querySelector<HTMLElement>('[data-title]')
+      const line = body.querySelector<HTMLElement>('[data-gline]')
+      const desc = body.querySelector<HTMLElement>('[data-desc]')
+      const cta = body.querySelector<HTMLElement>('[data-cta]')
+
+      split = title ? new SplitText(title, { type: 'chars,words' }) : null
+
+      if (kicker) gsap.set(kicker, { y: 14, opacity: 0 })
+      if (split) gsap.set(split.chars, { x: 30, opacity: 0, filter: 'blur(10px)' })
+      if (line) gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
+      if (desc) gsap.set(desc, { y: 20, opacity: 0 })
+      if (cta) gsap.set(cta, { y: 20, opacity: 0 })
+    }
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: ref.current,
+        start: 'top 75%',
+        end: 'bottom 15%',
+        toggleActions: 'play reverse play reverse',
       },
+      defaults: { ease: EASE.reveal }
     })
+    
+    if (visual) tl.to(visual, { x: 0, opacity: 1, filter: 'blur(0px)', duration: 0.9 })
+    
+    if (body) {
+      const kicker = body.querySelector<HTMLElement>('[data-kicker]')
+      const line = body.querySelector<HTMLElement>('[data-gline]')
+      const desc = body.querySelector<HTMLElement>('[data-desc]')
+      const cta = body.querySelector<HTMLElement>('[data-cta]')
+
+      if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub }, '-=0.5')
+      if (split) tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, '-=0.4')
+      if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: DUR.sub }, '-=0.4')
+      if (desc) tl.to(desc, { y: 0, opacity: 1, duration: DUR.sub }, '-=0.4')
+      if (cta) tl.to(cta, { y: 0, opacity: 1, duration: DUR.sub }, '-=0.4')
+    }
+
+    return () => split?.revert()
   }, { scope: ref })
 
   return (
@@ -72,30 +107,26 @@ export function HomeExperience() {
             </div>
           </div>
 
-          {/* Corpo */}
           <div data-exp-body>
-            <span
-              className="inline-flex items-center gap-2 text-[13px] font-medium tracking-[0.08em] uppercase border rounded-full px-4 py-2 mb-7"
-              style={{ borderColor: 'rgba(255,255,255,.20)', color: 'rgba(255,255,255,.65)' }}
-            >
-              <span className="w-[6px] h-[6px] rounded-full bg-[#F0E27A] inline-block" />
-              Juma Experience
-            </span>
+            <div className="mb-8" data-kicker>
+              <span className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 mb-6 border border-white/20 text-white/80">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#F0E27A] inline-block" />
+                Juma Experience
+              </span>
+            </div>
             <h2
-              className="font-black text-[clamp(30px,3.5vw,48px)] leading-[1.08] tracking-[-0.02em] text-white mb-6"
+              data-title
+              className="font-black uppercase leading-[1.05] tracking-tight text-white"
+              style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
             >
-              Viva a Juma{' '}
-              <em
-                className="not-italic"
-                style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontWeight: 400, color: '#F0E27A' }}
-              >
-                de perto.
-              </em>
+              Viva a Juma <span className="text-[#F0E27A] text-highlight inline-block">de perto.</span>
             </h2>
-            <p className="text-[17px] leading-[1.65] mb-10" style={{ color: 'rgba(255,255,255,.65)' }}>
+            <span data-gline aria-hidden className="mt-8 mb-6 block h-[3px] w-12 rounded-full bg-[#F0E27A]" />
+            <p data-desc className="text-[17px] leading-[1.65] mb-10" style={{ color: 'rgba(255,255,255,.65)' }}>
               Um programa de imersão para conhecer na prática como nossas soluções nascem e funcionam no campo — da pesquisa à colheita, lado a lado com nosso time agronômico.
             </p>
             <Link
+              data-cta
               href="/juma-experience"
               className="inline-flex items-center gap-3 font-bold text-[15px] rounded-full px-7 py-4 transition-colors"
               style={{ backgroundColor: '#F0E27A', color: '#1A1A1A' }}

@@ -1,7 +1,10 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { Container } from '@/components/layout/Container'
+import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
+import { DUR, EASE, STAGGER } from '@/features/animation/motion'
+import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
 type Culture = { id: string; label: string }
 type Product = { id: string; label: string; gainPerHa: number; unit: string }
@@ -37,33 +40,88 @@ export function HomeCalculator() {
   const [produtoId, setProdutoId] = useState('aminosan')
   const [area, setArea] = useState(500)
   const [preco, setPreco] = useState(135)
+  const reduced = useReducedMotion()
+  const ref = useRef<HTMLElement>(null)
 
   const produto = useMemo(() => PRODUCTS.find((p) => p.id === produtoId) ?? PRODUCTS[0], [produtoId])
   const sacasExtras = useMemo(() => Math.round(area * produto.gainPerHa), [area, produto])
   const receitaExtra = useMemo(() => sacasExtras * preco, [sacasExtras, preco])
 
+  useGSAP(() => {
+    if (reduced || !ref.current) return
+
+    const header = ref.current.querySelector<HTMLElement>('[data-header]')
+    const formPanel = ref.current.querySelector<HTMLElement>('[data-form]')
+    const resultPanel = ref.current.querySelector<HTMLElement>('[data-result]')
+
+    let split: SplitText | null = null;
+    if (header) {
+      const kicker = header.querySelector<HTMLElement>('[data-kicker]')
+      const title = header.querySelector<HTMLElement>('[data-title]')
+      const line = header.querySelector<HTMLElement>('[data-gline]')
+
+      split = title ? new SplitText(title, { type: 'chars,words' }) : null
+
+      if (kicker) gsap.set(kicker, { y: 14, opacity: 0 })
+      if (split) gsap.set(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
+      if (line) gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: header,
+          start: 'top 85%',
+          end: 'bottom 15%',
+          toggleActions: 'play reverse play reverse',
+        },
+        defaults: { ease: EASE.reveal }
+      })
+      if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub })
+      if (split) tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, '-=0.4')
+      if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: DUR.sub }, '-=0.4')
+    }
+
+    if (formPanel) gsap.set(formPanel, { x: -30, opacity: 0, filter: 'blur(10px)' })
+    if (resultPanel) gsap.set(resultPanel, { x: 30, opacity: 0, filter: 'blur(10px)' })
+
+    const tlPanels = gsap.timeline({
+      scrollTrigger: {
+        trigger: formPanel,
+        start: 'top 80%',
+        end: 'bottom 15%',
+        toggleActions: 'play reverse play reverse',
+      },
+      defaults: { ease: EASE.reveal }
+    })
+    if (formPanel) tlPanels.to(formPanel, { x: 0, opacity: 1, filter: 'blur(0px)', duration: 0.8 })
+    if (resultPanel) tlPanels.to(resultPanel, { x: 0, opacity: 1, filter: 'blur(0px)', duration: 0.8 }, '-=0.6')
+
+    return () => split?.revert()
+  }, { scope: ref })
+
   return (
     <section
+      ref={ref}
       id="calc"
       style={{ backgroundColor: '#F2F6F2', paddingBlock: 'clamp(80px,8vw,120px)' }}
     >
       <Container>
         {/* Cabeçalho */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
-          <div>
-            <span
-              className="inline-flex items-center gap-2 text-[13px] font-medium tracking-[0.08em] uppercase border rounded-full px-4 py-2 mb-5"
-              style={{ borderColor: 'rgba(0,0,0,.15)', color: '#004B26' }}
-            >
-              <span className="w-[6px] h-[6px] rounded-full bg-[#004B26] inline-block" />
-              Calcule seu ganho
-            </span>
+          <div data-header>
+            <div className="mb-8" data-kicker>
+              <span className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 border border-[#004B26]/20 bg-[#004B26]/5 text-[#004B26]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#004B26] inline-block" />
+                Calcule seu ganho
+              </span>
+            </div>
             <h2
-              className="font-black text-[clamp(32px,4vw,52px)] leading-[1.05] tracking-[-0.02em]"
-              style={{ color: '#0F1A0A' }}
+              data-title
+              className="font-black uppercase leading-[1.05] tracking-tight"
+              style={{ color: '#0F1A0A', fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
             >
-              Quanto a Juma pode<br />render no seu campo?
+              Quanto a Juma pode<br />render no seu <span className="text-[#004B26] text-highlight inline-block">campo?</span>
             </h2>
+            <span data-gline aria-hidden className="mt-8 block h-[3px] w-12 rounded-full bg-[#004B26]" />
           </div>
           <p className="max-w-[40ch] text-[17px] leading-[1.6]" style={{ color: '#3d4d35' }}>
             Simule em segundos o ganho potencial em sacas e receita extra com base em dados médios de campo.
@@ -74,6 +132,7 @@ export function HomeCalculator() {
         <div className="grid lg:grid-cols-[1fr_400px] gap-4">
           {/* Formulário */}
           <div
+            data-form
             className="rounded-[24px] p-8 flex flex-col gap-6"
             style={{ backgroundColor: '#fff', border: '1px solid rgba(0,0,0,.07)' }}
           >
@@ -154,6 +213,7 @@ export function HomeCalculator() {
 
           {/* Painel resultado */}
           <div
+            data-result
             className="rounded-[24px] p-8 flex flex-col justify-between relative overflow-hidden"
             style={{ backgroundColor: '#004B26' }}
           >

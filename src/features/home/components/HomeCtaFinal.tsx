@@ -1,39 +1,85 @@
+'use client'
+
+import { useRef } from 'react'
 import { Container } from '@/components/layout/Container'
+import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
+import { DUR, EASE, STAGGER } from '@/features/animation/motion'
+import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
 export function HomeCtaFinal() {
+  const reduced = useReducedMotion()
+  const ref = useRef<HTMLElement>(null)
+
+  useGSAP(() => {
+    if (reduced || !ref.current) return
+
+    const container = ref.current.querySelector<HTMLElement>('[data-cta-container]')
+    let split: SplitText | null = null;
+
+    if (container) {
+      const kicker = container.querySelector<HTMLElement>('[data-kicker]')
+      const title = container.querySelector<HTMLElement>('[data-title]')
+      const line = container.querySelector<HTMLElement>('[data-gline]')
+      const desc = container.querySelector<HTMLElement>('[data-desc]')
+      const btn = container.querySelector<HTMLElement>('[data-btn]')
+
+      split = title ? new SplitText(title, { type: 'chars,words' }) : null
+
+      if (kicker) gsap.set(kicker, { y: 14, opacity: 0 })
+      if (split) gsap.set(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
+      if (line) gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
+      if (desc) gsap.set(desc, { y: 20, opacity: 0 })
+      if (btn) gsap.set(btn, { scale: 0.9, opacity: 0, filter: 'blur(5px)' })
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: container,
+          start: 'top 85%',
+          end: 'bottom 15%',
+          toggleActions: 'play reverse play reverse',
+        },
+        defaults: { ease: EASE.reveal }
+      })
+      if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub })
+      if (split) tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, '-=0.4')
+      if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: DUR.sub }, '-=0.4')
+      if (desc) tl.to(desc, { y: 0, opacity: 1, duration: DUR.sub }, '-=0.4')
+      if (btn) tl.to(btn, { scale: 1, opacity: 1, filter: 'blur(0px)', duration: DUR.sub, ease: 'back.out(1.5)' }, '-=0.4')
+    }
+
+    return () => split?.revert()
+  }, { scope: ref })
+
   return (
     <section
+      ref={ref}
       id="whatsapp"
       style={{ backgroundColor: '#004B26', paddingBlock: 'clamp(80px,8vw,120px)' }}
     >
       <Container>
-        <div className="flex flex-col items-center text-center gap-8">
-          <span
-            className="inline-flex items-center gap-2 text-[13px] font-medium tracking-[0.08em] uppercase border rounded-full px-4 py-2"
-            style={{ borderColor: 'rgba(255,255,255,.20)', color: 'rgba(255,255,255,.70)' }}
-          >
-            <span className="w-[6px] h-[6px] rounded-full bg-[#F0E27A] inline-block" />
-            Próximo passo
-          </span>
+        <div data-cta-container className="flex flex-col items-center text-center gap-8">
+          <div className="mb-4" data-kicker>
+            <span className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 border border-white/20 text-white/80">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#F0E27A] inline-block" />
+              Próximo passo
+            </span>
+          </div>
 
           <h2
-            className="font-black text-[clamp(40px,6vw,80px)] leading-[1.02] tracking-[-0.025em] text-white max-w-[14ch]"
+            data-title
+            className="font-black uppercase leading-[1.05] tracking-tight text-white max-w-[14ch]"
+            style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
           >
-            Juntos{' '}
-            <em
-              className="not-italic"
-              style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontWeight: 400, color: '#F0E27A' }}
-            >
-              alimentamos
-            </em>
-            <br />o mundo.
+            Juntos alimentamos o <span className="text-[#F0E27A] text-highlight inline-block">mundo.</span>
           </h2>
+          <span data-gline aria-hidden className="mb-4 block h-[3px] w-12 rounded-full bg-[#F0E27A]" />
 
-          <p className="text-[18px] leading-[1.6] max-w-[44ch]" style={{ color: 'rgba(255,255,255,.65)' }}>
+          <p data-desc className="text-[18px] leading-[1.6] max-w-[44ch]" style={{ color: 'rgba(255,255,255,.65)' }}>
             Fale com a Juma e descubra a solução certa para a sua cultura, sua região e seu manejo.
           </p>
 
           <a
+            data-btn
             href="https://wa.me/5519999648186"
             target="_blank"
             rel="noopener noreferrer"

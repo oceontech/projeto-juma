@@ -55,15 +55,24 @@ export function Problem() {
           tl.to(word, { opacity: 1, duration: step * 0.9 }, i * step)
         })
 
+        // Anima a linha dinamicamente no final do scrub
+        const line = pin.querySelector<HTMLElement>('[data-gline]')
+        if (line) {
+          gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
+          tl.to(line, { scaleX: 1, opacity: 1, duration: step * 2 }, (words.length - 1) * step)
+        }
+
         // Corpo: revela após o pin liberar (trigger proprio)
         if (body) {
           gsap.set(body, { y: 28, opacity: 0 })
           ScrollTrigger.create({
             trigger: body,
-            start: 'top 82%',
-            once: true,
-            onEnter: () =>
-              gsap.to(body, { y: 0, opacity: 1, duration: 0.9, ease: EASE.reveal }),
+            start: 'top 85%',
+            end: 'bottom 15%',
+            onEnter: () => gsap.to(body, { y: 0, opacity: 1, duration: 0.9, ease: EASE.reveal, overwrite: 'auto' }),
+            onLeave: () => gsap.to(body, { y: 28, opacity: 0, duration: 0.5, overwrite: 'auto' }),
+            onEnterBack: () => gsap.to(body, { y: 0, opacity: 1, duration: 0.9, ease: EASE.reveal, overwrite: 'auto' }),
+            onLeaveBack: () => gsap.to(body, { y: 28, opacity: 0, duration: 0.5, overwrite: 'auto' })
           })
         }
 
@@ -85,9 +94,9 @@ export function Problem() {
       >
         <Container className="max-w-[72rem] min-[1600px]:max-w-[90rem]">
           {/* Decoração topo */}
-          <div className="mb-2xl flex items-center gap-md opacity-40">
-            <span aria-hidden className="block h-px w-10 bg-foreground" />
-            <span className="text-eyebrow text-[9px] uppercase tracking-[0.26em] text-foreground">
+          <div className="mb-8">
+            <span className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 mb-6 border border-primary/20 bg-primary/5 text-primary">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
               {t('kicker')}
             </span>
           </div>
@@ -95,11 +104,12 @@ export function Problem() {
           {/* Título — as palavras iluminam no desktop */}
           <h2
             ref={titleRef}
-            className="font-black leading-[1.06] tracking-tight text-foreground"
-            style={{ fontSize: 'clamp(2.2rem, 5.5vw, 5.5rem)' }}
+            className="font-black leading-[1.06] tracking-tight text-foreground uppercase"
+            style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
           >
             {t('titleSentence')}
           </h2>
+          <span data-gline aria-hidden className="mt-8 block h-[3px] w-12 rounded-full bg-primary" />
         </Container>
       </div>
 

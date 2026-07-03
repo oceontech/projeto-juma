@@ -29,7 +29,6 @@ export default async function HomePage(props: {
         <HeroJornada />
         <OurStory />
       </div>
-      <HomeMarquee />
       <AminosanStory />
       <HomeProductShowcase />
       <HomeCultures />
