@@ -118,7 +118,7 @@ export function HomeResults() {
               style={{ backgroundColor: 'rgba(255,255,255,.07)', border: '1px solid rgba(255,255,255,.10)' }}
             >
               <div
-                className="font-black leading-none tracking-[-0.03em]"
+                className="flex flex-wrap items-baseline gap-x-1.5 font-black leading-none tracking-[-0.03em]"
                 style={{ fontSize: 'clamp(42px,5vw,64px)', color: '#F0E27A' }}
               >
                 <span
@@ -129,7 +129,7 @@ export function HomeResults() {
                   {r.prefix}{r.value.toFixed(r.decimals).replace('.', ',')}
                 </span>
                 <span
-                  className="text-[0.38em] font-bold ml-1.5 align-baseline"
+                  className="text-[0.38em] font-bold align-baseline"
                   style={{ color: 'rgba(240,226,122,.60)' }}
                 >
                   {r.suffix}

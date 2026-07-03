@@ -186,13 +186,19 @@ export function HeroJornada() {
           lenisRef.current?.stop()
           // Compensa a largura da scrollbar para evitar layout shift ao ocultar overflow
           const sw = window.innerWidth - document.documentElement.clientWidth
-          if (sw > 0) document.body.style.paddingRight = `${sw}px`
-          document.documentElement.style.overflow = 'hidden'
-          document.body.style.overflow = 'hidden'
+          if (sw > 0 && !isMobile) {
+            document.body.style.paddingRight = `${sw}px`
+          }
+          if (!isMobile) {
+            document.documentElement.style.overflow = 'hidden'
+            document.body.style.overflow = 'hidden'
+          }
         } else {
           document.body.style.paddingRight = ''
-          document.documentElement.style.overflow = ''
-          document.body.style.overflow = ''
+          if (!isMobile) {
+            document.documentElement.style.overflow = ''
+            document.body.style.overflow = ''
+          }
           // Retoma o smooth scroll global ao liberar a jornada
           lenisRef.current?.start()
           requestAnimationFrame(() => ScrollTrigger.refresh())

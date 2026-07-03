@@ -40,7 +40,7 @@ export function AminosanStory() {
   }, [])
 
   return (
-    <div className="w-full aminosan-wrapper">
+    <div className="w-full overflow-x-hidden aminosan-wrapper">
       {reduced ? (
         <SimpleVersion key="simple" t={t} isMobile={isMobile} reduced={reduced} />
       ) : (
@@ -318,13 +318,19 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         if (on) {
           lenisRef.current?.stop()
           const sw = window.innerWidth - document.documentElement.clientWidth
-          if (sw > 0) document.body.style.paddingRight = `${sw}px`
-          document.documentElement.style.overflow = 'hidden'
-          document.body.style.overflow = 'hidden'
+          if (sw > 0 && !isMobile) {
+            document.body.style.paddingRight = `${sw}px`
+          }
+          if (!isMobile) {
+            document.documentElement.style.overflow = 'hidden'
+            document.body.style.overflow = 'hidden'
+          }
         } else {
           document.body.style.paddingRight = ''
-          document.documentElement.style.overflow = ''
-          document.body.style.overflow = ''
+          if (!isMobile) {
+            document.documentElement.style.overflow = ''
+            document.body.style.overflow = ''
+          }
           lenisRef.current?.start()
           requestAnimationFrame(() => ScrollTrigger.refresh())
         }
@@ -680,10 +686,12 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       }
       const onTouchMove = (e: TouchEvent) => {
         if (!isLocked) return
+        if ((e.target as HTMLElement).closest('.allow-scroll')) return
         e.preventDefault()
       }
       const onTouchEnd = (e: TouchEvent) => {
         if (!isLocked) return
+        if ((e.target as HTMLElement).closest('.allow-scroll')) return
         const endY = e.changedTouches[0] ? e.changedTouches[0].clientY : touchY
         const dy   = touchY - endY
         if (dy > 30) {
@@ -729,7 +737,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
   return (
     <div ref={root} className="relative w-full bg-white">
-      <section ref={stageRef} className="relative z-10 h-[100svh] w-full overflow-hidden bg-white">
+      <section ref={stageRef} className="relative z-10 h-auto lg:h-[100svh] min-h-[100svh] lg:min-h-0 w-full overflow-visible lg:overflow-hidden bg-white">
         {/* Vídeos desktop: forward + reverso (clipe gravado ao contrário) */}
         <video
           ref={isMobile ? null : videoFwdDesktopRef}
@@ -755,7 +763,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           muted playsInline preload="auto"
           poster="/heritage/mobile/morph-aminosan-1-antigo.png"
           aria-label={t('videoAlt')}
-          className="absolute inset-0 z-0 h-full w-full object-cover block lg:hidden"
+          className="absolute z-0 block lg:hidden inset-x-0 !top-[20svh] !h-[80svh] w-full object-contain"
         >
           <source src="/heritage/mobile/morph-aminosan.mp4" type="video/mp4" />
         </video>
@@ -763,7 +771,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           ref={isMobile ? videoRevMobileRef : null}
           muted playsInline preload="auto"
           aria-hidden="true"
-          className="absolute inset-0 z-0 h-full w-full object-cover opacity-0 block lg:hidden"
+          className="absolute z-0 opacity-0 block lg:hidden inset-x-0 !top-[20svh] !h-[80svh] w-full object-contain"
         >
           <source src="/heritage/mobile/morph-aminosan-reverse.mp4" type="video/mp4" />
         </video>
@@ -774,7 +782,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           src={isMobile ? "/heritage/mobile/morph-aminosan-1-antigo.png" : "/heritage/desktop/morph-aminosan-1-antigo.png"}
           alt={t('oldBottleAlt')}
           fill sizes="100vw"
-          className="absolute inset-0 z-10 object-cover"
+          className="absolute z-10 object-cover md:!object-cover lg:!inset-0 max-lg:!top-[20svh] max-lg:!h-[80svh] max-lg:!object-contain"
           priority
         />
 
@@ -784,7 +792,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           src={isMobile ? "/heritage/mobile/morph-aminosan-2-novo.png" : "/heritage/desktop/morph-aminosan-2-novo.png"}
           alt={t('newBottleAlt')}
           fill sizes="100vw"
-          className="absolute inset-0 z-10 object-cover pointer-events-none opacity-0"
+          className="absolute z-10 pointer-events-none opacity-0 object-cover md:!object-cover lg:!inset-0 max-lg:!top-[20svh] max-lg:!h-[80svh] max-lg:!object-contain"
           priority
         />
 
@@ -794,8 +802,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         />
 
         {/* z-30 — texto do Ato 1 */}
-        <Container className="relative z-30 flex h-full items-start pt-[18vh] md:pt-0 md:items-center min-[1600px]:max-w-[90rem]">
-          <div ref={act1Ref} className="flex max-w-[88vw] md:max-w-[24rem] xl:max-w-[28rem] flex-col items-start bg-white/30 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none p-4 rounded-3xl md:p-0 md:rounded-none">
+        <Container className="absolute inset-0 z-30 flex h-full items-start pt-[10vh] md:pt-0 md:items-center min-[1600px]:max-w-[90rem]">
+          <div ref={act1Ref} className="flex max-w-[88vw] md:max-w-[24rem] xl:max-w-[28rem] flex-col items-start bg-transparent p-0">
             <span data-a1 className="text-eyebrow mb-sm md:mb-md text-[10px] xl:text-xs uppercase tracking-[0.18em] text-primary">
               {t('eyebrow')}
             </span>
@@ -806,78 +814,81 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
               <p className="text-subtitle text-sm xl:text-base text-foreground/80">{t('body1')}</p>
               <p className="text-subtitle mt-1 md:mt-sm text-sm xl:text-base text-foreground/80">{t('body2')}</p>
             </div>
-            <span data-a1 className="text-eyebrow mt-xl md:mt-xl xl:mt-2xl text-[9px] md:text-[10px] xl:text-[11px] uppercase tracking-[0.16em] text-foreground/45">
+            <span data-a1 className="text-eyebrow mt-xl md:mt-xl xl:mt-2xl text-sm xl:text-[11px] uppercase tracking-[0.16em] text-foreground/45">
               {t('footerTag')}
             </span>
           </div>
         </Container>
 
         {/* Callout do Ato 1 */}
-        <div ref={oldCalloutRef} className="absolute right-[4%] md:right-[6%] xl:right-[12%] bottom-[15vh] md:bottom-auto md:top-1/4 xl:top-1/3 z-30 flex items-start gap-2 md:gap-sm">
+        <div ref={oldCalloutRef} className="absolute right-[4%] md:right-[6%] xl:right-[12%] bottom-[20vh] md:bottom-auto md:top-1/4 xl:top-1/3 z-30 flex items-start gap-2 md:gap-sm">
           <span data-line aria-hidden className="mt-[4px] md:mt-[6px] block h-6 md:h-8 xl:h-10 w-px bg-primary/50" style={{ transformOrigin: 'top' }} />
-          <span data-label className="text-subtitle max-w-[6.5rem] md:max-w-[7rem] xl:max-w-[8.5rem] text-[9px] md:text-[10px] xl:text-xs text-foreground/70">
+          <span data-label className="text-subtitle max-w-[6.5rem] md:max-w-[7rem] xl:max-w-[8.5rem] text-sm xl:text-xs text-foreground/70 drop-shadow-md md:drop-shadow-none">
             {t('oldBottleCaption')}
           </span>
         </div>
 
         {/* UI do Ato 3 */}
-        <Container className="absolute inset-0 z-30 flex flex-col md:flex-row h-full items-start md:items-center justify-between min-[1600px]:max-w-[90rem] pointer-events-none pt-[12vh] md:pt-0 pb-[8vh] md:pb-0">
+        <Container className="allow-scroll touch-pan-y relative lg:absolute lg:inset-0 z-30 flex flex-col md:flex-row min-h-[100svh] lg:min-h-0 h-auto lg:h-full items-start md:items-center justify-between min-[1600px]:max-w-[90rem] pointer-events-none pt-[8vh] md:pt-0 pb-[8vh] md:pb-0 overflow-visible md:overflow-hidden hide-scrollbar">
           
           {/* Painel Esquerdo */}
-          <div ref={leftPanelRef} className="pointer-events-auto flex flex-col items-start gap-1.5 md:gap-3 xl:gap-4 w-[92vw] md:w-auto max-w-[88vw] md:max-w-[24rem] xl:max-w-[28rem] bg-white/30 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none p-4 rounded-3xl md:p-0 md:rounded-none">
-            <div data-a3-tag className="flex items-center gap-1.5 md:gap-2 bg-primary/10 text-primary px-2 py-1 md:px-3 md:py-1.5 rounded-full text-[9px] md:text-[10px] xl:text-xs font-semibold">
+          <div ref={leftPanelRef} className="pointer-events-auto flex flex-col items-start gap-1.5 md:gap-3 xl:gap-4 w-full md:w-auto max-w-full md:max-w-[24rem] xl:max-w-[28rem] bg-transparent p-0 mt-4 md:mt-0">
+            <div data-a3-tag className="flex items-center gap-1.5 md:gap-2 bg-primary/10 text-primary px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs font-semibold">
               <Leaf className="w-2.5 h-2.5 md:w-3 md:h-3 xl:w-4 xl:h-4" /> Nutrição que transforma
             </div>
-            <h2 data-a3-title className="text-2xl md:text-5xl xl:text-6xl font-black text-primary">Aminosan</h2>
-            <p data-a3-desc1 className="text-xs md:text-lg xl:text-xl text-foreground/80 font-medium leading-tight">
+            <h2 data-a3-title className="uppercase text-4xl md:text-5xl xl:text-6xl font-black text-primary">Aminosan</h2>
+            <p data-a3-desc1 className="text-sm md:text-lg xl:text-xl text-foreground/80 font-medium leading-tight">
               Mais de 40 anos depois, o mesmo aminoácido, a mesma eficiência.
             </p>
             <div data-a3-line className="w-8 md:w-12 h-[3px] md:h-1 bg-primary/40 rounded-full my-0.5 md:my-1 xl:my-2" style={{ transformOrigin: 'left' }} />
-            <p data-a3-desc2 className="text-[11px] md:text-sm xl:text-base text-foreground/70">
+            <p data-a3-desc2 className="text-sm font-semibold xl:text-base text-foreground/70">
               Hoje, em oito culturas: <span className="font-bold text-primary">soja, milho, café, algodão, feijão, cítrus, tomate e batata.</span>
             </p>
             <div className="flex flex-row md:grid md:grid-cols-4 justify-between md:gap-2 xl:gap-4 mt-1 md:mt-2 xl:mt-4 w-full">
               <div data-a3-icon className="flex flex-col items-center md:items-start text-center md:text-left gap-1 md:gap-2 w-[22%] md:w-auto">
                 <Dna className="w-4 h-4 md:w-5 md:h-5 xl:w-6 xl:h-6 text-primary" />
-                <span className="text-[7.5px] md:text-[9px] xl:text-[10px] text-foreground/70 leading-tight font-medium">Aminoácidos de alta qualidade</span>
+                <span className="text-[11px] xl:text-[10px] text-foreground/70 leading-tight font-semibold">Aminoácidos de alta qualidade</span>
               </div>
               <div data-a3-icon className="flex flex-col items-center md:items-start text-center md:text-left gap-1 md:gap-2 w-[22%] md:w-auto">
                 <Sprout className="w-4 h-4 md:w-5 md:h-5 xl:w-6 xl:h-6 text-primary" />
-                <span className="text-[7.5px] md:text-[9px] xl:text-[10px] text-foreground/70 leading-tight font-medium">Maior eficiência nutricional</span>
+                <span className="text-[11px] xl:text-[10px] text-foreground/70 leading-tight font-semibold">Maior eficiência nutricional</span>
               </div>
               <div data-a3-icon className="flex flex-col items-center md:items-start text-center md:text-left gap-1 md:gap-2 w-[22%] md:w-auto">
                 <ShieldCheck className="w-4 h-4 md:w-5 md:h-5 xl:w-6 xl:h-6 text-primary" />
-                <span className="text-[7.5px] md:text-[9px] xl:text-[10px] text-foreground/70 leading-tight font-medium">Mais saúde e vigor para as plantas</span>
+                <span className="text-[11px] xl:text-[10px] text-foreground/70 leading-tight font-semibold">Mais saúde e vigor para as plantas</span>
               </div>
               <div data-a3-icon className="flex flex-col items-center md:items-start text-center md:text-left gap-1 md:gap-2 w-[22%] md:w-auto">
                 <BarChart3 className="w-4 h-4 md:w-5 md:h-5 xl:w-6 xl:h-6 text-primary" />
-                <span className="text-[7.5px] md:text-[9px] xl:text-[10px] text-foreground/70 leading-tight font-medium">Resultados comprovados no campo</span>
+                <span className="text-[11px] xl:text-[10px] text-foreground/70 leading-tight font-semibold">Resultados comprovados no campo</span>
               </div>
             </div>
           </div>
 
+          {/* Spacer for media on mobile */}
+          <div className="md:hidden h-[35svh] w-full shrink-0" aria-hidden />
+
           {/* Cards Direitos */}
-          <div className="pointer-events-auto flex flex-row md:flex-col gap-2 md:gap-4 xl:gap-6 w-full md:w-auto md:max-w-[20rem] xl:max-w-[24rem] overflow-x-auto md:overflow-visible snap-x hide-scrollbar mt-auto md:mt-0">
-            <div data-right-card className="flex items-start md:items-center gap-2 md:gap-3 xl:gap-4 w-[85%] md:w-full min-w-[16rem] md:min-w-0 bg-white/30 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none p-4 rounded-3xl md:p-0 md:rounded-none snap-center shrink-0">
-              <CalendarCheck className="w-5 h-5 md:w-6 md:h-6 xl:w-8 xl:h-8 text-primary mt-1 md:mt-0 shrink-0" />
-              <div className="flex flex-col gap-0.5 md:gap-1">
-                <span className="text-highlight text-lg md:text-2xl xl:text-3xl text-primary font-bold"><span ref={counterRef}>+10 a +0</span> sc/ha</span>
-                <span className="text-[10px] md:text-xs xl:text-sm text-foreground/80 leading-tight">Na soja, 10 a 14 sacas a mais por hectare em ensaios.</span>
-                <span className="text-[8px] md:text-[9px] xl:text-[10px] text-foreground/50 mt-1 md:mt-1.5 leading-tight">Fonte: Resultados internos (2011) | Certificado (UFLA) e Embrapa Cerrados (2015)</span>
+          <div className="pointer-events-auto flex flex-col gap-5 xl:gap-6 w-full md:w-auto md:max-w-[20rem] xl:max-w-[24rem] mt-auto md:mt-0 mb-8 md:mb-0">
+            <div data-right-card className="flex items-start md:items-center gap-4 xl:gap-5 w-full bg-transparent p-0 snap-center shrink-0">
+              <CalendarCheck className="w-6 h-6 xl:w-8 xl:h-8 text-primary shrink-0" />
+              <div className="flex flex-col font-semibold gap-0.5 md:gap-1">
+                <span className="text-highlight text-xl md:text-2xl xl:text-3xl text-primary font-bold"><span ref={counterRef}>+10 a +0</span> sc/ha</span>
+                <span className="text-sm text-foreground/80 leading-tight">Na soja, 10 a 14 sacas a mais por hectare em ensaios.</span>
+                <span className="text-[11px] text-foreground/50 mt-1 leading-tight">Fonte: Resultados internos (2011) | Certificado (UFLA) e Embrapa Cerrados (2015)</span>
               </div>
             </div>
             
-            <div data-right-card className="flex items-start md:items-center gap-2 md:gap-3 xl:gap-4 w-[85%] md:w-full min-w-[16rem] md:min-w-0 bg-white/30 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none p-4 rounded-3xl md:p-0 md:rounded-none snap-center shrink-0">
-              <Sprout className="w-5 h-5 md:w-6 md:h-6 xl:w-8 xl:h-8 text-primary mt-1 md:mt-0 shrink-0" />
-              <div className="flex flex-col gap-0.5 md:gap-1">
-                <span className="text-[11px] md:text-sm xl:text-base text-foreground/80 leading-tight">E hoje, uma linha inteira traz produtos, do <span className="font-bold text-primary">plantio à colheita.</span></span>
+            <div data-right-card className="flex items-start md:items-center gap-3 xl:gap-4 w-full bg-transparent p-0 snap-center shrink-0">
+              <Sprout className="w-6 h-6 xl:w-8 xl:h-8 text-primary shrink-0" />
+              <div className="flex flex-col font-semibold gap-0.5 md:gap-1">
+                <span className="text-sm xl:text-base text-foreground/80 leading-tight">E hoje, uma linha inteira traz produtos, do <span className="font-bold text-primary">plantio à colheita.</span></span>
               </div>
             </div>
 
-            <div data-right-card className="flex items-start md:items-center gap-2 md:gap-3 xl:gap-4 w-[85%] md:w-full min-w-[16rem] md:min-w-0 bg-white/30 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none p-4 rounded-3xl md:p-0 md:rounded-none snap-center shrink-0">
-              <Users className="w-5 h-5 md:w-6 md:h-6 xl:w-8 xl:h-8 text-primary mt-1 md:mt-0 shrink-0" />
-              <div className="flex flex-col gap-0.5 md:gap-1">
-                <span className="text-[11px] md:text-sm xl:text-base text-foreground/80 leading-tight">Confiança que vem do campo e gera <span className="font-bold text-primary">resultados.</span></span>
+            <div data-right-card className="flex items-start md:items-center gap-3 xl:gap-4 w-full bg-transparent p-0 snap-center shrink-0">
+              <Users className="w-6 h-6 xl:w-8 xl:h-8 text-primary shrink-0" />
+              <div className="flex flex-col font-semibold gap-0.5 md:gap-1">
+                <span className="text-sm xl:text-base text-foreground/80 leading-tight">Confiança que vem do campo e gera <span className="font-bold text-primary">resultados.</span></span>
               </div>
             </div>
           </div>

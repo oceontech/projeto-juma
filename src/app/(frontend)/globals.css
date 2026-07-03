@@ -98,6 +98,14 @@
     /* Reserva o espaço da scrollbar mesmo com overflow:hidden (evita layout shift na jornada) */
     scrollbar-width: none;
     overflow-x: hidden;
+    /* overflow-x:hidden sozinho não impede o rubber-band horizontal do touch em
+       iOS/Android quando algum elemento estoura a largura da viewport — isso
+       "arrasta" a página inteira para o lado e deixa uma barra vazia. Como
+       overflow-y:hidden no body quebraria o position:sticky usado pela jornada
+       (vira scroll container próprio, com scrollport do tamanho do documento
+       inteiro em vez do viewport), a correção fica em overscroll-behavior-x,
+       que bloqueia o gesto sem alterar o modelo de overflow. */
+    overscroll-behavior-x: none;
   }
 
   /* Remove scrollbar completamente — WebKit/Blink */
@@ -325,6 +333,15 @@ html.lenis body { height: auto; }
   font-family: var(--font-heading);
   font-weight: 500;
   font-style: italic;
+}
+
+/* Ocultar barra de rolagem visual mantendo a funcionalidade de scroll */
+@utility hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* ── Botão Azul Metalizado (Logo Juma) ─────────────────────── */
