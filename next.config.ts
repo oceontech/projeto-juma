@@ -27,6 +27,15 @@ const nextConfig: NextConfig = {
       {
         pathname: '/produtos/**',
       },
+      {
+        pathname: '/assets/cultures/**',
+      },
+    ],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
     ],
   },
   webpack: (webpackConfig) => {

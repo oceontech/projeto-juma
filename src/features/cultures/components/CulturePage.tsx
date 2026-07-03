@@ -1,10 +1,11 @@
 'use client'
 
 import React, { useRef, useState, useCallback } from 'react'
+import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
-import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
-import { DUR, EASE } from '@/features/animation/motion'
+import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
+import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
 const WHATSAPP = 'https://wa.me/5519999648186'
@@ -18,6 +19,7 @@ type CultureData = {
   name: string
   badge: string
   gradient: string
+  image: string
   description: string
   actua: string[]
   challenges: Challenge[]
@@ -31,6 +33,7 @@ const DATA: Record<string, CultureData> = {
     name: 'Café',
     badge: 'Cultura perene',
     gradient: 'linear-gradient(165deg, #6c4226 0%, #2a1a10 100%)',
+    image: '/assets/cultures/cafe.webp',
     description:
       'O café exige atenção em cada fase: cada estágio impacta diretamente a produtividade e a qualidade dos grãos colhidos. A Juma desenvolve programas nutricionais para sustentar o cafezal do enraizamento à maturação.',
     actua: [
@@ -69,6 +72,7 @@ const DATA: Record<string, CultureData> = {
     name: 'Soja',
     badge: 'Grão',
     gradient: 'linear-gradient(165deg, #5d7a3a, #2c3a18)',
+    image: '/assets/cultures/soja.webp',
     description:
       'A soja é a principal cultura do Brasil e exige precisão nutricional em cada fase do ciclo. A Juma desenvolve programas completos do tratamento de sementes ao enchimento de grãos.',
     actua: [
@@ -106,6 +110,7 @@ const DATA: Record<string, CultureData> = {
     name: 'Milho',
     badge: 'Grão',
     gradient: 'linear-gradient(165deg, #c3a445, #6b4f15)',
+    image: '/assets/cultures/milho.webp',
     description:
       'O milho, especialmente o safrinha, exige programa nutricional preciso para aproveitar a janela de cultivo e maximizar o rendimento por hectare.',
     actua: [
@@ -142,6 +147,7 @@ const DATA: Record<string, CultureData> = {
     name: 'Cana-de-açúcar',
     badge: 'Cultura semiperene',
     gradient: 'linear-gradient(165deg, #7fa356, #364a1f)',
+    image: '/assets/cultures/cana.webp',
     description:
       'A cana exige nutrição desde o plantio até a maturação, com foco em arranque, perfilhamento e TCH. A Juma oferece soluções específicas para cada fase da cultura.',
     actua: [
@@ -176,6 +182,7 @@ const DATA: Record<string, CultureData> = {
     name: 'Algodão',
     badge: 'Fibra',
     gradient: 'linear-gradient(165deg, #e7dfc9, #87826a)',
+    image: '/assets/cultures/algodao.webp',
     description:
       'O algodão é exigente em nutrição no período reprodutivo, quando floração, fixação de capulhos e enchimento de fibras definem a rentabilidade da safra.',
     actua: [
@@ -209,6 +216,7 @@ const DATA: Record<string, CultureData> = {
     name: 'Feijão',
     badge: 'Grão',
     gradient: 'linear-gradient(165deg, #8b5e3b, #2f1f12)',
+    image: '/assets/cultures/feijao.webp',
     description:
       'O feijão tem ciclo curto e exige nutrição precisa no período reprodutivo. Pequenas deficiências em fases críticas causam perdas significativas de produtividade.',
     actua: [
@@ -242,6 +250,7 @@ const DATA: Record<string, CultureData> = {
     name: 'Citros',
     badge: 'Cultura perene',
     gradient: 'linear-gradient(165deg, #d3a52a, #5e4910)',
+    image: '/assets/cultures/limao.webp',
     description:
       'Os citros exigem nutrição contínua e equilibrada ao longo do ciclo. A Juma oferece programas para floração, pegamento de frutos e qualidade pós-colheita.',
     actua: [
@@ -275,6 +284,7 @@ const DATA: Record<string, CultureData> = {
     name: 'Batata',
     badge: 'Tubérculo',
     gradient: 'linear-gradient(165deg, #a08562, #463623)',
+    image: '/assets/cultures/batata.webp',
     description:
       'A batata tem ciclo curto e demanda nutrição intensa desde o início. Qualidade de tubérculos e produtividade dependem de programa nutricional preciso em cada fase.',
     actua: [
@@ -308,6 +318,7 @@ const DATA: Record<string, CultureData> = {
     name: 'Tomate',
     badge: 'Hortaliça',
     gradient: 'linear-gradient(165deg, #b73a2a, #4e1410)',
+    image: '/assets/cultures/tomate.webp',
     description:
       'O tomate é uma das culturas mais exigentes em nutrição. Floração, pegamento e qualidade dos frutos dependem de um programa nutricional preciso ao longo do ciclo.',
     actua: [
@@ -341,6 +352,7 @@ const DATA: Record<string, CultureData> = {
     name: 'Pastagem',
     badge: 'Forrageira',
     gradient: 'linear-gradient(165deg, #80a558, #2c3e1d)',
+    image: '/assets/cultures/pastagem.webp',
     description:
       'A pastagem degradada é um dos principais problemas do pecuarista brasileiro. A Juma oferece programa nutricional para recuperação, maior lotação e ganho de peso.',
     actua: [
@@ -388,13 +400,13 @@ function Eyebrow({ dark, children }: { dark?: boolean; children: React.ReactNode
 function SectionHead({ eyebrow, title, lede }: { eyebrow: string; title: React.ReactNode; lede?: string }) {
   return (
     <div className="flex flex-col gap-[18px] mb-14 max-w-[980px]">
-      <Eyebrow>{eyebrow}</Eyebrow>
+      <div data-section-kicker><Eyebrow>{eyebrow}</Eyebrow></div>
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-        <h2 className="m-0 text-[#1A1A1A] font-black leading-[1.0] tracking-[-0.025em]" style={{ fontSize: 'clamp(32px,3.6vw,56px)', fontWeight: 720 }}>
+        <h2 data-section-title className="m-0 font-black uppercase leading-[1.05] tracking-tight text-[#1A1A1A]" style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}>
           {title}
         </h2>
         {lede && (
-          <p className="text-[#5A5A57] leading-[1.55] max-w-[44ch] text-[clamp(17px,1.25vw,20px)] m-0">
+          <p data-section-lede className="text-[#5A5A57] leading-[1.55] max-w-[44ch] text-[clamp(17px,1.25vw,20px)] m-0">
             {lede}
           </p>
         )}
@@ -560,9 +572,24 @@ export function CulturePage({ slug }: { slug: string }) {
   useGSAP(
     () => {
       if (reduced || !heroRef.current) return
+      const title = heroRef.current.querySelector('[data-hero-title]')
       const els = heroRef.current.querySelectorAll('[data-hero-el]')
+      
+      let split: SplitText | null = null
+      if (title) {
+        split = new SplitText(title, { type: 'chars,words' })
+        gsap.set(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
+      }
+      
       gsap.set(els, { y: 24, opacity: 0 })
-      gsap.to(els, { y: 0, opacity: 1, duration: DUR.sub, stagger: 0.09, ease: EASE.reveal, delay: 0.15 })
+      
+      const tl = gsap.timeline({ delay: 0.15 })
+      tl.to(els, { y: 0, opacity: 1, duration: DUR.sub, stagger: 0.09, ease: EASE.reveal })
+      if (split) {
+        tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char, ease: EASE.reveal }, '-=0.4')
+      }
+
+      return () => split?.revert()
     },
     { scope: heroRef, dependencies: [reduced] },
   )
@@ -571,15 +598,49 @@ export function CulturePage({ slug }: { slug: string }) {
     () => {
       if (reduced || !bodyRef.current) return
       const sections = bodyRef.current.querySelectorAll('[data-section]')
+      
+      const splits: SplitText[] = []
+      
       sections.forEach((section) => {
+        const title = section.querySelector('[data-section-title]')
+        const kicker = section.querySelector('[data-section-kicker]')
+        const lede = section.querySelector('[data-section-lede]')
+        const contentEls = section.querySelectorAll('[data-animate-content]')
+        
+        let split: SplitText | null = null
+        if (title) {
+          split = new SplitText(title, { type: 'chars,words' })
+          splits.push(split)
+          gsap.set(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
+        }
+        
+        if (kicker) gsap.set(kicker, { y: 14, opacity: 0 })
+        if (lede) gsap.set(lede, { y: 14, opacity: 0 })
+        if (contentEls.length > 0) gsap.set(contentEls, { y: 24, opacity: 0 })
         gsap.set(section, { y: 32, opacity: 0 })
-        ScrollTrigger.create({
-          trigger: section,
-          start: 'top 82%',
-          once: true,
-          onEnter: () => gsap.to(section, { y: 0, opacity: 1, duration: 0.8, ease: EASE.reveal }),
+        
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 85%',
+            end: 'bottom 15%',
+            toggleActions: 'play reverse play reverse',
+          },
+          defaults: { ease: EASE.reveal }
         })
+        
+        tl.to(section, { y: 0, opacity: 1, duration: 0.8 })
+        if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub }, '-=0.6')
+        if (split) {
+          tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, '-=0.4')
+        }
+        if (lede) tl.to(lede, { y: 0, opacity: 1, duration: DUR.sub }, '-=0.4')
+        if (contentEls.length > 0) {
+          tl.to(contentEls, { y: 0, opacity: 1, duration: DUR.sub, stagger: 0.08 }, '-=0.2')
+        }
       })
+      
+      return () => splits.forEach(s => s.revert())
     },
     { scope: bodyRef, dependencies: [reduced] },
   )
@@ -607,20 +668,20 @@ export function CulturePage({ slug }: { slug: string }) {
               data-hero-el
               className="relative aspect-[4/5] rounded-[24px] overflow-hidden"
               style={{
-                background: culture.gradient,
                 boxShadow: '0 1px 2px rgba(20,30,20,.04), 0 24px 60px -32px rgba(20,30,20,.25)',
               }}
             >
+              <Image src={culture.image} alt={culture.name} fill className="object-cover" priority />
               {/* Overlay gradient */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none" />
               {/* Badge */}
-              <span className="absolute top-[22px] left-[22px] bg-white/94 rounded-full px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.08em] text-[#1A1A1A]">
+              <span className="absolute top-[22px] left-[22px] bg-white/94 rounded-full px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.08em] text-[#1A1A1A] z-10 shadow-md">
                 {culture.badge}
               </span>
               {/* Culture name watermark */}
               <span
-                className="absolute bottom-6 left-6 text-white font-black uppercase leading-none select-none pointer-events-none"
-                style={{ fontSize: 'clamp(3rem,8vw,5rem)', opacity: 0.15 }}
+                className="absolute bottom-6 left-6 text-white font-black uppercase leading-none select-none pointer-events-none z-10 drop-shadow-md"
+                style={{ fontSize: 'clamp(3rem,8vw,5rem)', opacity: 0.8 }}
               >
                 {culture.name}
               </span>
@@ -632,12 +693,12 @@ export function CulturePage({ slug }: { slug: string }) {
                 <Eyebrow>Cultura · {culture.name}</Eyebrow>
               </span>
               <h1
-                data-hero-el
-                className="text-[#1A1A1A] m-0 mt-[22px] mb-6 leading-[1.0] tracking-[-0.03em]"
-                style={{ fontSize: 'clamp(32px,3.6vw,56px)', fontWeight: 720, maxWidth: '14ch' }}
+                data-hero-title
+                className="m-0 mt-[22px] mb-6 font-black uppercase leading-[1.05] tracking-tight text-[#1A1A1A]"
+                style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', maxWidth: '14ch' }}
               >
                 Manejo estratégico ao longo do{' '}
-                <em style={{ fontStyle: 'italic', fontFamily: 'Georgia, serif', fontWeight: 400 }}>ciclo produtivo.</em>
+                <span className="text-[#004B26] text-highlight inline-block">ciclo produtivo.</span>
               </h1>
               <p
                 data-hero-el
@@ -687,6 +748,7 @@ export function CulturePage({ slug }: { slug: string }) {
                 {culture.actua.map((item, i) => (
                   <li
                     key={i}
+                    data-animate-content
                     className="flex items-start gap-3.5 bg-white border border-black/10 rounded-[14px] p-[20px_22px] text-[15.5px] text-[#2A2A28]"
                   >
                     <span className="text-[13px] font-semibold text-[#004B26] tracking-[0.04em] flex-shrink-0 w-[22px]">
@@ -716,6 +778,7 @@ export function CulturePage({ slug }: { slug: string }) {
                 {culture.challenges.map((c, i) => (
                   <article
                     key={i}
+                    data-animate-content
                     className="rounded-[20px] flex flex-col gap-3 p-[26px_22px_24px] min-h-[230px]"
                     style={{ backgroundColor: i % 2 === 0 ? '#EFE9DB' : '#E8EFE2' }}
                   >
@@ -741,6 +804,7 @@ export function CulturePage({ slug }: { slug: string }) {
                 lede="Combinações de produtos pensadas para cada janela crítica do ciclo."
               />
               <div
+                data-animate-content
                 className="mt-9 bg-white border border-black/10 rounded-[24px] overflow-hidden"
                 style={{ boxShadow: '0 1px 2px rgba(20,30,20,.04), 0 12px 32px -18px rgba(20,30,20,.18)' }}
               >
@@ -795,6 +859,7 @@ export function CulturePage({ slug }: { slug: string }) {
                 {culture.recommended.map((prod) => (
                   <Link
                     key={prod.slug}
+                    data-animate-content
                     href={`/produtos/${prod.slug}`}
                     className="group flex flex-col rounded-[24px] overflow-hidden border border-black/10 hover:-translate-y-1 hover:shadow-[0_1px_2px_rgba(20,30,20,.04),0_24px_60px_-32px_rgba(20,30,20,.25)] transition-all duration-300"
                   >

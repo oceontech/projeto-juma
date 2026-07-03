@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useRef } from 'react'
+import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
@@ -9,16 +10,16 @@ import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
 const CULTURE_KEYS = [
-  { id: 'soja', num: '01', color: 'from-green-600 to-green-800' },
-  { id: 'milho', num: '02', color: 'from-yellow-500 to-amber-700' },
-  { id: 'cafe', num: '03', color: 'from-amber-700 to-orange-900' },
-  { id: 'cana', num: '04', color: 'from-lime-500 to-green-700' },
-  { id: 'algodao', num: '05', color: 'from-blue-100 to-slate-300', text: 'text-foreground' },
-  { id: 'feijao', num: '06', color: 'from-orange-800 to-red-900' },
-  { id: 'citros', num: '07', color: 'from-orange-400 to-orange-600' },
-  { id: 'batata', num: '08', color: 'from-amber-200 to-yellow-600', text: 'text-foreground' },
-  { id: 'tomate', num: '09', color: 'from-red-500 to-red-700' },
-  { id: 'pastagem', num: '10', color: 'from-green-400 to-green-600' },
+  { id: 'soja', num: '01', color: 'from-green-600 to-green-800', image: '/assets/cultures/soja.webp' },
+  { id: 'milho', num: '02', color: 'from-yellow-500 to-amber-700', image: '/assets/cultures/milho.webp' },
+  { id: 'cafe', num: '03', color: 'from-amber-700 to-orange-900', image: '/assets/cultures/cafe.webp' },
+  { id: 'cana', num: '04', color: 'from-lime-500 to-green-700', image: '/assets/cultures/cana.webp' },
+  { id: 'algodao', num: '05', color: 'from-blue-100 to-slate-300', text: 'text-foreground', image: '/assets/cultures/algodao.webp' },
+  { id: 'feijao', num: '06', color: 'from-orange-800 to-red-900', image: '/assets/cultures/feijao.webp' },
+  { id: 'citros', num: '07', color: 'from-orange-400 to-orange-600', image: '/assets/cultures/limao.webp' },
+  { id: 'batata', num: '08', color: 'from-amber-200 to-yellow-600', text: 'text-foreground', image: '/assets/cultures/batata.webp' },
+  { id: 'tomate', num: '09', color: 'from-red-500 to-red-700', image: '/assets/cultures/tomate.webp' },
+  { id: 'pastagem', num: '10', color: 'from-green-400 to-green-600', image: '/assets/cultures/pastagem.webp' },
 ] as const
 
 function ArrowTopRightIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -156,9 +157,21 @@ export function CulturesGrid() {
   )
 
   const HOW_STEPS = [
-    { icon: SeedIcon, key: 'diagnosis' as const },
-    { icon: FlaskIcon, key: 'program' as const },
-    { icon: TargetIcon, key: 'followup' as const },
+    { 
+      key: 'diagnosis' as const, 
+      image: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?q=80&w=800&auto=format&fit=crop',
+      align: 'justify-start items-start'
+    },
+    { 
+      key: 'program' as const, 
+      image: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?q=80&w=800&auto=format&fit=crop',
+      align: 'justify-center items-center'
+    },
+    { 
+      key: 'followup' as const, 
+      image: 'https://images.unsplash.com/photo-1605000797499-95a51c5269ae?q=80&w=800&auto=format&fit=crop',
+      align: 'justify-end items-end'
+    },
   ]
 
   return (
@@ -186,9 +199,14 @@ export function CulturesGrid() {
             data-culture-card
             className="group relative flex flex-col justify-end h-64 sm:h-72 rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
           >
-            <div className={`absolute inset-0 bg-gradient-to-br ${culture.color} opacity-80 group-hover:opacity-100 transition-opacity duration-500`} />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-            <div className="relative z-10 p-6 flex flex-col justify-end h-full">
+            <Image
+              src={culture.image}
+              alt={t(`cultures.${culture.id}`)}
+              fill
+              className="object-cover group-hover:scale-110 transition-transform duration-700"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 pointer-events-none" />
+            <div className="relative z-10 p-6 flex flex-col justify-end h-full pointer-events-none">
               <span className="text-white/60 font-mono text-sm font-bold tracking-widest mb-1 group-hover:text-white/90 transition-colors">
                 {culture.num}
               </span>
@@ -224,12 +242,24 @@ export function CulturesGrid() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {HOW_STEPS.map((item) => (
-            <div key={item.key} data-how-step className="p-8 rounded-3xl bg-foreground/5 border border-foreground/10 flex flex-col items-start transition-all duration-300 hover:bg-foreground/10 hover:-translate-y-1">
-              <div className="flex items-center justify-center h-16 w-16 rounded-2xl bg-white text-primary mb-6 shadow-sm">
-                <item.icon className="h-8 w-8" />
+            <div key={item.key} data-how-step className="relative h-[420px] rounded-[24px] overflow-hidden flex transition-all duration-300 group hover:-translate-y-1 shadow-lg hover:shadow-2xl">
+              <Image
+                src={item.image}
+                alt={t(`steps.${item.key}.title`)}
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/15 pointer-events-none" />
+              <div className={`relative z-10 w-full h-full p-6 flex flex-col ${item.align} pointer-events-none`}>
+                <div className="bg-black/30 backdrop-blur-md border border-white/20 p-6 rounded-2xl flex flex-col max-w-[95%]">
+                  <h3 className="font-montserrat text-[19px] font-bold text-white mb-2 drop-shadow-md leading-tight">
+                    {t(`steps.${item.key}.title`)}
+                  </h3>
+                  <p className="text-white/95 leading-relaxed text-[14.5px] drop-shadow-sm font-medium">
+                    {t(`steps.${item.key}.desc`)}
+                  </p>
+                </div>
               </div>
-              <h3 className="font-montserrat text-xl font-bold text-foreground mb-4">{t(`steps.${item.key}.title`)}</h3>
-              <p className="text-foreground/70 leading-relaxed">{t(`steps.${item.key}.desc`)}</p>
             </div>
           ))}
         </div>
