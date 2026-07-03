@@ -289,11 +289,26 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       gsap.set(oldImg,       { scale: 1.04, autoAlpha: 1, yPercent: 100 })
       gsap.set(scrimRef.current, { autoAlpha: 0 })
       gsap.set(titleChars,   { x: 20, autoAlpha: 0, filter: 'blur(10px)' })
-      gsap.set(act1Items,    { y: 14, autoAlpha: 0 })
+      gsap.set(act1Items,    { y: 20, autoAlpha: 0, filter: 'blur(10px)' })
       gsap.set(calloutLine,  { scaleY: 0 })
       gsap.set(calloutLabel, { autoAlpha: 0 })
-      gsap.set(leftPanelRef.current, { autoAlpha: 0, y: 16 })
-      gsap.set('[data-right-card]', { autoAlpha: 0, x: 20, y: 0 })
+
+      const a3Tag = leftPanelRef.current?.querySelector('[data-a3-tag]')
+      const a3Title = leftPanelRef.current?.querySelector('[data-a3-title]')
+      const a3Desc1 = leftPanelRef.current?.querySelector('[data-a3-desc1]')
+      const a3Line = leftPanelRef.current?.querySelector('[data-a3-line]')
+      const a3Desc2 = leftPanelRef.current?.querySelector('[data-a3-desc2]')
+      const a3Icons = leftPanelRef.current ? gsap.utils.toArray('[data-a3-icon]', leftPanelRef.current) : []
+      const rightCards = root.current ? gsap.utils.toArray<HTMLElement>('[data-right-card]', root.current) : []
+
+      gsap.set(leftPanelRef.current, { autoAlpha: 1 }) // O painel em si fica visível, os filhos animam
+      gsap.set(a3Tag, { autoAlpha: 0, y: -20, filter: 'blur(10px)' })
+      gsap.set(a3Title, { autoAlpha: 0, y: 30 })
+      gsap.set(a3Desc1, { autoAlpha: 0, filter: 'blur(10px)' })
+      gsap.set(a3Line, { scaleX: 0 })
+      gsap.set(a3Desc2, { autoAlpha: 0, filter: 'blur(10px)' })
+      gsap.set(a3Icons, { autoAlpha: 0, y: 20, filter: 'blur(5px)' })
+      gsap.set(rightCards, { autoAlpha: 0, y: 40, filter: 'blur(15px)' })
       if (counterRef.current) counterRef.current.innerText = "+10 a +0"
 
       // ── Helpers de animação
@@ -322,7 +337,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       introTl.to(scrimRef.current, { autoAlpha: 1, duration: 0.4, ease: 'none' }, 0)
       introTl.to(oldImg,           { scale: 1, yPercent: 0, duration: 0.5, ease: 'none' }, 0)
       introTl.to(titleChars,       { x: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.5, stagger: STAGGER.char, ease: 'none' }, 0.05)
-      introTl.to(act1Items,        { y: 0, autoAlpha: 1, duration: 0.45, stagger: 0.05, ease: 'none' }, 0.1)
+      introTl.to(act1Items,        { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.6, stagger: 0.1, ease: 'power2.out' }, 0.1)
       introTl.to(calloutLine,      { scaleY: 1, duration: 0.35, transformOrigin: 'top', ease: 'none' }, 0.35)
       introTl.to(calloutLabel,     { autoAlpha: 1, duration: 0.3 }, 0.5)
 
@@ -355,11 +370,19 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const showAct3UI = (delay = 0) => {
         currentTl?.kill()
         const tl = currentTl = gsap.timeline({ delay })
-        const rightCards = gsap.utils.toArray<HTMLElement>('[data-right-card]', root.current)
 
-        tl.to(leftPanelRef.current, { y: 0, autoAlpha: 1, duration: 0.5, ease: EASE.reveal }, 0)
+        tl.to(a3Tag, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.6, ease: 'power2.out' }, 0)
+        tl.to(a3Title, { y: 0, autoAlpha: 1, duration: 0.6, ease: 'power2.out' }, 0.1)
+        tl.to(a3Desc1, { autoAlpha: 1, filter: 'blur(0px)', duration: 0.6, ease: 'power2.out' }, 0.2)
+        tl.to(a3Line, { scaleX: 1, duration: 0.5, ease: 'power2.out' }, 0.3)
+        tl.to(a3Desc2, { autoAlpha: 1, filter: 'blur(0px)', duration: 0.6, ease: 'power2.out' }, 0.4)
+        
+        if (a3Icons.length > 0) {
+          tl.to(a3Icons, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.5, stagger: 0.1, ease: 'power2.out' }, 0.5)
+        }
+
         if (rightCards.length > 0) {
-          tl.to(rightCards, { x: 0, y: 0, autoAlpha: 1, duration: 0.5, stagger: 0.08, ease: EASE.reveal }, 0.1)
+          tl.to(rightCards, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.8, stagger: 0.25, ease: 'power3.out' }, 0.2)
         }
 
         tl.to({ val: 0 }, {
@@ -371,16 +394,25 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
               counterRef.current.innerText = `+10 a +${Math.round(this.targets()[0].val)}`
             }
           }
-        }, 0.15)
+        }, 0.5)
       }
 
       const hideAct3UI = (delay = 0) => {
         currentTl?.kill()
         const tl = currentTl = gsap.timeline({ delay })
-        const rightCards = gsap.utils.toArray<HTMLElement>('[data-right-card]', root.current)
 
-        tl.to(rightCards, { x: 20, y: 0, autoAlpha: 0, duration: 0.3, stagger: 0.05, ease: EASE.micro }, 0)
-        tl.to(leftPanelRef.current, { y: 16, autoAlpha: 0, duration: 0.3, ease: EASE.micro }, 0.1)
+        if (rightCards.length > 0) {
+          tl.to(rightCards, { y: 40, autoAlpha: 0, filter: 'blur(15px)', duration: 0.4, stagger: 0.1, ease: 'power2.in' }, 0)
+        }
+        
+        if (a3Icons.length > 0) {
+          tl.to(a3Icons, { y: 20, autoAlpha: 0, filter: 'blur(5px)', duration: 0.3, stagger: 0.05, ease: 'power2.in' }, 0)
+        }
+        tl.to(a3Desc2, { autoAlpha: 0, filter: 'blur(10px)', duration: 0.3, ease: 'power2.in' }, 0.1)
+        tl.to(a3Line, { scaleX: 0, duration: 0.3, ease: 'power2.in' }, 0.15)
+        tl.to(a3Desc1, { autoAlpha: 0, filter: 'blur(10px)', duration: 0.3, ease: 'power2.in' }, 0.2)
+        tl.to(a3Title, { y: 30, autoAlpha: 0, duration: 0.3, ease: 'power2.in' }, 0.25)
+        tl.to(a3Tag, { y: -20, autoAlpha: 0, filter: 'blur(10px)', duration: 0.3, ease: 'power2.in' }, 0.3)
 
         tl.set({}, {
           onComplete: () => {
@@ -508,7 +540,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
             videoFwd.play().catch(() => {})
 
             gsap.to(titleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)', duration: fwdDur * 0.4, stagger: STAGGER.char, ease: 'power1.inOut', overwrite: 'auto' })
-            gsap.to(act1Items, { y: 14, autoAlpha: 0, duration: fwdDur * 0.4, stagger: 0.05, ease: 'power1.inOut', overwrite: 'auto' })
+            gsap.to(act1Items, { y: 20, autoAlpha: 0, filter: 'blur(10px)', duration: fwdDur * 0.4, stagger: 0.05, ease: 'power1.inOut', overwrite: 'auto' })
             gsap.to(calloutLine, { scaleY: 0, duration: fwdDur * 0.3, ease: 'power1.inOut', overwrite: 'auto' })
             gsap.to(calloutLabel, { autoAlpha: 0, duration: fwdDur * 0.3, ease: 'power1.inOut', overwrite: 'auto' })
             gsap.to(scrimRef.current, { autoAlpha: 0, duration: fwdDur * 0.8, ease: 'power1.inOut', overwrite: 'auto' })
@@ -540,7 +572,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
             hideAct3UI(0)
 
             gsap.to(titleChars, { x: 0, autoAlpha: 1, filter: 'blur(0px)', duration: fwdDur * 0.4, stagger: STAGGER.char, ease: 'power1.inOut', overwrite: 'auto' })
-            gsap.to(act1Items, { y: 0, autoAlpha: 1, duration: fwdDur * 0.4, stagger: 0.05, ease: 'power1.inOut', overwrite: 'auto' })
+            gsap.to(act1Items, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: fwdDur * 0.4, stagger: 0.1, ease: 'power1.inOut', overwrite: 'auto' })
             gsap.to(calloutLine, { scaleY: 1, duration: fwdDur * 0.3, ease: 'power1.inOut', overwrite: 'auto' })
             gsap.to(calloutLabel, { autoAlpha: 1, duration: fwdDur * 0.3, ease: 'power1.inOut', overwrite: 'auto' })
             gsap.to(scrimRef.current, { autoAlpha: 1, duration: fwdDur * 0.8, ease: 'power1.inOut', overwrite: 'auto' })
@@ -788,64 +820,68 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           </span>
         </div>
 
-        {/* UI do Ato 3 - Painel Esquerdo */}
-        <div ref={leftPanelRef} className="absolute left-[4%] md:left-[2%] xl:left-[6%] top-[12vh] md:top-1/2 md:-translate-y-1/2 z-30 flex flex-col items-start gap-1.5 md:gap-3 xl:gap-4 w-[92%] md:w-auto md:max-w-[24rem] xl:max-w-[28rem] bg-white/85 md:bg-white/70 backdrop-blur-md rounded-[1.25rem] md:rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-3 md:p-6 xl:p-8">
-          <div className="flex items-center gap-1.5 md:gap-2 bg-primary/10 text-primary px-2 py-1 md:px-3 md:py-1.5 rounded-full text-[9px] md:text-[10px] xl:text-xs font-semibold">
-            <Leaf className="w-2.5 h-2.5 md:w-3 md:h-3 xl:w-4 xl:h-4" /> Nutrição que transforma
-          </div>
-          <h2 className="text-2xl md:text-5xl xl:text-6xl font-black text-primary">Aminosan</h2>
-          <p className="text-xs md:text-lg xl:text-xl text-foreground/80 font-medium leading-tight">
-            Mais de 40 anos depois, o mesmo aminoácido, a mesma eficiência.
-          </p>
-          <div className="w-8 md:w-12 h-[3px] md:h-1 bg-primary/40 rounded-full my-0.5 md:my-1 xl:my-2" />
-          <p className="text-[11px] md:text-sm xl:text-base text-foreground/70">
-            Hoje, em oito culturas: <span className="font-bold text-primary">soja, milho, café, algodão, feijão, cítrus, tomate e batata.</span>
-          </p>
-          <div className="flex flex-row md:grid md:grid-cols-4 justify-between md:gap-2 xl:gap-4 mt-1 md:mt-2 xl:mt-4 w-full">
-            <div className="flex flex-col items-center text-center gap-1 md:gap-1 xl:gap-2 w-[22%] md:w-auto">
-              <div className="p-1 md:p-2 bg-primary/5 rounded-xl"><Dna className="w-3.5 h-3.5 md:w-5 md:h-5 xl:w-6 xl:h-6 text-primary" /></div>
-              <span className="text-[7.5px] md:text-[9px] xl:text-[10px] text-foreground/70 leading-tight font-medium">Aminoácidos de alta qualidade</span>
-            </div>
-            <div className="flex flex-col items-center text-center gap-1 md:gap-1 xl:gap-2 w-[22%] md:w-auto">
-              <div className="p-1 md:p-2 bg-primary/5 rounded-xl"><Sprout className="w-3.5 h-3.5 md:w-5 md:h-5 xl:w-6 xl:h-6 text-primary" /></div>
-              <span className="text-[7.5px] md:text-[9px] xl:text-[10px] text-foreground/70 leading-tight font-medium">Maior eficiência nutricional</span>
-            </div>
-            <div className="flex flex-col items-center text-center gap-1 md:gap-1 xl:gap-2 w-[22%] md:w-auto">
-              <div className="p-1 md:p-2 bg-primary/5 rounded-xl"><ShieldCheck className="w-3.5 h-3.5 md:w-5 md:h-5 xl:w-6 xl:h-6 text-primary" /></div>
-              <span className="text-[7.5px] md:text-[9px] xl:text-[10px] text-foreground/70 leading-tight font-medium">Mais saúde e vigor para as plantas</span>
-            </div>
-            <div className="flex flex-col items-center text-center gap-1 md:gap-1 xl:gap-2 w-[22%] md:w-auto">
-              <div className="p-1 md:p-2 bg-primary/5 rounded-xl"><BarChart3 className="w-3.5 h-3.5 md:w-5 md:h-5 xl:w-6 xl:h-6 text-primary" /></div>
-              <span className="text-[7.5px] md:text-[9px] xl:text-[10px] text-foreground/70 leading-tight font-medium">Resultados comprovados no campo</span>
-            </div>
-          </div>
-        </div>
-
-        {/* UI do Ato 3 - Cards Direitos */}
-        <div className="absolute left-0 right-0 md:left-auto md:right-[2%] xl:right-[6%] bottom-[8vh] md:bottom-auto md:top-1/2 md:-translate-y-1/2 z-30 flex flex-row md:flex-col gap-2 md:gap-3 xl:gap-4 w-full md:w-auto overflow-x-auto md:overflow-visible px-[4%] md:px-0 snap-x hide-scrollbar pb-2 md:pb-0">
-          <div data-right-card className="flex items-center gap-1.5 md:gap-3 xl:gap-4 w-[80%] md:w-auto min-w-[16rem] md:min-w-0 md:max-w-[20rem] xl:max-w-[24rem] bg-white/90 md:bg-white/70 backdrop-blur-md rounded-[1.25rem] md:rounded-[1.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-2.5 md:p-4 xl:p-6 snap-center shrink-0">
-            <div className="p-1.5 md:p-2 xl:p-3 bg-primary/10 rounded-xl md:rounded-2xl shrink-0"><CalendarCheck className="w-4 h-4 md:w-6 md:h-6 xl:w-8 xl:h-8 text-primary" /></div>
-            <div className="flex flex-col gap-0.5 md:gap-1">
-              <span className="text-highlight text-lg md:text-2xl xl:text-3xl text-primary font-bold"><span ref={counterRef}>+10 a +0</span> sc/ha</span>
-              <span className="text-[9px] md:text-xs xl:text-sm text-foreground/80 leading-tight">Na soja, 10 a 14 sacas a mais por hectare em ensaios.</span>
-              <span className="text-[7.5px] md:text-[9px] xl:text-[10px] text-foreground/50 mt-0.5 md:mt-1 leading-tight">Fonte: Resultados internos (2011) | Certificado (UFLA) e Embrapa Cerrados (2015)</span>
-            </div>
-          </div>
+        {/* UI do Ato 3 */}
+        <Container className="absolute inset-0 z-30 flex flex-col md:flex-row h-full items-start md:items-center justify-between min-[1600px]:max-w-[90rem] pointer-events-none pt-[12vh] md:pt-0 pb-[8vh] md:pb-0">
           
-          <div data-right-card className="flex items-center gap-1.5 md:gap-3 xl:gap-4 w-[80%] md:w-auto min-w-[16rem] md:min-w-0 md:max-w-[20rem] xl:max-w-[24rem] bg-white/90 md:bg-white/70 backdrop-blur-md rounded-[1.25rem] md:rounded-[1.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-2.5 md:p-4 xl:p-6 snap-center shrink-0">
-            <div className="p-1.5 md:p-2 xl:p-3 bg-primary/10 rounded-xl md:rounded-2xl shrink-0"><Sprout className="w-4 h-4 md:w-6 md:h-6 xl:w-8 xl:h-8 text-primary" /></div>
-            <div className="flex flex-col gap-0.5 md:gap-1">
-              <span className="text-[11px] md:text-sm xl:text-base text-foreground/80 leading-tight">E hoje, uma linha inteira traz produtos, do <span className="font-bold text-primary">plantio à colheita.</span></span>
+          {/* Painel Esquerdo */}
+          <div ref={leftPanelRef} className="pointer-events-auto flex flex-col items-start gap-1.5 md:gap-3 xl:gap-4 w-[92vw] md:w-auto max-w-[88vw] md:max-w-[24rem] xl:max-w-[28rem] bg-white/30 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none p-4 rounded-3xl md:p-0 md:rounded-none">
+            <div data-a3-tag className="flex items-center gap-1.5 md:gap-2 bg-primary/10 text-primary px-2 py-1 md:px-3 md:py-1.5 rounded-full text-[9px] md:text-[10px] xl:text-xs font-semibold">
+              <Leaf className="w-2.5 h-2.5 md:w-3 md:h-3 xl:w-4 xl:h-4" /> Nutrição que transforma
+            </div>
+            <h2 data-a3-title className="text-2xl md:text-5xl xl:text-6xl font-black text-primary">Aminosan</h2>
+            <p data-a3-desc1 className="text-xs md:text-lg xl:text-xl text-foreground/80 font-medium leading-tight">
+              Mais de 40 anos depois, o mesmo aminoácido, a mesma eficiência.
+            </p>
+            <div data-a3-line className="w-8 md:w-12 h-[3px] md:h-1 bg-primary/40 rounded-full my-0.5 md:my-1 xl:my-2" style={{ transformOrigin: 'left' }} />
+            <p data-a3-desc2 className="text-[11px] md:text-sm xl:text-base text-foreground/70">
+              Hoje, em oito culturas: <span className="font-bold text-primary">soja, milho, café, algodão, feijão, cítrus, tomate e batata.</span>
+            </p>
+            <div className="flex flex-row md:grid md:grid-cols-4 justify-between md:gap-2 xl:gap-4 mt-1 md:mt-2 xl:mt-4 w-full">
+              <div data-a3-icon className="flex flex-col items-center md:items-start text-center md:text-left gap-1 md:gap-2 w-[22%] md:w-auto">
+                <Dna className="w-4 h-4 md:w-5 md:h-5 xl:w-6 xl:h-6 text-primary" />
+                <span className="text-[7.5px] md:text-[9px] xl:text-[10px] text-foreground/70 leading-tight font-medium">Aminoácidos de alta qualidade</span>
+              </div>
+              <div data-a3-icon className="flex flex-col items-center md:items-start text-center md:text-left gap-1 md:gap-2 w-[22%] md:w-auto">
+                <Sprout className="w-4 h-4 md:w-5 md:h-5 xl:w-6 xl:h-6 text-primary" />
+                <span className="text-[7.5px] md:text-[9px] xl:text-[10px] text-foreground/70 leading-tight font-medium">Maior eficiência nutricional</span>
+              </div>
+              <div data-a3-icon className="flex flex-col items-center md:items-start text-center md:text-left gap-1 md:gap-2 w-[22%] md:w-auto">
+                <ShieldCheck className="w-4 h-4 md:w-5 md:h-5 xl:w-6 xl:h-6 text-primary" />
+                <span className="text-[7.5px] md:text-[9px] xl:text-[10px] text-foreground/70 leading-tight font-medium">Mais saúde e vigor para as plantas</span>
+              </div>
+              <div data-a3-icon className="flex flex-col items-center md:items-start text-center md:text-left gap-1 md:gap-2 w-[22%] md:w-auto">
+                <BarChart3 className="w-4 h-4 md:w-5 md:h-5 xl:w-6 xl:h-6 text-primary" />
+                <span className="text-[7.5px] md:text-[9px] xl:text-[10px] text-foreground/70 leading-tight font-medium">Resultados comprovados no campo</span>
+              </div>
             </div>
           </div>
 
-          <div data-right-card className="flex items-center gap-1.5 md:gap-3 xl:gap-4 w-[80%] md:w-auto min-w-[16rem] md:min-w-0 md:max-w-[20rem] xl:max-w-[24rem] bg-white/90 md:bg-white/70 backdrop-blur-md rounded-[1.25rem] md:rounded-[1.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-2.5 md:p-4 xl:p-6 snap-center shrink-0">
-            <div className="p-1.5 md:p-2 xl:p-3 bg-primary/10 rounded-xl md:rounded-2xl shrink-0"><Users className="w-4 h-4 md:w-6 md:h-6 xl:w-8 xl:h-8 text-primary" /></div>
-            <div className="flex flex-col gap-0.5 md:gap-1">
-              <span className="text-[11px] md:text-sm xl:text-base text-foreground/80 leading-tight">Confiança que vem do campo e gera <span className="font-bold text-primary">resultados.</span></span>
+          {/* Cards Direitos */}
+          <div className="pointer-events-auto flex flex-row md:flex-col gap-2 md:gap-4 xl:gap-6 w-full md:w-auto md:max-w-[20rem] xl:max-w-[24rem] overflow-x-auto md:overflow-visible snap-x hide-scrollbar mt-auto md:mt-0">
+            <div data-right-card className="flex items-start md:items-center gap-2 md:gap-3 xl:gap-4 w-[85%] md:w-full min-w-[16rem] md:min-w-0 bg-white/30 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none p-4 rounded-3xl md:p-0 md:rounded-none snap-center shrink-0">
+              <CalendarCheck className="w-5 h-5 md:w-6 md:h-6 xl:w-8 xl:h-8 text-primary mt-1 md:mt-0 shrink-0" />
+              <div className="flex flex-col gap-0.5 md:gap-1">
+                <span className="text-highlight text-lg md:text-2xl xl:text-3xl text-primary font-bold"><span ref={counterRef}>+10 a +0</span> sc/ha</span>
+                <span className="text-[10px] md:text-xs xl:text-sm text-foreground/80 leading-tight">Na soja, 10 a 14 sacas a mais por hectare em ensaios.</span>
+                <span className="text-[8px] md:text-[9px] xl:text-[10px] text-foreground/50 mt-1 md:mt-1.5 leading-tight">Fonte: Resultados internos (2011) | Certificado (UFLA) e Embrapa Cerrados (2015)</span>
+              </div>
+            </div>
+            
+            <div data-right-card className="flex items-start md:items-center gap-2 md:gap-3 xl:gap-4 w-[85%] md:w-full min-w-[16rem] md:min-w-0 bg-white/30 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none p-4 rounded-3xl md:p-0 md:rounded-none snap-center shrink-0">
+              <Sprout className="w-5 h-5 md:w-6 md:h-6 xl:w-8 xl:h-8 text-primary mt-1 md:mt-0 shrink-0" />
+              <div className="flex flex-col gap-0.5 md:gap-1">
+                <span className="text-[11px] md:text-sm xl:text-base text-foreground/80 leading-tight">E hoje, uma linha inteira traz produtos, do <span className="font-bold text-primary">plantio à colheita.</span></span>
+              </div>
+            </div>
+
+            <div data-right-card className="flex items-start md:items-center gap-2 md:gap-3 xl:gap-4 w-[85%] md:w-full min-w-[16rem] md:min-w-0 bg-white/30 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none p-4 rounded-3xl md:p-0 md:rounded-none snap-center shrink-0">
+              <Users className="w-5 h-5 md:w-6 md:h-6 xl:w-8 xl:h-8 text-primary mt-1 md:mt-0 shrink-0" />
+              <div className="flex flex-col gap-0.5 md:gap-1">
+                <span className="text-[11px] md:text-sm xl:text-base text-foreground/80 leading-tight">Confiança que vem do campo e gera <span className="font-bold text-primary">resultados.</span></span>
+              </div>
             </div>
           </div>
-        </div>
+        </Container>
       </section>
     </div>
   )
