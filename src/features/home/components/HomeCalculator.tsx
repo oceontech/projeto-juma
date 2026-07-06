@@ -38,14 +38,38 @@ function fmtR(n: number): string {
 export function HomeCalculator() {
   const [cultura, setCultura] = useState('soja')
   const [produtoId, setProdutoId] = useState('aminosan')
-  const [area, setArea] = useState(500)
-  const [preco, setPreco] = useState(135)
+  const [areaStr, setAreaStr] = useState('50000')
+  const [precoStr, setPrecoStr] = useState('13500')
   const reduced = useReducedMotion()
   const ref = useRef<HTMLElement>(null)
 
   const produto = useMemo(() => PRODUCTS.find((p) => p.id === produtoId) ?? PRODUCTS[0], [produtoId])
-  const sacasExtras = useMemo(() => Math.round(area * produto.gainPerHa), [area, produto])
-  const receitaExtra = useMemo(() => sacasExtras * preco, [sacasExtras, preco])
+  
+  const validArea = useMemo(() => {
+    const num = Number(areaStr) / 100
+    return isNaN(num) ? 0 : num
+  }, [areaStr])
+
+  const validPreco = useMemo(() => {
+    const num = Number(precoStr) / 100
+    return isNaN(num) ? 0 : num
+  }, [precoStr])
+
+  const sacasExtras = useMemo(() => Math.round(validArea * produto.gainPerHa), [validArea, produto])
+  const receitaExtra = useMemo(() => sacasExtras * validPreco, [sacasExtras, validPreco])
+
+  const areaDisplay = validArea.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const precoDisplay = 'R$ ' + validPreco.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+  const handleAreaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, '')
+    setAreaStr(digits)
+  }
+
+  const handlePrecoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, '')
+    setPrecoStr(digits)
+  }
 
   useGSAP(() => {
     if (reduced || !ref.current) return
@@ -179,11 +203,9 @@ export function HomeCalculator() {
                   Área (ha)
                 </label>
                 <input
-                  type="number"
-                  min={1}
-                  step={1}
-                  value={area}
-                  onChange={(e) => setArea(Math.max(1, Number(e.target.value)))}
+                  type="text"
+                  value={areaDisplay}
+                  onChange={handleAreaChange}
                   className="w-full rounded-[12px] px-4 py-3 text-[15px] font-medium outline-none"
                   style={{ backgroundColor: '#F2F6F2', border: '1.5px solid #DDE6C8', color: '#0F1A0A' }}
                 />
@@ -195,11 +217,9 @@ export function HomeCalculator() {
                   Preço da saca (R$)
                 </label>
                 <input
-                  type="number"
-                  min={1}
-                  step={1}
-                  value={preco}
-                  onChange={(e) => setPreco(Math.max(1, Number(e.target.value)))}
+                  type="text"
+                  value={precoDisplay}
+                  onChange={handlePrecoChange}
                   className="w-full rounded-[12px] px-4 py-3 text-[15px] font-medium outline-none"
                   style={{ backgroundColor: '#F2F6F2', border: '1.5px solid #DDE6C8', color: '#0F1A0A' }}
                 />
@@ -239,7 +259,7 @@ export function HomeCalculator() {
                   </span>
                 </div>
                 <p className="text-[13px] mt-2" style={{ color: 'rgba(255,255,255,.55)' }}>
-                  Ganho médio de +{produto.gainPerHa.toLocaleString('pt-BR')} {produto.unit} com {produto.label} · projetado para {fmt(area)} ha.
+                  Ganho médio de +{produto.gainPerHa.toLocaleString('pt-BR')} {produto.unit} com {produto.label} · projetado para {validArea.toLocaleString('pt-BR', { maximumFractionDigits: 2 })} ha.
                 </p>
               </div>
 

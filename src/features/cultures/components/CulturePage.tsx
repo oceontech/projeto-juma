@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef, useState, useCallback, useEffect } from 'react'
+import React, { useRef, useState, useCallback, useEffect, useMemo } from 'react'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
@@ -425,16 +425,54 @@ function ArrowIcon() {
 
 /* ─── Calculator component ─── */
 function Calculator({ culture }: { culture: CultureData }) {
+  const initialPrecoStr = culture.name === 'Café' ? '128000' : '10000'
+  const initialProdutividadeStr = culture.name === 'Café' ? '3000' : '6000'
+
   const [produto, setProduto] = useState(culture.calcProducts[0].id)
-  const [area, setArea] = useState(50)
-  const [preco, setPreco] = useState(culture.name === 'Café' ? 1280 : 100)
-  const [produtividade, setProdutividade] = useState(culture.name === 'Café' ? 30 : 60)
+  const [areaStr, setAreaStr] = useState('5000')
+  const [precoStr, setPrecoStr] = useState(initialPrecoStr)
+  const [produtividadeStr, setProdutividadeStr] = useState(initialProdutividadeStr)
 
   const selectedProduct = culture.calcProducts.find((p) => p.id === produto) ?? culture.calcProducts[0]
-  const sacasExtras = Math.round(area * selectedProduct.gainPerHa)
-  const receitaExtra = sacasExtras * preco
+  
+  const validArea = useMemo(() => {
+    const num = Number(areaStr) / 100
+    return isNaN(num) ? 0 : num
+  }, [areaStr])
+
+  const validPreco = useMemo(() => {
+    const num = Number(precoStr) / 100
+    return isNaN(num) ? 0 : num
+  }, [precoStr])
+
+  const validProdutividade = useMemo(() => {
+    const num = Number(produtividadeStr) / 100
+    return isNaN(num) ? 0 : num
+  }, [produtividadeStr])
+
+  const sacasExtras = Math.round(validArea * selectedProduct.gainPerHa)
+  const receitaExtra = sacasExtras * validPreco
 
   const fmt = useCallback((n: number) => new Intl.NumberFormat('pt-BR').format(n), [])
+
+  const areaDisplay = validArea.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const precoDisplay = 'R$ ' + validPreco.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const produtividadeDisplay = validProdutividade.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+  const handleAreaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, '')
+    setAreaStr(digits)
+  }
+
+  const handlePrecoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, '')
+    setPrecoStr(digits)
+  }
+
+  const handleProdutividadeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, '')
+    setProdutividadeStr(digits)
+  }
 
   return (
     <div
@@ -469,11 +507,9 @@ function Calculator({ culture }: { culture: CultureData }) {
               Área (ha)
             </label>
             <input
-              type="number"
-              min={0}
-              step={1}
-              value={area}
-              onChange={(e) => setArea(Math.max(0, Number(e.target.value)))}
+              type="text"
+              value={areaDisplay}
+              onChange={handleAreaChange}
               className="h-[50px] px-4 rounded-[12px] border border-black/10 bg-white text-[16px] text-[#1A1A1A] font-[inherit] outline-none focus:border-[#004B26] transition-colors"
             />
           </div>
@@ -482,11 +518,9 @@ function Calculator({ culture }: { culture: CultureData }) {
               Preço da saca (R$)
             </label>
             <input
-              type="number"
-              min={0}
-              step={1}
-              value={preco}
-              onChange={(e) => setPreco(Math.max(0, Number(e.target.value)))}
+              type="text"
+              value={precoDisplay}
+              onChange={handlePrecoChange}
               className="h-[50px] px-4 rounded-[12px] border border-black/10 bg-white text-[16px] text-[#1A1A1A] font-[inherit] outline-none focus:border-[#004B26] transition-colors"
             />
           </div>
@@ -497,11 +531,9 @@ function Calculator({ culture }: { culture: CultureData }) {
             Produtividade atual (sc/ha)
           </label>
           <input
-            type="number"
-            min={0}
-            step={1}
-            value={produtividade}
-            onChange={(e) => setProdutividade(Math.max(0, Number(e.target.value)))}
+            type="text"
+            value={produtividadeDisplay}
+            onChange={handleProdutividadeChange}
             className="h-[50px] px-4 rounded-[12px] border border-black/10 bg-white text-[16px] text-[#1A1A1A] font-[inherit] outline-none focus:border-[#004B26] transition-colors"
           />
         </div>
