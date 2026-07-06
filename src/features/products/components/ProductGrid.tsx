@@ -288,7 +288,7 @@ export function ProductGrid() {
               <button
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-medium transition-all ${
+                className={`flex cursor-pointer items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-medium transition-all ${
                   activeCategory === cat.id
                     ? 'bg-primary border-primary text-white shadow-md'
                     : 'border-foreground/20 text-foreground/80 hover:bg-foreground/5 hover:border-foreground/30'
@@ -313,7 +313,7 @@ export function ProductGrid() {
               <button
                 key={cul.id}
                 onClick={() => setActiveCulture(cul.id)}
-                className={`px-4 py-2 rounded-full border text-sm font-medium transition-all ${
+                className={`px-4 py-2 rounded-full border text-sm font-medium transition-all cursor-pointer ${
                   activeCulture === cul.id
                     ? 'bg-primary border-primary text-white shadow-md'
                     : 'border-foreground/20 text-foreground/80 hover:bg-foreground/5 hover:border-foreground/30'

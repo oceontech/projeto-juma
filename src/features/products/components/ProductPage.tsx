@@ -3,10 +3,10 @@
 import React, { useRef } from 'react'
 import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
-import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
-import { DUR, EASE } from '@/features/animation/motion'
+import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
+import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
-import { AlertTriangle, Star, Activity, BarChart3, Clock, LayoutGrid } from 'lucide-react'
+import { AlertTriangle, Star, Activity, BarChart3, Clock, LayoutGrid, Camera, Package, Rocket, ListChecks } from 'lucide-react'
 
 const WHATSAPP = 'https://wa.me/5519999648186'
 
@@ -415,14 +415,14 @@ function Eyebrow({ dark, icon: Icon, children }: { dark?: boolean; icon?: React.
 /* ─── Section header (eyebrow + title left, lede right) ─── */
 function SectionHead({ eyebrow, icon, title, lede }: { eyebrow: string; icon?: React.ElementType; title: React.ReactNode; lede?: string }) {
   return (
-    <div className="flex flex-col gap-[18px] mb-14 max-w-[980px]">
-      <Eyebrow icon={icon}>{eyebrow}</Eyebrow>
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-        <h2 className="m-0 text-[#1A1A1A] font-black leading-[1.0] tracking-[-0.025em]" style={{ fontSize: 'clamp(32px,3.6vw,56px)', fontWeight: 720 }}>
+    <div className="flex flex-col gap-[18px] mb-14 w-full">
+      <div data-section-kicker><Eyebrow icon={icon}>{eyebrow}</Eyebrow></div>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12">
+        <h2 data-section-title className="m-0 flex-1 font-black uppercase leading-[1.05] tracking-tight text-[#1A1A1A]" style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', fontWeight: 720 }}>
           {title}
         </h2>
         {lede && (
-          <p className="text-[#5A5A57] leading-[1.55] max-w-[44ch] text-[clamp(17px,1.25vw,20px)] m-0">
+          <p data-section-lede className="text-[#5A5A57] leading-[1.55] w-full md:w-auto md:max-w-[40ch] shrink-0 text-[clamp(17px,1.25vw,20px)] m-0">
             {lede}
           </p>
         )}
@@ -440,9 +440,24 @@ export function ProductPage({ slug }: { slug: string }) {
   useGSAP(
     () => {
       if (reduced || !heroRef.current) return
+      const title = heroRef.current.querySelector('[data-hero-title]')
       const els = heroRef.current.querySelectorAll('[data-hero-el]')
+      
+      let split: SplitText | null = null
+      if (title) {
+        split = new SplitText(title, { type: 'chars,words' })
+        gsap.set(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
+      }
+      
       gsap.set(els, { y: 24, opacity: 0 })
-      gsap.to(els, { y: 0, opacity: 1, duration: DUR.sub, stagger: 0.09, ease: EASE.reveal, delay: 0.15 })
+      
+      const tl = gsap.timeline({ delay: 0.15 })
+      tl.to(els, { y: 0, opacity: 1, duration: DUR.sub, stagger: 0.09, ease: EASE.reveal })
+      if (split) {
+        tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char, ease: EASE.reveal }, '-=0.4')
+      }
+
+      return () => split?.revert()
     },
     { scope: heroRef, dependencies: [reduced] },
   )
@@ -451,15 +466,49 @@ export function ProductPage({ slug }: { slug: string }) {
     () => {
       if (reduced || !bodyRef.current) return
       const sections = bodyRef.current.querySelectorAll('[data-section]')
+      
+      const splits: SplitText[] = []
+      
       sections.forEach((section) => {
+        const title = section.querySelector('[data-section-title]')
+        const kicker = section.querySelector('[data-section-kicker]')
+        const lede = section.querySelector('[data-section-lede]')
+        const contentEls = section.querySelectorAll('[data-animate-content]')
+        
+        let split: SplitText | null = null
+        if (title) {
+          split = new SplitText(title, { type: 'chars,words' })
+          splits.push(split)
+          gsap.set(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
+        }
+        
+        if (kicker) gsap.set(kicker, { y: 14, opacity: 0 })
+        if (lede) gsap.set(lede, { y: 14, opacity: 0 })
+        if (contentEls.length > 0) gsap.set(contentEls, { y: 24, opacity: 0 })
         gsap.set(section, { y: 32, opacity: 0 })
-        ScrollTrigger.create({
-          trigger: section,
-          start: 'top 82%',
-          once: true,
-          onEnter: () => gsap.to(section, { y: 0, opacity: 1, duration: 0.8, ease: EASE.reveal }),
+        
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 85%',
+            end: 'bottom 15%',
+            toggleActions: 'play reverse play reverse',
+          },
+          defaults: { ease: EASE.reveal }
         })
+        
+        tl.to(section, { y: 0, opacity: 1, duration: 0.8 })
+        if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub }, '-=0.6')
+        if (split) {
+          tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, '-=0.4')
+        }
+        if (lede) tl.to(lede, { y: 0, opacity: 1, duration: DUR.sub }, '-=0.4')
+        if (contentEls.length > 0) {
+          tl.to(contentEls, { y: 0, opacity: 1, duration: 0.45, stagger: 0.04 }, '-=0.6')
+        }
       })
+      
+      return () => splits.forEach(s => s.revert())
     },
     { scope: bodyRef, dependencies: [reduced] },
   )
@@ -561,8 +610,8 @@ export function ProductPage({ slug }: { slug: string }) {
               </span>
 
               <h1
-                data-hero-el
-                className="text-[#1A1A1A] m-0 mb-[22px] leading-[1.0] tracking-[-0.03em]"
+                data-hero-title
+                className="text-[#1A1A1A] m-0 mb-[22px] uppercase leading-[1.05] tracking-tight"
                 style={{ fontSize: 'clamp(48px,5.6vw,88px)', fontWeight: 740 }}
               >
                 {product.name}
@@ -634,19 +683,24 @@ export function ProductPage({ slug }: { slug: string }) {
                 lede="Em três situações que limitam a produtividade da lavoura, entrega resposta rápida e mensurável."
               />
               <div
-                className="grid gap-[18px]"
-                style={{ gridTemplateColumns: `repeat(${Math.min(product.problems.length, 3)}, 1fr)` }}
+                className="grid gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
               >
                 {product.problems.map((p, i) => (
                   <article
                     key={i}
-                    className="bg-white border border-black/10 rounded-[20px] p-[28px_24px] flex flex-col gap-3.5 transition-all hover:-translate-y-1 hover:shadow-[0_1px_2px_rgba(20,30,20,.04),0_24px_60px_-32px_rgba(20,30,20,.25)]"
+                    data-animate-content
+                    className="group relative overflow-hidden bg-[#1A1A1A] border border-white/10 rounded-[24px] p-8 flex flex-col gap-6 transition-all duration-300 hover:-translate-y-2 hover:border-[#004B26]/60 hover:shadow-[0_0_30px_rgba(0,75,38,0.25)]"
                   >
-                    <span className="w-12 h-12 rounded-[14px] bg-[#E4ECEA] grid place-items-center text-[#004B26] flex-shrink-0">
-                      <ProblemIcon type={p.icon} />
+                    <div className="absolute -top-12 -right-12 w-32 h-32 bg-[#F0E27A] rounded-full blur-[60px] opacity-10 group-hover:opacity-20 transition-opacity duration-300 pointer-events-none" />
+                    
+                    <span className="text-[#F0E27A]/20 font-black leading-none pointer-events-none" style={{ fontSize: 'clamp(48px, 4vw, 64px)' }}>
+                      {(i + 1).toString().padStart(2, '0')}
                     </span>
-                    <h3 className="m-0 text-[19px] font-[650] tracking-[-0.01em] text-[#1A1A1A] leading-snug">{p.title}</h3>
-                    <p className="m-0 text-[14.5px] text-[#5A5A57] leading-[1.5]">{p.desc}</p>
+
+                    <div className="flex flex-col gap-3 relative z-10 mt-auto">
+                      <h3 className="m-0 text-[20px] font-bold tracking-tight text-white leading-snug">{p.title}</h3>
+                      <p className="m-0 text-[15px] text-white/70 leading-[1.6]">{p.desc}</p>
+                    </div>
                   </article>
                 ))}
               </div>
@@ -668,6 +722,7 @@ export function ProductPage({ slug }: { slug: string }) {
                 {product.benefits.map((b, i) => (
                   <div
                     key={i}
+                    data-animate-content
                     className="flex items-start gap-3.5 p-[22px_24px] bg-white border border-black/10 rounded-[14px]"
                   >
                     <span className="flex-shrink-0 w-[30px] h-[30px] rounded-full bg-[#004B26] text-[#F0E27A] grid place-items-center">
@@ -701,6 +756,7 @@ export function ProductPage({ slug }: { slug: string }) {
                 {product.stages.map((s, i) => (
                   <div
                     key={i}
+                    data-animate-content
                     className="flex flex-col gap-2.5 p-[24px_20px] min-h-[140px]"
                     style={{ backgroundColor: i % 2 === 0 ? '#DDE6C8' : '#E2EAD3' }}
                   >
@@ -732,6 +788,7 @@ export function ProductPage({ slug }: { slug: string }) {
                 {product.results.map((r, i) => (
                   <div
                     key={i}
+                    data-animate-content
                     className="relative overflow-hidden rounded-[24px] flex flex-col gap-3.5 p-[36px_30px_32px] min-h-[240px]"
                     style={{ backgroundColor: i === product.results.length - 1 ? '#659357' : '#004B26' }}
                   >
@@ -786,6 +843,7 @@ export function ProductPage({ slug }: { slug: string }) {
               ].map((grad, i) => (
                 <div
                   key={i}
+                  data-animate-content
                   className="rounded-[18px] overflow-hidden"
                   style={{
                     backgroundImage: grad,
@@ -809,11 +867,12 @@ export function ProductPage({ slug }: { slug: string }) {
               />
               <div
                 className="grid gap-[18px]"
-                style={{ gridTemplateColumns: `repeat(${Math.min(product.related.length, 3)}, 1fr)` }}
+                style={{ gridTemplateColumns: `repeat(1, 1fr) md:repeat(${Math.min(product.related.length, 3)}, 1fr)` }}
               >
                 {product.related.map((rel) => (
                   <Link
                     key={rel.slug}
+                    data-animate-content
                     href={`/produtos/${rel.slug}`}
                     className="group flex flex-col rounded-[24px] overflow-hidden border border-black/10 hover:-translate-y-1 hover:shadow-[0_1px_2px_rgba(20,30,20,.04),0_24px_60px_-32px_rgba(20,30,20,.25)] transition-all duration-300"
                   >
@@ -856,6 +915,7 @@ export function ProductPage({ slug }: { slug: string }) {
 
         {/* CTA Final */}
         <section
+          data-section
           className="relative overflow-hidden text-white text-center"
           style={{ backgroundColor: '#004B26', paddingBlock: 'clamp(100px,10vw,160px)' }}
         >
@@ -865,18 +925,20 @@ export function ProductPage({ slug }: { slug: string }) {
           />
           <Container>
             <div className="relative flex flex-col items-center gap-6">
-              <Eyebrow dark icon={Rocket}>Próximo passo</Eyebrow>
+              <div data-section-kicker><Eyebrow dark icon={Rocket}>Próximo passo</Eyebrow></div>
               <h2
+                data-section-title
                 className="text-white m-0 leading-[0.95] tracking-[-0.035em] text-balance"
                 style={{ fontSize: 'clamp(56px,8vw,140px)', fontWeight: 750 }}
               >
                 Quer {nameShort} na{' '}
                 <em style={{ fontStyle: 'italic', fontWeight: 400, color: '#F0E27A', fontFamily: 'Georgia, serif' }}>sua lavoura?</em>
               </h2>
-              <p className="text-white/78 max-w-[50ch] leading-[1.5] text-[19px] m-0">
+              <p data-section-lede className="text-white/78 max-w-[50ch] leading-[1.5] text-[19px] m-0">
                 Fale com o time agronômico e monte o manejo certo para sua cultura e fase.
               </p>
               <a
+                data-animate-content
                 href={WHATSAPP}
                 target="_blank"
                 rel="noopener noreferrer"
