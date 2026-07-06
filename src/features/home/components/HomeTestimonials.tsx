@@ -1,5 +1,7 @@
 'use client'
 
+import { CheckCircle2 } from 'lucide-react'
+
 import React, { useRef, useState, useEffect } from 'react'
 import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
@@ -95,7 +97,7 @@ export function HomeTestimonials() {
           <div data-header>
             <div className="mb-8" data-kicker>
               <span className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 border border-[#004B26]/20 bg-[#004B26]/5 text-[#004B26]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#004B26] inline-block" />
+                <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-[#004B26]" />
                 Resultados aplicados
               </span>
             </div>

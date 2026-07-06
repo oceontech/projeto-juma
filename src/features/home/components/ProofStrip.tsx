@@ -1,5 +1,7 @@
 'use client'
 
+import { TrendingUp } from 'lucide-react'
+
 import { useRef } from 'react'
 import { useTranslations } from 'next-intl'
 
@@ -150,7 +152,7 @@ export function ProofStrip() {
         {/* Kicker topo */}
         <div className="pt-xl pb-md">
           <span data-kicker className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 border border-white/20 text-white/80">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#F0E27A] inline-block" />
+            <TrendingUp className="w-3.5 h-3.5 flex-shrink-0 text-[#F0E27A]" />
             {t('title')}
           </span>
         </div>

@@ -1,5 +1,7 @@
 'use client'
 
+import { Activity } from 'lucide-react'
+
 import { useRef } from 'react'
 import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
@@ -141,7 +143,7 @@ export function HomeResults() {
             className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 mb-6 border"
             style={{ borderColor: 'rgba(255,255,255,.20)', color: 'rgba(255,255,255,.80)' }}
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-[#F0E27A] inline-block" />
+            <Activity className="w-3.5 h-3.5 flex-shrink-0 text-[#F0E27A]" />
             Resultados comprovados
           </span>
           <h2

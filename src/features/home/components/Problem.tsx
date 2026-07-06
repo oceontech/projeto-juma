@@ -1,5 +1,7 @@
 'use client'
 
+import { AlertTriangle } from 'lucide-react'
+
 import { useRef } from 'react'
 import { useTranslations } from 'next-intl'
 
@@ -96,7 +98,7 @@ export function Problem() {
           {/* Decoração topo */}
           <div className="mb-8">
             <span className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 mb-6 border border-primary/20 bg-primary/5 text-primary">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
+              <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
               {t('kicker')}
             </span>
           </div>

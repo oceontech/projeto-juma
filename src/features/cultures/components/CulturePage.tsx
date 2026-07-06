@@ -7,6 +7,7 @@ import { Container } from '@/components/layout/Container'
 import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
+import { Leaf, Target, AlertTriangle, ListChecks, Package, Rocket } from 'lucide-react'
 
 const WHATSAPP = 'https://wa.me/5519999648186'
 
@@ -384,23 +385,27 @@ const DATA: Record<string, CultureData> = {
 }
 
 /* ─── Shared UI components ─── */
-function Eyebrow({ dark, children }: { dark?: boolean; children: React.ReactNode }) {
+function Eyebrow({ dark, icon: Icon, children }: { dark?: boolean; icon?: React.ElementType; children: React.ReactNode }) {
   return (
     <span
       className={`inline-flex items-center gap-2 px-3.5 py-[7px] rounded-full text-[11px] font-semibold uppercase tracking-[0.16em] border ${
         dark ? 'border-white/35 text-white' : 'border-black/[0.18] text-[#1A1A1A]'
       }`}
     >
-      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dark ? 'bg-[#F0E27A]' : 'bg-[#004B26]'}`} />
+      {Icon ? (
+        <Icon className={`w-3.5 h-3.5 flex-shrink-0 ${dark ? 'text-[#F0E27A]' : 'text-[#004B26]'}`} />
+      ) : (
+        <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dark ? 'bg-[#F0E27A]' : 'bg-[#004B26]'}`} />
+      )}
       {children}
     </span>
   )
 }
 
-function SectionHead({ eyebrow, title, lede }: { eyebrow: string; title: React.ReactNode; lede?: string }) {
+function SectionHead({ eyebrow, icon, title, lede }: { eyebrow: string; icon?: React.ElementType; title: React.ReactNode; lede?: string }) {
   return (
     <div className="flex flex-col gap-[18px] mb-14 w-full">
-      <div data-section-kicker><Eyebrow>{eyebrow}</Eyebrow></div>
+      <div data-section-kicker><Eyebrow icon={icon}>{eyebrow}</Eyebrow></div>
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12">
         <h2 data-section-title className="m-0 flex-1 font-black uppercase leading-[1.05] tracking-tight text-[#1A1A1A]" style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}>
           {title}
@@ -808,7 +813,7 @@ export function CulturePage({ slug }: { slug: string }) {
             {/* Body */}
             <div className="flex flex-col">
               <span data-hero-el>
-                <Eyebrow>Cultura · {culture.name}</Eyebrow>
+                <Eyebrow icon={Leaf}>Cultura · {culture.name}</Eyebrow>
               </span>
               <h1
                 data-hero-title
@@ -858,6 +863,7 @@ export function CulturePage({ slug }: { slug: string }) {
           <section data-section className="py-[clamp(80px,9vw,140px)]">
             <Container>
               <SectionHead
+                icon={Target}
                 eyebrow="Como a Juma atua"
                 title={<>O que a Juma entrega<br />no {culture.name.toLowerCase()}.</>}
                 lede="Cinco frentes de atuação que aparecem na produção — e na renda do produtor."
@@ -885,6 +891,7 @@ export function CulturePage({ slug }: { slug: string }) {
           <section data-section className="pt-0 pb-[clamp(80px,9vw,140px)]">
             <Container>
               <SectionHead
+                icon={AlertTriangle}
                 eyebrow="Desafios por fase"
                 title={<>Onde o ciclo do<br />{culture.name.toLowerCase()} cobra atenção.</>}
                 lede="Janelas críticas em que o manejo nutricional define o tamanho da safra."
@@ -918,6 +925,7 @@ export function CulturePage({ slug }: { slug: string }) {
           <section id="manejo" data-section className="pt-0 pb-[clamp(80px,9vw,140px)]">
             <Container>
               <SectionHead
+                icon={ListChecks}
                 eyebrow="Manejo por fase"
                 title={<>Programa nutricional<br />do {culture.name.toLowerCase()} Juma.</>}
                 lede="Combinações de produtos pensadas para cada janela crítica do ciclo."
@@ -966,6 +974,7 @@ export function CulturePage({ slug }: { slug: string }) {
           <section data-section className="pt-0 pb-[clamp(80px,9vw,140px)]">
             <Container>
               <SectionHead
+                icon={Package}
                 eyebrow="Produtos recomendados"
                 title={<>A linha indicada<br />para o {culture.name.toLowerCase()}.</>}
                 lede="Os produtos que aparecem com mais frequência no manejo com a Juma."
@@ -1014,6 +1023,7 @@ export function CulturePage({ slug }: { slug: string }) {
         <section data-section className="pt-0 pb-[clamp(80px,9vw,140px)]">
           <Container>
             <SectionHead
+              icon={Calculator}
               eyebrow="Calcule seu ganho"
               title={<>Quanto a Juma rende<br />no seu {culture.name.toLowerCase()}?</>}
               lede="Simule o ganho com base na sua área, no produto recomendado e no preço atual da saca."
@@ -1033,7 +1043,7 @@ export function CulturePage({ slug }: { slug: string }) {
           />
           <Container>
             <div className="relative flex flex-col items-center gap-6">
-              <Eyebrow dark>Próximo passo</Eyebrow>
+              <Eyebrow dark icon={Rocket}>Próximo passo</Eyebrow>
               <h2
                 className="text-white m-0 leading-[0.95] tracking-[-0.035em] text-balance"
                 style={{ fontSize: 'clamp(56px,8vw,140px)', fontWeight: 750 }}

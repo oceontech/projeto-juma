@@ -1,5 +1,7 @@
 'use client'
 
+import { BookOpen } from 'lucide-react'
+
 import { useRef } from 'react'
 import { Link } from '@/i18n/navigation'
 import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
@@ -96,7 +98,7 @@ export function HomeBlog() {
           <div data-header>
             <div className="mb-8" data-kicker>
               <span className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 border border-[#004B26]/20 bg-[#004B26]/5 text-[#004B26]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#004B26] inline-block" />
+                <BookOpen className="w-3.5 h-3.5 flex-shrink-0 text-[#004B26]" />
                 Do campo para você
               </span>
             </div>

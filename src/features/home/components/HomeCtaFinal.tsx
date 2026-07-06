@@ -1,5 +1,7 @@
 'use client'
 
+import { Rocket } from 'lucide-react'
+
 import { useRef } from 'react'
 import { Container } from '@/components/layout/Container'
 import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
@@ -60,7 +62,7 @@ export function HomeCtaFinal() {
         <div data-cta-container className="flex flex-col items-center text-center gap-8">
           <div className="mb-4" data-kicker>
             <span className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 border border-white/20 text-white/80">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#F0E27A] inline-block" />
+              <Rocket className="w-3.5 h-3.5 flex-shrink-0 text-[#F0E27A]" />
               Próximo passo
             </span>
           </div>

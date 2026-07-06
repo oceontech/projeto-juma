@@ -6,6 +6,7 @@ import { Container } from '@/components/layout/Container'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { DUR, EASE } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
+import { AlertTriangle, Star, Activity, BarChart3, Clock, LayoutGrid } from 'lucide-react'
 
 const WHATSAPP = 'https://wa.me/5519999648186'
 
@@ -392,7 +393,7 @@ function ArrowIcon() {
 }
 
 /* ─── Eyebrow badge ─── */
-function Eyebrow({ dark, children }: { dark?: boolean; children: React.ReactNode }) {
+function Eyebrow({ dark, icon: Icon, children }: { dark?: boolean; icon?: React.ElementType; children: React.ReactNode }) {
   return (
     <span
       className={`inline-flex items-center gap-2 px-3.5 py-[7px] rounded-full text-[11px] font-semibold uppercase tracking-[0.16em] border ${
@@ -401,17 +402,21 @@ function Eyebrow({ dark, children }: { dark?: boolean; children: React.ReactNode
           : 'border-black/[0.18] text-[#1A1A1A]'
       }`}
     >
-      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dark ? 'bg-[#F0E27A]' : 'bg-[#004B26]'}`} />
+      {Icon ? (
+        <Icon className={`w-3.5 h-3.5 flex-shrink-0 ${dark ? 'text-[#F0E27A]' : 'text-[#004B26]'}`} />
+      ) : (
+        <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dark ? 'bg-[#F0E27A]' : 'bg-[#004B26]'}`} />
+      )}
       {children}
     </span>
   )
 }
 
 /* ─── Section header (eyebrow + title left, lede right) ─── */
-function SectionHead({ eyebrow, title, lede }: { eyebrow: string; title: React.ReactNode; lede?: string }) {
+function SectionHead({ eyebrow, icon, title, lede }: { eyebrow: string; icon?: React.ElementType; title: React.ReactNode; lede?: string }) {
   return (
     <div className="flex flex-col gap-[18px] mb-14 max-w-[980px]">
-      <Eyebrow>{eyebrow}</Eyebrow>
+      <Eyebrow icon={icon}>{eyebrow}</Eyebrow>
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
         <h2 className="m-0 text-[#1A1A1A] font-black leading-[1.0] tracking-[-0.025em]" style={{ fontSize: 'clamp(32px,3.6vw,56px)', fontWeight: 720 }}>
           {title}
@@ -623,6 +628,7 @@ export function ProductPage({ slug }: { slug: string }) {
           <section data-section className="py-[clamp(80px,9vw,140px)]">
             <Container>
               <SectionHead
+                icon={AlertTriangle}
                 eyebrow="Problemas que resolve"
                 title={<>Quando o {nameShort}<br />faz a diferença.</>}
                 lede="Em três situações que limitam a produtividade da lavoura, entrega resposta rápida e mensurável."
@@ -653,6 +659,7 @@ export function ProductPage({ slug }: { slug: string }) {
           <section data-section className="pt-0 pb-[clamp(80px,9vw,140px)]">
             <Container>
               <SectionHead
+                icon={Star}
                 eyebrow="Benefícios"
                 title={<>O que o {nameShort}<br />entrega na lavoura.</>}
                 lede="Efeitos comprovados no metabolismo da planta — todos com resposta visível em campo."
@@ -682,6 +689,7 @@ export function ProductPage({ slug }: { slug: string }) {
           <section data-section className="pt-0 pb-[clamp(80px,9vw,140px)]">
             <Container>
               <SectionHead
+                icon={ListChecks}
                 eyebrow="Modo de uso"
                 title={<>Aplicação foliar<br />ao longo do ciclo.</>}
                 lede="Use nos estágios iniciais para arranque forte e nas fases reprodutivas para sustentar a produtividade."
@@ -713,6 +721,7 @@ export function ProductPage({ slug }: { slug: string }) {
           <section data-section className="pt-0 pb-[clamp(80px,9vw,140px)]">
             <Container>
               <SectionHead
+                icon={Activity}
                 eyebrow="Resultados em campo"
                 title={<>Sacas a mais por hectare —<br />medidas pelo produtor.</>}
               />
@@ -756,6 +765,7 @@ export function ProductPage({ slug }: { slug: string }) {
         <section data-section className="pt-0 pb-[clamp(80px,9vw,140px)]">
           <Container>
             <SectionHead
+              icon={Camera}
               eyebrow="No campo"
               title={<>{nameShort} em ação.</>}
               lede="Fotos de talhões e ensaios reais conduzidos com produtores parceiros."
@@ -792,6 +802,7 @@ export function ProductPage({ slug }: { slug: string }) {
           <section data-section className="pt-0 pb-[clamp(80px,9vw,140px)]">
             <Container>
               <SectionHead
+                icon={Package}
                 eyebrow="Produtos relacionados"
                 title="Outros da mesma família."
                 lede="Combinações que potencializam o resultado em manejo completo."
@@ -854,7 +865,7 @@ export function ProductPage({ slug }: { slug: string }) {
           />
           <Container>
             <div className="relative flex flex-col items-center gap-6">
-              <Eyebrow dark>Próximo passo</Eyebrow>
+              <Eyebrow dark icon={Rocket}>Próximo passo</Eyebrow>
               <h2
                 className="text-white m-0 leading-[0.95] tracking-[-0.035em] text-balance"
                 style={{ fontSize: 'clamp(56px,8vw,140px)', fontWeight: 750 }}
