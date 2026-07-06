@@ -399,14 +399,14 @@ function Eyebrow({ dark, children }: { dark?: boolean; children: React.ReactNode
 
 function SectionHead({ eyebrow, title, lede }: { eyebrow: string; title: React.ReactNode; lede?: string }) {
   return (
-    <div className="flex flex-col gap-[18px] mb-14 max-w-[980px]">
+    <div className="flex flex-col gap-[18px] mb-14 w-full">
       <div data-section-kicker><Eyebrow>{eyebrow}</Eyebrow></div>
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-        <h2 data-section-title className="m-0 font-black uppercase leading-[1.05] tracking-tight text-[#1A1A1A]" style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12">
+        <h2 data-section-title className="m-0 flex-1 font-black uppercase leading-[1.05] tracking-tight text-[#1A1A1A]" style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}>
           {title}
         </h2>
         {lede && (
-          <p data-section-lede className="text-[#5A5A57] leading-[1.55] max-w-[44ch] text-[clamp(17px,1.25vw,20px)] m-0">
+          <p data-section-lede className="text-[#5A5A57] leading-[1.55] w-full md:w-auto md:max-w-[40ch] shrink-0 text-[clamp(17px,1.25vw,20px)] m-0">
             {lede}
           </p>
         )}
