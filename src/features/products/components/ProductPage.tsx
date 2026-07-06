@@ -7,6 +7,7 @@ import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gs
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { AlertTriangle, Star, Activity, BarChart3, Clock, LayoutGrid, Camera, Package, Rocket, ListChecks } from 'lucide-react'
+import { HomeCtaFinal } from '@/features/home/components/HomeCtaFinal'
 
 const WHATSAPP = 'https://wa.me/5519999648186'
 
@@ -866,8 +867,7 @@ export function ProductPage({ slug }: { slug: string }) {
                 lede="Combinações que potencializam o resultado em manejo completo."
               />
               <div
-                className="grid gap-[18px]"
-                style={{ gridTemplateColumns: `repeat(1, 1fr) md:repeat(${Math.min(product.related.length, 3)}, 1fr)` }}
+                className="grid gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
               >
                 {product.related.map((rel) => (
                   <Link
@@ -914,44 +914,7 @@ export function ProductPage({ slug }: { slug: string }) {
         )}
 
         {/* CTA Final */}
-        <section
-          data-section
-          className="relative overflow-hidden text-white text-center"
-          style={{ backgroundColor: '#004B26', paddingBlock: 'clamp(100px,10vw,160px)' }}
-        >
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: 'radial-gradient(70% 80% at 50% 50%, rgba(240,226,122,.18), transparent 70%)' }}
-          />
-          <Container>
-            <div className="relative flex flex-col items-center gap-6">
-              <div data-section-kicker><Eyebrow dark icon={Rocket}>Próximo passo</Eyebrow></div>
-              <h2
-                data-section-title
-                className="text-white m-0 leading-[0.95] tracking-[-0.035em] text-balance"
-                style={{ fontSize: 'clamp(56px,8vw,140px)', fontWeight: 750 }}
-              >
-                Quer {nameShort} na{' '}
-                <em style={{ fontStyle: 'italic', fontWeight: 400, color: '#F0E27A', fontFamily: 'Georgia, serif' }}>sua lavoura?</em>
-              </h2>
-              <p data-section-lede className="text-white/78 max-w-[50ch] leading-[1.5] text-[19px] m-0">
-                Fale com o time agronômico e monte o manejo certo para sua cultura e fase.
-              </p>
-              <a
-                data-animate-content
-                href={WHATSAPP}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2.5 h-[54px] px-[26px] rounded-full text-[15px] font-semibold text-[#1A1A1A] bg-[#F0E27A] hover:bg-[#e8d96a] transition-all hover:-translate-y-px"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="w-4 h-4">
-                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-                </svg>
-                Falar no WhatsApp · (19) 99964-8186
-              </a>
-            </div>
-          </Container>
-        </section>
+        <HomeCtaFinal />
       </div>
 
       {/* Global animation for the seal */}
