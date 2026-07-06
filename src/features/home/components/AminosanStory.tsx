@@ -602,19 +602,15 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         trigger: stageRef.current,
         start: 'top top',
         onEnter: () => {
-          // A entrada já terminou seu trabalho ao chegar aqui — matar o stIntro
-          // evita que ele continue vivo reagindo à posição bruta do scroll e
-          // brigando com as animações do startPlayback toda vez que o usuário
-          // passar de novo por essa faixa de scroll (ex: ao voltar de baixo).
           killIntro()
-          if (phase === 'act1' && !isLocked && direction !== 'forward') {
+          if (phase === 'act1' && !isLocked && !direction) {
             isLocked = true
             lockScroll(true)
           }
         },
         onEnterBack: () => {
           killIntro()
-          if (phase === 'act3' && !isLocked && direction !== 'backward') {
+          if (phase === 'act3' && !isLocked && !direction) {
             isLocked = true
             lockScroll(true)
             startPlayback('backward')
@@ -639,7 +635,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         if (!isLocked) return
         if (direction === 'backward') {
           startPlayback('forward')
-        } else if (phase === 'act1' && direction !== 'forward' && performance.now() > cooldownRef.current) {
+        } else if (phase === 'act1' && !direction && performance.now() > cooldownRef.current) {
           startPlayback('forward')
         }
       }
@@ -648,7 +644,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         if (!isLocked) return
         if (direction === 'forward') {
           startPlayback('backward')
-        } else if (phase === 'act3' && direction !== 'backward' && performance.now() > cooldownRef.current) {
+        } else if (phase === 'act3' && !direction && performance.now() > cooldownRef.current) {
           startPlayback('backward')
         }
       }
@@ -656,9 +652,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const onWheel = (e: WheelEvent) => {
         if (!isLocked) return
         if (e.deltaY > 0) {
-          if (phase === 'act3' && direction !== 'backward') { release(); return; }
+          if (phase === 'act3' && !direction) { release(); return; }
         } else if (e.deltaY < 0) {
-          if (phase === 'act1' && direction !== 'forward') { release(); return; }
+          if (phase === 'act1' && !direction) { release(); return; }
         }
         e.preventDefault()
         if (e.deltaY > 0) handleForward()
@@ -672,8 +668,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         const down = downKeys.includes(e.key)
         const up   = upKeys.includes(e.key)
         if (!down && !up) return
-        if (down && phase === 'act3' && direction !== 'backward') { release(); return; }
-        if (up && phase === 'act1' && direction !== 'forward') { release(); return; }
+        if (down && phase === 'act3' && !direction) { release(); return; }
+        if (up && phase === 'act1' && !direction) { release(); return; }
         e.preventDefault()
         if (down) handleForward()
         else if (up) handleBackward()
@@ -695,10 +691,10 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         const endY = e.changedTouches[0] ? e.changedTouches[0].clientY : touchY
         const dy   = touchY - endY
         if (dy > 30) {
-          if (phase === 'act3' && direction !== 'backward') { release(); return; }
+          if (phase === 'act3' && !direction) { release(); return; }
           handleForward()
         } else if (dy < -30) {
-          if (phase === 'act1' && direction !== 'forward') { release(); return; }
+          if (phase === 'act1' && !direction) { release(); return; }
           handleBackward()
         }
       }
