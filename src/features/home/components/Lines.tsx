@@ -142,10 +142,11 @@ export function Lines() {
           {LINES.map((key, i) => {
             const { accent, text } = LINE_COLORS[key]
             return (
-              <div
+              <Link
                 key={key}
+                href={`/produtos#${key}`}
                 data-line-card
-                className="group relative flex overflow-hidden rounded-xl border border-foreground/8 bg-white transition-shadow hover:shadow-lg"
+                className="group relative flex overflow-hidden rounded-xl border border-foreground/8 bg-white transition-shadow hover:shadow-lg cursor-pointer"
               >
                 {/* Barra de cor vertical — âncora da identidade de linha */}
                 <div
@@ -183,17 +184,16 @@ export function Lines() {
                   </p>
 
                   {/* Link de linha */}
-                  <Link
-                    href={`/produtos#${key}`}
-                    className="mt-auto inline-flex items-center gap-xs pt-sm text-[11px] font-semibold uppercase tracking-[0.14em] transition-opacity hover:opacity-70"
+                  <span
+                    className="mt-auto inline-flex items-center gap-xs pt-sm text-[11px] font-semibold uppercase tracking-[0.14em] transition-all group-hover:opacity-70"
                     style={{ color: accent }}
                   >
                     {t('viewLine')}
                     {/* Seta simples */}
-                    <span aria-hidden className="text-xs">→</span>
-                  </Link>
+                    <span aria-hidden className="text-xs transition-transform duration-300 group-hover:translate-x-1">→</span>
+                  </span>
                 </div>
-              </div>
+              </Link>
             )
           })}
         </div>

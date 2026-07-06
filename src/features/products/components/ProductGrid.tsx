@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
@@ -164,6 +164,23 @@ export function ProductGrid() {
   const t = useTranslations('productsPage')
   const [activeCategory, setActiveCategory] = useState('all')
   const [activeCulture, setActiveCulture] = useState('all')
+
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '')
+    if (!hash) return
+
+    const hashMap: Record<string, string> = {
+      nutricao: 'cat-nutricao',
+      arranque: 'cat-tratamento',
+      protecao: 'cat-protecao',
+      manejos: 'cat-manejo',
+      aplicacao: 'cat-aplicacao',
+    }
+
+    if (hashMap[hash]) {
+      setActiveCategory(hashMap[hash])
+    }
+  }, [])
 
   const reduced = useReducedMotion()
   const containerRef = useRef<HTMLDivElement>(null)
