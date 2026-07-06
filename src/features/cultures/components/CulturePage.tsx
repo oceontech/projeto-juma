@@ -7,7 +7,7 @@ import { Container } from '@/components/layout/Container'
 import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
-import { Leaf, Target, AlertTriangle, ListChecks, Package, Rocket } from 'lucide-react'
+import { Leaf, Target, AlertTriangle, ListChecks, Package, Rocket, Calculator as CalculatorIcon } from 'lucide-react'
 
 const WHATSAPP = 'https://wa.me/5519999648186'
 
@@ -1023,7 +1023,7 @@ export function CulturePage({ slug }: { slug: string }) {
         <section data-section className="pt-0 pb-[clamp(80px,9vw,140px)]">
           <Container>
             <SectionHead
-              icon={Calculator}
+              icon={CalculatorIcon}
               eyebrow="Calcule seu ganho"
               title={<>Quanto a Juma rende<br />no seu {culture.name.toLowerCase()}?</>}
               lede="Simule o ganho com base na sua área, no produto recomendado e no preço atual da saca."
