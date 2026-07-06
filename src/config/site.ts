@@ -16,6 +16,7 @@ export const navLinks = [
   { key: 'experience', href: '/juma-experience' },
   { key: 'about', href: '/sobre' },
   { key: 'articles', href: '/materias' },
+  { key: 'contact', href: '/contato' },
 ] as const
 
 /** Link externo de vagas (Sólides), abre em nova aba. */

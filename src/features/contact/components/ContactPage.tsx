@@ -298,17 +298,29 @@ export function ContactPage() {
             </div>
           </div>
 
-          <div data-contact-item className="rounded-3xl bg-foreground/10 h-64 border border-foreground/10 relative overflow-hidden flex items-center justify-center">
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-multiply" />
-            <div className="relative z-10 flex flex-col items-center gap-2">
+          <a 
+            data-contact-item 
+            href="https://www.google.com/maps/search/?api=1&query=Juma+Agro+Mogi+Mirim"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-3xl bg-foreground/10 h-64 border border-foreground/10 relative overflow-hidden flex items-center justify-center group"
+          >
+            <iframe 
+              src="https://maps.google.com/maps?q=Juma%20Agro,%20Mogi%20Mirim&t=&z=14&ie=UTF8&iwloc=&output=embed"
+              className="absolute inset-0 w-full h-full border-0 pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity"
+              aria-hidden="true"
+              tabIndex={-1}
+            />
+            <div className="absolute inset-0 bg-primary/10 group-hover:bg-transparent transition-colors pointer-events-none" />
+            <div className="relative z-10 flex flex-col items-center gap-2 group-hover:scale-105 transition-transform pointer-events-none">
               <div className="h-10 w-10 bg-primary text-white flex items-center justify-center rounded-full shadow-xl">
                 <PinIcon className="h-5 w-5" />
               </div>
-              <span className="bg-white px-3 py-1.5 rounded-full text-xs font-bold shadow-md">
+              <span className="bg-white px-3 py-1.5 rounded-full text-xs font-bold shadow-md text-foreground">
                 {t('mapLabel')}
               </span>
             </div>
-          </div>
+          </a>
         </div>
       </div>
 
