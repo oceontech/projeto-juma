@@ -87,7 +87,22 @@
     "callout3Label": "In soybeans, 10 to 14 extra bags per hectare in trials.",
     "callout3Source": "Source: DETEC (Taquarivaí, SP) and Terras Gerais (Lavras, MG) field trials.",
     "callout4": "And today, a full line: thirteen products, from planting to harvest.",
-    "cta": "Discover Aminosan"
+    "cta": "Discover Aminosan",
+    "a3Tag": "Nutrition that transforms",
+    "a3Desc1": "More than 40 years later, the same amino acid, the same efficiency.",
+    "a3Desc2Start": "Today, across eight crops: ",
+    "a3Desc2Bold": "soybeans, corn, coffee, cotton, beans, citrus, tomato and potato.",
+    "a3Icon1": "High-quality amino acids",
+    "a3Icon2": "Greater nutritional efficiency",
+    "a3Icon3": "More health and vigor for plants",
+    "a3Icon4": "Proven results in the field",
+    "a3Card1Unit": "bags/ha",
+    "a3Card1Text": "In soybeans, 10 to 14 extra bags per hectare in trials.",
+    "a3Card1Source": "Source: Internal Results (2011) | Certified by UFLA and Embrapa Cerrados (2015)",
+    "a3Card2Text": "And today, a full line offers products, from ",
+    "a3Card2Bold": "planting to harvest.",
+    "a3Card3Text": "Trust that comes from the field and generates ",
+    "a3Card3Bold": "results."
   },
   "ourStory": {
     "eyebrow": "OUR STORY",
@@ -393,10 +408,22 @@
     "benefitsTitle": "Results to take back to your farm.",
     "benefitsIntro": "You leave the program with a diagnosis, technical knowledge and a direct relationship with our agronomic team.",
     "benefits": {
-      "b1": { "title": "Your farm diagnosis", "desc": "Each grower leaves with a specific reading of their own property and crop." },
-      "b2": { "title": "Suggested nutritional program", "desc": "Detailed technical recommendation for your next season, built with the Juma team." },
-      "b3": { "title": "Partner grower network", "desc": "Connection with other growers who are using the same technologies in practice." },
-      "b4": { "title": "Extended technical support", "desc": "Priority service from Juma's agronomic team throughout the following season." }
+      "b1": {
+        "title": "Your farm diagnosis",
+        "desc": "Each grower leaves with a specific reading of their own property and crop."
+      },
+      "b2": {
+        "title": "Suggested nutritional program",
+        "desc": "Detailed technical recommendation for your next season, built with the Juma team."
+      },
+      "b3": {
+        "title": "Partner grower network",
+        "desc": "Connection with other growers who are using the same technologies in practice."
+      },
+      "b4": {
+        "title": "Extended technical support",
+        "desc": "Priority service from Juma's agronomic team throughout the following season."
+      }
     },
     "galleryEyebrow": "What it looks like",
     "galleryTitle": "The program in photos.",
@@ -417,19 +444,43 @@
     "historyTitle": "Four decades counted in the field.",
     "historyIntro": "Milestones that show how Juma grew side by side with the Brazilian grower.",
     "timeline": {
-      "y1985": { "title": "The beginning, in inland São Paulo", "desc": "Mr. Julio Matino founds Juma in Mogi Mirim with the goal of offering Brazilian growers the most advanced plant nutrition available — starting with locally formulated foliar fertilizers." },
-      "y1992": { "title": "Launch of Aminosan®", "desc": "The first plant-origin amino acid from Juma reaches the market and would go on, in the following decades, to become the absolute reference in nutritional management of coffee, soybeans and corn in Brazil." },
-      "y2003": { "title": "Expansion to other crops", "desc": "Juma broadens its portfolio to sugarcane, cotton and perennial crops. The Revigo line is born — crop-specific foliar products to correct deficiencies in every cultivar." },
-      "y2015": { "title": "Application technology", "desc": "With the arrival of the Redutan and Supermix lines, Juma begins offering spray technology — application quality, less drift and greater operational efficiency." },
-      "y2024": { "title": "13 products · 10 crops", "desc": "Juma's current portfolio — products integrated into complete nutritional programs, supporting professional management from planting to harvest across Brazil." }
+      "y1985": {
+        "title": "The beginning, in inland São Paulo",
+        "desc": "Mr. Julio Matino founds Juma in Mogi Mirim with the goal of offering Brazilian growers the most advanced plant nutrition available — starting with locally formulated foliar fertilizers."
+      },
+      "y1992": {
+        "title": "Launch of Aminosan®",
+        "desc": "The first plant-origin amino acid from Juma reaches the market and would go on, in the following decades, to become the absolute reference in nutritional management of coffee, soybeans and corn in Brazil."
+      },
+      "y2003": {
+        "title": "Expansion to other crops",
+        "desc": "Juma broadens its portfolio to sugarcane, cotton and perennial crops. The Revigo line is born — crop-specific foliar products to correct deficiencies in every cultivar."
+      },
+      "y2015": {
+        "title": "Application technology",
+        "desc": "With the arrival of the Redutan and Supermix lines, Juma begins offering spray technology — application quality, less drift and greater operational efficiency."
+      },
+      "y2024": {
+        "title": "13 products · 10 crops",
+        "desc": "Juma's current portfolio — products integrated into complete nutritional programs, supporting professional management from planting to harvest across Brazil."
+      }
     },
     "valuesEyebrow": "What drives us",
     "valuesTitle": "Values born in the field.",
     "valuesIntro": "Principles that have held Juma steady for four decades — and continue to guide us.",
     "values": {
-      "v1": { "title": "Alongside the grower", "desc": "Agronomic team in the field, across every region. Decisions made where results happen." },
-      "v2": { "title": "Applied knowledge", "desc": "Continuous research and real trials with partner growers — science translated into results." },
-      "v3": { "title": "Responsibility", "desc": "Productivity through responsible management, efficient formulations and respect for soil and water." }
+      "v1": {
+        "title": "Alongside the grower",
+        "desc": "Agronomic team in the field, across every region. Decisions made where results happen."
+      },
+      "v2": {
+        "title": "Applied knowledge",
+        "desc": "Continuous research and real trials with partner growers — science translated into results."
+      },
+      "v3": {
+        "title": "Responsibility",
+        "desc": "Productivity through responsible management, efficient formulations and respect for soil and water."
+      }
     },
     "purposeEyebrow": "Purpose",
     "purposeTitleStart": "Together",
@@ -510,5 +561,1810 @@
     "ctaTitleLine2": "to me directly.",
     "ctaBody": "Our team responds on WhatsApp within 1 business hour, Monday to Friday.",
     "ctaButton": "Open WhatsApp"
+  },
+  "homeProductShowcase": {
+    "products": {
+      "0": {
+        "name": "AMINOSAN",
+        "line": "LINHA REDUTAN",
+        "description": "Organomineral bioactivator based on free amino acids. Accelerates plant metabolism and enhances nutrient absorption at all stages.",
+        "stats": {
+          "0": {
+            "label": "Wake Up Sugarcane",
+            "unit": "bags/ha"
+          },
+          "1": {
+            "label": "RevigoPhos Amino",
+            "unit": "bags/ha"
+          },
+          "2": {
+            "label": "Revigo + Corn and Pasture",
+            "unit": "bags/ha"
+          }
+        }
+      },
+      "1": {
+        "name": "LINHA REVIGO",
+        "line": "LINHA JUMA",
+        "description": "Complete advanced mineral nutrition line. Specialized formulations that optimize the use of macro and micronutrients by crops.",
+        "stats": {
+          "0": {
+            "label": "Premium Soybeans",
+            "unit": "bags/ha"
+          },
+          "1": {
+            "label": "High Yield Corn",
+            "unit": "bags/ha"
+          },
+          "2": {
+            "label": "Cotton Lint",
+            "unit": "bags/ha"
+          }
+        }
+      },
+      "2": {
+        "name": "ADUBAN",
+        "line": "LINHA REDUTAN",
+        "description": "High-concentration organomineral fertilizer. Provides macronutrients in a balanced and synergistic way for full crop development.",
+        "stats": {
+          "0": {
+            "label": "Soybean Production",
+            "unit": "bags/ha"
+          },
+          "1": {
+            "label": "Corn Harvest",
+            "unit": "bags/ha"
+          },
+          "2": {
+            "label": "Bean Yield",
+            "unit": "bags/ha"
+          }
+        }
+      },
+      "3": {
+        "name": "FITOFERT",
+        "line": "LINHA JUMA",
+        "description": "Complete foliar fertilizer with high-solubility macro and micronutrients. Fills nutritional deficiencies quickly and efficiently.",
+        "stats": {
+          "0": {
+            "label": "Foliar Soybeans",
+            "unit": "bags/ha"
+          },
+          "1": {
+            "label": "Coffee Flowering",
+            "unit": "bags/ha"
+          },
+          "2": {
+            "label": "Citrus Quality",
+            "unit": "bags/ha"
+          }
+        }
+      },
+      "4": {
+        "name": "REVIGOPHOS AMINO",
+        "line": "LINHA JUMA",
+        "description": "Readily available amino-chelated phosphorus. Stimulates deep rooting and grain filling with maximum efficiency.",
+        "stats": {
+          "0": {
+            "label": "Rooting",
+            "unit": "bags/ha"
+          },
+          "1": {
+            "label": "Grain Filling",
+            "unit": "bags/ha"
+          },
+          "2": {
+            "label": "Initial Vigor",
+            "unit": "bags/ha"
+          }
+        }
+      },
+      "5": {
+        "name": "ACORDA ULTRA",
+        "line": "LINHA REDUTAN",
+        "description": "Biostimulant for annual crop startup. Stimulates deep rooting from germination and increases the initial vigor of plants.",
+        "stats": {
+          "0": {
+            "label": "Soybean Startup",
+            "unit": "bags/ha"
+          },
+          "1": {
+            "label": "Corn Vigor",
+            "unit": "bags/ha"
+          },
+          "2": {
+            "label": "Bean Initial",
+            "unit": "bags/ha"
+          }
+        }
+      },
+      "6": {
+        "name": "SUPERMIX",
+        "line": "LINHA JUMA",
+        "description": "Complete nutritional mix with chelated micronutrients. Corrects multiple deficiencies in a single application, with wide tank compatibility.",
+        "stats": {
+          "0": {
+            "label": "Summer Corn",
+            "unit": "bags/ha"
+          },
+          "1": {
+            "label": "Grained Soybeans",
+            "unit": "bags/ha"
+          },
+          "2": {
+            "label": "Cotton Fiber",
+            "unit": "bags/ha"
+          }
+        }
+      },
+      "7": {
+        "name": "REVIGO COBRE ULTRA",
+        "line": "LINHA JUMA",
+        "description": "Highly mobile complexed copper. Acts in photosynthesis and lignin synthesis, shielding the crop against adversities.",
+        "stats": {
+          "0": {
+            "label": "Photosynthesis",
+            "unit": "bags/ha"
+          },
+          "1": {
+            "label": "Natural Defense",
+            "unit": "bags/ha"
+          },
+          "2": {
+            "label": "Foliar Health",
+            "unit": "bags/ha"
+          }
+        }
+      },
+      "8": {
+        "name": "KMEP ULTRA",
+        "line": "LINHA JUMA",
+        "description": "Concentrated solution of potassium, magnesium, and sulfur. Provides essential nutrients for final production quality and stress resistance.",
+        "stats": {
+          "0": {
+            "label": "Grain Quality",
+            "unit": "bags/ha"
+          },
+          "1": {
+            "label": "Resistance",
+            "unit": "bags/ha"
+          },
+          "2": {
+            "label": "Productivity",
+            "unit": "bags/ha"
+          }
+        }
+      },
+      "9": {
+        "name": "REVIGO + MILHO",
+        "line": "LINHA JUMA",
+        "description": "Nutritional package designed for high-yield corn. Balance of macro and micronutrients from planting to harvest.",
+        "stats": {
+          "0": {
+            "label": "Summer Corn",
+            "unit": "bags/ha"
+          },
+          "1": {
+            "label": "Second Crop Corn",
+            "unit": "bags/ha"
+          },
+          "2": {
+            "label": "Stay Green",
+            "unit": "bags/ha"
+          }
+        }
+      },
+      "10": {
+        "name": "LINHA REDUTAN",
+        "line": "LINHA REDUTAN",
+        "description": "Sustainable foliar fertilization line based on amino acids and organic chelates. Reduces nutritional losses and increases use efficiency.",
+        "stats": {
+          "0": {
+            "label": "Redutan Soybeans",
+            "unit": "bags/ha"
+          },
+          "1": {
+            "label": "Corn Nutrition",
+            "unit": "bags/ha"
+          },
+          "2": {
+            "label": "Coffee Production",
+            "unit": "bags/ha"
+          }
+        }
+      },
+      "11": {
+        "name": "REVIGO + PASTO",
+        "line": "LINHA JUMA",
+        "description": "Pasture recovery and maintenance technology. More green mass, accelerated regrowth, and greater animal carrying capacity.",
+        "stats": {
+          "0": {
+            "label": "Green Mass",
+            "unit": "%"
+          },
+          "1": {
+            "label": "Regrowth",
+            "unit": "%"
+          },
+          "2": {
+            "label": "Carrying Capacity",
+            "unit": "UA/ha"
+          }
+        }
+      },
+      "12": {
+        "name": "ACORDA CANA",
+        "line": "LINHA REDUTAN",
+        "description": "Sprouting stimulant for ratoons. Breaks dormancy and uniformizes regrowth, ensuring a full stand right at the beginning of the cycle.",
+        "stats": {
+          "0": {
+            "label": "New Ratoon",
+            "unit": "bags/ha"
+          },
+          "1": {
+            "label": "Uniform Regrowth",
+            "unit": "bags/ha"
+          },
+          "2": {
+            "label": "Plant Cane",
+            "unit": "bags/ha"
+          }
+        }
+      }
+    },
+    "hint": "scroll to explore",
+    "hintReduced": "View product",
+    "subtitle": "Redutan® Line · Juma Line"
+  },
+  "homeCultures": {
+    "kicker": "Crops",
+    "title": "Solutions designed<br></br>for your <highlight>crop.</highlight>",
+    "desc": "From grains to perennials — each crop has its requirements, and Juma has a path for each one.",
+    "cultures": {
+      "0": "Soybeans",
+      "1": "Corn",
+      "2": "Coffee",
+      "3": "Sugarcane",
+      "4": "Cotton",
+      "5": "Beans",
+      "6": "Citrus",
+      "7": "Potato",
+      "8": "Tomato",
+      "9": "Pasture"
+    },
+    "viewAll": "See more about crops"
+  },
+  "homeResults": {
+    "kicker": "Proven Results",
+    "title": "Numbers that come from the <highlight>field.</highlight>",
+    "results": [
+      {
+        "suffix": "years+",
+        "label": "of history in the field, alongside large and small Brazilian farmers.",
+        "source": ""
+      },
+      {
+        "suffix": "bags/ha",
+        "label": "in soybeans with Aminosan, in field trials conducted by partner farmers.",
+        "source": "Soybeans · Aminosan"
+      },
+      {
+        "suffix": "bags/ha",
+        "label": "in corn with Acorda Ultra, in complete harvest nutritional management.",
+        "source": "Corn · Acorda Ultra"
+      },
+      {
+        "suffix": "t/ha",
+        "label": "of sugarcane stalks with Acorda Cana, in the accumulated harvest.",
+        "source": "Sugarcane · Acorda Cana"
+      }
+    ]
+  },
+  "homeCalculator": {
+    "kicker": "Calculate your gain",
+    "title": "How much can Juma<br></br>yield in your <highlight>field?</highlight>",
+    "desc": "Simulate in seconds the potential gain in bags and extra revenue based on average field data.",
+    "cultures": {
+      "soja": "Soybeans",
+      "milho": "Corn",
+      "cafe": "Coffee",
+      "cana": "Sugarcane",
+      "citros": "Citrus",
+      "tomate": "Tomato"
+    },
+    "form": {
+      "culture": "Crop",
+      "product": "Juma Product",
+      "area": "Area (ha)",
+      "price": "Bag price ($)",
+      "disclaimer": "Values are estimates. For a tailored plan for your farm, speak with a Juma technician."
+    },
+    "result": {
+      "extraBags": "Estimated extra bags",
+      "extraRev": "Estimated extra revenue",
+      "averageGain": "Average gain of +{gain} {unit} with {product} · projected for {area} ha.",
+      "priceBase": "Based on the reported average bag price.",
+      "disclaimer": "Estimate based on average field data. Actual results vary by cultivar, management, soil, and climate."
+    }
+  },
+  "homeExperience": {
+    "immersion": "Immersion program",
+    "kicker": "Juma Experience",
+    "titlePart1": "Experience Juma ",
+    "titleHighlight": "up close.",
+    "desc": "An immersion program to see in practice how our solutions are born and work in the field — from research to harvest, side by side with our agronomic team.",
+    "cta": "I want to participate"
+  },
+  "homeTestimonials": {
+    "kicker": "Applied Results",
+    "titlePart1": "Those who plant with Juma,<br />harvest ",
+    "titleHighlight": "results.",
+    "desc": "Real stories from farmers who adopted our solutions and measured the difference in the field.",
+    "testimonials": [
+      {
+        "text": "The difference was clear from the first plot. More uniform crop, firm plant even in the heat — and at harvest time, the scale doesn't lie.",
+        "badge": "Soybeans +14 bags/ha · Aminosan",
+        "name": "João Carvalho",
+        "location": "Taquarivaí · SP",
+        "initials": "JC"
+      },
+      {
+        "text": "I was looking for nutritional management that went beyond the basics. With Juma, I gained productivity without increasing the cost per hectare — and that changes the game.",
+        "badge": "Corn +13.4 bags/ha · Acorda Ultra",
+        "name": "Ricardo Marques",
+        "location": "Sorriso · MT",
+        "initials": "RM"
+      },
+      {
+        "text": "The sugarcane field responded quickly. More stalk, more vigor in regrowth, and the Juma technical team was here on every visit. A true partnership.",
+        "badge": "Sugarcane +6.87 t/ha · Acorda Cana",
+        "name": "André Souza",
+        "location": "Quirinópolis · GO",
+        "initials": "AS"
+      }
+    ]
+  },
+  "homeBlog": {
+    "kicker": "From the field to you",
+    "titlePart1": "Content that helps you<br />produce ",
+    "titleHighlight": "better.",
+    "desc": "Applied agronomic knowledge, written for those in the day-to-day of the field.",
+    "readArticle": "Read article",
+    "viewAll": "View all articles",
+    "articles": [
+      {
+        "category": "Management",
+        "date": "APR 15 2026",
+        "readTime": "6 min read",
+        "title": "How to reduce crop stress during drought"
+      },
+      {
+        "category": "Nutrition",
+        "date": "APR 02 2026",
+        "readTime": "8 min read",
+        "title": "Nutrition at the right stage: what changes in soybean productivity"
+      },
+      {
+        "category": "Livestock",
+        "date": "MAR 18 2026",
+        "readTime": "5 min read",
+        "title": "Pasture management: recovery and weight gain"
+      }
+    ]
+  },
+  "homeCtaFinal": {
+    "kicker": "Next step",
+    "titlePart1": "Together we feed the ",
+    "titleHighlight": "world.",
+    "desc": "Talk to Juma and discover the right solution for your crop, your region, and your management.",
+    "btn": "Talk on WhatsApp · (19) 99964-8186"
+  },
+  "culturePage": {
+    "breadcrumb": "Crops",
+    "heroEyebrow": "Crop · {name}",
+    "heroTitle": "Strategic management throughout the <highlight>production cycle.</highlight>",
+    "whatsappBtn": "Talk on WhatsApp",
+    "seeManagementBtn": "View phase management",
+    "actuaEyebrow": "How Juma acts",
+    "actuaTitle": "What Juma delivers<br></br>in {name}.",
+    "actuaLede": "Five action fronts that appear in production — and in the farmer's income.",
+    "challengesEyebrow": "Challenges by phase",
+    "challengesTitle": "Where the {name} cycle<br></br>demands attention.",
+    "challengesLede": "Critical windows where nutritional management defines crop size.",
+    "managementEyebrow": "Management by phase",
+    "managementTitle": "Juma {name}<br></br>nutritional program.",
+    "managementLede": "Product combinations designed for each critical window of the cycle.",
+    "recommendedEyebrow": "Recommended products",
+    "recommendedTitle": "The indicated line<br></br>for {name}.",
+    "recommendedLede": "The products that appear most frequently in management with Juma.",
+    "calcEyebrow": "Calculate your gain",
+    "calcTitle": "How much does Juma yield<br></br>in your {name}?",
+    "calcLede": "Simulate the gain based on your area, recommended product and current bag price.",
+    "calcProductLabel": "Juma Product",
+    "calcAreaLabel": "Area (ha)",
+    "calcPriceLabel": "Bag price ($)",
+    "calcYieldLabel": "Current yield (bags/ha)",
+    "calcFormLede": "Estimate for a crop in production. For a tailored program, speak with a Juma technician.",
+    "calcExtraBags": "Estimated extra bags",
+    "calcGainAverage": "Average gain of <strong>+{gain} bags/ha</strong> · projected for your informed area.",
+    "calcExtraRev": "Estimated extra revenue",
+    "calcBasePrice": "Based on the reported average bag price.",
+    "calcDisclaimer": "Estimate based on average field data. Actual results vary by cultivar, management, soil, and climate."
+  },
+  "cultureData": {
+    "cafe": {
+      "name": "Coffee",
+      "badge": "Perennial Crop",
+      "description": "Coffee requires attention at every phase: each stage directly impacts productivity and bean quality. Juma develops nutritional programs to support the coffee plantation from rooting to maturation.",
+      "actua": [
+        "Uniform and better distributed flowering throughout the plot.",
+        "Higher fruit set, less pinhead drop.",
+        "Bean filling and quality sustained until harvest.",
+        "Reduction of the impact of climatic stress and dry spells.",
+        "Nutritional efficiency — every applied nutrient is well absorbed."
+      ],
+      "challenges": {
+        "0": {
+          "stage": "01 · Flowering",
+          "title": "Non-uniformity and low setting",
+          "desc": "Flowering distributed in waves, impairing harvest and production uniformity."
+        },
+        "1": {
+          "stage": "02 · Pinhead",
+          "title": "Fruit drop",
+          "desc": "Newly formed fruits that fall before setting — direct loss of productivity."
+        },
+        "2": {
+          "stage": "03 · Grain filling",
+          "title": "Low filling",
+          "desc": "Small and light beans, with high sieve loss and reduced classification."
+        },
+        "3": {
+          "stage": "04 · Maturation",
+          "title": "Loss of quality",
+          "desc": "Uneven maturation and loss of beverage quality — direct impact on bag price."
+        },
+        "4": {
+          "stage": "05 · Climate",
+          "title": "Climatic stress",
+          "desc": "Dry spells, frosts, and extreme heat compromising the entire crop investment."
+        }
+      },
+      "management": {
+        "0": {
+          "label": "Phase 01",
+          "fase": "Pre-flowering"
+        },
+        "1": {
+          "label": "Phase 02",
+          "fase": "Post-flowering"
+        },
+        "2": {
+          "label": "Phase 03",
+          "fase": "Pinhead"
+        },
+        "3": {
+          "label": "Phase 04",
+          "fase": "Grain filling"
+        },
+        "4": {
+          "label": "Phase 05",
+          "fase": "Maturation"
+        }
+      },
+      "recommended": {
+        "aminosan": {
+          "tag": "Nutrition & Physiology",
+          "desc": "Vigor, roots, and resistance in all phases of coffee."
+        },
+        "fitofert": {
+          "tag": "Nutrition & Physiology",
+          "desc": "Setting, filling, and productivity in the reproductive phase."
+        },
+        "revigophos-amino": {
+          "tag": "Nutrition & Physiology",
+          "desc": "Energy and rapid recovery in critical windows."
+        }
+      }
+    },
+    "soja": {
+      "name": "Soybeans",
+      "badge": "Grain",
+      "description": "Soy is the main crop in Brazil and requires nutritional precision at every phase of the cycle. Juma develops complete programs from seed treatment to grain filling.",
+      "actua": [
+        "Deep rooting and uniform stand from planting.",
+        "Vegetative nutrition for high leaf mass production.",
+        "Maximum pod setting in the reproductive period.",
+        "Grain filling with superior weight and uniformity.",
+        "Resistance to water deficit in critical periods of the cycle."
+      ],
+      "challenges": {
+        "0": {
+          "stage": "01 · Germination",
+          "title": "Uneven stand",
+          "desc": "Irregular emergence that compromises area utilization and hinders management."
+        },
+        "1": {
+          "stage": "02 · Vegetative",
+          "title": "Low foliar vigor",
+          "desc": "Plants with slow growth and lower light interception capacity."
+        },
+        "2": {
+          "stage": "03 · Flowering",
+          "title": "Low pod setting",
+          "desc": "Flowers that abort before setting, directly reducing productive potential."
+        },
+        "3": {
+          "stage": "04 · Filling",
+          "title": "Light grains",
+          "desc": "Weight and classification below potential due to nutritional deficit during grain filling."
+        },
+        "4": {
+          "stage": "05 · Climate",
+          "title": "Dry spells and stress",
+          "desc": "Water deficit and high temperatures compromising physiology and production."
+        }
+      },
+      "management": {
+        "0": {
+          "label": "Phase 01",
+          "fase": "Seed treatment"
+        },
+        "1": {
+          "label": "Phase 02",
+          "fase": "V3–V5"
+        },
+        "2": {
+          "label": "Phase 03",
+          "fase": "R1–R2"
+        },
+        "3": {
+          "label": "Phase 04",
+          "fase": "R5–R6"
+        }
+      },
+      "recommended": {
+        "aminosan": {
+          "tag": "Nutrition & Physiology",
+          "desc": "Vigor, roots, and resistance throughout the soy cycle."
+        },
+        "fitofert": {
+          "tag": "Nutrition & Physiology",
+          "desc": "Setting and filling in the reproductive phase."
+        },
+        "acorda-ultra": {
+          "tag": "Seed Treatment",
+          "desc": "Strong startup from planting."
+        }
+      }
+    },
+    "milho": {
+      "name": "Corn",
+      "badge": "Grain",
+      "description": "Corn, especially the second crop, requires a precise nutritional program to take advantage of the growing window and maximize yield per hectare.",
+      "actua": [
+        "Vigorous startup from emergence.",
+        "Nutrition for high green mass production and well-formed ears.",
+        "Setting and grain filling until harvest.",
+        "Resistance to water stress in the reproductive period.",
+        "Integrated program for high-performance second crop corn."
+      ],
+      "challenges": {
+        "0": {
+          "stage": "01 · Emergence",
+          "title": "Slow startup",
+          "desc": "Seedlings with slow initial development that miss the productive window."
+        },
+        "1": {
+          "stage": "02 · Vegetative",
+          "title": "Nutritional deficit",
+          "desc": "Plants with irregular growth and lower biomass accumulation."
+        },
+        "2": {
+          "stage": "03 · Tasseling",
+          "title": "Water stress",
+          "desc": "Critical period with drought compromising flowering and setting."
+        },
+        "3": {
+          "stage": "04 · Filling",
+          "title": "Malformed grains",
+          "desc": "Ears with failures and light grains due to nutritional deficiency during filling."
+        }
+      },
+      "management": {
+        "0": {
+          "label": "Phase 01",
+          "fase": "Seed treatment"
+        },
+        "1": {
+          "label": "Phase 02",
+          "fase": "V3–V5"
+        },
+        "2": {
+          "label": "Phase 03",
+          "fase": "V8–V10"
+        },
+        "3": {
+          "label": "Phase 04",
+          "fase": "R1–R3"
+        }
+      },
+      "recommended": {
+        "aminosan": {
+          "tag": "Nutrition & Physiology",
+          "desc": "Vigor and resistance for the entire cycle."
+        },
+        "revigo-milho": {
+          "tag": "Complete Management",
+          "desc": "Complete nutritional program for second crop corn."
+        },
+        "fitofert": {
+          "tag": "Nutrition & Physiology",
+          "desc": "Setting and grain filling."
+        }
+      }
+    },
+    "cana": {
+      "name": "Sugarcane",
+      "badge": "Semi-perennial crop",
+      "description": "Sugarcane requires nutrition from planting to maturation, focusing on startup, tillering, and TCH. Juma offers specific solutions for each phase of the crop.",
+      "actua": [
+        "Accelerated rooting in seedling planting.",
+        "Abundant tillering for a greater number of stalks per hectare.",
+        "Vigorous growth sustained throughout the cycle.",
+        "Resistance to water and thermal stress.",
+        "Uniform maturation for better industrial quality."
+      ],
+      "challenges": {
+        "0": {
+          "stage": "01 · Planting",
+          "title": "Slow seedling startup",
+          "desc": "Seedlings with irregular sprouting that compromise the initial stand."
+        },
+        "1": {
+          "stage": "02 · Tillering",
+          "title": "Low tillering",
+          "desc": "Insufficient number of stalks per hectare limiting the TCH."
+        },
+        "2": {
+          "stage": "03 · Growth",
+          "title": "Nutritional deficit",
+          "desc": "Irregular growth due to lack of adequate nutrition in each phase."
+        },
+        "3": {
+          "stage": "04 · Maturation",
+          "title": "Uneven maturation",
+          "desc": "Stalks in different stages hindering harvest management."
+        }
+      },
+      "management": {
+        "0": {
+          "label": "Phase 01",
+          "fase": "Planting"
+        },
+        "1": {
+          "label": "Phase 02",
+          "fase": "Tillering"
+        },
+        "2": {
+          "label": "Phase 03",
+          "fase": "Growth"
+        }
+      },
+      "recommended": {
+        "acorda-cana": {
+          "tag": "Seed Treatment",
+          "desc": "Rooting and vigor from planting."
+        },
+        "aminosan": {
+          "tag": "Nutrition & Physiology",
+          "desc": "Vigor and resistance throughout growth."
+        },
+        "linha-redutan": {
+          "tag": "Application Technology",
+          "desc": "Spray quality for sugarcane applications."
+        }
+      }
+    },
+    "algodao": {
+      "name": "Cotton",
+      "badge": "Fiber",
+      "description": "Cotton is demanding in nutrition during the reproductive period, when flowering, boll setting, and fiber filling define crop profitability.",
+      "actua": [
+        "Vigorous startup and uniform stand.",
+        "Balanced nutrition in the vegetative phase for high productive load.",
+        "Setting of floral buds and bolls.",
+        "Filling and uniform maturation of fibers.",
+        "Resistance to climatic stresses during the cycle."
+      ],
+      "challenges": {
+        "0": {
+          "stage": "01 · Vegetative",
+          "title": "Irregular growth",
+          "desc": "Uneven plants that hinder management and reduce productivity per area."
+        },
+        "1": {
+          "stage": "02 · Flowering",
+          "title": "Low boll setting",
+          "desc": "Floral buds that fall before setting due to nutritional deficiency or stress."
+        },
+        "2": {
+          "stage": "03 · Filling",
+          "title": "Low quality fiber",
+          "desc": "Fiber length and strength below potential due to inadequate nutrition."
+        }
+      },
+      "management": {
+        "0": {
+          "label": "Phase 01",
+          "fase": "Seed treatment"
+        },
+        "1": {
+          "label": "Phase 02",
+          "fase": "Vegetative"
+        },
+        "2": {
+          "label": "Phase 03",
+          "fase": "Reproductive"
+        }
+      },
+      "recommended": {
+        "aminosan": {
+          "tag": "Nutrition & Physiology",
+          "desc": "Vigor and resistance for the entire cycle."
+        },
+        "fitofert": {
+          "tag": "Nutrition & Physiology",
+          "desc": "Setting and filling of bolls."
+        },
+        "acorda-ultra": {
+          "tag": "Seed Treatment",
+          "desc": "Strong startup from planting."
+        }
+      }
+    },
+    "feijao": {
+      "name": "Beans",
+      "badge": "Grain",
+      "description": "Beans have a short cycle and require precise nutrition in the reproductive period. Small deficiencies in critical phases cause significant productivity losses.",
+      "actua": [
+        "Uniform rooting and stand from germination.",
+        "Vegetative nutrition for fast and balanced development.",
+        "Pod setting and maximum set at flowering.",
+        "Grain filling with weight and uniformity.",
+        "Resistance to water stress in the critical phase."
+      ],
+      "challenges": {
+        "0": {
+          "stage": "01 · Germination",
+          "title": "Uneven stand",
+          "desc": "Irregular emergence compromising the area's productive potential."
+        },
+        "1": {
+          "stage": "02 · Flowering",
+          "title": "Low pod setting",
+          "desc": "Flowers that abort due to nutritional deficiency or water stress."
+        },
+        "2": {
+          "stage": "03 · Grain filling",
+          "title": "Light grains",
+          "desc": "Weight and appearance below potential due to insufficient nutrition."
+        }
+      },
+      "management": {
+        "0": {
+          "label": "Phase 01",
+          "fase": "Seed treatment"
+        },
+        "1": {
+          "label": "Phase 02",
+          "fase": "V3–V4"
+        },
+        "2": {
+          "label": "Phase 03",
+          "fase": "R1–R5"
+        }
+      },
+      "recommended": {
+        "aminosan": {
+          "tag": "Nutrition & Physiology",
+          "desc": "Vigor and resistance throughout the cycle."
+        },
+        "fitofert": {
+          "tag": "Nutrition & Physiology",
+          "desc": "Setting and grain filling."
+        },
+        "acorda-ultra": {
+          "tag": "Seed Treatment",
+          "desc": "Strong startup from planting."
+        }
+      }
+    },
+    "citros": {
+      "name": "Citrus",
+      "badge": "Perennial Crop",
+      "description": "Citrus require continuous and balanced nutrition throughout the cycle. Juma offers programs for flowering, fruit setting, and post-harvest quality.",
+      "actua": [
+        "Abundant and well-distributed flowering.",
+        "High fruit set and low post-flowering drop.",
+        "Uniform fruit development during the harvest.",
+        "High peel quality and soluble solids content.",
+        "Resistance to stress and physiological diseases."
+      ],
+      "challenges": {
+        "0": {
+          "stage": "01 · Flowering",
+          "title": "Low fruit set",
+          "desc": "Flowers that fall before setting, reducing production per tree."
+        },
+        "1": {
+          "stage": "02 · Development",
+          "title": "Fruit drop",
+          "desc": "Young fruits that fall due to nutritional deficit in the development phase."
+        },
+        "2": {
+          "stage": "03 · Maturation",
+          "title": "Compromised quality",
+          "desc": "Color, soluble solids content, and appearance below market expectations."
+        }
+      },
+      "management": {
+        "0": {
+          "label": "Phase 01",
+          "fase": "Pre-flowering"
+        },
+        "1": {
+          "label": "Phase 02",
+          "fase": "Post-flowering"
+        },
+        "2": {
+          "label": "Phase 03",
+          "fase": "Development"
+        }
+      },
+      "recommended": {
+        "aminosan": {
+          "tag": "Nutrition & Physiology",
+          "desc": "Vigor and resistance for the entire cycle."
+        },
+        "fitofert": {
+          "tag": "Nutrition & Physiology",
+          "desc": "Setting and fruit quality."
+        },
+        "linha-revigo": {
+          "tag": "Nutrition & Physiology",
+          "desc": "Foliars for deficiency correction."
+        }
+      }
+    },
+    "batata": {
+      "name": "Potato",
+      "badge": "Tuber",
+      "description": "Potato has a short cycle and demands intense nutrition from the start. Tuber quality and productivity depend on a precise nutritional program in each phase.",
+      "actua": [
+        "Uniform sprouting and full stand.",
+        "Vigorous vegetative development for high light interception.",
+        "Tuber filling with superior size and weight.",
+        "Surface quality and storage resistance.",
+        "Resistance to stress and physiological diseases."
+      ],
+      "challenges": {
+        "0": {
+          "stage": "01 · Sprouting",
+          "title": "Irregular emergence",
+          "desc": "Uneven sprouting compromising the stand and area utilization."
+        },
+        "1": {
+          "stage": "02 · Tuberization",
+          "title": "Low yield",
+          "desc": "Number and weight of tubers below potential due to nutritional deficiency."
+        },
+        "2": {
+          "stage": "03 · Filling",
+          "title": "Inadequate sizing",
+          "desc": "Small-sized tubers leading to lost market classification."
+        }
+      },
+      "management": {
+        "0": {
+          "label": "Phase 01",
+          "fase": "Planting"
+        },
+        "1": {
+          "label": "Phase 02",
+          "fase": "Tuberization"
+        },
+        "2": {
+          "label": "Phase 03",
+          "fase": "Filling"
+        }
+      },
+      "recommended": {
+        "aminosan": {
+          "tag": "Nutrition & Physiology",
+          "desc": "Vigor and resistance for the entire cycle."
+        },
+        "fitofert": {
+          "tag": "Nutrition & Physiology",
+          "desc": "Filling and tuber quality."
+        },
+        "linha-revigo": {
+          "tag": "Nutrition & Physiology",
+          "desc": "Correction of nutritional deficiencies."
+        }
+      }
+    },
+    "tomate": {
+      "name": "Tomato",
+      "badge": "Vegetable",
+      "description": "Tomato is one of the most demanding crops in nutrition. Flowering, setting, and fruit quality depend on a precise nutritional program throughout the cycle.",
+      "actua": [
+        "Balanced and uniform vegetative development.",
+        "Abundant flowering with high fruit set.",
+        "Homogeneous filling for fruits with superior size and coloration.",
+        "Resistance to stresses and physiological diseases such as blossom-end rot.",
+        "High post-harvest quality and shelf life."
+      ],
+      "challenges": {
+        "0": {
+          "stage": "01 · Flowering",
+          "title": "Low fruit set",
+          "desc": "Flowers that abort before setting due to nutritional deficiency or stress."
+        },
+        "1": {
+          "stage": "02 · Filling",
+          "title": "Blossom-end rot",
+          "desc": "Calcium deficiency in developing fruits — direct loss of quality."
+        },
+        "2": {
+          "stage": "03 · Maturation",
+          "title": "Inadequate color and firmness",
+          "desc": "Fruits with irregular coloration and low firmness compromising commercialization."
+        }
+      },
+      "management": {
+        "0": {
+          "label": "Phase 01",
+          "fase": "Vegetative"
+        },
+        "1": {
+          "label": "Phase 02",
+          "fase": "Flowering"
+        },
+        "2": {
+          "label": "Phase 03",
+          "fase": "Filling"
+        }
+      },
+      "recommended": {
+        "aminosan": {
+          "tag": "Nutrition & Physiology",
+          "desc": "Vigor and resistance for the entire cycle."
+        },
+        "linha-revigo": {
+          "tag": "Nutrition & Physiology",
+          "desc": "Correction of nutritional deficiencies."
+        },
+        "fitofert": {
+          "tag": "Nutrition & Physiology",
+          "desc": "Setting and fruit filling."
+        }
+      }
+    },
+    "pastagem": {
+      "name": "Pasture",
+      "badge": "Forage",
+      "description": "Degraded pasture is one of the main problems for Brazilian ranchers. Juma offers a nutritional program for recovery, higher stocking, and weight gain.",
+      "actua": [
+        "Recovery of degraded pastures with low density.",
+        "Stimulus for regrowth and tillering of forage grasses.",
+        "Nutrition for higher green mass production per hectare.",
+        "Nutritional quality of forage for better animal performance.",
+        "Higher stocking rate and weight gain per hectare."
+      ],
+      "challenges": {
+        "0": {
+          "stage": "01 · Degradation",
+          "title": "Low density pasture",
+          "desc": "Thin forage with weeds dominating and reducing carrying capacity."
+        },
+        "1": {
+          "stage": "02 · Regrowth",
+          "title": "Slow growth",
+          "desc": "Pasture that does not respond to rain with rapid and uniform regrowth."
+        },
+        "2": {
+          "stage": "03 · Quality",
+          "title": "Low nutritional value forage",
+          "desc": "Grass with low protein and energy content compromising animal performance."
+        }
+      },
+      "management": {
+        "0": {
+          "label": "Phase 01",
+          "fase": "Recovery"
+        },
+        "1": {
+          "label": "Phase 02",
+          "fase": "Maintenance"
+        }
+      },
+      "recommended": {
+        "revigo-pasto": {
+          "tag": "Complete Management",
+          "desc": "Complete program for pasture recovery and maintenance."
+        },
+        "aminosan": {
+          "tag": "Nutrition & Physiology",
+          "desc": "Vigor and resistance of forage grasses."
+        },
+        "linha-redutan": {
+          "tag": "Application Technology",
+          "desc": "Efficiency in field applications."
+        }
+      }
+    }
+  },
+  "productPage": {
+    "breadcrumb": "Products",
+    "heroEyebrow": "Product · {name}",
+    "whatsappBtn": "Talk on WhatsApp",
+    "seeDetailsBtn": "See details",
+    "relatedBtn": "View product",
+    "cropsLabel": "Indicated crops",
+    "problemsEyebrow": "What it solves",
+    "problemsTitle": "Problems that<br></br>{name} treats.",
+    "problemsLede": "Where the crop suffers losses and how the product acts to reverse the situation.",
+    "benefitsEyebrow": "Benefits",
+    "benefitsTitle": "What {name}<br></br>delivers in practice.",
+    "benefitsLede": "Physiological and agronomic results that appear in productivity.",
+    "stagesEyebrow": "Positioning",
+    "stagesTitle": "When to apply<br></br>{name}.",
+    "stagesLede": "Critical phases of the cycle where application delivers the best result.",
+    "resultsEyebrow": "Field results",
+    "resultsTitle": "Performance of {name}<br></br>at harvest.",
+    "resultsLede": "Real gains measured in commercial areas and trials with partners.",
+    "relatedEyebrow": "Complementary solutions",
+    "relatedTitle": "Products that work<br></br>together with {name}.",
+    "galleryEyebrow": "In the field",
+    "galleryTitle": "{name} in action.",
+    "galleryLede": "Photos of fields and real trials conducted with partner producers."
+  },
+  "productData": {
+    "aminosan": {
+      "name": "Aminosan®",
+      "tag": "Plant Nutrition & Physiology",
+      "description": "Foliar fertilizer based on free amino acids of plant origin. For over 40 years, a benchmark in performance — acts on plant metabolism, providing vigor, deeper roots, and tolerance to environmental stress.",
+      "crops": [
+        "Soybeans",
+        "Corn",
+        "Coffee",
+        "Cotton",
+        "Beans",
+        "Citrus",
+        "Tomato",
+        "Potato",
+        "Sugarcane"
+      ],
+      "problems": {
+        "0": {
+          "title": "Low plant development",
+          "desc": "Small plants, with low vigor, superficial roots, and uneven growth in the field."
+        },
+        "1": {
+          "title": "Cycle stress",
+          "desc": "Dry spells, frosts, management damage, and adverse weather compromising projected production."
+        },
+        "2": {
+          "title": "Limited absorption",
+          "desc": "Applied nutrients that the plant cannot absorb efficiently due to low metabolic activity."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Stimulates metabolism",
+          "desc": "Free amino acids enter directly into the cycle, without plant energy expenditure."
+        },
+        "1": {
+          "title": "Increases vegetative vigor",
+          "desc": "Greener leaves, firmer branches, and plants more resistant to adverse factors."
+        },
+        "2": {
+          "title": "Favors roots, leaves, and branches",
+          "desc": "Balanced development of the aerial part and root system."
+        },
+        "3": {
+          "title": "Improves nutrient absorption",
+          "desc": "Acts as a complexing agent and enhances the efficiency of fertilizers applied in the spray."
+        },
+        "4": {
+          "title": "More drought resistance",
+          "desc": "Keeps plant physiology active in periods of water deficit and extreme heat."
+        },
+        "5": {
+          "title": "Better setting and fixation",
+          "desc": "More fixed flowers and formed grains — directly reflected in productivity."
+        }
+      },
+      "stages": {
+        "0": {
+          "label": "V1–V3",
+          "title": "Establishment",
+          "desc": "Stimulates initial development and rooting."
+        },
+        "1": {
+          "label": "V4–V6",
+          "title": "Vegetative growth",
+          "desc": "More vigor and leaf mass production."
+        },
+        "2": {
+          "label": "Pre-flowering",
+          "title": "Pre-reproductive",
+          "desc": "Prepares the plant for uniform flowering."
+        },
+        "3": {
+          "label": "Flowering",
+          "title": "Reproductive",
+          "desc": "Favors setting and fixation of flowers."
+        },
+        "4": {
+          "label": "Filling",
+          "title": "Grain filling",
+          "desc": "Sustains productivity until harvest."
+        }
+      },
+      "results": {
+        "0": {
+          "desc": "Soybeans in Taquarivaí/SP, in a full harvest trial with Aminosan in management."
+        },
+        "1": {
+          "desc": "Soybeans in Lavras/MG, in a control plot vs Aminosan in foliar spray."
+        },
+        "2": {
+          "desc": "More drought resistance, measured by the maintenance of leaf area in water deficit."
+        }
+      },
+      "related": {
+        "fitofert": {
+          "name": "Fitofert",
+          "tag": "Nutrition & Physiology",
+          "desc": "More setting, grain filling, and productivity."
+        },
+        "linha-revigo": {
+          "name": "Revigo Line",
+          "tag": "Nutrition & Physiology",
+          "desc": "Foliars to correct deficiencies in each crop."
+        },
+        "revigophos-amino": {
+          "name": "RevigoPhos Amino",
+          "tag": "Nutrition & Physiology",
+          "desc": "Fast energy and recovery after stress."
+        }
+      }
+    },
+    "fitofert": {
+      "name": "Fitofert",
+      "tag": "Plant Nutrition & Physiology",
+      "description": "Foliar fertilizer developed to maximize setting, grain filling, and productivity in the reproductive phase of crops.",
+      "crops": [
+        "Soybeans",
+        "Corn",
+        "Coffee",
+        "Citrus",
+        "Tomato"
+      ],
+      "problems": {
+        "0": {
+          "title": "Low flower setting",
+          "desc": "Flowers that do not set, directly reducing the crop's productive potential."
+        },
+        "1": {
+          "title": "Empty and light grains",
+          "desc": "Insufficient grain filling due to lack of nutrition in the reproductive phase."
+        },
+        "2": {
+          "title": "Yield drop",
+          "desc": "Result below potential even with good vegetative nutrition."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "More flower setting",
+          "desc": "Adequate nutrition in reproductive stages for greater fixation."
+        },
+        "1": {
+          "title": "Uniform filling",
+          "desc": "Heavier and more uniform grains, with better use of photosynthesis."
+        },
+        "2": {
+          "title": "Consistent productivity",
+          "desc": "Measurable result in the field, harvest after harvest."
+        }
+      },
+      "stages": {
+        "0": {
+          "label": "Flowering",
+          "title": "Reproductive",
+          "desc": "Foliar application to support setting."
+        },
+        "1": {
+          "label": "Filling",
+          "title": "Grain filling",
+          "desc": "Second application to maximize grain weight."
+        }
+      },
+      "results": {},
+      "related": {
+        "aminosan": {
+          "name": "Aminosan®",
+          "tag": "Nutrition & Physiology",
+          "desc": "Vigor and resistance in all phases."
+        },
+        "revigophos-amino": {
+          "name": "RevigoPhos Amino",
+          "tag": "Nutrition & Physiology",
+          "desc": "Energy and rapid recovery."
+        }
+      }
+    },
+    "linha-revigo": {
+      "name": "Revigo Line",
+      "tag": "Plant Nutrition & Physiology",
+      "description": "Complete line of foliar fertilizers to correct nutritional deficiencies in each crop, at different phases of the cycle.",
+      "crops": [
+        "Soybeans",
+        "Corn",
+        "Coffee",
+        "Cotton",
+        "Beans",
+        "Citrus",
+        "Tomato",
+        "Potato"
+      ],
+      "problems": {
+        "0": {
+          "title": "Nutritional deficiencies",
+          "desc": "Micro and macronutrient deficiencies that limit growth and productivity."
+        },
+        "1": {
+          "title": "Visual deficiency symptoms",
+          "desc": "Chlorosis, necrosis, and deformations that indicate inadequate nutrition."
+        },
+        "2": {
+          "title": "Low absorption efficiency",
+          "desc": "Nutrients in the soil that the plant cannot efficiently access."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Rapid deficiency correction",
+          "desc": "Immediate foliar absorption for response in less than 72 hours."
+        },
+        "1": {
+          "title": "Formulas by crop",
+          "desc": "Each product in the line is formulated for the specific requirements of each crop."
+        },
+        "2": {
+          "title": "Compatibility with other inputs",
+          "desc": "Can be applied in the spray along with pesticides and other foliars."
+        }
+      },
+      "stages": {},
+      "results": {},
+      "related": {
+        "aminosan": {
+          "name": "Aminosan®",
+          "tag": "Nutrition & Physiology",
+          "desc": "Vigor and resistance for the entire cycle."
+        },
+        "fitofert": {
+          "name": "Fitofert",
+          "tag": "Nutrition & Physiology",
+          "desc": "Setting and filling in the reproductive phase."
+        }
+      }
+    },
+    "revigophos-amino": {
+      "name": "RevigoPhos Amino",
+      "tag": "Plant Nutrition & Physiology",
+      "description": "Foliar fertilizer with phosphorus and amino acids for fast energy and accelerated recovery after stress. Ideal for critical windows of the cycle.",
+      "crops": [
+        "Soybeans",
+        "Corn",
+        "Coffee",
+        "Cotton",
+        "Beans",
+        "Sugarcane"
+      ],
+      "problems": {
+        "0": {
+          "title": "Stressed plants",
+          "desc": "Crops that suffered from adverse weather, pests, or water deficit and need quick recovery."
+        },
+        "1": {
+          "title": "Unavailable phosphorus",
+          "desc": "Soils with high phosphorus fixation or conditions that limit root absorption."
+        },
+        "2": {
+          "title": "Low metabolic energy",
+          "desc": "Plants with slow metabolism that do not respond well to applied inputs."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Provides immediate energy",
+          "desc": "Highly soluble foliar phosphorus for quick energy to metabolism."
+        },
+        "1": {
+          "title": "Accelerated recovery",
+          "desc": "Amino acids enhance the plant's response after stress periods."
+        },
+        "2": {
+          "title": "Ideal for critical windows",
+          "desc": "Precise application at decisive moments of the productive cycle."
+        }
+      },
+      "stages": {},
+      "results": {},
+      "related": {
+        "aminosan": {
+          "name": "Aminosan®",
+          "tag": "Nutrition & Physiology",
+          "desc": "Vigor and resistance in all phases."
+        },
+        "fitofert": {
+          "name": "Fitofert",
+          "tag": "Nutrition & Physiology",
+          "desc": "More setting and filling."
+        }
+      }
+    },
+    "revigo-cobre-ultra": {
+      "name": "Revigo Copper Ultra",
+      "tag": "Plant Nutrition & Physiology",
+      "description": "Complexed copper for physiological strength and plant resistance. High-efficiency formulation for correction and prevention of deficiencies.",
+      "crops": [
+        "Soybeans",
+        "Coffee",
+        "Citrus",
+        "Tomato",
+        "Potato"
+      ],
+      "problems": {
+        "0": {
+          "title": "Copper deficiency",
+          "desc": "Crops with deficiency symptoms that affect development and resistance."
+        },
+        "1": {
+          "title": "Low disease resistance",
+          "desc": "Plants with lower physiological resistance to fungal and bacterial pathogens."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Copper deficiency correction",
+          "desc": "Fast foliar absorption with highly bioavailable complexed copper."
+        },
+        "1": {
+          "title": "Physiological strengthening",
+          "desc": "Copper activates essential enzymes for resistance and photosynthesis."
+        }
+      },
+      "stages": {},
+      "results": {},
+      "related": {
+        "linha-revigo": {
+          "name": "Revigo Line",
+          "tag": "Nutrition & Physiology",
+          "desc": "Complete line of foliars."
+        },
+        "aminosan": {
+          "name": "Aminosan®",
+          "tag": "Nutrition & Physiology",
+          "desc": "Vigor and resistance for the entire cycle."
+        }
+      }
+    },
+    "acorda-cana": {
+      "name": "Acorda Cana",
+      "tag": "Seed Treatment",
+      "description": "Rooting, vigor, and more productivity in sugarcane, starting from planting. Formulated to stimulate the initial development of the crop.",
+      "crops": [
+        "Sugarcane"
+      ],
+      "problems": {
+        "0": {
+          "title": "Slow startup",
+          "desc": "Seedlings with slow initial development, missing essential productive windows."
+        },
+        "1": {
+          "title": "Insufficient rooting",
+          "desc": "Shallow root system that limits water and nutrient absorption throughout the cycle."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Accelerated rooting",
+          "desc": "Stimulates root system development from the first days after planting."
+        },
+        "1": {
+          "title": "Stronger startup",
+          "desc": "Plants with greater initial vigor respond better to base fertilization."
+        }
+      },
+      "stages": {
+        "0": {
+          "label": "Planting",
+          "title": "Seedling treatment",
+          "desc": "Application before or during planting for immediate startup."
+        }
+      },
+      "results": {},
+      "related": {
+        "aminosan": {
+          "name": "Aminosan®",
+          "tag": "Nutrition & Physiology",
+          "desc": "Vigor during growth."
+        },
+        "linha-redutan": {
+          "name": "Redutan Line",
+          "tag": "Application Technology",
+          "desc": "Spray quality for sugarcane applications."
+        }
+      }
+    },
+    "acorda-ultra": {
+      "name": "Acorda Ultra",
+      "tag": "Seed Treatment",
+      "description": "Strong startup and deep rooting from the first day in the soil. For soybeans, corn, cotton, and beans.",
+      "crops": [
+        "Soybeans",
+        "Corn",
+        "Cotton",
+        "Beans"
+      ],
+      "problems": {
+        "0": {
+          "title": "Uneven stand",
+          "desc": "Irregular emergence that compromises area utilization and management."
+        },
+        "1": {
+          "title": "Superficial roots",
+          "desc": "Shallow root system that limits drought resistance and nutrient absorption."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "More uniform stand",
+          "desc": "Homogeneous emergence for a more productive and easier-to-manage plot."
+        },
+        "1": {
+          "title": "Deeper roots",
+          "desc": "Robust root system for better use of water and nutrients."
+        }
+      },
+      "stages": {
+        "0": {
+          "label": "Seed",
+          "title": "Treatment",
+          "desc": "Applied directly to the seed before planting."
+        }
+      },
+      "results": {},
+      "related": {
+        "aminosan": {
+          "name": "Aminosan®",
+          "tag": "Nutrition & Physiology",
+          "desc": "Continuous vigor during growth."
+        },
+        "aduban": {
+          "name": "Aduban",
+          "tag": "Seed Treatment",
+          "desc": "Balanced soil for young plants."
+        }
+      }
+    },
+    "aduban": {
+      "name": "Aduban",
+      "tag": "Seed Treatment",
+      "description": "Balanced soil and more nutrient absorption by the young plant. For soybeans, corn, coffee, and beans.",
+      "crops": [
+        "Soybeans",
+        "Corn",
+        "Coffee",
+        "Beans"
+      ],
+      "problems": {
+        "0": {
+          "title": "Low nutrient availability",
+          "desc": "Soil with blocked nutrients due to inadequate pH or biological competition."
+        },
+        "1": {
+          "title": "Fragile young plant",
+          "desc": "Seedlings with slow development due to an unbalanced soil environment."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Improves root environment",
+          "desc": "Stimulates beneficial microorganisms for greater nutrient availability."
+        },
+        "1": {
+          "title": "More efficient absorption",
+          "desc": "Young plant with better access to nutrients from germination."
+        }
+      },
+      "stages": {
+        "0": {
+          "label": "Seed",
+          "title": "Treatment",
+          "desc": "Applied to the seed for immediate action in the soil."
+        }
+      },
+      "results": {},
+      "related": {
+        "acorda-ultra": {
+          "name": "Acorda Ultra",
+          "tag": "Seed Treatment",
+          "desc": "Strong startup and deep rooting."
+        },
+        "aminosan": {
+          "name": "Aminosan®",
+          "tag": "Nutrition & Physiology",
+          "desc": "Vigor during growth."
+        }
+      }
+    },
+    "kmep-ultra": {
+      "name": "Kmep Ultra",
+      "tag": "Crop Protection",
+      "description": "Potentiates insecticides and improves pest control efficiency. Specialized adjuvant to maximize application results.",
+      "crops": [
+        "Soybeans",
+        "Corn",
+        "Coffee",
+        "Cotton",
+        "Beans",
+        "Tomato",
+        "Potato",
+        "Sugarcane"
+      ],
+      "problems": {
+        "0": {
+          "title": "Inefficient pest control",
+          "desc": "Insecticides with low performance due to deposition and absorption difficulties."
+        },
+        "1": {
+          "title": "Pest resistance",
+          "desc": "Need for increasingly higher doses for the same result."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Greater insecticide efficiency",
+          "desc": "Potentiates the action of the active ingredient, improving coverage and absorption."
+        },
+        "1": {
+          "title": "Better deposition",
+          "desc": "Reduces surface tension for better spreading over the leaf and the pest."
+        }
+      },
+      "stages": {},
+      "results": {},
+      "related": {
+        "linha-redutan": {
+          "name": "Redutan Line",
+          "tag": "Application Technology",
+          "desc": "Spray quality for every application."
+        },
+        "supermix": {
+          "name": "Supermix",
+          "tag": "Application Technology",
+          "desc": "Uniform spray, without clogging."
+        }
+      }
+    },
+    "linha-redutan": {
+      "name": "Redutan Line",
+      "tag": "Application Technology",
+      "description": "Spray quality, less drift, and more operational efficiency. The complete line to optimize every spray in the field.",
+      "crops": [
+        "Soybeans",
+        "Corn",
+        "Coffee",
+        "Cotton",
+        "Beans",
+        "Citrus",
+        "Tomato",
+        "Potato",
+        "Sugarcane",
+        "Pasture"
+      ],
+      "problems": {
+        "0": {
+          "title": "Excessive drift",
+          "desc": "Loss of product due to drift, contaminating neighboring areas and reducing efficiency."
+        },
+        "1": {
+          "title": "Unstable spray",
+          "desc": "Incompatible mixtures that crystallize or clog nozzles and filters."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Less drift",
+          "desc": "Reduces the formation of fine drops that drift with the wind during spraying."
+        },
+        "1": {
+          "title": "More stable spray",
+          "desc": "Improves compatibility between products in the tank for safe applications."
+        }
+      },
+      "stages": {},
+      "results": {},
+      "related": {
+        "supermix": {
+          "name": "Supermix",
+          "tag": "Application Technology",
+          "desc": "Adjuvant for uniform spray."
+        },
+        "kmep-ultra": {
+          "name": "Kmep Ultra",
+          "tag": "Crop Protection",
+          "desc": "Potentiates insecticides."
+        }
+      }
+    },
+    "supermix": {
+      "name": "Supermix",
+      "tag": "Application Technology",
+      "description": "Adjuvant for uniform spray, without clogging and greater compatibility between products in the tank.",
+      "crops": [
+        "Soybeans",
+        "Corn",
+        "Coffee",
+        "Cotton",
+        "Beans",
+        "Citrus",
+        "Tomato",
+        "Potato",
+        "Sugarcane",
+        "Pasture"
+      ],
+      "problems": {
+        "0": {
+          "title": "Non-homogeneous spray",
+          "desc": "Products that do not mix well generating uneven application."
+        },
+        "1": {
+          "title": "Nozzle clogging",
+          "desc": "Precipitation of products in the spray causing operational failures in the field."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Homogeneous spray",
+          "desc": "Improves the mixture between products for uniform application throughout the plot."
+        },
+        "1": {
+          "title": "No clogging",
+          "desc": "Prevents precipitation of products in the spray, protecting the equipment."
+        }
+      },
+      "stages": {},
+      "results": {},
+      "related": {
+        "linha-redutan": {
+          "name": "Redutan Line",
+          "tag": "Application Technology",
+          "desc": "Less drift and more efficiency."
+        },
+        "kmep-ultra": {
+          "name": "Kmep Ultra",
+          "tag": "Crop Protection",
+          "desc": "Potentiates insecticides."
+        }
+      }
+    },
+    "revigo-milho": {
+      "name": "Revigo + Corn",
+      "tag": "Complete Management",
+      "description": "Strategic nutrition for second crop corn — real gain per hectare with integrated nutritional program.",
+      "crops": [
+        "Corn"
+      ],
+      "problems": {
+        "0": {
+          "title": "Low potential second crop corn",
+          "desc": "Crop with a short window that needs precise nutrition to reach the yield ceiling."
+        },
+        "1": {
+          "title": "Water stress in the second crop",
+          "desc": "Drier period that requires greater metabolic efficiency from the plant."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Complete nutritional program",
+          "desc": "Combination of products assembled for each critical phase of second crop corn."
+        },
+        "1": {
+          "title": "Proven result in the field",
+          "desc": "Gains measured in trials conducted in partnership with farmers."
+        }
+      },
+      "stages": {
+        "0": {
+          "label": "V3–V5",
+          "title": "Establishment",
+          "desc": "Early application for a solid start."
+        },
+        "1": {
+          "label": "V8–V10",
+          "title": "Growth",
+          "desc": "Foliar nutrition for vigor and leaf mass."
+        },
+        "2": {
+          "label": "Tasseling",
+          "title": "Pre-reproductive",
+          "desc": "Preparation for flowering."
+        }
+      },
+      "results": {},
+      "related": {
+        "aminosan": {
+          "name": "Aminosan®",
+          "tag": "Nutrition & Physiology",
+          "desc": "Vigor and resistance for the entire cycle."
+        },
+        "fitofert": {
+          "name": "Fitofert",
+          "tag": "Nutrition & Physiology",
+          "desc": "Setting and filling."
+        }
+      }
+    },
+    "revigo-pasto": {
+      "name": "Revigo + Pasture",
+      "tag": "Complete Management",
+      "description": "Pasture recovery, weight gain, and more stocking per hectare with strategic nutrition for forage grasses.",
+      "crops": [
+        "Pasture"
+      ],
+      "problems": {
+        "0": {
+          "title": "Degraded pasture",
+          "desc": "Forage grasses with low density, invasive species, and reduced carrying capacity."
+        },
+        "1": {
+          "title": "Low weight gain",
+          "desc": "Animal with low nutritional quality forage, impacting zootechnical results."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Forage recovery",
+          "desc": "Foliar nutrition that stimulates regrowth and improves pasture density."
+        },
+        "1": {
+          "title": "Higher stocking",
+          "desc": "More productive pasture with greater carrying capacity per hectare."
+        }
+      },
+      "stages": {},
+      "results": {},
+      "related": {
+        "aminosan": {
+          "name": "Aminosan®",
+          "tag": "Nutrition & Physiology",
+          "desc": "Vigor and resistance for the entire cycle."
+        },
+        "linha-redutan": {
+          "name": "Redutan Line",
+          "tag": "Application Technology",
+          "desc": "Efficiency in applications."
+        }
+      }
+    }
   }
 }

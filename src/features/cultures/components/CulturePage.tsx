@@ -9,60 +9,45 @@ import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Leaf, Target, AlertTriangle, ListChecks, Package, Rocket, Calculator as CalculatorIcon } from 'lucide-react'
 import { HomeCtaFinal } from '@/features/home/components/HomeCtaFinal'
+import { useTranslations } from 'next-intl'
 
 const WHATSAPP = 'https://wa.me/5519999648186'
 
-type Challenge = { stage: string; title: string; desc: string }
-type ManagePhase = { label: string; fase: string; products: string[] }
-type RecommendedProduct = { slug: string; name: string; tag: string; desc: string; labelColor: string }
-type CalcProduct = { id: string; label: string; gainPerHa: number }
 
-type CultureData = {
-  name: string
-  badge: string
+export type CalcProduct = { id: string; label: string; gainPerHa: number }
+export type ManagePhase = { label: string; fase: string; products: string[] }
+export type RecommendedProduct = { slug: string; name: string; tag: string; desc: string; labelColor: string }
+export type Challenge = { stage: string; title: string; desc: string }
+
+export const REC_META: Record<string, { name: string, labelColor: string }> = {
+  'aminosan': { name: 'Aminosan®', labelColor: '#659357' },
+  'fitofert': { name: 'Fitofert', labelColor: '#659357' },
+  'revigophos-amino': { name: 'RevigoPhos Amino', labelColor: '#302783' },
+  'acorda-ultra': { name: 'Acorda Ultra', labelColor: '#008dc2' },
+  'revigo-milho': { name: 'Revigo + Milho', labelColor: '#302783' },
+  'acorda-cana': { name: 'Acorda Cana', labelColor: '#79ab34' },
+  'linha-redutan': { name: 'Linha Redutan', labelColor: '#7d252a' },
+  'linha-revigo': { name: 'Linha Revigo', labelColor: '#302783' },
+  'revigo-pasto': { name: 'Revigo + Pasto', labelColor: '#302783' }
+}
+
+export type CultureMeta = {
   gradient: string
   image: string
-  description: string
-  actua: string[]
-  challenges: Challenge[]
-  management: ManagePhase[]
-  recommended: RecommendedProduct[]
+  managementProducts: string[][]
   calcProducts: CalcProduct[]
 }
 
-const DATA: Record<string, CultureData> = {
+export const META: Record<string, CultureMeta> = {
   cafe: {
-    name: 'Café',
-    badge: 'Cultura perene',
     gradient: 'linear-gradient(165deg, #6c4226 0%, #2a1a10 100%)',
     image: '/assets/cultures/cafe.webp',
-    description:
-      'O café exige atenção em cada fase: cada estágio impacta diretamente a produtividade e a qualidade dos grãos colhidos. A Juma desenvolve programas nutricionais para sustentar o cafezal do enraizamento à maturação.',
-    actua: [
-      'Floradas uniformes e mais bem distribuídas ao longo do talhão.',
-      'Pegamento de frutos mais alto, menos queda de chumbinho.',
-      'Enchimento e qualidade dos grãos sustentados até a colheita.',
-      'Redução do impacto de estresses climáticos e veranicos.',
-      'Eficiência nutricional — cada nutriente aplicado bem absorvido.',
-    ],
-    challenges: [
-      { stage: '01 · Florada', title: 'Desuniformidade e baixo pegamento', desc: 'Floradas distribuídas em ondas, prejudicando colheita e uniformidade da produção.' },
-      { stage: '02 · Chumbinho', title: 'Queda de frutos', desc: 'Frutos recém-formados que caem antes de fixarem — perda direta de produtividade.' },
-      { stage: '03 · Granação', title: 'Baixo enchimento', desc: 'Grãos pequenos e leves, com perda de peneira alta e classificação reduzida.' },
-      { stage: '04 · Maturação', title: 'Perda de qualidade', desc: 'Maturação desigual e perda de bebida — impacto direto no preço por saca.' },
-      { stage: '05 · Clima', title: 'Estresses climáticos', desc: 'Veranicos, geadas e calor extremo comprometendo todo o investimento da safra.' },
-    ],
-    management: [
-      { label: 'Fase 01', fase: 'Pré-florada', products: ['FitoFert', 'Aminosan'] },
-      { label: 'Fase 02', fase: 'Pós-florada', products: ['Aminosan', 'Revigo CaB'] },
-      { label: 'Fase 03', fase: 'Chumbinho', products: ['Revigo', 'Revigo Zn Plus', 'Aminosan'] },
-      { label: 'Fase 04', fase: 'Granação', products: ['Revigo Nitrogênio Plus', 'RevigoPHOS Amino', 'FitoFert'] },
-      { label: 'Fase 05', fase: 'Maturação', products: ['RevigoPHOS Amino', 'Aminosan', 'Revigo K'] },
-    ],
-    recommended: [
-      { slug: 'aminosan', name: 'Aminosan®', tag: 'Nutrição e Fisiologia', desc: 'Vigor, raízes e resistência em todas as fases do café.', labelColor: '#659357' },
-      { slug: 'fitofert', name: 'Fitofert', tag: 'Nutrição e Fisiologia', desc: 'Pegamento, enchimento e produtividade na fase reprodutiva.', labelColor: '#659357' },
-      { slug: 'revigophos-amino', name: 'RevigoPhos Amino', tag: 'Nutrição e Fisiologia', desc: 'Energia e recuperação rápida em janelas críticas.', labelColor: '#302783' },
+    managementProducts: [
+      ['FitoFert', 'Aminosan'],
+      ['Aminosan', 'Revigo CaB'],
+      ['Revigo', 'Revigo Zn Plus', 'Aminosan'],
+      ['Revigo Nitrogênio Plus', 'RevigoPHOS Amino', 'FitoFert'],
+      ['RevigoPHOS Amino', 'Aminosan', 'Revigo K']
     ],
     calcProducts: [
       { id: 'aminosan', label: 'Aminosan', gainPerHa: 6 },
@@ -71,36 +56,13 @@ const DATA: Record<string, CultureData> = {
     ],
   },
   soja: {
-    name: 'Soja',
-    badge: 'Grão',
     gradient: 'linear-gradient(165deg, #5d7a3a, #2c3a18)',
     image: '/assets/cultures/soja.webp',
-    description:
-      'A soja é a principal cultura do Brasil e exige precisão nutricional em cada fase do ciclo. A Juma desenvolve programas completos do tratamento de sementes ao enchimento de grãos.',
-    actua: [
-      'Enraizamento profundo e stand uniforme desde o plantio.',
-      'Nutrição vegetativa para alta produção de massa foliar.',
-      'Pegamento máximo de vagens no período reprodutivo.',
-      'Enchimento de grãos com peso e uniformidade superiores.',
-      'Resistência ao déficit hídrico em períodos críticos do ciclo.',
-    ],
-    challenges: [
-      { stage: '01 · Germinação', title: 'Stand desuniforme', desc: 'Emergência irregular que compromete o aproveitamento da área e dificulta o manejo.' },
-      { stage: '02 · Vegetativo', title: 'Baixo vigor foliar', desc: 'Plantas com crescimento lento e menor capacidade de interceptação de luz.' },
-      { stage: '03 · Florada', title: 'Baixo pegamento de vagens', desc: 'Flores que abortam antes de fixar, reduzindo diretamente o potencial produtivo.' },
-      { stage: '04 · Enchimento', title: 'Grãos leves', desc: 'Peso e classificação abaixo do potencial por déficit nutricional na granação.' },
-      { stage: '05 · Clima', title: 'Veranicos e estresses', desc: 'Déficit hídrico e altas temperaturas comprometendo fisiologia e produção.' },
-    ],
-    management: [
-      { label: 'Fase 01', fase: 'Tratamento de semente', products: ['Acorda Ultra', 'Aduban'] },
-      { label: 'Fase 02', fase: 'V3–V5', products: ['Aminosan'] },
-      { label: 'Fase 03', fase: 'R1–R2', products: ['FitoFert', 'Aminosan'] },
-      { label: 'Fase 04', fase: 'R5–R6', products: ['RevigoPHOS Amino', 'FitoFert'] },
-    ],
-    recommended: [
-      { slug: 'aminosan', name: 'Aminosan®', tag: 'Nutrição e Fisiologia', desc: 'Vigor, raízes e resistência em todo o ciclo da soja.', labelColor: '#659357' },
-      { slug: 'fitofert', name: 'Fitofert', tag: 'Nutrição e Fisiologia', desc: 'Pegamento e enchimento na fase reprodutiva.', labelColor: '#659357' },
-      { slug: 'acorda-ultra', name: 'Acorda Ultra', tag: 'Tratamento de Sementes', desc: 'Arranque forte desde o plantio.', labelColor: '#008dc2' },
+    managementProducts: [
+      ['Acorda Ultra', 'Aduban'],
+      ['Aminosan'],
+      ['FitoFert', 'Aminosan'],
+      ['RevigoPHOS Amino', 'FitoFert']
     ],
     calcProducts: [
       { id: 'aminosan', label: 'Aminosan', gainPerHa: 12 },
@@ -109,35 +71,13 @@ const DATA: Record<string, CultureData> = {
     ],
   },
   milho: {
-    name: 'Milho',
-    badge: 'Grão',
     gradient: 'linear-gradient(165deg, #c3a445, #6b4f15)',
     image: '/assets/cultures/milho.webp',
-    description:
-      'O milho, especialmente o safrinha, exige programa nutricional preciso para aproveitar a janela de cultivo e maximizar o rendimento por hectare.',
-    actua: [
-      'Arranque vigoroso desde a emergência.',
-      'Nutrição para alta produção de massa verde e espigas bem formadas.',
-      'Pegamento e enchimento de grãos até a colheita.',
-      'Resistência ao estresse hídrico no período reprodutivo.',
-      'Programa integrado para milho safrinha de alta performance.',
-    ],
-    challenges: [
-      { stage: '01 · Emergência', title: 'Arranque lento', desc: 'Plântulas com desenvolvimento inicial lento que perdem janela produtiva.' },
-      { stage: '02 · Vegetativo', title: 'Déficit nutricional', desc: 'Plantas com crescimento irregular e menor acúmulo de biomassa.' },
-      { stage: '03 · Pendoamento', title: 'Estresse hídrico', desc: 'Período crítico com seca comprometendo o florescimento e o pegamento.' },
-      { stage: '04 · Enchimento', title: 'Grãos mal formados', desc: 'Espigas com falhas e grãos leves por deficiência nutricional na granação.' },
-    ],
-    management: [
-      { label: 'Fase 01', fase: 'Tratamento de semente', products: ['Acorda Ultra'] },
-      { label: 'Fase 02', fase: 'V3–V5', products: ['Aminosan', 'Linha Revigo'] },
-      { label: 'Fase 03', fase: 'V8–V10', products: ['Aminosan', 'FitoFert'] },
-      { label: 'Fase 04', fase: 'R1–R3', products: ['RevigoPHOS Amino', 'FitoFert'] },
-    ],
-    recommended: [
-      { slug: 'aminosan', name: 'Aminosan®', tag: 'Nutrição e Fisiologia', desc: 'Vigor e resistência para todo o ciclo.', labelColor: '#659357' },
-      { slug: 'revigo-milho', name: 'Revigo + Milho', tag: 'Manejo Completo', desc: 'Programa nutricional completo para milho safrinha.', labelColor: '#302783' },
-      { slug: 'fitofert', name: 'Fitofert', tag: 'Nutrição e Fisiologia', desc: 'Pegamento e enchimento de grãos.', labelColor: '#659357' },
+    managementProducts: [
+      ['Acorda Ultra'],
+      ['Aminosan', 'Linha Revigo'],
+      ['Aminosan', 'FitoFert'],
+      ['RevigoPHOS Amino', 'FitoFert']
     ],
     calcProducts: [
       { id: 'aminosan', label: 'Aminosan', gainPerHa: 10 },
@@ -146,34 +86,12 @@ const DATA: Record<string, CultureData> = {
     ],
   },
   cana: {
-    name: 'Cana-de-açúcar',
-    badge: 'Cultura semiperene',
     gradient: 'linear-gradient(165deg, #7fa356, #364a1f)',
     image: '/assets/cultures/cana.webp',
-    description:
-      'A cana exige nutrição desde o plantio até a maturação, com foco em arranque, perfilhamento e TCH. A Juma oferece soluções específicas para cada fase da cultura.',
-    actua: [
-      'Enraizamento acelerado no plantio de mudas.',
-      'Perfilhamento abundante para maior número de colmos por hectare.',
-      'Crescimento vigoroso sustentado ao longo do ciclo.',
-      'Resistência ao estresse hídrico e térmico.',
-      'Maturação uniforme para melhor qualidade industrial.',
-    ],
-    challenges: [
-      { stage: '01 · Plantio', title: 'Arranque lento de mudas', desc: 'Mudas com brotação irregular que comprometem o stand inicial.' },
-      { stage: '02 · Perfilhamento', title: 'Baixo perfilhamento', desc: 'Número insuficiente de colmos por hectare limitando o TCH.' },
-      { stage: '03 · Crescimento', title: 'Déficit nutricional', desc: 'Crescimento irregular por falta de nutrição adequada em cada fase.' },
-      { stage: '04 · Maturação', title: 'Maturação desigual', desc: 'Colmos em diferentes estágios dificultando o manejo da colheita.' },
-    ],
-    management: [
-      { label: 'Fase 01', fase: 'Plantio', products: ['Acorda Cana'] },
-      { label: 'Fase 02', fase: 'Perfilhamento', products: ['Aminosan', 'Linha Revigo'] },
-      { label: 'Fase 03', fase: 'Crescimento', products: ['Aminosan', 'RevigoPHOS Amino'] },
-    ],
-    recommended: [
-      { slug: 'acorda-cana', name: 'Acorda Cana', tag: 'Tratamento de Sementes', desc: 'Enraizamento e vigor desde o plantio.', labelColor: '#79ab34' },
-      { slug: 'aminosan', name: 'Aminosan®', tag: 'Nutrição e Fisiologia', desc: 'Vigor e resistência durante todo o crescimento.', labelColor: '#659357' },
-      { slug: 'linha-redutan', name: 'Linha Redutan', tag: 'Tecnologia de Aplicação', desc: 'Qualidade de calda para aplicações em cana.', labelColor: '#7d252a' },
+    managementProducts: [
+      ['Acorda Cana'],
+      ['Aminosan', 'Linha Revigo'],
+      ['Aminosan', 'RevigoPHOS Amino']
     ],
     calcProducts: [
       { id: 'acorda', label: 'Acorda Cana', gainPerHa: 8 },
@@ -181,33 +99,12 @@ const DATA: Record<string, CultureData> = {
     ],
   },
   algodao: {
-    name: 'Algodão',
-    badge: 'Fibra',
     gradient: 'linear-gradient(165deg, #e7dfc9, #87826a)',
     image: '/assets/cultures/algodao.webp',
-    description:
-      'O algodão é exigente em nutrição no período reprodutivo, quando floração, fixação de capulhos e enchimento de fibras definem a rentabilidade da safra.',
-    actua: [
-      'Arranque vigoroso e stand uniforme.',
-      'Nutrição equilibrada na fase vegetativa para alta carga produtiva.',
-      'Fixação de botões florais e capulhos.',
-      'Enchimento e maturação uniforme de fibras.',
-      'Resistência a estresses climáticos durante o ciclo.',
-    ],
-    challenges: [
-      { stage: '01 · Vegetativo', title: 'Crescimento irregular', desc: 'Plantas desuniformes que dificultam o manejo e reduzem a produtividade por área.' },
-      { stage: '02 · Florada', title: 'Baixa fixação de capulhos', desc: 'Botões florais que caem antes de fixar por deficiência nutricional ou estresse.' },
-      { stage: '03 · Enchimento', title: 'Fibra de baixa qualidade', desc: 'Comprimento e resistência de fibra abaixo do potencial por nutrição inadequada.' },
-    ],
-    management: [
-      { label: 'Fase 01', fase: 'Tratamento de semente', products: ['Acorda Ultra'] },
-      { label: 'Fase 02', fase: 'Vegetativo', products: ['Aminosan', 'Linha Revigo'] },
-      { label: 'Fase 03', fase: 'Reprodutivo', products: ['FitoFert', 'RevigoPHOS Amino'] },
-    ],
-    recommended: [
-      { slug: 'aminosan', name: 'Aminosan®', tag: 'Nutrição e Fisiologia', desc: 'Vigor e resistência para todo o ciclo.', labelColor: '#659357' },
-      { slug: 'fitofert', name: 'Fitofert', tag: 'Nutrição e Fisiologia', desc: 'Fixação e enchimento de capulhos.', labelColor: '#659357' },
-      { slug: 'acorda-ultra', name: 'Acorda Ultra', tag: 'Tratamento de Sementes', desc: 'Arranque forte desde o plantio.', labelColor: '#008dc2' },
+    managementProducts: [
+      ['Acorda Ultra'],
+      ['Aminosan', 'Linha Revigo'],
+      ['FitoFert', 'RevigoPHOS Amino']
     ],
     calcProducts: [
       { id: 'aminosan', label: 'Aminosan', gainPerHa: 6 },
@@ -215,33 +112,12 @@ const DATA: Record<string, CultureData> = {
     ],
   },
   feijao: {
-    name: 'Feijão',
-    badge: 'Grão',
     gradient: 'linear-gradient(165deg, #8b5e3b, #2f1f12)',
     image: '/assets/cultures/feijao.webp',
-    description:
-      'O feijão tem ciclo curto e exige nutrição precisa no período reprodutivo. Pequenas deficiências em fases críticas causam perdas significativas de produtividade.',
-    actua: [
-      'Enraizamento e stand uniformes desde a germinação.',
-      'Nutrição vegetativa para desenvolvimento rápido e equilibrado.',
-      'Fixação de vagens e pegamento máximo na florada.',
-      'Enchimento de grãos com peso e uniformidade.',
-      'Resistência a estresses hídricos na fase crítica.',
-    ],
-    challenges: [
-      { stage: '01 · Germinação', title: 'Stand desuniforme', desc: 'Emergência irregular comprometendo o potencial produtivo da área.' },
-      { stage: '02 · Florada', title: 'Baixo pegamento de vagens', desc: 'Flores que abortam por deficiência nutricional ou estresse hídrico.' },
-      { stage: '03 · Granação', title: 'Grãos leves', desc: 'Peso e aspecto abaixo do potencial por nutrição insuficiente.' },
-    ],
-    management: [
-      { label: 'Fase 01', fase: 'Tratamento de semente', products: ['Acorda Ultra', 'Aduban'] },
-      { label: 'Fase 02', fase: 'V3–V4', products: ['Aminosan'] },
-      { label: 'Fase 03', fase: 'R1–R5', products: ['FitoFert', 'Aminosan'] },
-    ],
-    recommended: [
-      { slug: 'aminosan', name: 'Aminosan®', tag: 'Nutrição e Fisiologia', desc: 'Vigor e resistência em todo o ciclo.', labelColor: '#659357' },
-      { slug: 'fitofert', name: 'Fitofert', tag: 'Nutrição e Fisiologia', desc: 'Pegamento e enchimento de grãos.', labelColor: '#659357' },
-      { slug: 'acorda-ultra', name: 'Acorda Ultra', tag: 'Tratamento de Sementes', desc: 'Arranque forte desde o plantio.', labelColor: '#008dc2' },
+    managementProducts: [
+      ['Acorda Ultra', 'Aduban'],
+      ['Aminosan'],
+      ['FitoFert', 'Aminosan']
     ],
     calcProducts: [
       { id: 'aminosan', label: 'Aminosan', gainPerHa: 8 },
@@ -249,33 +125,12 @@ const DATA: Record<string, CultureData> = {
     ],
   },
   citros: {
-    name: 'Citros',
-    badge: 'Cultura perene',
     gradient: 'linear-gradient(165deg, #d3a52a, #5e4910)',
     image: '/assets/cultures/limao.webp',
-    description:
-      'Os citros exigem nutrição contínua e equilibrada ao longo do ciclo. A Juma oferece programas para floração, pegamento de frutos e qualidade pós-colheita.',
-    actua: [
-      'Floração abundante e bem distribuída.',
-      'Alto pegamento de frutos e baixa queda pós-florada.',
-      'Desenvolvimento uniforme dos frutos durante a safra.',
-      'Qualidade de casca e teor de sólidos solúveis elevados.',
-      'Resistência a estresses e doenças fisiológicas.',
-    ],
-    challenges: [
-      { stage: '01 · Floração', title: 'Baixo pegamento de frutos', desc: 'Flores que caem antes de fixar, reduzindo a produção por árvore.' },
-      { stage: '02 · Desenvolvimento', title: 'Queda de frutos', desc: 'Frutos jovens que caem por déficit nutricional na fase de desenvolvimento.' },
-      { stage: '03 · Maturação', title: 'Qualidade comprometida', desc: 'Cor, teor de sólidos solúveis e aspecto abaixo do esperado pelo mercado.' },
-    ],
-    management: [
-      { label: 'Fase 01', fase: 'Pré-floração', products: ['Aminosan', 'FitoFert'] },
-      { label: 'Fase 02', fase: 'Pós-floração', products: ['Aminosan', 'Revigo CaB'] },
-      { label: 'Fase 03', fase: 'Desenvolvimento', products: ['Linha Revigo', 'RevigoPHOS Amino'] },
-    ],
-    recommended: [
-      { slug: 'aminosan', name: 'Aminosan®', tag: 'Nutrição e Fisiologia', desc: 'Vigor e resistência para todo o ciclo.', labelColor: '#659357' },
-      { slug: 'fitofert', name: 'Fitofert', tag: 'Nutrição e Fisiologia', desc: 'Pegamento e qualidade de frutos.', labelColor: '#659357' },
-      { slug: 'linha-revigo', name: 'Linha Revigo', tag: 'Nutrição e Fisiologia', desc: 'Foliares para correção de deficiências.', labelColor: '#302783' },
+    managementProducts: [
+      ['Aminosan', 'FitoFert'],
+      ['Aminosan', 'Revigo CaB'],
+      ['Linha Revigo', 'RevigoPHOS Amino']
     ],
     calcProducts: [
       { id: 'aminosan', label: 'Aminosan', gainPerHa: 5 },
@@ -283,33 +138,12 @@ const DATA: Record<string, CultureData> = {
     ],
   },
   batata: {
-    name: 'Batata',
-    badge: 'Tubérculo',
     gradient: 'linear-gradient(165deg, #a08562, #463623)',
     image: '/assets/cultures/batata.webp',
-    description:
-      'A batata tem ciclo curto e demanda nutrição intensa desde o início. Qualidade de tubérculos e produtividade dependem de programa nutricional preciso em cada fase.',
-    actua: [
-      'Brotação uniforme e stand completo.',
-      'Desenvolvimento vegetativo vigoroso para alta interceptação de luz.',
-      'Enchimento de tubérculos com calibre e peso superiores.',
-      'Qualidade de superfície e resistência ao armazenamento.',
-      'Resistência a estresses e doenças fisiológicas.',
-    ],
-    challenges: [
-      { stage: '01 · Brotação', title: 'Emergência irregular', desc: 'Brotação desuniforme comprometendo o stand e o aproveitamento da área.' },
-      { stage: '02 · Tuberização', title: 'Baixo rendimento', desc: 'Número e peso de tubérculos abaixo do potencial por deficiência nutricional.' },
-      { stage: '03 · Enchimento', title: 'Calibre inadequado', desc: 'Tubérculos de tamanho pequeno com perda de classificação para mercado.' },
-    ],
-    management: [
-      { label: 'Fase 01', fase: 'Plantio', products: ['Aminosan'] },
-      { label: 'Fase 02', fase: 'Tuberização', products: ['FitoFert', 'Linha Revigo'] },
-      { label: 'Fase 03', fase: 'Enchimento', products: ['RevigoPHOS Amino', 'Aminosan'] },
-    ],
-    recommended: [
-      { slug: 'aminosan', name: 'Aminosan®', tag: 'Nutrição e Fisiologia', desc: 'Vigor e resistência para todo o ciclo.', labelColor: '#659357' },
-      { slug: 'fitofert', name: 'Fitofert', tag: 'Nutrição e Fisiologia', desc: 'Enchimento e qualidade de tubérculos.', labelColor: '#659357' },
-      { slug: 'linha-revigo', name: 'Linha Revigo', tag: 'Nutrição e Fisiologia', desc: 'Correção de deficiências nutricionais.', labelColor: '#302783' },
+    managementProducts: [
+      ['Aminosan'],
+      ['FitoFert', 'Linha Revigo'],
+      ['RevigoPHOS Amino', 'Aminosan']
     ],
     calcProducts: [
       { id: 'aminosan', label: 'Aminosan', gainPerHa: 7 },
@@ -317,33 +151,12 @@ const DATA: Record<string, CultureData> = {
     ],
   },
   tomate: {
-    name: 'Tomate',
-    badge: 'Hortaliça',
     gradient: 'linear-gradient(165deg, #b73a2a, #4e1410)',
     image: '/assets/cultures/tomate.webp',
-    description:
-      'O tomate é uma das culturas mais exigentes em nutrição. Floração, pegamento e qualidade dos frutos dependem de um programa nutricional preciso ao longo do ciclo.',
-    actua: [
-      'Desenvolvimento vegetativo equilibrado e uniforme.',
-      'Floração abundante com alto pegamento de frutos.',
-      'Enchimento homogêneo para frutos com calibre e coloração superiores.',
-      'Resistência a estresses e doenças fisiológicas como fundo preto.',
-      'Qualidade pós-colheita e vida de prateleira elevadas.',
-    ],
-    challenges: [
-      { stage: '01 · Florada', title: 'Baixo pegamento de frutos', desc: 'Flores que abortam antes de fixar por deficiência nutricional ou estresse.' },
-      { stage: '02 · Enchimento', title: 'Fundo preto e podridão apical', desc: 'Deficiência de cálcio em frutos em desenvolvimento — perda direta de qualidade.' },
-      { stage: '03 · Maturação', title: 'Coloração e firmeza inadequadas', desc: 'Frutos com coloração irregular e baixa firmeza comprometendo a comercialização.' },
-    ],
-    management: [
-      { label: 'Fase 01', fase: 'Vegetativo', products: ['Aminosan', 'Linha Revigo'] },
-      { label: 'Fase 02', fase: 'Florada', products: ['FitoFert', 'Aminosan'] },
-      { label: 'Fase 03', fase: 'Enchimento', products: ['Revigo CaB', 'RevigoPHOS Amino'] },
-    ],
-    recommended: [
-      { slug: 'aminosan', name: 'Aminosan®', tag: 'Nutrição e Fisiologia', desc: 'Vigor e resistência para todo o ciclo.', labelColor: '#659357' },
-      { slug: 'linha-revigo', name: 'Linha Revigo', tag: 'Nutrição e Fisiologia', desc: 'Correção de deficiências nutricionais.', labelColor: '#302783' },
-      { slug: 'fitofert', name: 'Fitofert', tag: 'Nutrição e Fisiologia', desc: 'Pegamento e enchimento de frutos.', labelColor: '#659357' },
+    managementProducts: [
+      ['Aminosan', 'Linha Revigo'],
+      ['FitoFert', 'Aminosan'],
+      ['Revigo CaB', 'RevigoPHOS Amino']
     ],
     calcProducts: [
       { id: 'aminosan', label: 'Aminosan', gainPerHa: 7 },
@@ -351,32 +164,11 @@ const DATA: Record<string, CultureData> = {
     ],
   },
   pastagem: {
-    name: 'Pastagem',
-    badge: 'Forrageira',
     gradient: 'linear-gradient(165deg, #80a558, #2c3e1d)',
     image: '/assets/cultures/pastagem.webp',
-    description:
-      'A pastagem degradada é um dos principais problemas do pecuarista brasileiro. A Juma oferece programa nutricional para recuperação, maior lotação e ganho de peso.',
-    actua: [
-      'Recuperação de pastagens degradadas com baixa densidade.',
-      'Estímulo ao rebrote e perfilhamento das forrageiras.',
-      'Nutrição para maior produção de massa verde por hectare.',
-      'Qualidade nutritiva da forragem para melhor desempenho animal.',
-      'Maior lotação e ganho de peso por hectare.',
-    ],
-    challenges: [
-      { stage: '01 · Degradação', title: 'Pastagem com baixa densidade', desc: 'Forrageira rala com invasoras dominando e reduzindo a capacidade de suporte.' },
-      { stage: '02 · Rebrote', title: 'Crescimento lento', desc: 'Pastagem que não responde à chuva com rebrote rápido e uniforme.' },
-      { stage: '03 · Qualidade', title: 'Forragem de baixo valor nutricional', desc: 'Gramínea com baixo teor de proteína e energia comprometendo o desempenho animal.' },
-    ],
-    management: [
-      { label: 'Fase 01', fase: 'Recuperação', products: ['Linha Revigo', 'Aminosan'] },
-      { label: 'Fase 02', fase: 'Manutenção', products: ['Revigo + Pasto'] },
-    ],
-    recommended: [
-      { slug: 'revigo-pasto', name: 'Revigo + Pasto', tag: 'Manejo Completo', desc: 'Programa completo para recuperação e manutenção de pastagem.', labelColor: '#302783' },
-      { slug: 'aminosan', name: 'Aminosan®', tag: 'Nutrição e Fisiologia', desc: 'Vigor e resistência das forrageiras.', labelColor: '#659357' },
-      { slug: 'linha-redutan', name: 'Linha Redutan', tag: 'Tecnologia de Aplicação', desc: 'Eficiência nas aplicações de campo.', labelColor: '#7d252a' },
+    managementProducts: [
+      ['Linha Revigo', 'Aminosan'],
+      ['Revigo + Pasto']
     ],
     calcProducts: [
       { id: 'revigo', label: 'Revigo + Pasto', gainPerHa: 6 },
@@ -385,7 +177,19 @@ const DATA: Record<string, CultureData> = {
   },
 }
 
+
+export type CultureData = CultureMeta & {
+  name: string
+  badge: string
+  description: string
+  actua: string[]
+  challenges: Challenge[]
+  management: ManagePhase[]
+  recommended: RecommendedProduct[]
+}
+
 /* ─── Shared UI components ─── */
+
 function Eyebrow({ dark, icon: Icon, children }: { dark?: boolean; icon?: React.ElementType; children: React.ReactNode }) {
   return (
     <span
@@ -431,6 +235,7 @@ function ArrowIcon() {
 
 /* ─── Calculator component ─── */
 function Calculator({ culture }: { culture: CultureData }) {
+  const tPage = useTranslations('culturePage')
   const initialPrecoStr = culture.name === 'Café' ? '128000' : '10000'
   const initialProdutividadeStr = culture.name === 'Café' ? '3000' : '6000'
 
@@ -574,7 +379,7 @@ function Calculator({ culture }: { culture: CultureData }) {
             <small className="text-[0.4em] font-semibold text-white/55 ml-2">sc</small>
           </div>
           <div className="text-[15px] text-white/78 mt-2">
-            Ganho médio de <strong className="text-white">+{selectedProduct.gainPerHa} sc/ha</strong> · projetado para sua área informada.
+            {tPage.rich('calcGainAverage', { gain: selectedProduct.gainPerHa, strong: (chunks) => <strong className="text-white">{chunks}</strong> })}
           </div>
 
           <hr className="border-none border-t border-white/[0.18] my-7" />
@@ -688,7 +493,31 @@ function MobileChallengesMarquee({ challenges }: { challenges: Challenge[] }) {
 
 
 export function CulturePage({ slug }: { slug: string }) {
-  const culture = DATA[slug]
+  const tPage = useTranslations('culturePage')
+  const tData = useTranslations('cultureData')
+  const meta = META[slug]
+  
+  const culture: CultureData | null = meta ? {
+    ...meta,
+    name: tData(`${slug}.name`),
+    badge: tData(`${slug}.badge`),
+    description: tData(`${slug}.description`),
+    actua: tData.raw(`${slug}.actua`) as string[],
+    challenges: Object.values(tData.raw(`${slug}.challenges`) as Record<string, Challenge>),
+    management: Object.entries(tData.raw(`${slug}.management`) as Record<string, { label: string; fase: string }>).map(([k, v], i) => ({
+      label: v.label,
+      fase: v.fase,
+      products: meta.managementProducts[i] || []
+    })),
+    recommended: Object.entries(tData.raw(`${slug}.recommended`) as Record<string, { tag: string; desc: string }>).map(([recSlug, recData]) => ({
+      slug: recSlug,
+      name: REC_META[recSlug]?.name || recSlug,
+      tag: recData.tag,
+      desc: recData.desc,
+      labelColor: REC_META[recSlug]?.labelColor || '#000000'
+    }))
+  } : null;
+
   const reduced = useReducedMotion()
   const heroRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
@@ -780,7 +609,7 @@ export function CulturePage({ slug }: { slug: string }) {
           {/* Breadcrumb */}
           <nav data-hero-el className="flex items-center gap-2 mb-8 text-[12.5px] font-medium uppercase tracking-[0.04em] text-[#5A5A57]">
             <Link href="/culturas" className="hover:text-[#1A1A1A] border-b border-transparent hover:border-[#1A1A1A] transition-colors pb-px">
-              Culturas
+              {tPage('breadcrumb')}
             </Link>
             <span className="text-[#7C7C78]">·</span>
             <span className="text-[#1A1A1A]">{culture.name}</span>
@@ -814,15 +643,14 @@ export function CulturePage({ slug }: { slug: string }) {
             {/* Body */}
             <div className="flex flex-col">
               <span data-hero-el>
-                <Eyebrow icon={Leaf}>Cultura · {culture.name}</Eyebrow>
+                <Eyebrow icon={Leaf}>{tPage('heroEyebrow', { name: culture.name })}</Eyebrow>
               </span>
               <h1
                 data-hero-title
                 className="m-0 mt-[22px] mb-6 font-black uppercase leading-[1.05] tracking-tight text-[#1A1A1A]"
                 style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', maxWidth: '14ch' }}
               >
-                Manejo estratégico ao longo do{' '}
-                <span className="text-[#004B26] text-highlight inline-block">ciclo produtivo.</span>
+                {tPage.rich('heroTitle', { highlight: (chunks) => <span className="text-[#004B26] text-highlight inline-block">{chunks}</span> })}
               </h1>
               <p
                 data-hero-el
@@ -841,13 +669,13 @@ export function CulturePage({ slug }: { slug: string }) {
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="w-4 h-4">
                     <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
                   </svg>
-                  Falar no WhatsApp
+                  {tPage('whatsappBtn')}
                 </a>
                 <a
                   href="#manejo"
                   className="inline-flex items-center gap-2.5 h-[54px] px-[26px] rounded-full text-[15px] font-semibold text-[#1A1A1A] border border-black/[0.18] hover:border-black transition-all hover:-translate-y-px"
                 >
-                  Ver manejo por fase
+                  {tPage('seeManagementBtn')}
                   <ArrowIcon />
                 </a>
               </div>
@@ -865,9 +693,9 @@ export function CulturePage({ slug }: { slug: string }) {
             <Container>
               <SectionHead
                 icon={Target}
-                eyebrow="Como a Juma atua"
-                title={<>O que a Juma entrega<br />no {culture.name.toLowerCase()}.</>}
-                lede="Cinco frentes de atuação que aparecem na produção — e na renda do produtor."
+                eyebrow={tPage('actuaEyebrow')}
+                title={tPage.rich('actuaTitle', { name: culture.name.toLowerCase(), br: () => <br /> })}
+                lede={tPage('actuaLede')}
               />
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-3.5 list-none p-0 m-0">
                 {culture.actua.map((item, i) => (
@@ -893,9 +721,9 @@ export function CulturePage({ slug }: { slug: string }) {
             <Container>
               <SectionHead
                 icon={AlertTriangle}
-                eyebrow="Desafios por fase"
-                title={<>Onde o ciclo do<br />{culture.name.toLowerCase()} cobra atenção.</>}
-                lede="Janelas críticas em que o manejo nutricional define o tamanho da safra."
+                eyebrow={tPage('challengesEyebrow')}
+                title={tPage.rich('challengesTitle', { name: culture.name.toLowerCase(), br: () => <br /> })}
+                lede={tPage('challengesLede')}
               />
               <div
                 className="hidden lg:grid gap-3.5"
@@ -927,9 +755,9 @@ export function CulturePage({ slug }: { slug: string }) {
             <Container>
               <SectionHead
                 icon={ListChecks}
-                eyebrow="Manejo por fase"
-                title={<>Programa nutricional<br />do {culture.name.toLowerCase()} Juma.</>}
-                lede="Combinações de produtos pensadas para cada janela crítica do ciclo."
+                eyebrow={tPage('managementEyebrow')}
+                title={tPage.rich('managementTitle', { name: culture.name.toLowerCase(), br: () => <br /> })}
+                lede={tPage('managementLede')}
               />
               <div
                 data-animate-content
@@ -976,9 +804,9 @@ export function CulturePage({ slug }: { slug: string }) {
             <Container>
               <SectionHead
                 icon={Package}
-                eyebrow="Produtos recomendados"
-                title={<>A linha indicada<br />para o {culture.name.toLowerCase()}.</>}
-                lede="Os produtos que aparecem com mais frequência no manejo com a Juma."
+                eyebrow={tPage('recommendedEyebrow')}
+                title={tPage.rich('recommendedTitle', { name: culture.name.toLowerCase(), br: () => <br /> })}
+                lede={tPage('recommendedLede')}
               />
               <div
                 className="grid gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
@@ -1024,9 +852,9 @@ export function CulturePage({ slug }: { slug: string }) {
           <Container>
             <SectionHead
               icon={CalculatorIcon}
-              eyebrow="Calcule seu ganho"
-              title={<>Quanto a Juma rende<br />no seu {culture.name.toLowerCase()}?</>}
-              lede="Simule o ganho com base na sua área, no produto recomendado e no preço atual da saca."
+              eyebrow={tPage('calcEyebrow')}
+              title={tPage.rich('calcTitle', { name: culture.name.toLowerCase(), br: () => <br /> })}
+              lede={tPage('calcLede')}
             />
             <Calculator culture={culture} />
           </Container>

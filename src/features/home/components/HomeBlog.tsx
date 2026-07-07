@@ -8,6 +8,7 @@ import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gs
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
+import { useTranslations } from 'next-intl'
 
 const ARTICLES = [
   {
@@ -34,6 +35,7 @@ const ARTICLES = [
 ]
 
 export function HomeBlog() {
+  const t = useTranslations('homeBlog');
   const reduced = useReducedMotion()
   const ref = useRef<HTMLElement>(null)
 
@@ -99,7 +101,7 @@ export function HomeBlog() {
             <div className="mb-8" data-kicker>
               <span className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 border border-[#004B26]/20 bg-[#004B26]/5 text-[#004B26]">
                 <BookOpen className="w-3.5 h-3.5 flex-shrink-0 text-[#004B26]" />
-                Do campo para você
+                {t('kicker')}
               </span>
             </div>
             <h2
@@ -107,12 +109,12 @@ export function HomeBlog() {
               className="font-black uppercase leading-[1.05] tracking-tight"
               style={{ color: '#0F1A0A', fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
             >
-              Conteúdo que ajuda<br />a produzir <span className="text-[#004B26] text-highlight inline-block">melhor.</span>
+              <span dangerouslySetInnerHTML={{ __html: t('titlePart1') }} /><span className="text-[#004B26] text-highlight inline-block">{t('titleHighlight')}</span>
             </h2>
             <span data-gline aria-hidden className="mt-8 block h-[3px] w-12 rounded-full bg-[#004B26]" />
           </div>
           <p className="max-w-[38ch] text-[17px] leading-[1.6]" style={{ color: '#3d4d35' }}>
-            Conhecimento agronômico aplicado, escrito para quem está no dia a dia do campo.
+            {t('desc')}
           </p>
         </div>
 
@@ -132,24 +134,24 @@ export function HomeBlog() {
                   className="absolute top-4 left-4 text-[11px] font-bold tracking-[0.10em] uppercase rounded-full px-3 py-1.5"
                   style={{ backgroundColor: 'rgba(0,0,0,.5)', color: '#fff', backdropFilter: 'blur(8px)' }}
                 >
-                  {a.category}
+                  {t(`articles.${i}.category`)}
                 </span>
               </div>
 
               {/* Conteúdo */}
               <div className="p-6 flex flex-col gap-3 flex-1">
                 <span className="text-[11px] font-semibold tracking-[0.08em] uppercase" style={{ color: '#7a8f6e' }}>
-                  {a.date} · {a.readTime}
+                  {t(`articles.${i}.date`)} · {t(`articles.${i}.readTime`)}
                 </span>
                 <h3 className="text-[18px] font-bold leading-[1.35] tracking-[-0.01em] flex-1" style={{ color: '#0F1A0A' }}>
-                  {a.title}
+                  {t(`articles.${i}.title`)}
                 </h3>
                 <Link
                   href="/materias"
                   className="inline-flex items-center gap-2 text-[14px] font-semibold"
                   style={{ color: '#004B26' }}
                 >
-                  Ler matéria
+                  {t('readArticle')}
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                     <path d="M5 12h14M13 6l6 6-6 6" />
                   </svg>
@@ -166,7 +168,7 @@ export function HomeBlog() {
             className="inline-flex items-center gap-2 text-[15px] font-semibold"
             style={{ color: '#004B26' }}
           >
-            Ver todas as matérias
+            {t('viewAll')}
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               <path d="M5 12h14M13 6l6 6-6 6" />
             </svg>

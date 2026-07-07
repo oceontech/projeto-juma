@@ -7,6 +7,7 @@ import { Link } from '@/i18n/navigation'
 import { gsap, ScrollTrigger, Observer, useGSAP } from '@/features/animation/gsap'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Spotlight } from '@/components/ui/Spotlight'
+import { useTranslations } from 'next-intl'
 
 /* ── Tipos ─────────────────────────────────────────────────────── */
 
@@ -264,6 +265,8 @@ function getRoleProps(role: Role, isMobile: boolean): RoleProps {
    ══════════════════════════════════════════════════════════════════ */
 
 export function HomeProductShowcase() {
+  const t = useTranslations('homeProductShowcase')
+
   const reduced = useReducedMotion()
 
   const rootRef            = useRef<HTMLDivElement>(null)
@@ -552,7 +555,7 @@ export function HomeProductShowcase() {
     { scope: rootRef },
   )
 
-  if (reduced) return <ShowcaseReduced />
+  if (reduced) return <ShowcaseReduced t={t} />
 
   return (
     <div ref={rootRef} className="pcs-root">
@@ -598,9 +601,11 @@ export function HomeProductShowcase() {
         <div className="pcs-stage">
           {/* Teatro de frascos — todos os produtos posicionados, GSAP anima */}
           <div className="pcs-bottle-theater" aria-hidden>
-            {PRODUCTS.map((product, i) => (
+            {PRODUCTS.map((product, i) => {
+            const name = t(`products.${i}.name`);
+            return (
               <div
-                key={product.name}
+                key={name}
                 className="pcs-theater-bottle"
                 ref={el => { bottlesRef.current[i] = el }}
               >
@@ -608,37 +613,42 @@ export function HomeProductShowcase() {
                   <div className="pcs-ambient-shadow" />
                   <div className="pcs-contact-shadow" />
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img className="pcs-bottle" src={PRODUCT_IMG} alt={product.name} draggable={false} />
+                  <img className="pcs-bottle" src={PRODUCT_IMG} alt={name} draggable={false} />
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img className="pcs-reflection" src={PRODUCT_IMG} alt="" aria-hidden draggable={false} />
                 </div>
               </div>
-            ))}
+            )})}
           </div>
 
           {/* Painéis de texto — sobrepostos no grid (3 cols: texto | frasco | stats) */}
-          {PRODUCTS.map((product) => {
-            const lineParts = product.line.split(' ')
+          {PRODUCTS.map((product, i) => {
+            const name = t(`products.${i}.name`);
+            const line = t(`products.${i}.line`);
+            const description = t(`products.${i}.description`);
+            const lineParts = line.split(' ')
             const lead      = lineParts.slice(0, -1).join(' ')
             const tail      = lineParts[lineParts.length - 1]
             return (
-              <article key={product.name} className="pcs-product">
+              <article key={name} className="pcs-product">
                 {/* Coluna 1 — texto */}
                 <div className="pcs-panel-text">
                   <p className="pcs-panel-line">
                     {lead} <span style={{ color: product.accent }}>{tail}®</span>
                   </p>
-                  <h2 className="pcs-panel-title">{product.name}</h2>
+                  <h2 className="pcs-panel-title">{name}</h2>
                   <div className="pcs-panel-divider" style={{ background: product.accent }} />
-                  <p className="pcs-panel-copy">{product.description}</p>
+                  <p className="pcs-panel-copy">{description}</p>
                 </div>
 
                 {/* Coluna 3 — stats */}
                 <div className="pcs-panel-stats">
-                  {product.stats.map((stat) => {
+                  {product.stats.map((stat, si) => {
+                    const statLabel = t(`products.${i}.stats.${si}.label`);
+                    const statUnit = t(`products.${i}.stats.${si}.unit`);
                     const Icon = STAT_ICONS[stat.icon]
                     return (
-                      <div key={stat.label} className="pcs-stat-row">
+                      <div key={statLabel} className="pcs-stat-row">
                         <div
                           className="pcs-stat-icon"
                           style={{
@@ -651,9 +661,9 @@ export function HomeProductShowcase() {
                         <div className="pcs-stat-text">
                           <div className="pcs-stat-value-row">
                             <span className="pcs-stat-value">{stat.value}</span>
-                            <span className="pcs-stat-unit">{stat.unit}</span>
+                            <span className="pcs-stat-unit">{statUnit}</span>
                           </div>
-                          <div className="pcs-stat-label">{stat.label}</div>
+                          <div className="pcs-stat-label">{statLabel}</div>
                         </div>
                       </div>
                     )
@@ -667,7 +677,7 @@ export function HomeProductShowcase() {
 
       {/* Dica de rolagem */}
       <div ref={hintRef} className="pcs-scroll-hint">
-        <span>role para explorar</span>
+        <span>{t('hint')}</span>
         <span className="pcs-scroll-hint-line" />
       </div>
     </div>
@@ -678,28 +688,32 @@ export function HomeProductShowcase() {
    Versão acessível (prefers-reduced-motion)
    ══════════════════════════════════════════════════════════════════ */
 
-function ShowcaseReduced() {
+function ShowcaseReduced({ t }: { t: ReturnType<typeof useTranslations> }) {
   return (
     <section className="bg-[#0a0a0a] py-24">
       <div className="mx-auto max-w-[90rem] px-6 lg:px-12">
         <p className="mb-12 text-xs font-semibold uppercase tracking-[0.2em] text-white/40">
-          Linha Redutan® · Linha Juma
+          {t('subtitle')}
         </p>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {PRODUCTS.map((product) => (
+          {PRODUCTS.map((product, i) => {
+            const name = t(`products.${i}.name`);
+            const line = t(`products.${i}.line`);
+            const description = t(`products.${i}.description`);
+            return (
             <Link
-              key={product.name}
+              key={name}
               href={product.href}
               className="group flex flex-col gap-3 rounded-xl border border-white/10 bg-white/5 p-6 transition-colors hover:border-white/20"
             >
               <span className="text-xs font-bold uppercase tracking-[0.16em]" style={{ color: product.accent }}>
-                {product.line}
+                {line}
               </span>
-              <h3 className="font-black text-lg uppercase text-white leading-tight">{product.name}</h3>
-              <p className="text-sm text-white/60 leading-relaxed m-0 flex-1">{product.description}</p>
-              <span className="text-xs font-semibold" style={{ color: product.accent }}>Ver produto →</span>
+              <h3 className="font-black text-lg uppercase text-white leading-tight">{name}</h3>
+              <p className="text-sm text-white/60 leading-relaxed m-0 flex-1">{description}</p>
+              <span className="text-xs font-semibold" style={{ color: product.accent }}>{t('hintReduced')} →</span>
             </Link>
-          ))}
+          )})}
         </div>
       </div>
     </section>

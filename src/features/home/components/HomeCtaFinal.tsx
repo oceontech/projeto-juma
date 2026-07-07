@@ -4,11 +4,13 @@ import { Rocket } from 'lucide-react'
 
 import { useRef } from 'react'
 import { Container } from '@/components/layout/Container'
+import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
 export function HomeCtaFinal() {
+  const t = useTranslations('homeCtaFinal');
   const reduced = useReducedMotion()
   const ref = useRef<HTMLElement>(null)
 
@@ -63,7 +65,7 @@ export function HomeCtaFinal() {
           <div className="mb-4" data-kicker>
             <span className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 border border-white/20 text-white/80">
               <Rocket className="w-3.5 h-3.5 flex-shrink-0 text-[#F0E27A]" />
-              Próximo passo
+              {t('kicker')}
             </span>
           </div>
 
@@ -72,12 +74,12 @@ export function HomeCtaFinal() {
             className="font-black uppercase leading-[1.05] tracking-tight text-white max-w-[14ch]"
             style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
           >
-            Juntos alimentamos o <span className="text-[#F0E27A] text-highlight inline-block">mundo.</span>
+            {t('titlePart1')} <span className="text-[#F0E27A] text-highlight inline-block">{t('titleHighlight')}</span>
           </h2>
           <span data-gline aria-hidden className="mb-4 block h-[3px] w-12 rounded-full bg-[#F0E27A]" />
 
           <p data-desc className="text-[18px] leading-[1.6] max-w-[44ch]" style={{ color: 'rgba(255,255,255,.65)' }}>
-            Fale com a Juma e descubra a solução certa para a sua cultura, sua região e seu manejo.
+            {t('desc')}
           </p>
 
           <a
@@ -90,7 +92,7 @@ export function HomeCtaFinal() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               <path d="M21 11.5a8.4 8.4 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.4 8.4 0 01-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.4 8.4 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" />
             </svg>
-            Falar no WhatsApp · (19) 99964-8186
+            {t('btn')}
           </a>
         </div>
       </Container>

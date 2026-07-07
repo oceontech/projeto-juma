@@ -9,6 +9,7 @@ import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gs
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
+import { useTranslations } from 'next-intl'
 
 const CULTURES = [
   { slug: 'soja',     label: 'Soja',           idx: '01', bg: 'linear-gradient(135deg, #2d6a1f 0%, #4a8c2a 100%)', image: '/assets/cultures/soja.webp' },
@@ -24,6 +25,7 @@ const CULTURES = [
 ]
 
 export function HomeCultures() {
+  const t = useTranslations('homeCultures')
   const reduced = useReducedMotion()
   const ref = useRef<HTMLElement>(null)
 
@@ -89,7 +91,7 @@ export function HomeCultures() {
             <div className="mb-8" data-kicker>
               <span className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 border border-[#004B26]/20 bg-[#004B26]/5 text-[#004B26]">
                 <Leaf className="w-3.5 h-3.5 flex-shrink-0 text-[#004B26]" />
-                Culturas
+                {t('kicker')}
               </span>
             </div>
             <h2
@@ -97,7 +99,10 @@ export function HomeCultures() {
               className="font-black uppercase leading-[1.05] tracking-tight"
               style={{ color: '#0F1A0A', fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
             >
-              Soluções pensadas<br />para a sua <span className="text-[#004B26] text-highlight inline-block">cultura.</span>
+              {t.rich('title', {
+                br: () => <br />,
+                highlight: (chunks) => <span className="text-[#004B26] text-highlight inline-block">{chunks}</span>
+              })}
             </h2>
             <span data-gline aria-hidden className="mt-8 block h-[3px] w-12 rounded-full bg-[#004B26]" />
           </div>
@@ -105,7 +110,7 @@ export function HomeCultures() {
             className="max-w-[40ch] text-[17px] leading-[1.6]"
             style={{ color: '#3d4d35' }}
           >
-            De grãos a perenes — cada cultura tem suas exigências, e a Juma tem um caminho para cada uma.
+            {t('desc')}
           </p>
         </div>
 
@@ -113,7 +118,7 @@ export function HomeCultures() {
         <div
           className="grid grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 auto-rows-[140px] sm:auto-rows-[200px]"
         >
-          {CULTURES.map((c) => (
+          {CULTURES.map((c, i) => (
             <Link
               key={c.slug}
               href={`/culturas/${c.slug}`}
@@ -123,7 +128,7 @@ export function HomeCultures() {
             >
               <Image
                 src={c.image}
-                alt={c.label}
+                alt={t(`cultures.${i}`)}
                 fill
                 className="object-cover group-hover:scale-110 transition-transform duration-700"
               />
@@ -145,7 +150,7 @@ export function HomeCultures() {
                 <span
                   className="text-[13px] sm:text-[16px] font-bold text-white leading-[1.1] tracking-[-0.01em]"
                 >
-                  {c.label}
+                  {t(`cultures.${i}`)}
                 </span>
               </div>
             </Link>
@@ -159,7 +164,7 @@ export function HomeCultures() {
             className="inline-flex items-center gap-2 text-[15px] font-semibold"
             style={{ color: '#004B26' }}
           >
-            Ver mais sobre as culturas
+            {t('viewAll')}
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               <path d="M5 12h14M13 6l6 6-6 6" />
             </svg>

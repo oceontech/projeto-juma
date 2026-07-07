@@ -4,6 +4,7 @@ import { Calculator } from 'lucide-react'
 
 import { useState, useMemo, useRef } from 'react'
 import { Container } from '@/components/layout/Container'
+import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
@@ -38,6 +39,7 @@ function fmtR(n: number): string {
 }
 
 export function HomeCalculator() {
+  const t = useTranslations('homeCalculator');
   const [cultura, setCultura] = useState('soja')
   const [produtoId, setProdutoId] = useState('aminosan')
   const [areaStr, setAreaStr] = useState('50000')
@@ -137,7 +139,7 @@ export function HomeCalculator() {
             <div className="mb-8" data-kicker>
               <span className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 border border-[#004B26]/20 bg-[#004B26]/5 text-[#004B26]">
                 <Calculator className="w-3.5 h-3.5 flex-shrink-0 text-[#004B26]" />
-                Calcule seu ganho
+                {t('kicker')}
               </span>
             </div>
             <h2
@@ -145,12 +147,15 @@ export function HomeCalculator() {
               className="font-black uppercase leading-[1.05] tracking-tight"
               style={{ color: '#0F1A0A', fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
             >
-              Quanto a Juma pode<br />render no seu <span className="text-[#004B26] text-highlight inline-block">campo?</span>
+              {t.rich('title', {
+                br: () => <br />,
+                highlight: (chunks) => <span className="text-[#004B26] text-highlight inline-block">{chunks}</span>
+              })}
             </h2>
             <span data-gline aria-hidden className="mt-8 block h-[3px] w-12 rounded-full bg-[#004B26]" />
           </div>
           <p className="max-w-[40ch] text-[17px] leading-[1.6]" style={{ color: '#3d4d35' }}>
-            Simule em segundos o ganho potencial em sacas e receita extra com base em dados médios de campo.
+            {t('desc')}
           </p>
         </div>
 
@@ -166,7 +171,7 @@ export function HomeCalculator() {
               {/* Cultura */}
               <div className="flex flex-col gap-2">
                 <label className="text-[13px] font-semibold tracking-[0.05em] uppercase" style={{ color: '#3d4d35' }}>
-                  Cultura
+                  {t('form.culture')}
                 </label>
                 <select
                   value={cultura}
@@ -175,7 +180,7 @@ export function HomeCalculator() {
                   style={{ backgroundColor: '#F2F6F2', border: '1.5px solid #DDE6C8', color: '#0F1A0A' }}
                 >
                   {CULTURES.map((c) => (
-                    <option key={c.id} value={c.id}>{c.label}</option>
+                    <option key={c.id} value={c.id}>{t(`cultures.${c.id}` as any)}</option>
                   ))}
                 </select>
               </div>
@@ -183,7 +188,7 @@ export function HomeCalculator() {
               {/* Produto */}
               <div className="flex flex-col gap-2">
                 <label className="text-[13px] font-semibold tracking-[0.05em] uppercase" style={{ color: '#3d4d35' }}>
-                  Produto Juma
+                  {t('form.product')}
                 </label>
                 <select
                   value={produtoId}
@@ -202,7 +207,7 @@ export function HomeCalculator() {
               {/* Área */}
               <div className="flex flex-col gap-2">
                 <label className="text-[13px] font-semibold tracking-[0.05em] uppercase" style={{ color: '#3d4d35' }}>
-                  Área (ha)
+                  {t('form.area')}
                 </label>
                 <input
                   type="text"
@@ -216,7 +221,7 @@ export function HomeCalculator() {
               {/* Preço */}
               <div className="flex flex-col gap-2">
                 <label className="text-[13px] font-semibold tracking-[0.05em] uppercase" style={{ color: '#3d4d35' }}>
-                  Preço da saca (R$)
+                  {t('form.price')}
                 </label>
                 <input
                   type="text"
@@ -229,7 +234,7 @@ export function HomeCalculator() {
             </div>
 
             <p className="text-[13px] leading-[1.6]" style={{ color: '#7a8f6e' }}>
-              Os valores são estimativas. Para um plano sob medida para a sua fazenda, fale com um técnico Juma.
+              {t('form.disclaimer')}
             </p>
           </div>
 
@@ -249,7 +254,7 @@ export function HomeCalculator() {
               {/* Sacas extras */}
               <div>
                 <p className="text-[12px] font-semibold tracking-[0.08em] uppercase mb-3" style={{ color: 'rgba(255,255,255,.55)' }}>
-                  Sacas extras estimadas
+                  {t('result.extraBags')}
                 </p>
                 <div
                   className="font-black leading-none tracking-[-0.03em]"
@@ -261,7 +266,7 @@ export function HomeCalculator() {
                   </span>
                 </div>
                 <p className="text-[13px] mt-2" style={{ color: 'rgba(255,255,255,.55)' }}>
-                  Ganho médio de +{produto.gainPerHa.toLocaleString('pt-BR')} {produto.unit} com {produto.label} · projetado para {validArea.toLocaleString('pt-BR', { maximumFractionDigits: 2 })} ha.
+                  {t('result.averageGain', { gain: produto.gainPerHa.toLocaleString('pt-BR'), unit: produto.unit, product: produto.label, area: validArea.toLocaleString('pt-BR', { maximumFractionDigits: 2 }) })}
                 </p>
               </div>
 
@@ -270,19 +275,19 @@ export function HomeCalculator() {
               {/* Receita extra */}
               <div>
                 <p className="text-[12px] font-semibold tracking-[0.08em] uppercase mb-3" style={{ color: 'rgba(255,255,255,.55)' }}>
-                  Receita extra estimada
+                  {t('result.extraRev')}
                 </p>
                 <div className="font-black leading-none text-white tracking-[-0.02em]" style={{ fontSize: 'clamp(28px,3vw,40px)' }}>
                   {fmtR(receitaExtra)}
                 </div>
                 <p className="text-[13px] mt-2" style={{ color: 'rgba(255,255,255,.55)' }}>
-                  Com base no preço médio da saca informado.
+                  {t('result.priceBase')}
                 </p>
               </div>
             </div>
 
             <p className="relative z-10 text-[12px] leading-[1.55] mt-6" style={{ color: 'rgba(255,255,255,.38)' }}>
-              Estimativa baseada em dados médios de campo. Resultados reais variam conforme cultivar, manejo, solo e clima.
+              {t('result.disclaimer')}
             </p>
           </div>
         </div>

@@ -7,32 +7,12 @@ import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gs
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
+import { useTranslations } from 'next-intl'
 
-const TESTIMONIALS = [
-  {
-    text: 'A diferença ficou clara já no primeiro talhão. Lavoura mais uniforme, planta firme mesmo no calor — e na hora de colher, a balança não mente.',
-    badge: 'Soja +14 sc/ha · Aminosan',
-    name: 'João Carvalho',
-    location: 'Taquarivaí · SP',
-    initials: 'JC',
-  },
-  {
-    text: 'Buscava um manejo nutricional que fosse além do básico. Com a Juma, ganhei produtividade sem aumentar o custo por hectare — e isso muda o jogo.',
-    badge: 'Milho +13,4 sc/ha · Acorda Ultra',
-    name: 'Ricardo Marques',
-    location: 'Sorriso · MT',
-    initials: 'RM',
-  },
-  {
-    text: 'O canavial respondeu rápido. Mais colmo, mais vigor na rebrota, e o pessoal técnico da Juma esteve aqui em cada visita. Parceria de verdade.',
-    badge: 'Cana +6,87 t/ha · Acorda Cana',
-    name: 'André Souza',
-    location: 'Quirinópolis · GO',
-    initials: 'AS',
-  },
-]
+const TESTIMONIALS = [0, 1, 2]
 
 export function HomeTestimonials() {
+  const t = useTranslations('homeTestimonials');
   const reduced = useReducedMotion()
   const ref = useRef<HTMLElement>(null)
 
@@ -98,7 +78,7 @@ export function HomeTestimonials() {
             <div className="mb-8" data-kicker>
               <span className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 border border-[#004B26]/20 bg-[#004B26]/5 text-[#004B26]">
                 <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-[#004B26]" />
-                Resultados aplicados
+                {t('kicker')}
               </span>
             </div>
             <h2
@@ -106,18 +86,18 @@ export function HomeTestimonials() {
               className="font-black uppercase leading-[1.05] tracking-tight"
               style={{ color: '#0F1A0A', fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
             >
-              Quem planta com a Juma,<br />colhe <span className="text-[#004B26] text-highlight inline-block">resultado.</span>
+              <span dangerouslySetInnerHTML={{ __html: t('titlePart1') }} /><span className="text-[#004B26] text-highlight inline-block">{t('titleHighlight')}</span>
             </h2>
             <span data-gline aria-hidden className="mt-8 block h-[3px] w-12 rounded-full bg-[#004B26]" />
           </div>
           <p className="max-w-[38ch] text-[17px] leading-[1.6]" style={{ color: '#3d4d35' }}>
-            Histórias reais de produtores que adotaram nossas soluções e mediram diferença na lavoura.
+            {t('desc')}
           </p>
         </div>
 
         {/* Cards */}
         <div className="hidden lg:grid lg:grid-cols-3 gap-4">
-          {TESTIMONIALS.map((t, i) => (
+          {TESTIMONIALS.map((_, i) => (
             <article
               key={i}
               data-testi-card
@@ -134,7 +114,7 @@ export function HomeTestimonials() {
               </div>
 
               <p className="text-[16px] leading-[1.65] flex-1" style={{ color: '#1a2a12' }}>
-                {t.text}
+                {t(`testimonials.${i}.text`)}
               </p>
 
               {/* Badge resultado */}
@@ -142,7 +122,7 @@ export function HomeTestimonials() {
                 className="inline-block text-[12px] font-bold tracking-[0.06em] uppercase rounded-full px-3 py-1.5 w-fit"
                 style={{ backgroundColor: '#E8EFE2', color: '#004B26' }}
               >
-                {t.badge}
+                {t(`testimonials.${i}.badge`)}
               </span>
 
               {/* Autor */}
@@ -151,24 +131,24 @@ export function HomeTestimonials() {
                   className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-[14px]"
                   style={{ backgroundColor: '#004B26', color: '#F0E27A' }}
                 >
-                  {t.initials}
+                  {t(`testimonials.${i}.initials`)}
                 </div>
                 <div>
-                  <div className="text-[14px] font-bold" style={{ color: '#0F1A0A' }}>{t.name}</div>
-                  <div className="text-[12px]" style={{ color: '#7a8f6e' }}>{t.location}</div>
+                  <div className="text-[14px] font-bold" style={{ color: '#0F1A0A' }}>{t(`testimonials.${i}.name`)}</div>
+                  <div className="text-[12px]" style={{ color: '#7a8f6e' }}>{t(`testimonials.${i}.location`)}</div>
                 </div>
               </div>
             </article>
           ))}
         </div>
         
-        <MobileTestimonialsMarquee testimonials={TESTIMONIALS} />
+        <MobileTestimonialsMarquee testimonials={TESTIMONIALS} t={t} />
       </Container>
     </section>
   )
 }
 
-function MobileTestimonialsMarquee({ testimonials }: { testimonials: typeof TESTIMONIALS }) {
+function MobileTestimonialsMarquee({ testimonials, t }: { testimonials: typeof TESTIMONIALS, t: any }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
   const [pausedIndex, setPausedIndex] = useState<number | null>(null)
@@ -217,7 +197,7 @@ function MobileTestimonialsMarquee({ testimonials }: { testimonials: typeof TEST
   return (
     <div ref={containerRef} data-testi-card className="w-screen relative left-1/2 -translate-x-1/2 overflow-hidden block lg:hidden pb-12 pt-4">
       <div ref={trackRef} className="flex gap-4 w-max pl-6">
-        {items.map((t, idx) => {
+        {items.map((itemIndex, idx) => {
           const isClicked = pausedIndex === idx
           return (
             <article
@@ -242,24 +222,24 @@ function MobileTestimonialsMarquee({ testimonials }: { testimonials: typeof TEST
                 "
               </div>
               <p className="text-[16px] leading-[1.65] flex-1" style={{ color: '#1a2a12' }}>
-                {t.text}
+                {t(`testimonials.${itemIndex}.text` as any)}
               </p>
               <span
                 className="inline-block text-[12px] font-bold tracking-[0.06em] uppercase rounded-full px-3 py-1.5 w-fit"
                 style={{ backgroundColor: '#E8EFE2', color: '#004B26' }}
               >
-                {t.badge}
+                {t(`testimonials.${itemIndex}.badge` as any)}
               </span>
               <div className="flex items-center gap-3 pt-2" style={{ borderTop: '1px solid rgba(0,0,0,.06)' }}>
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-[14px]"
                   style={{ backgroundColor: '#004B26', color: '#F0E27A' }}
                 >
-                  {t.initials}
+                  {t(`testimonials.${itemIndex}.initials` as any)}
                 </div>
                 <div>
-                  <div className="text-[14px] font-bold" style={{ color: '#0F1A0A' }}>{t.name}</div>
-                  <div className="text-[12px]" style={{ color: '#7a8f6e' }}>{t.location}</div>
+                  <div className="text-[14px] font-bold" style={{ color: '#0F1A0A' }}>{t(`testimonials.${itemIndex}.name` as any)}</div>
+                  <div className="text-[12px]" style={{ color: '#7a8f6e' }}>{t(`testimonials.${itemIndex}.location` as any)}</div>
                 </div>
               </div>
             </article>

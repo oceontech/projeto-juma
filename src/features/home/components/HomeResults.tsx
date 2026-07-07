@@ -7,6 +7,7 @@ import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gs
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
+import { useTranslations } from 'next-intl'
 
 const RESULTS = [
   {
@@ -44,6 +45,7 @@ const RESULTS = [
 ]
 
 export function HomeResults() {
+  const t = useTranslations('homeResults')
   const reduced = useReducedMotion()
   const ref = useRef<HTMLElement>(null)
 
@@ -144,13 +146,15 @@ export function HomeResults() {
             style={{ borderColor: 'rgba(255,255,255,.20)', color: 'rgba(255,255,255,.80)' }}
           >
             <Activity className="w-3.5 h-3.5 flex-shrink-0 text-[#F0E27A]" />
-            Resultados comprovados
+            {t('kicker')}
           </span>
           <h2
             data-title
             className="font-black text-[clamp(2.5rem,5vw,4.5rem)] leading-[1.05] tracking-tight text-white uppercase max-w-[18ch]"
           >
-            Números que vêm do <span className="text-[#F0E27A] text-highlight inline-block">campo.</span>
+            {t.rich('title', {
+              highlight: (chunks) => <span className="text-[#F0E27A] text-highlight inline-block">{chunks}</span>
+            })}
           </h2>
           <span data-gline aria-hidden className="mt-8 block h-[3px] w-12 rounded-full bg-[#F0E27A]" />
         </div>
@@ -179,7 +183,7 @@ export function HomeResults() {
                   className="text-[0.38em] font-bold align-baseline"
                   style={{ color: 'rgba(240,226,122,.60)' }}
                 >
-                  {r.suffix}
+                  {t(`results.${i}.suffix`)}
                 </span>
               </div>
               <p
@@ -187,14 +191,14 @@ export function HomeResults() {
                 className="text-[14px] leading-[1.55]"
                 style={{ color: 'rgba(255,255,255,.65)', opacity: 0 }}
               >
-                {r.label}
+                {t(`results.${i}.label`)}
               </p>
               {r.source && (
                 <span
                   className="text-[12px] font-semibold tracking-[0.06em] uppercase"
                   style={{ color: 'rgba(240,226,122,.50)' }}
                 >
-                  {r.source}
+                  {t(`results.${i}.source`)}
                 </span>
               )}
             </div>

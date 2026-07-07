@@ -8,8 +8,10 @@ import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gs
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
+import { useTranslations } from 'next-intl'
 
 export function HomeExperience() {
+  const t = useTranslations('homeExperience');
   const reduced = useReducedMotion()
   const ref = useRef<HTMLElement>(null)
 
@@ -104,7 +106,7 @@ export function HomeExperience() {
               </div>
               <div>
                 <div className="text-[13px] font-bold text-white">Juma Experience</div>
-                <div className="text-[11px]" style={{ color: 'rgba(255,255,255,.55)' }}>Programa de imersão</div>
+                <div className="text-[11px]" style={{ color: 'rgba(255,255,255,.55)' }}>{t('immersion')}</div>
               </div>
             </div>
           </div>
@@ -113,7 +115,7 @@ export function HomeExperience() {
             <div className="mb-8" data-kicker>
               <span className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 mb-6 border border-white/20 text-white/80">
                 <Star className="w-3.5 h-3.5 flex-shrink-0 text-[#F0E27A]" />
-                Juma Experience
+                {t('kicker')}
               </span>
             </div>
             <h2
@@ -121,11 +123,11 @@ export function HomeExperience() {
               className="font-black uppercase leading-[1.05] tracking-tight text-white"
               style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
             >
-              Viva a Juma <span className="text-[#F0E27A] text-highlight inline-block">de perto.</span>
+              {t('titlePart1')} <span className="text-[#F0E27A] text-highlight inline-block">{t('titleHighlight')}</span>
             </h2>
             <span data-gline aria-hidden className="mt-8 mb-6 block h-[3px] w-12 rounded-full bg-[#F0E27A]" />
             <p data-desc className="text-[17px] leading-[1.65] mb-10" style={{ color: 'rgba(255,255,255,.65)' }}>
-              Um programa de imersão para conhecer na prática como nossas soluções nascem e funcionam no campo — da pesquisa à colheita, lado a lado com nosso time agronômico.
+              {t('desc')}
             </p>
             <Link
               data-cta
@@ -133,7 +135,7 @@ export function HomeExperience() {
               className="inline-flex items-center gap-3 font-bold text-[15px] rounded-full px-7 py-4 transition-colors"
               style={{ backgroundColor: '#F0E27A', color: '#1A1A1A' }}
             >
-              Quero participar
+              {t('cta')}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                 <path d="M5 12h14M13 6l6 6-6 6" />
               </svg>

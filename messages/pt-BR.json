@@ -87,7 +87,22 @@
     "callout3Label": "Na soja, 10 a 14 sacas a mais por hectare em ensaio.",
     "callout3Source": "Fonte: ensaios DETEC (Taquarivaí/SP) e Terras Gerais (Lavras/MG).",
     "callout4": "E hoje, uma linha inteira: treze produtos, do plantio à colheita.",
-    "cta": "Conhecer o Aminosan"
+    "cta": "Conhecer o Aminosan",
+    "a3Tag": "Nutrição que transforma",
+    "a3Desc1": "Mais de 40 anos depois, o mesmo aminoácido, a mesma eficiência.",
+    "a3Desc2Start": "Hoje, em oito culturas: ",
+    "a3Desc2Bold": "soja, milho, café, algodão, feijão, cítrus, tomate e batata.",
+    "a3Icon1": "Aminoácidos de alta qualidade",
+    "a3Icon2": "Maior eficiência nutricional",
+    "a3Icon3": "Mais saúde e vigor para as plantas",
+    "a3Icon4": "Resultados comprovados no campo",
+    "a3Card1Unit": "sc/ha",
+    "a3Card1Text": "Na soja, 10 a 14 sacas a mais por hectare em ensaios.",
+    "a3Card1Source": "Fonte: Resultados internos (2011) | Certificado (UFLA) e Embrapa Cerrados (2015)",
+    "a3Card2Text": "E hoje, uma linha inteira traz produtos, do ",
+    "a3Card2Bold": "plantio à colheita.",
+    "a3Card3Text": "Confiança que vem do campo e gera ",
+    "a3Card3Bold": "resultados."
   },
   "ourStory": {
     "eyebrow": "NOSSA HISTÓRIA",
@@ -393,10 +408,22 @@
     "benefitsTitle": "Resultado para levar pra sua fazenda.",
     "benefitsIntro": "Sai do programa com diagnóstico, conhecimento técnico e relação direta com nosso time agronômico.",
     "benefits": {
-      "b1": { "title": "Diagnóstico da sua lavoura", "desc": "Cada produtor sai com uma leitura específica da própria propriedade e cultura." },
-      "b2": { "title": "Programa nutricional sugerido", "desc": "Recomendação técnica detalhada para a sua próxima safra, montada com o time Juma." },
-      "b3": { "title": "Rede de produtores parceiros", "desc": "Conexão com outros produtores que estão usando as mesmas tecnologias na prática." },
-      "b4": { "title": "Suporte técnico estendido", "desc": "Atendimento prioritário do time agronômico Juma durante toda a safra seguinte." }
+      "b1": {
+        "title": "Diagnóstico da sua lavoura",
+        "desc": "Cada produtor sai com uma leitura específica da própria propriedade e cultura."
+      },
+      "b2": {
+        "title": "Programa nutricional sugerido",
+        "desc": "Recomendação técnica detalhada para a sua próxima safra, montada com o time Juma."
+      },
+      "b3": {
+        "title": "Rede de produtores parceiros",
+        "desc": "Conexão com outros produtores que estão usando as mesmas tecnologias na prática."
+      },
+      "b4": {
+        "title": "Suporte técnico estendido",
+        "desc": "Atendimento prioritário do time agronômico Juma durante toda a safra seguinte."
+      }
     },
     "galleryEyebrow": "Como é por aqui",
     "galleryTitle": "O programa em fotos.",
@@ -417,19 +444,43 @@
     "historyTitle": "Quatro décadas contadas em campo.",
     "historyIntro": "Marcos que mostram como a Juma cresceu lado a lado com o produtor brasileiro.",
     "timeline": {
-      "y1985": { "title": "O começo, no interior paulista", "desc": "Sr. Julio Matino funda a Juma em Mogi Mirim com o objetivo de oferecer ao produtor brasileiro o que existia de mais avançado em nutrição vegetal — começando com fertilizantes foliares formulados localmente." },
-      "y1992": { "title": "Lançamento do Aminosan®", "desc": "Chega ao mercado o primeiro aminoácido de origem vegetal da Juma, que se tornaria, nas décadas seguintes, referência absoluta no manejo nutricional do café, da soja e do milho no Brasil." },
-      "y2003": { "title": "Expansão para outras culturas", "desc": "A Juma amplia seu portfólio para cana-de-açúcar, algodão e culturas perenes. Nasce a linha Revigo, foliares específicos para corrigir deficiências em cada cultivar." },
-      "y2015": { "title": "Tecnologia de aplicação", "desc": "Com a chegada das linhas Redutan e Supermix, a Juma passa a oferecer também tecnologia de calda — qualidade de aplicação, menos deriva e mais eficiência operacional." },
-      "y2024": { "title": "13 produtos · 10 culturas", "desc": "O portfólio atual da Juma — produtos integrados em programas nutricionais completos, sustentando manejo profissional do plantio à colheita em todo o Brasil." }
+      "y1985": {
+        "title": "O começo, no interior paulista",
+        "desc": "Sr. Julio Matino funda a Juma em Mogi Mirim com o objetivo de oferecer ao produtor brasileiro o que existia de mais avançado em nutrição vegetal — começando com fertilizantes foliares formulados localmente."
+      },
+      "y1992": {
+        "title": "Lançamento do Aminosan®",
+        "desc": "Chega ao mercado o primeiro aminoácido de origem vegetal da Juma, que se tornaria, nas décadas seguintes, referência absoluta no manejo nutricional do café, da soja e do milho no Brasil."
+      },
+      "y2003": {
+        "title": "Expansão para outras culturas",
+        "desc": "A Juma amplia seu portfólio para cana-de-açúcar, algodão e culturas perenes. Nasce a linha Revigo, foliares específicos para corrigir deficiências em cada cultivar."
+      },
+      "y2015": {
+        "title": "Tecnologia de aplicação",
+        "desc": "Com a chegada das linhas Redutan e Supermix, a Juma passa a oferecer também tecnologia de calda — qualidade de aplicação, menos deriva e mais eficiência operacional."
+      },
+      "y2024": {
+        "title": "13 produtos · 10 culturas",
+        "desc": "O portfólio atual da Juma — produtos integrados em programas nutricionais completos, sustentando manejo profissional do plantio à colheita em todo o Brasil."
+      }
     },
     "valuesEyebrow": "O que nos move",
     "valuesTitle": "Valores que nascem no campo.",
     "valuesIntro": "Princípios que seguram a Juma há quatro décadas — e seguem nos guiando.",
     "values": {
-      "v1": { "title": "Ao lado do produtor", "desc": "Time agronômico no campo, em todas as regiões. Decisão tomada onde o resultado acontece." },
-      "v2": { "title": "Conhecimento aplicado", "desc": "Pesquisa contínua e ensaios reais com produtores parceiros — ciência traduzida em resultado." },
-      "v3": { "title": "Responsabilidade", "desc": "Produtividade com manejo responsável, formulações eficientes e respeito ao solo e à água." }
+      "v1": {
+        "title": "Ao lado do produtor",
+        "desc": "Time agronômico no campo, em todas as regiões. Decisão tomada onde o resultado acontece."
+      },
+      "v2": {
+        "title": "Conhecimento aplicado",
+        "desc": "Pesquisa contínua e ensaios reais com produtores parceiros — ciência traduzida em resultado."
+      },
+      "v3": {
+        "title": "Responsabilidade",
+        "desc": "Produtividade com manejo responsável, formulações eficientes e respeito ao solo e à água."
+      }
     },
     "purposeEyebrow": "Propósito",
     "purposeTitleStart": "Juntos",
@@ -510,5 +561,1810 @@
     "ctaTitleLine2": "direto comigo.",
     "ctaBody": "Nossa equipe responde no WhatsApp em até 1 hora útil, de segunda a sexta.",
     "ctaButton": "Abrir WhatsApp"
+  },
+  "homeProductShowcase": {
+    "products": {
+      "0": {
+        "name": "AMINOSAN",
+        "line": "LINHA REDUTAN",
+        "description": "Bioativador organomineral à base de aminoácidos livres. Acelera o metabolismo da planta e potencializa a absorção de nutrientes em todas as fases.",
+        "stats": {
+          "0": {
+            "label": "Acorda Cana",
+            "unit": "sc/ha"
+          },
+          "1": {
+            "label": "RevigoPhos Amino",
+            "unit": "sc/ha"
+          },
+          "2": {
+            "label": "Revigo + Milho e Pasto",
+            "unit": "sc/ha"
+          }
+        }
+      },
+      "1": {
+        "name": "LINHA REVIGO",
+        "line": "LINHA JUMA",
+        "description": "Linha completa de nutrição mineral avançada. Formulações especializadas que otimizam o aproveitamento de macro e micronutrientes pelas culturas.",
+        "stats": {
+          "0": {
+            "label": "Soja Premium",
+            "unit": "sc/ha"
+          },
+          "1": {
+            "label": "Milho Alta Prod.",
+            "unit": "sc/ha"
+          },
+          "2": {
+            "label": "Algodão Pluma",
+            "unit": "sc/ha"
+          }
+        }
+      },
+      "2": {
+        "name": "ADUBAN",
+        "line": "LINHA REDUTAN",
+        "description": "Adubo mineral organomineral de alta concentração. Fornece macronutrientes de forma equilibrada e sinérgica para o desenvolvimento pleno das culturas.",
+        "stats": {
+          "0": {
+            "label": "Soja Produção",
+            "unit": "sc/ha"
+          },
+          "1": {
+            "label": "Milho Safra",
+            "unit": "sc/ha"
+          },
+          "2": {
+            "label": "Feijão Rendimento",
+            "unit": "sc/ha"
+          }
+        }
+      },
+      "3": {
+        "name": "FITOFERT",
+        "line": "LINHA JUMA",
+        "description": "Fertilizante foliar completo com macro e micronutrientes de alta solubilidade. Supre deficiências nutricionais de forma rápida e eficiente.",
+        "stats": {
+          "0": {
+            "label": "Soja Foliar",
+            "unit": "sc/ha"
+          },
+          "1": {
+            "label": "Café Floração",
+            "unit": "sc/ha"
+          },
+          "2": {
+            "label": "Citros Qualidade",
+            "unit": "sc/ha"
+          }
+        }
+      },
+      "4": {
+        "name": "REVIGOPHOS AMINO",
+        "line": "LINHA JUMA",
+        "description": "Fósforo aminoquelatado de pronta disponibilidade. Estimula o enraizamento profundo e o enchimento de grãos com máxima eficiência.",
+        "stats": {
+          "0": {
+            "label": "Enraizamento",
+            "unit": "sc/ha"
+          },
+          "1": {
+            "label": "Enchimento de Grãos",
+            "unit": "sc/ha"
+          },
+          "2": {
+            "label": "Vigor Inicial",
+            "unit": "sc/ha"
+          }
+        }
+      },
+      "5": {
+        "name": "ACORDA ULTRA",
+        "line": "LINHA REDUTAN",
+        "description": "Bioestimulante para arranque de culturas anuais. Estimula o enraizamento profundo desde a germinação e aumenta o vigor inicial das plantas.",
+        "stats": {
+          "0": {
+            "label": "Soja Arranque",
+            "unit": "sc/ha"
+          },
+          "1": {
+            "label": "Milho Vigor",
+            "unit": "sc/ha"
+          },
+          "2": {
+            "label": "Feijão Inicial",
+            "unit": "sc/ha"
+          }
+        }
+      },
+      "6": {
+        "name": "SUPERMIX",
+        "line": "LINHA JUMA",
+        "description": "Mix nutricional completo com micronutrientes quelados. Corrige deficiências múltiplas em uma única aplicação, com compatibilidade ampla de tanque.",
+        "stats": {
+          "0": {
+            "label": "Milho Verão",
+            "unit": "sc/ha"
+          },
+          "1": {
+            "label": "Soja Granados",
+            "unit": "sc/ha"
+          },
+          "2": {
+            "label": "Algodão Fibra",
+            "unit": "sc/ha"
+          }
+        }
+      },
+      "7": {
+        "name": "REVIGO COBRE ULTRA",
+        "line": "LINHA JUMA",
+        "description": "Cobre complexado de alta mobilidade. Atua na fotossíntese e na síntese de lignina, blindando a lavoura contra adversidades.",
+        "stats": {
+          "0": {
+            "label": "Fotossíntese",
+            "unit": "sc/ha"
+          },
+          "1": {
+            "label": "Defesa Natural",
+            "unit": "sc/ha"
+          },
+          "2": {
+            "label": "Sanidade Foliar",
+            "unit": "sc/ha"
+          }
+        }
+      },
+      "8": {
+        "name": "KMEP ULTRA",
+        "line": "LINHA JUMA",
+        "description": "Solução concentrada de potássio, magnésio e enxofre. Fornece nutrientes essenciais para a qualidade final da produção e resistência a estresses.",
+        "stats": {
+          "0": {
+            "label": "Qualidade Grão",
+            "unit": "sc/ha"
+          },
+          "1": {
+            "label": "Resistência",
+            "unit": "sc/ha"
+          },
+          "2": {
+            "label": "Produtividade",
+            "unit": "sc/ha"
+          }
+        }
+      },
+      "9": {
+        "name": "REVIGO + MILHO",
+        "line": "LINHA JUMA",
+        "description": "Pacote nutricional desenhado para o milho de alta produtividade. Equilíbrio de macro e micronutrientes do plantio à colheita.",
+        "stats": {
+          "0": {
+            "label": "Milho Verão",
+            "unit": "sc/ha"
+          },
+          "1": {
+            "label": "Milho Safrinha",
+            "unit": "sc/ha"
+          },
+          "2": {
+            "label": "Stay Green",
+            "unit": "sc/ha"
+          }
+        }
+      },
+      "10": {
+        "name": "LINHA REDUTAN",
+        "line": "LINHA REDUTAN",
+        "description": "Linha de adubação foliar sustentável à base de aminoácidos e quelatos orgânicos. Reduz perdas nutricionais e aumenta a eficiência de aproveitamento.",
+        "stats": {
+          "0": {
+            "label": "Soja Redutan",
+            "unit": "sc/ha"
+          },
+          "1": {
+            "label": "Milho Nutrição",
+            "unit": "sc/ha"
+          },
+          "2": {
+            "label": "Café Produção",
+            "unit": "sc/ha"
+          }
+        }
+      },
+      "11": {
+        "name": "REVIGO + PASTO",
+        "line": "LINHA JUMA",
+        "description": "Tecnologia de recuperação e manutenção de pastagens. Mais massa verde, rebrota acelerada e maior capacidade de suporte animal.",
+        "stats": {
+          "0": {
+            "label": "Massa Verde",
+            "unit": "%"
+          },
+          "1": {
+            "label": "Rebrota",
+            "unit": "%"
+          },
+          "2": {
+            "label": "Lotação",
+            "unit": "UA/ha"
+          }
+        }
+      },
+      "12": {
+        "name": "ACORDA CANA",
+        "line": "LINHA REDUTAN",
+        "description": "Estimulante de brotação para soqueiras. Quebra a dormência e uniformiza a rebrota, garantindo estande pleno já no início do ciclo.",
+        "stats": {
+          "0": {
+            "label": "Soqueira Nova",
+            "unit": "sc/ha"
+          },
+          "1": {
+            "label": "Rebrota Uniforme",
+            "unit": "sc/ha"
+          },
+          "2": {
+            "label": "Cana Planta",
+            "unit": "sc/ha"
+          }
+        }
+      }
+    },
+    "hint": "role para explorar",
+    "hintReduced": "Ver produto",
+    "subtitle": "Linha Redutan® · Linha Juma"
+  },
+  "homeCultures": {
+    "kicker": "Culturas",
+    "title": "Soluções pensadas<br></br>para a sua <highlight>cultura.</highlight>",
+    "desc": "De grãos a perenes — cada cultura tem suas exigências, e a Juma tem um caminho para cada uma.",
+    "cultures": {
+      "0": "Soja",
+      "1": "Milho",
+      "2": "Café",
+      "3": "Cana-de-açúcar",
+      "4": "Algodão",
+      "5": "Feijão",
+      "6": "Citros",
+      "7": "Batata",
+      "8": "Tomate",
+      "9": "Pastagem"
+    },
+    "viewAll": "Ver mais sobre as culturas"
+  },
+  "homeResults": {
+    "kicker": "Resultados Comprovados",
+    "title": "Números que vêm do <highlight>campo.</highlight>",
+    "results": [
+      {
+        "suffix": "anos+",
+        "label": "de história no campo, ao lado de grandes e pequenos produtores brasileiros.",
+        "source": ""
+      },
+      {
+        "suffix": "sc/ha",
+        "label": "em soja com Aminosan, em ensaios de campo conduzidos por produtores parceiros.",
+        "source": "Soja · Aminosan"
+      },
+      {
+        "suffix": "sc/ha",
+        "label": "em milho com Acorda Ultra, em manejo nutricional completo de safra.",
+        "source": "Milho · Acorda Ultra"
+      },
+      {
+        "suffix": "t/ha",
+        "label": "de colmos em cana com Acorda Cana, no acumulado da safra.",
+        "source": "Cana · Acorda Cana"
+      }
+    ]
+  },
+  "homeCalculator": {
+    "kicker": "Calcule seu ganho",
+    "title": "Quanto a Juma pode<br></br>render no seu <highlight>campo?</highlight>",
+    "desc": "Simule em segundos o ganho potencial em sacas e receita extra com base em dados médios de campo.",
+    "cultures": {
+      "soja": "Soja",
+      "milho": "Milho",
+      "cafe": "Café",
+      "cana": "Cana-de-açúcar",
+      "citros": "Citros",
+      "tomate": "Tomate"
+    },
+    "form": {
+      "culture": "Cultura",
+      "product": "Produto Juma",
+      "area": "Área (ha)",
+      "price": "Preço da saca (R$)",
+      "disclaimer": "Os valores são estimativas. Para um plano sob medida para a sua fazenda, fale com um técnico Juma."
+    },
+    "result": {
+      "extraBags": "Sacas extras estimadas",
+      "extraRev": "Receita extra estimada",
+      "averageGain": "Ganho médio de +{gain} {unit} com {product} · projetado para {area} ha.",
+      "priceBase": "Com base no preço médio da saca informado.",
+      "disclaimer": "Estimativa baseada em dados médios de campo. Resultados reais variam conforme cultivar, manejo, solo e clima."
+    }
+  },
+  "homeExperience": {
+    "immersion": "Programa de imersão",
+    "kicker": "Juma Experience",
+    "titlePart1": "Viva a Juma ",
+    "titleHighlight": "de perto.",
+    "desc": "Um programa de imersão para conhecer na prática como nossas soluções nascem e funcionam no campo — da pesquisa à colheita, lado a lado com nosso time agronômico.",
+    "cta": "Quero participar"
+  },
+  "homeTestimonials": {
+    "kicker": "Resultados aplicados",
+    "titlePart1": "Quem planta com a Juma,<br />colhe ",
+    "titleHighlight": "resultado.",
+    "desc": "Histórias reais de produtores que adotaram nossas soluções e mediram diferença na lavoura.",
+    "testimonials": [
+      {
+        "text": "A diferença ficou clara já no primeiro talhão. Lavoura mais uniforme, planta firme mesmo no calor — e na hora de colher, a balança não mente.",
+        "badge": "Soja +14 sc/ha · Aminosan",
+        "name": "João Carvalho",
+        "location": "Taquarivaí · SP",
+        "initials": "JC"
+      },
+      {
+        "text": "Buscava um manejo nutricional que fosse além do básico. Com a Juma, ganhei produtividade sem aumentar o custo por hectare — e isso muda o jogo.",
+        "badge": "Milho +13,4 sc/ha · Acorda Ultra",
+        "name": "Ricardo Marques",
+        "location": "Sorriso · MT",
+        "initials": "RM"
+      },
+      {
+        "text": "O canavial respondeu rápido. Mais colmo, mais vigor na rebrota, e o pessoal técnico da Juma esteve aqui em cada visita. Parceria de verdade.",
+        "badge": "Cana +6,87 t/ha · Acorda Cana",
+        "name": "André Souza",
+        "location": "Quirinópolis · GO",
+        "initials": "AS"
+      }
+    ]
+  },
+  "homeBlog": {
+    "kicker": "Do campo para você",
+    "titlePart1": "Conteúdo que ajuda<br />a produzir ",
+    "titleHighlight": "melhor.",
+    "desc": "Conhecimento agronômico aplicado, escrito para quem está no dia a dia do campo.",
+    "readArticle": "Ler matéria",
+    "viewAll": "Ver todas as matérias",
+    "articles": [
+      {
+        "category": "Manejo",
+        "date": "15 ABR 2026",
+        "readTime": "6 min de leitura",
+        "title": "Como reduzir o estresse da lavoura na seca"
+      },
+      {
+        "category": "Nutrição",
+        "date": "02 ABR 2026",
+        "readTime": "8 min de leitura",
+        "title": "Nutrição na fase certa: o que muda na produtividade da soja"
+      },
+      {
+        "category": "Pecuária",
+        "date": "18 MAR 2026",
+        "readTime": "5 min de leitura",
+        "title": "Manejo de pastagem: recuperação e ganho de peso"
+      }
+    ]
+  },
+  "homeCtaFinal": {
+    "kicker": "Próximo passo",
+    "titlePart1": "Juntos alimentamos o ",
+    "titleHighlight": "mundo.",
+    "desc": "Fale com a Juma e descubra a solução certa para a sua cultura, sua região e seu manejo.",
+    "btn": "Falar no WhatsApp · (19) 99964-8186"
+  },
+  "culturePage": {
+    "breadcrumb": "Culturas",
+    "heroEyebrow": "Cultura · {name}",
+    "heroTitle": "Manejo estratégico ao longo do <highlight>ciclo produtivo.</highlight>",
+    "whatsappBtn": "Falar no WhatsApp",
+    "seeManagementBtn": "Ver manejo por fase",
+    "actuaEyebrow": "Como a Juma atua",
+    "actuaTitle": "O que a Juma entrega<br></br>no {name}.",
+    "actuaLede": "Cinco frentes de atuação que aparecem na produção — e na renda do produtor.",
+    "challengesEyebrow": "Desafios por fase",
+    "challengesTitle": "Onde o ciclo do<br></br>{name} cobra atenção.",
+    "challengesLede": "Janelas críticas em que o manejo nutricional define o tamanho da safra.",
+    "managementEyebrow": "Manejo por fase",
+    "managementTitle": "Programa nutricional<br></br>do {name} Juma.",
+    "managementLede": "Combinações de produtos pensadas para cada janela crítica do ciclo.",
+    "recommendedEyebrow": "Produtos recomendados",
+    "recommendedTitle": "A linha indicada<br></br>para o {name}.",
+    "recommendedLede": "Os produtos que aparecem com mais frequência no manejo com a Juma.",
+    "calcEyebrow": "Calcule seu ganho",
+    "calcTitle": "Quanto a Juma rende<br></br>no seu {name}?",
+    "calcLede": "Simule o ganho com base na sua área, no produto recomendado e no preço atual da saca.",
+    "calcProductLabel": "Produto Juma",
+    "calcAreaLabel": "Área (ha)",
+    "calcPriceLabel": "Preço da saca (R$)",
+    "calcYieldLabel": "Produtividade atual (sc/ha)",
+    "calcFormLede": "Estimativa para lavoura em produção. Para programa sob medida, fale com um técnico Juma.",
+    "calcExtraBags": "Sacas extras estimadas",
+    "calcGainAverage": "Ganho médio de <strong>+{gain} sc/ha</strong> · projetado para sua área informada.",
+    "calcExtraRev": "Receita extra estimada",
+    "calcBasePrice": "Com base no preço médio da saca informado.",
+    "calcDisclaimer": "Estimativa baseada em dados médios de campo. Resultados reais variam conforme cultivar, manejo, solo e clima."
+  },
+  "cultureData": {
+    "cafe": {
+      "name": "Café",
+      "badge": "Cultura perene",
+      "description": "O café exige atenção em cada fase: cada estágio impacta diretamente a produtividade e a qualidade dos grãos colhidos. A Juma desenvolve programas nutricionais para sustentar o cafezal do enraizamento à maturação.",
+      "actua": [
+        "Floradas uniformes e mais bem distribuídas ao longo do talhão.",
+        "Pegamento de frutos mais alto, menos queda de chumbinho.",
+        "Enchimento e qualidade dos grãos sustentados até a colheita.",
+        "Redução do impacto de estresses climáticos e veranicos.",
+        "Eficiência nutricional — cada nutriente aplicado bem absorvido."
+      ],
+      "challenges": {
+        "0": {
+          "stage": "01 · Florada",
+          "title": "Desuniformidade e baixo pegamento",
+          "desc": "Floradas distribuídas em ondas, prejudicando colheita e uniformidade da produção."
+        },
+        "1": {
+          "stage": "02 · Chumbinho",
+          "title": "Queda de frutos",
+          "desc": "Frutos recém-formados que caem antes de fixarem — perda direta de produtividade."
+        },
+        "2": {
+          "stage": "03 · Granação",
+          "title": "Baixo enchimento",
+          "desc": "Grãos pequenos e leves, com perda de peneira alta e classificação reduzida."
+        },
+        "3": {
+          "stage": "04 · Maturação",
+          "title": "Perda de qualidade",
+          "desc": "Maturação desigual e perda de bebida — impacto direto no preço por saca."
+        },
+        "4": {
+          "stage": "05 · Clima",
+          "title": "Estresses climáticos",
+          "desc": "Veranicos, geadas e calor extremo comprometendo todo o investimento da safra."
+        }
+      },
+      "management": {
+        "0": {
+          "label": "Fase 01",
+          "fase": "Pré-florada"
+        },
+        "1": {
+          "label": "Fase 02",
+          "fase": "Pós-florada"
+        },
+        "2": {
+          "label": "Fase 03",
+          "fase": "Chumbinho"
+        },
+        "3": {
+          "label": "Fase 04",
+          "fase": "Granação"
+        },
+        "4": {
+          "label": "Fase 05",
+          "fase": "Maturação"
+        }
+      },
+      "recommended": {
+        "aminosan": {
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Vigor, raízes e resistência em todas as fases do café."
+        },
+        "fitofert": {
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Pegamento, enchimento e produtividade na fase reprodutiva."
+        },
+        "revigophos-amino": {
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Energia e recuperação rápida em janelas críticas."
+        }
+      }
+    },
+    "soja": {
+      "name": "Soja",
+      "badge": "Grão",
+      "description": "A soja é a principal cultura do Brasil e exige precisão nutricional em cada fase do ciclo. A Juma desenvolve programas completos do tratamento de sementes ao enchimento de grãos.",
+      "actua": [
+        "Enraizamento profundo e stand uniforme desde o plantio.",
+        "Nutrição vegetativa para alta produção de massa foliar.",
+        "Pegamento máximo de vagens no período reprodutivo.",
+        "Enchimento de grãos com peso e uniformidade superiores.",
+        "Resistência ao déficit hídrico em períodos críticos do ciclo."
+      ],
+      "challenges": {
+        "0": {
+          "stage": "01 · Germinação",
+          "title": "Stand desuniforme",
+          "desc": "Emergência irregular que compromete o aproveitamento da área e dificulta o manejo."
+        },
+        "1": {
+          "stage": "02 · Vegetativo",
+          "title": "Baixo vigor foliar",
+          "desc": "Plantas com crescimento lento e menor capacidade de interceptação de luz."
+        },
+        "2": {
+          "stage": "03 · Florada",
+          "title": "Baixo pegamento de vagens",
+          "desc": "Flores que abortam antes de fixar, reduzindo diretamente o potencial produtivo."
+        },
+        "3": {
+          "stage": "04 · Enchimento",
+          "title": "Grãos leves",
+          "desc": "Peso e classificação abaixo do potencial por déficit nutricional na granação."
+        },
+        "4": {
+          "stage": "05 · Clima",
+          "title": "Veranicos e estresses",
+          "desc": "Déficit hídrico e altas temperaturas comprometendo fisiologia e produção."
+        }
+      },
+      "management": {
+        "0": {
+          "label": "Fase 01",
+          "fase": "Tratamento de semente"
+        },
+        "1": {
+          "label": "Fase 02",
+          "fase": "V3–V5"
+        },
+        "2": {
+          "label": "Fase 03",
+          "fase": "R1–R2"
+        },
+        "3": {
+          "label": "Fase 04",
+          "fase": "R5–R6"
+        }
+      },
+      "recommended": {
+        "aminosan": {
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Vigor, raízes e resistência em todo o ciclo da soja."
+        },
+        "fitofert": {
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Pegamento e enchimento na fase reprodutiva."
+        },
+        "acorda-ultra": {
+          "tag": "Tratamento de Sementes",
+          "desc": "Arranque forte desde o plantio."
+        }
+      }
+    },
+    "milho": {
+      "name": "Milho",
+      "badge": "Grão",
+      "description": "O milho, especialmente o safrinha, exige programa nutricional preciso para aproveitar a janela de cultivo e maximizar o rendimento por hectare.",
+      "actua": [
+        "Arranque vigoroso desde a emergência.",
+        "Nutrição para alta produção de massa verde e espigas bem formadas.",
+        "Pegamento e enchimento de grãos até a colheita.",
+        "Resistência ao estresse hídrico no período reprodutivo.",
+        "Programa integrado para milho safrinha de alta performance."
+      ],
+      "challenges": {
+        "0": {
+          "stage": "01 · Emergência",
+          "title": "Arranque lento",
+          "desc": "Plântulas com desenvolvimento inicial lento que perdem janela produtiva."
+        },
+        "1": {
+          "stage": "02 · Vegetativo",
+          "title": "Déficit nutricional",
+          "desc": "Plantas com crescimento irregular e menor acúmulo de biomassa."
+        },
+        "2": {
+          "stage": "03 · Pendoamento",
+          "title": "Estresse hídrico",
+          "desc": "Período crítico com seca comprometendo o florescimento e o pegamento."
+        },
+        "3": {
+          "stage": "04 · Enchimento",
+          "title": "Grãos mal formados",
+          "desc": "Espigas com falhas e grãos leves por deficiência nutricional na granação."
+        }
+      },
+      "management": {
+        "0": {
+          "label": "Fase 01",
+          "fase": "Tratamento de semente"
+        },
+        "1": {
+          "label": "Fase 02",
+          "fase": "V3–V5"
+        },
+        "2": {
+          "label": "Fase 03",
+          "fase": "V8–V10"
+        },
+        "3": {
+          "label": "Fase 04",
+          "fase": "R1–R3"
+        }
+      },
+      "recommended": {
+        "aminosan": {
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Vigor e resistência para todo o ciclo."
+        },
+        "revigo-milho": {
+          "tag": "Manejo Completo",
+          "desc": "Programa nutricional completo para milho safrinha."
+        },
+        "fitofert": {
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Pegamento e enchimento de grãos."
+        }
+      }
+    },
+    "cana": {
+      "name": "Cana-de-açúcar",
+      "badge": "Cultura semiperene",
+      "description": "A cana exige nutrição desde o plantio até a maturação, com foco em arranque, perfilhamento e TCH. A Juma oferece soluções específicas para cada fase da cultura.",
+      "actua": [
+        "Enraizamento acelerado no plantio de mudas.",
+        "Perfilhamento abundante para maior número de colmos por hectare.",
+        "Crescimento vigoroso sustentado ao longo do ciclo.",
+        "Resistência ao estresse hídrico e térmico.",
+        "Maturação uniforme para melhor qualidade industrial."
+      ],
+      "challenges": {
+        "0": {
+          "stage": "01 · Plantio",
+          "title": "Arranque lento de mudas",
+          "desc": "Mudas com brotação irregular que comprometem o stand inicial."
+        },
+        "1": {
+          "stage": "02 · Perfilhamento",
+          "title": "Baixo perfilhamento",
+          "desc": "Número insuficiente de colmos por hectare limitando o TCH."
+        },
+        "2": {
+          "stage": "03 · Crescimento",
+          "title": "Déficit nutricional",
+          "desc": "Crescimento irregular por falta de nutrição adequada em cada fase."
+        },
+        "3": {
+          "stage": "04 · Maturação",
+          "title": "Maturação desigual",
+          "desc": "Colmos em diferentes estágios dificultando o manejo da colheita."
+        }
+      },
+      "management": {
+        "0": {
+          "label": "Fase 01",
+          "fase": "Plantio"
+        },
+        "1": {
+          "label": "Fase 02",
+          "fase": "Perfilhamento"
+        },
+        "2": {
+          "label": "Fase 03",
+          "fase": "Crescimento"
+        }
+      },
+      "recommended": {
+        "acorda-cana": {
+          "tag": "Tratamento de Sementes",
+          "desc": "Enraizamento e vigor desde o plantio."
+        },
+        "aminosan": {
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Vigor e resistência durante todo o crescimento."
+        },
+        "linha-redutan": {
+          "tag": "Tecnologia de Aplicação",
+          "desc": "Qualidade de calda para aplicações em cana."
+        }
+      }
+    },
+    "algodao": {
+      "name": "Algodão",
+      "badge": "Fibra",
+      "description": "O algodão é exigente em nutrição no período reprodutivo, quando floração, fixação de capulhos e enchimento de fibras definem a rentabilidade da safra.",
+      "actua": [
+        "Arranque vigoroso e stand uniforme.",
+        "Nutrição equilibrada na fase vegetativa para alta carga produtiva.",
+        "Fixação de botões florais e capulhos.",
+        "Enchimento e maturação uniforme de fibras.",
+        "Resistência a estresses climáticos durante o ciclo."
+      ],
+      "challenges": {
+        "0": {
+          "stage": "01 · Vegetativo",
+          "title": "Crescimento irregular",
+          "desc": "Plantas desuniformes que dificultam o manejo e reduzem a produtividade por área."
+        },
+        "1": {
+          "stage": "02 · Florada",
+          "title": "Baixa fixação de capulhos",
+          "desc": "Botões florais que caem antes de fixar por deficiência nutricional ou estresse."
+        },
+        "2": {
+          "stage": "03 · Enchimento",
+          "title": "Fibra de baixa qualidade",
+          "desc": "Comprimento e resistência de fibra abaixo do potencial por nutrição inadequada."
+        }
+      },
+      "management": {
+        "0": {
+          "label": "Fase 01",
+          "fase": "Tratamento de semente"
+        },
+        "1": {
+          "label": "Fase 02",
+          "fase": "Vegetativo"
+        },
+        "2": {
+          "label": "Fase 03",
+          "fase": "Reprodutivo"
+        }
+      },
+      "recommended": {
+        "aminosan": {
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Vigor e resistência para todo o ciclo."
+        },
+        "fitofert": {
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Fixação e enchimento de capulhos."
+        },
+        "acorda-ultra": {
+          "tag": "Tratamento de Sementes",
+          "desc": "Arranque forte desde o plantio."
+        }
+      }
+    },
+    "feijao": {
+      "name": "Feijão",
+      "badge": "Grão",
+      "description": "O feijão tem ciclo curto e exige nutrição precisa no período reprodutivo. Pequenas deficiências em fases críticas causam perdas significativas de produtividade.",
+      "actua": [
+        "Enraizamento e stand uniformes desde a germinação.",
+        "Nutrição vegetativa para desenvolvimento rápido e equilibrado.",
+        "Fixação de vagens e pegamento máximo na florada.",
+        "Enchimento de grãos com peso e uniformidade.",
+        "Resistência a estresses hídricos na fase crítica."
+      ],
+      "challenges": {
+        "0": {
+          "stage": "01 · Germinação",
+          "title": "Stand desuniforme",
+          "desc": "Emergência irregular comprometendo o potencial produtivo da área."
+        },
+        "1": {
+          "stage": "02 · Florada",
+          "title": "Baixo pegamento de vagens",
+          "desc": "Flores que abortam por deficiência nutricional ou estresse hídrico."
+        },
+        "2": {
+          "stage": "03 · Granação",
+          "title": "Grãos leves",
+          "desc": "Peso e aspecto abaixo do potencial por nutrição insuficiente."
+        }
+      },
+      "management": {
+        "0": {
+          "label": "Fase 01",
+          "fase": "Tratamento de semente"
+        },
+        "1": {
+          "label": "Fase 02",
+          "fase": "V3–V4"
+        },
+        "2": {
+          "label": "Fase 03",
+          "fase": "R1–R5"
+        }
+      },
+      "recommended": {
+        "aminosan": {
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Vigor e resistência em todo o ciclo."
+        },
+        "fitofert": {
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Pegamento e enchimento de grãos."
+        },
+        "acorda-ultra": {
+          "tag": "Tratamento de Sementes",
+          "desc": "Arranque forte desde o plantio."
+        }
+      }
+    },
+    "citros": {
+      "name": "Citros",
+      "badge": "Cultura perene",
+      "description": "Os citros exigem nutrição contínua e equilibrada ao longo do ciclo. A Juma oferece programas para floração, pegamento de frutos e qualidade pós-colheita.",
+      "actua": [
+        "Floração abundante e bem distribuída.",
+        "Alto pegamento de frutos e baixa queda pós-florada.",
+        "Desenvolvimento uniforme dos frutos durante a safra.",
+        "Qualidade de casca e teor de sólidos solúveis elevados.",
+        "Resistência a estresses e doenças fisiológicas."
+      ],
+      "challenges": {
+        "0": {
+          "stage": "01 · Floração",
+          "title": "Baixo pegamento de frutos",
+          "desc": "Flores que caem antes de fixar, reduzindo a produção por árvore."
+        },
+        "1": {
+          "stage": "02 · Desenvolvimento",
+          "title": "Queda de frutos",
+          "desc": "Frutos jovens que caem por déficit nutricional na fase de desenvolvimento."
+        },
+        "2": {
+          "stage": "03 · Maturação",
+          "title": "Qualidade comprometida",
+          "desc": "Cor, teor de sólidos solúveis e aspecto abaixo do esperado pelo mercado."
+        }
+      },
+      "management": {
+        "0": {
+          "label": "Fase 01",
+          "fase": "Pré-floração"
+        },
+        "1": {
+          "label": "Fase 02",
+          "fase": "Pós-floração"
+        },
+        "2": {
+          "label": "Fase 03",
+          "fase": "Desenvolvimento"
+        }
+      },
+      "recommended": {
+        "aminosan": {
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Vigor e resistência para todo o ciclo."
+        },
+        "fitofert": {
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Pegamento e qualidade de frutos."
+        },
+        "linha-revigo": {
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Foliares para correção de deficiências."
+        }
+      }
+    },
+    "batata": {
+      "name": "Batata",
+      "badge": "Tubérculo",
+      "description": "A batata tem ciclo curto e demanda nutrição intensa desde o início. Qualidade de tubérculos e produtividade dependem de programa nutricional preciso em cada fase.",
+      "actua": [
+        "Brotação uniforme e stand completo.",
+        "Desenvolvimento vegetativo vigoroso para alta interceptação de luz.",
+        "Enchimento de tubérculos com calibre e peso superiores.",
+        "Qualidade de superfície e resistência ao armazenamento.",
+        "Resistência a estresses e doenças fisiológicas."
+      ],
+      "challenges": {
+        "0": {
+          "stage": "01 · Brotação",
+          "title": "Emergência irregular",
+          "desc": "Brotação desuniforme comprometendo o stand e o aproveitamento da área."
+        },
+        "1": {
+          "stage": "02 · Tuberização",
+          "title": "Baixo rendimento",
+          "desc": "Número e peso de tubérculos abaixo do potencial por deficiência nutricional."
+        },
+        "2": {
+          "stage": "03 · Enchimento",
+          "title": "Calibre inadequado",
+          "desc": "Tubérculos de tamanho pequeno com perda de classificação para mercado."
+        }
+      },
+      "management": {
+        "0": {
+          "label": "Fase 01",
+          "fase": "Plantio"
+        },
+        "1": {
+          "label": "Fase 02",
+          "fase": "Tuberização"
+        },
+        "2": {
+          "label": "Fase 03",
+          "fase": "Enchimento"
+        }
+      },
+      "recommended": {
+        "aminosan": {
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Vigor e resistência para todo o ciclo."
+        },
+        "fitofert": {
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Enchimento e qualidade de tubérculos."
+        },
+        "linha-revigo": {
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Correção de deficiências nutricionais."
+        }
+      }
+    },
+    "tomate": {
+      "name": "Tomate",
+      "badge": "Hortaliça",
+      "description": "O tomate é uma das culturas mais exigentes em nutrição. Floração, pegamento e qualidade dos frutos dependem de um programa nutricional preciso ao longo do ciclo.",
+      "actua": [
+        "Desenvolvimento vegetativo equilibrado e uniforme.",
+        "Floração abundante com alto pegamento de frutos.",
+        "Enchimento homogêneo para frutos com calibre e coloração superiores.",
+        "Resistência a estresses e doenças fisiológicas como fundo preto.",
+        "Qualidade pós-colheita e vida de prateleira elevadas."
+      ],
+      "challenges": {
+        "0": {
+          "stage": "01 · Florada",
+          "title": "Baixo pegamento de frutos",
+          "desc": "Flores que abortam antes de fixar por deficiência nutricional ou estresse."
+        },
+        "1": {
+          "stage": "02 · Enchimento",
+          "title": "Fundo preto e podridão apical",
+          "desc": "Deficiência de cálcio em frutos em desenvolvimento — perda direta de qualidade."
+        },
+        "2": {
+          "stage": "03 · Maturação",
+          "title": "Coloração e firmeza inadequadas",
+          "desc": "Frutos com coloração irregular e baixa firmeza comprometendo a comercialização."
+        }
+      },
+      "management": {
+        "0": {
+          "label": "Fase 01",
+          "fase": "Vegetativo"
+        },
+        "1": {
+          "label": "Fase 02",
+          "fase": "Florada"
+        },
+        "2": {
+          "label": "Fase 03",
+          "fase": "Enchimento"
+        }
+      },
+      "recommended": {
+        "aminosan": {
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Vigor e resistência para todo o ciclo."
+        },
+        "linha-revigo": {
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Correção de deficiências nutricionais."
+        },
+        "fitofert": {
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Pegamento e enchimento de frutos."
+        }
+      }
+    },
+    "pastagem": {
+      "name": "Pastagem",
+      "badge": "Forrageira",
+      "description": "A pastagem degradada é um dos principais problemas do pecuarista brasileiro. A Juma oferece programa nutricional para recuperação, maior lotação e ganho de peso.",
+      "actua": [
+        "Recuperação de pastagens degradadas com baixa densidade.",
+        "Estímulo ao rebrote e perfilhamento das forrageiras.",
+        "Nutrição para maior produção de massa verde por hectare.",
+        "Qualidade nutritiva da forragem para melhor desempenho animal.",
+        "Maior lotação e ganho de peso por hectare."
+      ],
+      "challenges": {
+        "0": {
+          "stage": "01 · Degradação",
+          "title": "Pastagem com baixa densidade",
+          "desc": "Forrageira rala com invasoras dominando e reduzindo a capacidade de suporte."
+        },
+        "1": {
+          "stage": "02 · Rebrote",
+          "title": "Crescimento lento",
+          "desc": "Pastagem que não responde à chuva com rebrote rápido e uniforme."
+        },
+        "2": {
+          "stage": "03 · Qualidade",
+          "title": "Forragem de baixo valor nutricional",
+          "desc": "Gramínea com baixo teor de proteína e energia comprometendo o desempenho animal."
+        }
+      },
+      "management": {
+        "0": {
+          "label": "Fase 01",
+          "fase": "Recuperação"
+        },
+        "1": {
+          "label": "Fase 02",
+          "fase": "Manutenção"
+        }
+      },
+      "recommended": {
+        "revigo-pasto": {
+          "tag": "Manejo Completo",
+          "desc": "Programa completo para recuperação e manutenção de pastagem."
+        },
+        "aminosan": {
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Vigor e resistência das forrageiras."
+        },
+        "linha-redutan": {
+          "tag": "Tecnologia de Aplicação",
+          "desc": "Eficiência nas aplicações de campo."
+        }
+      }
+    }
+  },
+  "productPage": {
+    "breadcrumb": "Produtos",
+    "heroEyebrow": "Produto · {name}",
+    "whatsappBtn": "Falar no WhatsApp",
+    "seeDetailsBtn": "Ver mais detalhes",
+    "relatedBtn": "Ver produto",
+    "cropsLabel": "Culturas indicadas",
+    "problemsEyebrow": "O que resolve",
+    "problemsTitle": "Problemas que o<br></br>{name} trata.",
+    "problemsLede": "Onde a cultura sofre perdas e como o produto atua para reverter o quadro.",
+    "benefitsEyebrow": "Benefícios",
+    "benefitsTitle": "O que o {name}<br></br>entrega na prática.",
+    "benefitsLede": "Resultados fisiológicos e agronômicos que aparecem na produtividade.",
+    "stagesEyebrow": "Posicionamento",
+    "stagesTitle": "Quando aplicar o<br></br>{name}.",
+    "stagesLede": "Fases críticas do ciclo onde a aplicação entrega o melhor resultado.",
+    "resultsEyebrow": "Resultados de campo",
+    "resultsTitle": "Performance do {name}<br></br>na colheita.",
+    "resultsLede": "Ganhos reais medidos em áreas comerciais e ensaios com parceiros.",
+    "relatedEyebrow": "Soluções complementares",
+    "relatedTitle": "Produtos que trabalham<br></br>junto com o {name}.",
+    "galleryEyebrow": "No campo",
+    "galleryTitle": "{name} em ação.",
+    "galleryLede": "Fotos de talhões e ensaios reais conduzidos com produtores parceiros."
+  },
+  "productData": {
+    "aminosan": {
+      "name": "Aminosan®",
+      "tag": "Nutrição e Fisiologia Vegetal",
+      "description": "Fertilizante foliar à base de aminoácidos livres de origem vegetal. Há mais de 40 anos, referência em performance — atua no metabolismo da planta, dando vigor, raízes mais profundas e tolerância a estresses ambientais.",
+      "crops": [
+        "Soja",
+        "Milho",
+        "Café",
+        "Algodão",
+        "Feijão",
+        "Citros",
+        "Tomate",
+        "Batata",
+        "Cana"
+      ],
+      "problems": {
+        "0": {
+          "title": "Baixo desenvolvimento da planta",
+          "desc": "Plantas pequenas, com pouco vigor, raízes superficiais e crescimento desigual no talhão."
+        },
+        "1": {
+          "title": "Estresses no ciclo",
+          "desc": "Veranicos, geadas, danos por manejo e clima adverso comprometendo a produção projetada."
+        },
+        "2": {
+          "title": "Limitação na absorção",
+          "desc": "Nutrientes aplicados que a planta não consegue absorver com eficiência por baixa atividade metabólica."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Estimula o metabolismo",
+          "desc": "Aminoácidos livres entram diretamente no ciclo, sem gasto energético da planta."
+        },
+        "1": {
+          "title": "Aumenta o vigor vegetativo",
+          "desc": "Folhas mais verdes, ramos mais firmes e plantas mais resistentes a fatores adversos."
+        },
+        "2": {
+          "title": "Favorece raízes, folhas e ramos",
+          "desc": "Desenvolvimento equilibrado da parte aérea e do sistema radicular."
+        },
+        "3": {
+          "title": "Melhora a absorção de nutrientes",
+          "desc": "Atua como complexante e potencializa a eficiência de fertilizantes aplicados na calda."
+        },
+        "4": {
+          "title": "Mais resistência à seca",
+          "desc": "Mantém a fisiologia da planta ativa em períodos de déficit hídrico e calor extremo."
+        },
+        "5": {
+          "title": "Melhor pegamento e fixação",
+          "desc": "Mais flores fixadas e grãos formados — diretamente refletido na produtividade."
+        }
+      },
+      "stages": {
+        "0": {
+          "label": "V1–V3",
+          "title": "Estabelecimento",
+          "desc": "Estimula o desenvolvimento inicial e enraizamento."
+        },
+        "1": {
+          "label": "V4–V6",
+          "title": "Crescimento vegetativo",
+          "desc": "Mais vigor e produção de massa foliar."
+        },
+        "2": {
+          "label": "Pré-florada",
+          "title": "Pré-reprodutivo",
+          "desc": "Prepara a planta para florescimento uniforme."
+        },
+        "3": {
+          "label": "Florada",
+          "title": "Reprodutivo",
+          "desc": "Favorece pegamento e fixação de flores."
+        },
+        "4": {
+          "label": "Enchimento",
+          "title": "Granação",
+          "desc": "Sustenta produtividade até a colheita."
+        }
+      },
+      "results": {
+        "0": {
+          "desc": "Soja em Taquarivaí/SP, em ensaio de safra completa com Aminosan no manejo."
+        },
+        "1": {
+          "desc": "Soja em Lavras/MG, em parcela testemunha vs Aminosan em pulverização foliar."
+        },
+        "2": {
+          "desc": "Mais resistência à seca, medida pela manutenção da área foliar em déficit hídrico."
+        }
+      },
+      "related": {
+        "fitofert": {
+          "name": "Fitofert",
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Mais pegamento, enchimento de grãos e produtividade."
+        },
+        "linha-revigo": {
+          "name": "Linha Revigo",
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Foliares para corrigir deficiências em cada cultura."
+        },
+        "revigophos-amino": {
+          "name": "RevigoPhos Amino",
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Energia rápida e recuperação após estresses."
+        }
+      }
+    },
+    "fitofert": {
+      "name": "Fitofert",
+      "tag": "Nutrição e Fisiologia Vegetal",
+      "description": "Fertilizante foliar desenvolvido para maximizar pegamento, enchimento de grãos e produtividade na fase reprodutiva das culturas.",
+      "crops": [
+        "Soja",
+        "Milho",
+        "Café",
+        "Citros",
+        "Tomate"
+      ],
+      "problems": {
+        "0": {
+          "title": "Baixo pegamento de flores",
+          "desc": "Flores que não fixam, reduzindo diretamente o potencial produtivo da lavoura."
+        },
+        "1": {
+          "title": "Grãos chochos e leves",
+          "desc": "Enchimento insuficiente dos grãos por falta de nutrição na fase reprodutiva."
+        },
+        "2": {
+          "title": "Queda de produtividade",
+          "desc": "Resultado abaixo do potencial mesmo com boa nutrição vegetativa."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Mais pegamento de flores",
+          "desc": "Nutrição adequada nos estágios reprodutivos para maior fixação."
+        },
+        "1": {
+          "title": "Enchimento uniforme",
+          "desc": "Grãos mais pesados e uniformes, com melhor aproveitamento da fotossíntese."
+        },
+        "2": {
+          "title": "Produtividade consistente",
+          "desc": "Resultado mensurável em campo, safra após safra."
+        }
+      },
+      "stages": {
+        "0": {
+          "label": "Florada",
+          "title": "Reprodutivo",
+          "desc": "Aplicação foliar para suporte ao pegamento."
+        },
+        "1": {
+          "label": "Enchimento",
+          "title": "Granação",
+          "desc": "Segunda aplicação para maximizar o peso de grãos."
+        }
+      },
+      "results": {},
+      "related": {
+        "aminosan": {
+          "name": "Aminosan®",
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Vigor e resistência em todas as fases."
+        },
+        "revigophos-amino": {
+          "name": "RevigoPhos Amino",
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Energia e recuperação rápida."
+        }
+      }
+    },
+    "linha-revigo": {
+      "name": "Linha Revigo",
+      "tag": "Nutrição e Fisiologia Vegetal",
+      "description": "Linha completa de fertilizantes foliares para correção de deficiências nutricionais em cada cultura, nas diferentes fases do ciclo.",
+      "crops": [
+        "Soja",
+        "Milho",
+        "Café",
+        "Algodão",
+        "Feijão",
+        "Citros",
+        "Tomate",
+        "Batata"
+      ],
+      "problems": {
+        "0": {
+          "title": "Deficiências nutricionais",
+          "desc": "Carências de micro e macronutrientes que limitam o crescimento e a produtividade."
+        },
+        "1": {
+          "title": "Sintomas visuais de deficiência",
+          "desc": "Clorose, necrose e deformações que indicam nutrição inadequada."
+        },
+        "2": {
+          "title": "Baixa eficiência de absorção",
+          "desc": "Nutrientes no solo que a planta não consegue acessar de forma eficiente."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Correção rápida de deficiências",
+          "desc": "Absorção foliar imediata para resposta em menos de 72 horas."
+        },
+        "1": {
+          "title": "Fórmulas por cultura",
+          "desc": "Cada produto da linha é formulado para as exigências específicas de cada cultura."
+        },
+        "2": {
+          "title": "Compatibilidade com outros insumos",
+          "desc": "Pode ser aplicado em calda junto com defensivos e outros foliares."
+        }
+      },
+      "stages": {},
+      "results": {},
+      "related": {
+        "aminosan": {
+          "name": "Aminosan®",
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Vigor e resistência para todo o ciclo."
+        },
+        "fitofert": {
+          "name": "Fitofert",
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Pegamento e enchimento na fase reprodutiva."
+        }
+      }
+    },
+    "revigophos-amino": {
+      "name": "RevigoPhos Amino",
+      "tag": "Nutrição e Fisiologia Vegetal",
+      "description": "Fertilizante foliar com fósforo e aminoácidos para energia rápida e recuperação acelerada após estresses. Ideal para janelas críticas do ciclo.",
+      "crops": [
+        "Soja",
+        "Milho",
+        "Café",
+        "Algodão",
+        "Feijão",
+        "Cana"
+      ],
+      "problems": {
+        "0": {
+          "title": "Plantas estressadas",
+          "desc": "Lavouras que sofreram com clima adverso, pragas ou déficit hídrico e precisam de recuperação rápida."
+        },
+        "1": {
+          "title": "Fósforo indisponível",
+          "desc": "Solos com alta fixação de fósforo ou condições que limitam a absorção radicular."
+        },
+        "2": {
+          "title": "Baixa energia metabólica",
+          "desc": "Plantas com metabolismo lento que não respondem bem aos insumos aplicados."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Fornece energia imediata",
+          "desc": "Fósforo foliar de alta solubilidade para energia rápida ao metabolismo."
+        },
+        "1": {
+          "title": "Recuperação acelerada",
+          "desc": "Aminoácidos potencializam a resposta da planta após períodos de estresse."
+        },
+        "2": {
+          "title": "Ideal para janelas críticas",
+          "desc": "Aplicação precisa em momentos decisivos do ciclo produtivo."
+        }
+      },
+      "stages": {},
+      "results": {},
+      "related": {
+        "aminosan": {
+          "name": "Aminosan®",
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Vigor e resistência em todas as fases."
+        },
+        "fitofert": {
+          "name": "Fitofert",
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Mais pegamento e enchimento."
+        }
+      }
+    },
+    "revigo-cobre-ultra": {
+      "name": "Revigo Cobre Ultra",
+      "tag": "Nutrição e Fisiologia Vegetal",
+      "description": "Cobre complexado para força fisiológica e resistência da planta. Formulação de alta eficiência para correção e prevenção de deficiências.",
+      "crops": [
+        "Soja",
+        "Café",
+        "Citros",
+        "Tomate",
+        "Batata"
+      ],
+      "problems": {
+        "0": {
+          "title": "Deficiência de cobre",
+          "desc": "Lavouras com sintomas de deficiência que afetam o desenvolvimento e a resistência."
+        },
+        "1": {
+          "title": "Baixa resistência a doenças",
+          "desc": "Plantas com menor resistência fisiológica a patógenos fúngicos e bacterianos."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Correção de deficiência de cobre",
+          "desc": "Absorção foliar rápida com cobre complexado de alta biodisponibilidade."
+        },
+        "1": {
+          "title": "Fortalecimento fisiológico",
+          "desc": "Cobre ativa enzimas essenciais para resistência e fotossíntese."
+        }
+      },
+      "stages": {},
+      "results": {},
+      "related": {
+        "linha-revigo": {
+          "name": "Linha Revigo",
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Linha completa de foliares."
+        },
+        "aminosan": {
+          "name": "Aminosan®",
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Vigor e resistência para todo o ciclo."
+        }
+      }
+    },
+    "acorda-cana": {
+      "name": "Acorda Cana",
+      "tag": "Tratamento de Sementes",
+      "description": "Enraizamento, vigor e mais produtividade na cana-de-açúcar, desde o plantio. Formulado para estimular o desenvolvimento inicial da cultura.",
+      "crops": [
+        "Cana-de-açúcar"
+      ],
+      "problems": {
+        "0": {
+          "title": "Arranque lento",
+          "desc": "Mudas com desenvolvimento inicial lento, perdendo janelas produtivas essenciais."
+        },
+        "1": {
+          "title": "Enraizamento insuficiente",
+          "desc": "Sistema radicular raso que limita a absorção de água e nutrientes ao longo do ciclo."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Enraizamento acelerado",
+          "desc": "Estimula o desenvolvimento do sistema radicular desde os primeiros dias após o plantio."
+        },
+        "1": {
+          "title": "Arranque mais forte",
+          "desc": "Plantas com maior vigor inicial respondem melhor à adubação de base."
+        }
+      },
+      "stages": {
+        "0": {
+          "label": "Plantio",
+          "title": "Tratamento de muda",
+          "desc": "Aplicação antes ou durante o plantio para arranque imediato."
+        }
+      },
+      "results": {},
+      "related": {
+        "aminosan": {
+          "name": "Aminosan®",
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Vigor durante o crescimento."
+        },
+        "linha-redutan": {
+          "name": "Linha Redutan",
+          "tag": "Tecnologia de Aplicação",
+          "desc": "Qualidade de calda para aplicações em cana."
+        }
+      }
+    },
+    "acorda-ultra": {
+      "name": "Acorda Ultra",
+      "tag": "Tratamento de Sementes",
+      "description": "Arranque forte e enraizamento profundo desde o primeiro dia no solo. Para soja, milho, algodão e feijão.",
+      "crops": [
+        "Soja",
+        "Milho",
+        "Algodão",
+        "Feijão"
+      ],
+      "problems": {
+        "0": {
+          "title": "Stand desuniforme",
+          "desc": "Emergência irregular que compromete o aproveitamento da área e o manejo."
+        },
+        "1": {
+          "title": "Raízes superficiais",
+          "desc": "Sistema radicular raso que limita a resistência à seca e absorção de nutrientes."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Stand mais uniforme",
+          "desc": "Emergência homogênea para um talhão mais produtivo e fácil de manejar."
+        },
+        "1": {
+          "title": "Raízes mais profundas",
+          "desc": "Sistema radicular robusto para melhor aproveitamento de água e nutrientes."
+        }
+      },
+      "stages": {
+        "0": {
+          "label": "Semente",
+          "title": "Tratamento",
+          "desc": "Aplicado diretamente na semente antes do plantio."
+        }
+      },
+      "results": {},
+      "related": {
+        "aminosan": {
+          "name": "Aminosan®",
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Vigor contínuo durante o crescimento."
+        },
+        "aduban": {
+          "name": "Aduban",
+          "tag": "Tratamento de Sementes",
+          "desc": "Solo equilibrado para planta jovem."
+        }
+      }
+    },
+    "aduban": {
+      "name": "Aduban",
+      "tag": "Tratamento de Sementes",
+      "description": "Solo equilibrado e mais absorção de nutrientes pela planta jovem. Para soja, milho, café e feijão.",
+      "crops": [
+        "Soja",
+        "Milho",
+        "Café",
+        "Feijão"
+      ],
+      "problems": {
+        "0": {
+          "title": "Baixa disponibilidade de nutrientes",
+          "desc": "Solo com nutrientes bloqueados por pH inadequado ou competição biológica."
+        },
+        "1": {
+          "title": "Planta jovem fragilizada",
+          "desc": "Plântulas com desenvolvimento lento por ambiente de solo desequilibrado."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Melhora o ambiente radicular",
+          "desc": "Estimula microrganismos benéficos para maior disponibilidade de nutrientes."
+        },
+        "1": {
+          "title": "Absorção mais eficiente",
+          "desc": "Planta jovem com melhor acesso aos nutrientes desde a germinação."
+        }
+      },
+      "stages": {
+        "0": {
+          "label": "Semente",
+          "title": "Tratamento",
+          "desc": "Aplicado na semente para ação imediata no solo."
+        }
+      },
+      "results": {},
+      "related": {
+        "acorda-ultra": {
+          "name": "Acorda Ultra",
+          "tag": "Tratamento de Sementes",
+          "desc": "Arranque forte e enraizamento profundo."
+        },
+        "aminosan": {
+          "name": "Aminosan®",
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Vigor durante o crescimento."
+        }
+      }
+    },
+    "kmep-ultra": {
+      "name": "Kmep Ultra",
+      "tag": "Proteção de Cultivos",
+      "description": "Potencializa inseticidas e melhora a eficiência no controle de pragas. Adjuvante especializado para maximizar o resultado das aplicações.",
+      "crops": [
+        "Soja",
+        "Milho",
+        "Café",
+        "Algodão",
+        "Feijão",
+        "Tomate",
+        "Batata",
+        "Cana"
+      ],
+      "problems": {
+        "0": {
+          "title": "Controle ineficiente de pragas",
+          "desc": "Inseticidas com baixa performance por dificuldades de deposição e absorção."
+        },
+        "1": {
+          "title": "Resistência de pragas",
+          "desc": "Necessidade de doses cada vez maiores para o mesmo resultado."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Maior eficiência do inseticida",
+          "desc": "Potencializa a ação do princípio ativo, melhorando cobertura e absorção."
+        },
+        "1": {
+          "title": "Melhor deposição",
+          "desc": "Reduz a tensão superficial para melhor espalhamento sobre a folha e a praga."
+        }
+      },
+      "stages": {},
+      "results": {},
+      "related": {
+        "linha-redutan": {
+          "name": "Linha Redutan",
+          "tag": "Tecnologia de Aplicação",
+          "desc": "Qualidade de calda para cada pulverização."
+        },
+        "supermix": {
+          "name": "Supermix",
+          "tag": "Tecnologia de Aplicação",
+          "desc": "Calda uniforme, sem entupimentos."
+        }
+      }
+    },
+    "linha-redutan": {
+      "name": "Linha Redutan",
+      "tag": "Tecnologia de Aplicação",
+      "description": "Qualidade de calda, menos deriva e mais eficiência operacional. A linha completa para otimizar cada pulverização no campo.",
+      "crops": [
+        "Soja",
+        "Milho",
+        "Café",
+        "Algodão",
+        "Feijão",
+        "Citros",
+        "Tomate",
+        "Batata",
+        "Cana",
+        "Pastagem"
+      ],
+      "problems": {
+        "0": {
+          "title": "Deriva excessiva",
+          "desc": "Perda de produto por deriva, contaminando áreas vizinhas e reduzindo a eficiência."
+        },
+        "1": {
+          "title": "Calda instável",
+          "desc": "Misturas incompatíveis que cristalizam ou entopem bicos e filtros."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Menos deriva",
+          "desc": "Reduz a formação de gotas finas que derivam com o vento durante a pulverização."
+        },
+        "1": {
+          "title": "Calda mais estável",
+          "desc": "Melhora a compatibilidade entre produtos na calda para aplicações seguras."
+        }
+      },
+      "stages": {},
+      "results": {},
+      "related": {
+        "supermix": {
+          "name": "Supermix",
+          "tag": "Tecnologia de Aplicação",
+          "desc": "Adjuvante para calda uniforme."
+        },
+        "kmep-ultra": {
+          "name": "Kmep Ultra",
+          "tag": "Proteção de Cultivos",
+          "desc": "Potencializa inseticidas."
+        }
+      }
+    },
+    "supermix": {
+      "name": "Supermix",
+      "tag": "Tecnologia de Aplicação",
+      "description": "Adjuvante para calda uniforme, sem entupimentos e maior compatibilidade entre produtos na pulverização.",
+      "crops": [
+        "Soja",
+        "Milho",
+        "Café",
+        "Algodão",
+        "Feijão",
+        "Citros",
+        "Tomate",
+        "Batata",
+        "Cana",
+        "Pastagem"
+      ],
+      "problems": {
+        "0": {
+          "title": "Calda não homogênea",
+          "desc": "Produtos que não se misturam bem gerando aplicação desuniforme."
+        },
+        "1": {
+          "title": "Entupimento de bicos",
+          "desc": "Precipitação de produtos na calda causando falhas operacionais em campo."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Calda homogênea",
+          "desc": "Melhora a mistura entre produtos para aplicação uniforme em todo o talhão."
+        },
+        "1": {
+          "title": "Sem entupimentos",
+          "desc": "Evita a precipitação de produtos na calda, protegendo o equipamento."
+        }
+      },
+      "stages": {},
+      "results": {},
+      "related": {
+        "linha-redutan": {
+          "name": "Linha Redutan",
+          "tag": "Tecnologia de Aplicação",
+          "desc": "Menos deriva e mais eficiência."
+        },
+        "kmep-ultra": {
+          "name": "Kmep Ultra",
+          "tag": "Proteção de Cultivos",
+          "desc": "Potencializa inseticidas."
+        }
+      }
+    },
+    "revigo-milho": {
+      "name": "Revigo + Milho",
+      "tag": "Manejo Completo",
+      "description": "Nutrição estratégica para o milho safrinha — ganho real por hectare com programa nutricional integrado.",
+      "crops": [
+        "Milho"
+      ],
+      "problems": {
+        "0": {
+          "title": "Milho safrinha com baixo potencial",
+          "desc": "Cultura com janela curta que precisa de nutrição precisa para atingir o teto produtivo."
+        },
+        "1": {
+          "title": "Estresse hídrico no safrão",
+          "desc": "Período mais seco que exige da planta maior eficiência metabólica."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Programa nutricional completo",
+          "desc": "Combinação de produtos montada para cada fase crítica do milho safrinha."
+        },
+        "1": {
+          "title": "Resultado comprovado em campo",
+          "desc": "Ganhos medidos em ensaios conduzidos em parceria com produtores."
+        }
+      },
+      "stages": {
+        "0": {
+          "label": "V3–V5",
+          "title": "Estabelecimento",
+          "desc": "Aplicação precoce para arranque sólido."
+        },
+        "1": {
+          "label": "V8–V10",
+          "title": "Crescimento",
+          "desc": "Nutrição foliar para vigor e massa foliar."
+        },
+        "2": {
+          "label": "Pendoamento",
+          "title": "Pré-reprodutivo",
+          "desc": "Preparação para o florescimento."
+        }
+      },
+      "results": {},
+      "related": {
+        "aminosan": {
+          "name": "Aminosan®",
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Vigor e resistência para todo o ciclo."
+        },
+        "fitofert": {
+          "name": "Fitofert",
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Pegamento e enchimento."
+        }
+      }
+    },
+    "revigo-pasto": {
+      "name": "Revigo + Pasto",
+      "tag": "Manejo Completo",
+      "description": "Recuperação da pastagem, ganho de peso e mais lotação por hectare com nutrição estratégica para forrageiras.",
+      "crops": [
+        "Pastagem"
+      ],
+      "problems": {
+        "0": {
+          "title": "Pastagem degradada",
+          "desc": "Forrageiras com baixa densidade, invasoras e capacidade de suporte reduzida."
+        },
+        "1": {
+          "title": "Baixo ganho de peso",
+          "desc": "Animal com forragem de baixa qualidade nutricional, impactando o resultado zootécnico."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Recuperação da forrageira",
+          "desc": "Nutrição foliar que estimula o rebrote e melhora a densidade do pasto."
+        },
+        "1": {
+          "title": "Maior lotação",
+          "desc": "Pastagem mais produtiva com maior capacidade de suporte por hectare."
+        }
+      },
+      "stages": {},
+      "results": {},
+      "related": {
+        "aminosan": {
+          "name": "Aminosan®",
+          "tag": "Nutrição e Fisiologia",
+          "desc": "Vigor e resistência para todo o ciclo."
+        },
+        "linha-redutan": {
+          "name": "Linha Redutan",
+          "tag": "Tecnologia de Aplicação",
+          "desc": "Eficiência nas aplicações."
+        }
+      }
+    }
   }
 }
