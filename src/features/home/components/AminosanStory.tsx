@@ -829,33 +829,30 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           
           {/* Painel Esquerdo */}
           <div ref={leftPanelRef} className="pointer-events-auto flex flex-col items-start gap-1.5 md:gap-3 xl:gap-4 w-full md:w-auto max-w-full md:max-w-[24rem] xl:max-w-[28rem] bg-transparent p-0 mt-4 md:mt-0">
-            <div data-a3-tag className="flex items-center gap-1.5 md:gap-2 bg-primary/10 text-primary px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs font-semibold">
-              <Leaf className="w-2.5 h-2.5 md:w-3 md:h-3 xl:w-4 xl:h-4" /> {t('a3Tag')}
-            </div>
             <h2 data-a3-title className="uppercase text-4xl md:text-5xl xl:text-6xl font-black text-primary">Aminosan</h2>
-            <p data-a3-desc1 className="text-sm md:text-lg xl:text-xl text-foreground/80 font-medium leading-tight">
+            <p data-a3-desc1 className="text-subtitle text-sm md:text-lg xl:text-xl text-foreground/80 leading-tight">
               {t('a3Desc1')}
             </p>
             <div data-a3-line className="w-8 md:w-12 h-[3px] md:h-1 bg-primary/40 rounded-full my-0.5 md:my-1 xl:my-2" style={{ transformOrigin: 'left' }} />
-            <p data-a3-desc2 className="text-sm font-semibold xl:text-base text-foreground/70">
-              {t('a3Desc2Start')} <span className="font-bold text-primary">{t('a3Desc2Bold')}</span>
+            <p data-a3-desc2 className="text-subtitle text-sm xl:text-base text-foreground/70">
+              {t('a3Desc2Start')} <span className="text-primary">{t('a3Desc2Bold')}</span>
             </p>
             <div className="flex flex-row md:grid md:grid-cols-4 justify-between md:gap-2 xl:gap-4 mt-1 md:mt-2 xl:mt-4 w-full">
               <div data-a3-icon className="flex flex-col items-center md:items-start text-center md:text-left gap-1 md:gap-2 w-[22%] md:w-auto">
                 <Dna className="w-4 h-4 md:w-5 md:h-5 xl:w-6 xl:h-6 text-primary" />
-                <span className="text-[11px] xl:text-[10px] text-foreground/70 leading-tight font-semibold">{t('a3Icon1')}</span>
+                <span className="text-subtitle text-[11px] xl:text-[10px] text-foreground/70 leading-tight">{t('a3Icon1')}</span>
               </div>
               <div data-a3-icon className="flex flex-col items-center md:items-start text-center md:text-left gap-1 md:gap-2 w-[22%] md:w-auto">
                 <Sprout className="w-4 h-4 md:w-5 md:h-5 xl:w-6 xl:h-6 text-primary" />
-                <span className="text-[11px] xl:text-[10px] text-foreground/70 leading-tight font-semibold">{t('a3Icon2')}</span>
+                <span className="text-subtitle text-[11px] xl:text-[10px] text-foreground/70 leading-tight">{t('a3Icon2')}</span>
               </div>
               <div data-a3-icon className="flex flex-col items-center md:items-start text-center md:text-left gap-1 md:gap-2 w-[22%] md:w-auto">
                 <ShieldCheck className="w-4 h-4 md:w-5 md:h-5 xl:w-6 xl:h-6 text-primary" />
-                <span className="text-[11px] xl:text-[10px] text-foreground/70 leading-tight font-semibold">{t('a3Icon3')}</span>
+                <span className="text-subtitle text-[11px] xl:text-[10px] text-foreground/70 leading-tight">{t('a3Icon3')}</span>
               </div>
               <div data-a3-icon className="flex flex-col items-center md:items-start text-center md:text-left gap-1 md:gap-2 w-[22%] md:w-auto">
                 <BarChart3 className="w-4 h-4 md:w-5 md:h-5 xl:w-6 xl:h-6 text-primary" />
-                <span className="text-[11px] xl:text-[10px] text-foreground/70 leading-tight font-semibold">{t('a3Icon4')}</span>
+                <span className="text-subtitle text-[11px] xl:text-[10px] text-foreground/70 leading-tight">{t('a3Icon4')}</span>
               </div>
             </div>
           </div>
@@ -867,24 +864,24 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           <div className="pointer-events-auto flex flex-col gap-5 xl:gap-6 w-full md:w-auto md:max-w-[20rem] xl:max-w-[24rem] mt-auto md:mt-0 mb-8 md:mb-0">
             <div data-right-card className="flex items-start md:items-center gap-4 xl:gap-5 w-full bg-transparent p-0 snap-center shrink-0">
               <CalendarCheck className="w-6 h-6 xl:w-8 xl:h-8 text-primary shrink-0" />
-              <div className="flex flex-col font-semibold gap-0.5 md:gap-1">
-                <span className="text-highlight text-xl md:text-2xl xl:text-3xl text-primary font-bold"><span ref={counterRef}>+10 a +0</span> {t('a3Card1Unit')}</span>
-                <span className="text-sm text-foreground/80 leading-tight">{t('a3Card1Text')}</span>
-                <span className="text-[11px] text-foreground/50 mt-1 leading-tight">{t('a3Card1Source')}</span>
+              <div className="flex flex-col gap-0.5 md:gap-1">
+                <span className="text-highlight text-xl md:text-2xl xl:text-3xl text-primary"><span ref={counterRef}>+10 a +0</span> {t('a3Card1Unit')}</span>
+                <span className="text-subtitle text-sm text-foreground/80 leading-tight">{t('a3Card1Text')}</span>
+                <span className="text-subtitle text-[11px] text-foreground/50 mt-1 leading-tight">{t('a3Card1Source')}</span>
               </div>
             </div>
             
             <div data-right-card className="flex items-start md:items-center gap-3 xl:gap-4 w-full bg-transparent p-0 snap-center shrink-0">
               <Sprout className="w-6 h-6 xl:w-8 xl:h-8 text-primary shrink-0" />
-              <div className="flex flex-col font-semibold gap-0.5 md:gap-1">
-                <span className="text-sm xl:text-base text-foreground/80 leading-tight">{t('a3Card2Text')} <span className="font-bold text-primary">{t('a3Card2Bold')}</span></span>
+              <div className="flex flex-col gap-0.5 md:gap-1">
+                <span className="text-subtitle text-sm xl:text-base text-foreground/80 leading-tight">{t('a3Card2Text')} <span className="text-primary">{t('a3Card2Bold')}</span></span>
               </div>
             </div>
 
             <div data-right-card className="flex items-start md:items-center gap-3 xl:gap-4 w-full bg-transparent p-0 snap-center shrink-0">
               <Users className="w-6 h-6 xl:w-8 xl:h-8 text-primary shrink-0" />
-              <div className="flex flex-col font-semibold gap-0.5 md:gap-1">
-                <span className="text-sm xl:text-base text-foreground/80 leading-tight">{t('a3Card3Text')} <span className="font-bold text-primary">{t('a3Card3Bold')}</span></span>
+              <div className="flex flex-col gap-0.5 md:gap-1">
+                <span className="text-subtitle text-sm xl:text-base text-foreground/80 leading-tight">{t('a3Card3Text')} <span className="text-primary">{t('a3Card3Bold')}</span></span>
               </div>
             </div>
           </div>
