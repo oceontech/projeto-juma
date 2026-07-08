@@ -1029,7 +1029,7 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitl
                s.className = "col-start-1 row-start-1 leading-[1.05]";
                s.style.opacity = i === 0 ? "1" : "0";
                s.style.filter = i === 0 ? "blur(0px)" : "blur(8px)";
-               s.style.transform = i === 0 ? "translateX(0)" : "translateX(20px)";
+               s.style.transform = i === 0 ? "translateY(0)" : "translateY(20px)";
                activeHiEl.appendChild(s);
                return s;
             });
@@ -1047,6 +1047,7 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitl
                rotatorTl.addLabel(label, "+=1.5")
                
                rotatorTl.to(currentEl, {
+                  y: -20,
                   opacity: 0,
                   filter: 'blur(8px)',
                   duration: 0.5,
@@ -1054,11 +1055,11 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitl
                }, label)
                
                rotatorTl.fromTo(nextEl, {
-                  x: 20,
+                  y: 20,
                   opacity: 0,
                   filter: 'blur(8px)'
                }, {
-                  x: 0,
+                  y: 0,
                   opacity: 1,
                   filter: 'blur(0px)',
                   duration: 0.5,
