@@ -108,7 +108,7 @@ export function HeroJornada() {
       if (navLinks) gsap.set(navLinks,  { opacity: 0, filter: 'blur(8px)' })
 
       const tl = gsap.timeline({ defaults: { overwrite: 'auto' } })
-      tl.timeScale(1.5)
+      tl.timeScale(1.8)
 
       // 1. Navbar — pílula expande do centro exato da tela (200px → largura natural)
       //    Anima `width` (não maxWidth) para compatibilidade com grid-cols-[1fr_auto_1fr]
@@ -117,7 +117,7 @@ export function HeroJornada() {
         // o browser redistribui as margens simetricamente → expansão para os dois lados
         gsap.set(mainNav, { flex: 'none', width: 200, opacity: 0, overflow: 'hidden', marginLeft: 'auto', marginRight: 'auto' })
         tl.to(mainNav, {
-          width: naturalWidth, opacity: 1, duration: 1.4, ease: 'power2.inOut',
+          width: naturalWidth, opacity: 1, duration: 1, ease: 'power2.inOut',
           onComplete: () => gsap.set(mainNav, { clearProps: 'flex,width,opacity,overflow,marginLeft,marginRight' }),
         }, 0)
       }
@@ -144,12 +144,12 @@ export function HeroJornada() {
       tl.to(titleWrap, {
         opacity: 1,
         y: 0,
-        duration: 2.5,
+        duration: 1.7,
         ease: 'power2.out'
-      }, '-=0.8')
+      }, 0.2) // Inicia quase junto com a navbar
 
       // 3. Mountain glow fades in as headline rises
-      tl.to(glow, { opacity: 0.45, duration: 2.0, ease: 'power1.out' }, '-=2.0')
+      tl.to(glow, { opacity: 0.45, duration: 1.0, ease: 'power1.out' }, '<')
 
       // 4. Shimmer inicia um pouco antes do texto terminar de subir
       tl.call(() => {
@@ -158,16 +158,16 @@ export function HeroJornada() {
 
       // 5. Complement text + accent line com blur-in (logo após shimmer)
       tl.to(support, { 
-        opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.2, ease: 'power2.out',
+        opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.8, ease: 'power2.out',
         onComplete: () => gsap.set(support, { clearProps: 'filter' })
-      }, '+=0.1')
-      tl.to(accent,  { scaleX: 1, duration: 0.45, ease: EASE.micro }, '<+=0.3')
+      }, '<0.2')
+      tl.to(accent,  { scaleX: 1, duration: 0.3, ease: EASE.micro }, '<0.2')
 
       // 6. Folhas aparecem (tempo absoluto no início da cena)
-      tl.to(leaves, { opacity: 1, duration: 0.9, ease: 'power2.out' }, 0.25)
+      tl.to(leaves, { opacity: 1, duration: 0.6, ease: 'power2.out' }, 0.1)
 
       // 7. Indicador de scroll surge (tempo absoluto)
-      tl.to(scrollInd, { opacity: 1, duration: 0.6, ease: EASE.micro }, 1.5)
+      tl.to(scrollInd, { opacity: 1, duration: 0.4, ease: EASE.micro }, 1.0)
     },
     { dependencies: [enhanced], scope: root },
   )
@@ -588,7 +588,7 @@ export function HeroJornada() {
                 style={{ background: 'radial-gradient(ellipse 75% 55% at 38% 52%, rgba(0,76,38,0.12), transparent 70%)' }}
               />
 
-              <h1 ref={titleWrapRef} className="hero-title-shimmer relative font-black uppercase leading-[0.92] tracking-tight text-[clamp(2.5rem,8vw,5rem)] min-[1600px]:text-[7.5rem] text-left">
+              <h1 ref={titleWrapRef} className="hero-title-shimmer relative font-black uppercase leading-[0.92] tracking-tight text-[clamp(2.5rem,8vw,5rem)] min-[1600px]:text-[7rem] text-left">
                 <span className="block text-foreground">{t('headlineLine1')}</span>
                 <span className="block text-foreground">{t('headlineLine2')}</span>
                 <span className="block">
@@ -662,11 +662,11 @@ export function HeroJornada() {
           <Container className="min-[1600px]:max-w-[90rem] flex lg:justify-end justify-start pt-[15rem] md:pt-[20rem] lg:pt-[10.5rem]">
               <div
                 ref={supportRef}
-                className={`lg:w-1/3 flex flex-col gap-md rounded-2xl bg-transparent backdrop-blur-[2px] md:bg-transparent md:backdrop-blur-none items-start text-left lg:items-end lg:text-right`}
+                className={`lg:w-1/3 flex flex-col gap-md rounded-2xl bg-transparent backdrop-blur-[2px] md:bg-transparent md:backdrop-blur-none items-start text-left lg:text-center`}
               >
                 <span ref={accentLineRef} aria-hidden className="block h-1 w-12 rounded-full bg-primary" />
                 <p className="text-subtitle text-base text-foreground/70 sm:text-lg">{t('subtitle')}</p>
-                <div className={`flex flex-col gap-sm mx-auto lg:mx-0 items-center lg:items-end text-center lg:text-right`}>
+                <div className={`flex flex-col gap-sm mx-auto w-full lg:mx-0 items-center text-center`}>
                   <Link
                     href="/contato"
                     className="text-body-regular pointer-events-auto inline-flex items-center justify-center rounded-full bg-primary px-lg py-sm text-sm text-white transition-colors hover:bg-primary-light"
