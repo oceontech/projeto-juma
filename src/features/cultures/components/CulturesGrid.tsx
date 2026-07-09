@@ -252,7 +252,7 @@ export function CulturesGrid() {
               <div className="absolute inset-0 bg-black/15 pointer-events-none" />
               <div className={`relative z-10 w-full h-full p-6 flex flex-col ${item.align} pointer-events-none`}>
                 <div className="bg-black/30 backdrop-blur-md border border-white/20 p-6 rounded-2xl flex flex-col max-w-[95%]">
-                  <h3 className="font-montserrat text-[19px] font-bold text-white mb-2 drop-shadow-md leading-tight">
+                  <h3 className="text-subtitle text-[19px] font-bold text-white mb-2 drop-shadow-md leading-tight">
                     {t(`steps.${item.key}.title`)}
                   </h3>
                   <p className="text-white/95 leading-relaxed text-[14.5px] drop-shadow-sm font-medium">
