@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useRef } from 'react'
+import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
@@ -16,13 +17,14 @@ type Problem = { title: string; desc: string; icon: 'seed' | 'sun' | 'drop' | 'l
 type Benefit = { title: string; desc: string }
 type Stage = { num: string; label: string; title: string; desc: string }
 type Result = { value: string; unit: string; desc: string }
-type Related = { slug: string; name: string; tag: string; desc: string; labelColor: string }
+type Related = { slug: string; name: string; tag: string; desc: string; labelColor: string; image?: string }
 
 export type ProductMeta = {
   labelColor: string
   problemsMeta: ('seed' | 'sun' | 'drop' | 'leaf' | 'shield' | 'chart')[]
   resultsMeta: { value: string; unit: string }[]
   relatedMeta: { slug: string; labelColor: string }[]
+  image?: string
 }
 
 const META: Record<string, ProductMeta> = {
@@ -30,79 +32,92 @@ const META: Record<string, ProductMeta> = {
     labelColor: '#659357',
     problemsMeta: ['seed', 'sun', 'drop'],
     resultsMeta: [{ value: '+14', unit: 'sc/ha' }, { value: '+10', unit: 'sc/ha' }, { value: '+38', unit: '%' }],
-    relatedMeta: [{ slug: 'fitofert', labelColor: '#659357' }, { slug: 'linha-revigo', labelColor: '#302783' }, { slug: 'revigophos-amino', labelColor: '#302783' }]
+    relatedMeta: [{ slug: 'fitofert', labelColor: '#659357' }, { slug: 'linha-revigo', labelColor: '#302783' }, { slug: 'revigophos-amino', labelColor: '#302783' }],
+    image: '/produtos/aminosan-20l.png'
   },
   'fitofert': {
     labelColor: '#659357',
     problemsMeta: ['leaf', 'chart', 'sun'],
     resultsMeta: [],
-    relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'revigophos-amino', labelColor: '#302783' }]
+    relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'revigophos-amino', labelColor: '#302783' }],
+    image: '/produtos/fitofert-20l.png'
   },
   'linha-revigo': {
     labelColor: '#302783',
     problemsMeta: ['leaf', 'sun', 'drop'],
     resultsMeta: [],
-    relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'fitofert', labelColor: '#659357' }]
+    relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'fitofert', labelColor: '#659357' }],
+    image: '/produtos/revigo-comoni-1l.png'
   },
   'revigophos-amino': {
     labelColor: '#302783',
     problemsMeta: ['sun', 'drop', 'seed'],
     resultsMeta: [],
-    relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'fitofert', labelColor: '#659357' }]
+    relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'fitofert', labelColor: '#659357' }],
+    image: '/produtos/revigophos-amino-20l.png'
   },
   'revigo-cobre-ultra': {
     labelColor: '#302783',
     problemsMeta: ['leaf', 'shield'],
     resultsMeta: [],
-    relatedMeta: [{ slug: 'linha-revigo', labelColor: '#302783' }, { slug: 'aminosan', labelColor: '#659357' }]
+    relatedMeta: [{ slug: 'linha-revigo', labelColor: '#302783' }, { slug: 'aminosan', labelColor: '#659357' }],
+    image: '/produtos/revigo-cobre-ultra-20l.png'
   },
   'acorda-cana': {
     labelColor: '#79ab34',
     problemsMeta: ['seed', 'drop'],
     resultsMeta: [],
-    relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'linha-redutan', labelColor: '#7d252a' }]
+    relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'linha-redutan', labelColor: '#7d252a' }],
+    image: '/produtos/acorda-cana-20l.png'
   },
   'acorda-ultra': {
     labelColor: '#008dc2',
     problemsMeta: ['chart', 'drop'],
     resultsMeta: [],
-    relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'aduban', labelColor: '#ad1115' }]
+    relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'aduban', labelColor: '#ad1115' }],
+    image: '/produtos/acorda-ultra-10l.png'
   },
   'aduban': {
     labelColor: '#ad1115',
     problemsMeta: ['drop', 'seed'],
     resultsMeta: [],
-    relatedMeta: [{ slug: 'acorda-ultra', labelColor: '#008dc2' }, { slug: 'aminosan', labelColor: '#659357' }]
+    relatedMeta: [{ slug: 'acorda-ultra', labelColor: '#008dc2' }, { slug: 'aminosan', labelColor: '#659357' }],
+    image: '/produtos/aduban-20l.png'
   },
   'kmep-ultra': {
     labelColor: '#ad1115',
     problemsMeta: ['shield', 'chart'],
     resultsMeta: [],
-    relatedMeta: [{ slug: 'linha-redutan', labelColor: '#7d252a' }, { slug: 'supermix', labelColor: '#388123' }]
+    relatedMeta: [{ slug: 'linha-redutan', labelColor: '#7d252a' }, { slug: 'supermix', labelColor: '#388123' }],
+    image: '/produtos/kmep-ultra-20l.png'
   },
   'linha-redutan': {
     labelColor: '#7d252a',
     problemsMeta: ['sun', 'drop'],
     resultsMeta: [],
-    relatedMeta: [{ slug: 'supermix', labelColor: '#388123' }, { slug: 'kmep-ultra', labelColor: '#ad1115' }]
+    relatedMeta: [{ slug: 'supermix', labelColor: '#388123' }, { slug: 'kmep-ultra', labelColor: '#ad1115' }],
+    image: '/produtos/redutan-npk-sili-4-1l.png'
   },
   'supermix': {
     labelColor: '#388123',
     problemsMeta: ['drop', 'chart'],
     resultsMeta: [],
-    relatedMeta: [{ slug: 'linha-redutan', labelColor: '#7d252a' }, { slug: 'kmep-ultra', labelColor: '#ad1115' }]
+    relatedMeta: [{ slug: 'linha-redutan', labelColor: '#7d252a' }, { slug: 'kmep-ultra', labelColor: '#ad1115' }],
+    image: '/produtos/supermix-20l.png'
   },
   'revigo-milho': {
     labelColor: '#302783',
     problemsMeta: ['chart', 'sun'],
     resultsMeta: [],
-    relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'fitofert', labelColor: '#659357' }]
+    relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'fitofert', labelColor: '#659357' }],
+    image: '/produtos/revigo-milho-20l.png'
   },
   'revigo-pasto': {
     labelColor: '#302783',
     problemsMeta: ['leaf', 'chart'],
     resultsMeta: [],
-    relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'linha-redutan', labelColor: '#7d252a' }]
+    relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'linha-redutan', labelColor: '#7d252a' }],
+    image: '/produtos/revigo-pasto-20l.png'
   }
 }
 
@@ -223,7 +238,7 @@ export function ProductPage({ slug }: { slug: string }) {
     benefits: Object.values(tData.raw(`${slug}.benefits`) as Record<string, {title: string, desc: string}>),
     stages: Object.entries(tData.raw(`${slug}.stages`) as Record<string, {label: string, title: string, desc: string}>).map(([k, s], i) => ({ ...s, num: `0${i+1}` })),
     results: Object.values(tData.raw(`${slug}.results`) as Record<string, {desc: string}>).map((r, i) => ({ ...r, ...meta.resultsMeta[i] })),
-    related: Object.entries(tData.raw(`${slug}.related`) as Record<string, {name: string, tag: string, desc: string}>).map(([relSlug, r], i) => ({ slug: relSlug, ...r, labelColor: meta.relatedMeta[i]?.labelColor || '#000' }))
+    related: Object.entries(tData.raw(`${slug}.related`) as Record<string, {name: string, tag: string, desc: string}>).map(([relSlug, r], i) => ({ slug: relSlug, ...r, labelColor: meta.relatedMeta[i]?.labelColor || '#000', image: META[relSlug]?.image }))
   } : null;
   const reduced = useReducedMotion()
   const heroRef = useRef<HTMLDivElement>(null)
@@ -244,9 +259,9 @@ export function ProductPage({ slug }: { slug: string }) {
       gsap.set(els, { y: 24, opacity: 0 })
       
       const tl = gsap.timeline({ delay: 0.15 })
-      tl.to(els, { y: 0, opacity: 1, duration: DUR.sub, stagger: 0.09, ease: EASE.reveal })
+      tl.to(els, { y: 0, opacity: 1, duration: DUR.sub, stagger: 0.04, ease: EASE.reveal })
       if (split) {
-        tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char, ease: EASE.reveal }, '-=0.4')
+        tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char, ease: EASE.reveal }, '<0.1')
       }
 
       return () => split?.revert()
@@ -290,13 +305,13 @@ export function ProductPage({ slug }: { slug: string }) {
         })
         
         tl.to(section, { y: 0, opacity: 1, duration: 0.8 })
-        if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub }, '-=0.6')
+        if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub }, '<0.1')
         if (split) {
-          tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, '-=0.4')
+          tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, '<0.1')
         }
-        if (lede) tl.to(lede, { y: 0, opacity: 1, duration: DUR.sub }, '-=0.4')
+        if (lede) tl.to(lede, { y: 0, opacity: 1, duration: DUR.sub }, '<0.2')
         if (contentEls.length > 0) {
-          tl.to(contentEls, { y: 0, opacity: 1, duration: 0.45, stagger: 0.04 }, '-=0.6')
+          tl.to(contentEls, { y: 0, opacity: 1, duration: 0.45, stagger: 0.03 }, '<0.2')
         }
       })
       
@@ -335,59 +350,16 @@ export function ProductPage({ slug }: { slug: string }) {
                 boxShadow: '0 1px 2px rgba(20,30,20,.04), 0 24px 60px -32px rgba(20,30,20,.25)',
               }}
             >
-              {/* Seal badge */}
-              <div
-                className="absolute top-[22px] left-[22px] z-10 w-[116px] h-[116px] rounded-full bg-[#F0E27A] text-[#1A1A1A] grid place-items-center text-center text-[11px] font-bold uppercase tracking-[0.06em] leading-[1.1] p-[10px] select-none"
-                style={{ animation: 'pdp-seal-spin 22s linear infinite' }}
-                aria-hidden
-              >
-                <span>
-                  <span style={{ fontSize: 10 }}>40+ anos</span><br />
-                  <span style={{ fontSize: 24, letterSpacing: '-0.02em', fontWeight: 750, textTransform: 'none' }}>no campo</span><br />
-                  <span style={{ fontSize: 10 }}>referência br</span>
-                </span>
-              </div>
-
-              {/* Bottle body */}
-              <div
-                className="relative flex flex-col items-center"
-                style={{ width: '38%', height: '78%' }}
-              >
-                {/* Cap */}
-                <div
-                  className="absolute rounded-t-[6px] rounded-b-[8px]"
-                  style={{
-                    top: -16,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: '28%',
-                    height: 24,
-                    backgroundColor: product.labelColor,
-                  }}
+              <div className="relative z-10 h-full w-full flex items-center justify-center p-8 transition-transform duration-500 hover:scale-105">
+                <Image
+                  src={product.image || "/produtos/placeholder-produto.png"}
+                  alt={`Imagem do produto ${product.name}`}
+                  width={1000}
+                  height={1500}
+                  quality={100}
+                  className="object-contain h-full w-auto drop-shadow-2xl"
+                  priority
                 />
-                {/* Body */}
-                <div
-                  className="w-full h-full rounded-[20px_20px_10px_10px] flex flex-col items-center"
-                  style={{
-                    background: 'linear-gradient(180deg, #fff 0%, #f4f4f0 100%)',
-                    boxShadow: '0 60px 80px -40px rgba(0,0,0,.30), inset -16px 0 36px -14px rgba(0,0,0,.10)',
-                    paddingTop: '7%',
-                  }}
-                >
-                  {/* Label */}
-                  <div
-                    className="flex flex-col items-center gap-1 rounded-[6px] text-center text-white px-[6px] py-[14px]"
-                    style={{
-                      backgroundColor: product.labelColor,
-                      width: '82%',
-                      marginTop: '14%',
-                    }}
-                  >
-                    <small style={{ fontSize: '9.5px', letterSpacing: '0.08em', color: 'rgba(255,255,255,.85)', textTransform: 'uppercase' }}>Juma Agro</small>
-                    <b style={{ fontSize: 22, letterSpacing: '-0.01em', fontWeight: 750 }}>{nameShort}</b>
-                    <small style={{ fontSize: '9.5px', letterSpacing: '0.08em', color: 'rgba(255,255,255,.85)', textTransform: 'uppercase' }}>{product.tag.split(' ')[0]}</small>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -448,13 +420,7 @@ export function ProductPage({ slug }: { slug: string }) {
                   </svg>
                   {tPage('whatsappBtn')}
                 </a>
-                <Link
-                  href="/contato"
-                  className="inline-flex items-center gap-2.5 h-[54px] px-[26px] rounded-full text-[15px] font-semibold text-[#1A1A1A] border border-black/[0.18] hover:border-black transition-all hover:-translate-y-px"
-                >
-                  {tPage('seeDetailsBtn')}
-                  <ArrowIcon />
-                </Link>
+
               </div>
             </div>
           </div>
@@ -481,18 +447,17 @@ export function ProductPage({ slug }: { slug: string }) {
                   <article
                     key={i}
                     data-animate-content
-                    className="group relative overflow-hidden bg-[#1A1A1A] border border-white/10 rounded-[24px] p-8 flex flex-col gap-6 transition-all duration-300 hover:-translate-y-2 hover:border-[#004B26]/60 hover:shadow-[0_0_30px_rgba(0,75,38,0.25)]"
+                    className="group flex flex-col gap-2 bg-transparent border border-black/15 rounded-xl p-6 transition-all duration-300 hover:-translate-y-1 hover:border-black/30 hover:shadow-sm"
                   >
-                    <div className="absolute -top-12 -right-12 w-32 h-32 bg-[#F0E27A] rounded-full blur-[60px] opacity-10 group-hover:opacity-20 transition-opacity duration-300 pointer-events-none" />
-                    
-                    <span className="text-[#F0E27A]/20 font-black leading-none pointer-events-none" style={{ fontSize: 'clamp(48px, 4vw, 64px)' }}>
-                      {(i + 1).toString().padStart(2, '0')}
-                    </span>
-
-                    <div className="flex flex-col gap-3 relative z-10 mt-auto">
-                      <h3 className="m-0 text-[20px] font-bold tracking-tight text-white leading-snug">{p.title}</h3>
-                      <p className="m-0 text-[15px] text-white/70 leading-[1.6]">{p.desc}</p>
+                    <div className="flex items-center gap-2.5 mb-1">
+                      <AlertTriangle className="w-[18px] h-[18px] text-[#ad1115] shrink-0" />
+                      <h3 className="m-0 text-[16px] text-subtitle font-bold tracking-tight text-[#1A1A1A] leading-snug">
+                        {p.title}
+                      </h3>
                     </div>
+                    <p className="m-0 text-[14.5px] text-subtitle text-[#5A5A57] leading-relaxed">
+                      {p.desc}
+                    </p>
                   </article>
                 ))}
               </div>
@@ -680,18 +645,21 @@ export function ProductPage({ slug }: { slug: string }) {
                       >
                         {rel.tag}
                       </span>
-                      <div
-                        className="flex flex-col items-center gap-1 rounded-[6px] text-center text-white px-2 py-3 w-[6rem]"
-                        style={{ backgroundColor: rel.labelColor }}
-                      >
-                        <small style={{ fontSize: 8, letterSpacing: '0.08em', textTransform: 'uppercase', opacity: 0.8 }}>Juma Agro</small>
-                        <b style={{ fontSize: 14, fontWeight: 750, letterSpacing: '-0.01em' }}>{rel.name.replace('®', '').replace('+', '').trim()}</b>
+                      <div className="relative z-10 h-[80%] w-full flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
+                        <Image
+                          src={rel.image || "/produtos/placeholder-produto.png"}
+                          alt={`Imagem do produto ${rel.name}`}
+                          width={300}
+                          height={450}
+                          quality={90}
+                          className="object-contain h-full w-auto drop-shadow-xl"
+                        />
                       </div>
                     </div>
 
                     {/* Body */}
                     <div className="p-5 flex flex-col flex-1 bg-white">
-                      <h3 className="m-0 mb-2 text-[19px] font-[650] tracking-[-0.01em] text-[#1A1A1A] leading-snug">{rel.name}</h3>
+                      <h3 className="m-0 mb-2 text-subtitle text-[19px] font-[650] tracking-[-0.01em] text-[#1A1A1A] leading-snug">{rel.name}</h3>
                       <p className="m-0 text-[14.5px] text-[#5A5A57] leading-[1.5] flex-1 mb-4">{rel.desc}</p>
                       <div className="self-end flex items-center justify-center h-[42px] w-[42px] rounded-full border border-black/[0.18] text-[#1A1A1A]/60 group-hover:bg-[#004B26] group-hover:border-[#004B26] group-hover:text-white transition-all">
                         <ArrowIcon />

@@ -44,9 +44,8 @@ export default async function HomePage(props: {
         <HomeCultures />
       </div>
       <div id="sec-numeros" className="scroll-mt-24">
-        <HomeResults />
+        <ProofStrip />
       </div>
-      <ProofStrip />
       <div id="sec-desafio" className="scroll-mt-24">
         <Problem />
       </div>

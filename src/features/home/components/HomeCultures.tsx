@@ -148,7 +148,7 @@ export function HomeCultures() {
                   {c.idx}
                 </span>
                 <span
-                  className="text-[13px] sm:text-[16px] font-bold text-white leading-[1.1] tracking-[-0.01em]"
+                  className="text-subtitle text-[13px] sm:text-[16px] font-bold text-white leading-[1.1] tracking-[-0.01em]"
                 >
                   {t(`cultures.${i}`)}
                 </span>

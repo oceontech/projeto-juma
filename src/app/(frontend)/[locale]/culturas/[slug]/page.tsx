@@ -27,7 +27,7 @@ export default async function CulturaPage(props: {
   if (!(CULTURE_SLUGS as readonly string[]).includes(slug)) notFound()
 
   return (
-    <div className="pt-[80px]">
+    <div>
       <CulturePage slug={slug} />
     </div>
   )
