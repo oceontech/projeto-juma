@@ -42,13 +42,19 @@ export function Navbar() {
     setOpen(false)
   }, [pathname])
 
-  // Esconde ao rolar para baixo, reaparece ao rolar para cima (imersão).
+  // Esconde ao rolar para baixo, reaparece ao rolar para cima (imersão) SOMENTE NO DESKTOP.
   // Funciona mesmo com o scroll travado (locking) da jornada via eventos de wheel/touch.
   useEffect(() => {
     let last = window.scrollY
     let ticking = false
 
     const handleScrollDirection = (direction: 'up' | 'down', currentY: number) => {
+      // Aplica a funcionalidade apenas para telas grandes (desktop)
+      if (window.innerWidth < 1280) {
+        setHidden(false)
+        return
+      }
+      
       const isLocked = document.documentElement.style.overflow === 'hidden'
       if (direction === 'down' && (currentY > 50 || isLocked)) {
         setHidden(true)
@@ -115,15 +121,15 @@ export function Navbar() {
     >
       {/* 1344px em notebooks, 1600px em telas ≥1600px, 1920px em monitores grandes (≥2000px) */}
       <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
-        <div className="flex items-stretch gap-sm mx-auto w-full max-w-[1344px] min-[1600px]:max-w-[1600px] min-[2000px]:max-w-[1920px]">
+        <div className="flex items-stretch justify-end xl:justify-start gap-sm mx-auto w-full max-w-[1344px] min-[1600px]:max-w-[1600px] min-[2000px]:max-w-[1920px]">
           {/* Pílula principal — flex-1 para ocupar toda a largura disponível */}
-          <div id="main-nav-pill" className="flex-1 rounded-full border border-white/20 bg-gradient-to-r from-white/40 to-white/20 backdrop-blur-xl border-t border-t-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06),_0_0_0_1px_rgba(0,0,0,0.08),_inset_0_1px_2px_rgba(255,255,255,0.5)] origin-center overflow-hidden" style={{ willChange: 'width, opacity' }}>
-              <div className="flex justify-between items-center gap-xl mx-auto w-full p-sm">
-                {/* Logo com recorte do rodapé roxo */}
+          <div id="main-nav-pill" className="xl:flex-1 rounded-full border border-white/20 bg-gradient-to-r from-white/40 to-white/20 backdrop-blur-xl border-t border-t-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06),_0_0_0_1px_rgba(0,0,0,0.08),_inset_0_1px_2px_rgba(255,255,255,0.5)] origin-center overflow-hidden" style={{ willChange: 'width, opacity' }}>
+              <div className="flex justify-center xl:justify-between items-center xl:gap-xl mx-auto w-full p-1.5 xl:p-sm">
+                {/* Logo Desktop (dentro da pílula) */}
                 <Link
                   href="/"
                   aria-label="Juma Agro — início"
-                  className="shrink-0 block h-9 overflow-hidden relative"
+                  className="hidden xl:block shrink-0 overflow-hidden relative ml-3"
                 >
                   <Image
                     src="/brand/logo-juma-agro.png"

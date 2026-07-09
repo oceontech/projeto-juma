@@ -110,15 +110,12 @@ export function HeroJornada() {
       const tl = gsap.timeline({ defaults: { overwrite: 'auto' } })
       tl.timeScale(1.8)
 
-      // 1. Navbar — pílula expande do centro exato da tela (200px → largura natural)
-      //    Anima `width` (não maxWidth) para compatibilidade com grid-cols-[1fr_auto_1fr]
+      // 1. Navbar — pílula surge suavemente com blur-in (unificado para mobile e desktop)
       if (mainNav) {
-        // marginLeft/Right: auto centraliza a pílula no flex; como width cresce,
-        // o browser redistribui as margens simetricamente → expansão para os dois lados
-        gsap.set(mainNav, { flex: 'none', width: 200, opacity: 0, overflow: 'hidden', marginLeft: 'auto', marginRight: 'auto' })
+        gsap.set(mainNav, { opacity: 0, filter: 'blur(10px)' })
         tl.to(mainNav, {
-          width: naturalWidth, opacity: 1, duration: 1, ease: 'power2.inOut',
-          onComplete: () => gsap.set(mainNav, { clearProps: 'flex,width,opacity,overflow,marginLeft,marginRight' }),
+          opacity: 1, filter: 'blur(0px)', duration: 1, ease: 'power2.inOut',
+          onComplete: () => gsap.set(mainNav, { clearProps: 'opacity,filter' }),
         }, 0)
       }
 
@@ -552,8 +549,22 @@ export function HeroJornada() {
   if (!enhanced) {
     return (
       <section ref={root} className="sticky top-0 z-0 bg-white">
-        <Container className="grid grid-cols-1 items-start gap-xl pb-2xl pt-[7.5rem] lg:grid-cols-12 min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
-          <Headline t={t} className="lg:col-span-7 text-left" />
+        {/* Logo Mobile no topo da Hero (estática) */}
+        <div className="absolute top-6 left-8 z-50 lg:hidden">
+          <Image
+            src="/brand/logo-juma-agro.png"
+            alt="Juma Agro"
+            width={230}
+            height={81}
+            priority
+            className="h-[46px] w-auto object-cover object-left"
+          />
+        </div>
+
+        <Container className="grid grid-cols-1 items-start gap-xl pb-2xl pt-[12rem] lg:pt-[7.5rem] lg:grid-cols-12 min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] !px-8 lg:!px-md">
+          <div className="lg:col-span-7 text-left">
+            <Headline t={t} className="w-full" />
+          </div>
           <Support  t={t} className="lg:col-span-5 items-start text-left lg:items-end lg:text-right" />
         </Container>
         <div className="relative h-[40vh] w-full overflow-hidden sm:h-[46vh] lg:h-[60vh]">
@@ -624,7 +635,19 @@ export function HeroJornada() {
 
         {/* z-10 — Headline: sobe DE TRÁS das montanhas na entrada */}
         <div data-rest className="absolute inset-x-0 top-0 z-10 w-full">
-          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pt-[6rem] lg:pt-[10rem]">
+          {/* Logo Mobile no topo da Hero (desaparece no scroll) */}
+          <div className="absolute top-6 left-8 z-50 lg:hidden">
+            <Image
+              src="/brand/logo-juma-agro.png"
+              alt="Juma Agro"
+              width={230}
+              height={81}
+              priority
+              className="h-[46px] w-auto object-cover object-left"
+            />
+          </div>
+
+          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pt-[10rem] lg:pt-[10rem] !px-8 lg:!px-md">
             <div className="relative max-w-[60rem] min-[1600px]:max-w-[76rem] min-[2000px]:max-w-[92rem]">
 
               {/* Glow radial suave atrás do título */}
@@ -635,7 +658,7 @@ export function HeroJornada() {
                 style={{ background: 'radial-gradient(ellipse 75% 55% at 38% 52%, rgba(0,76,38,0.12), transparent 70%)' }}
               />
 
-              <h1 ref={titleWrapRef} className="hero-title-shimmer relative font-black uppercase leading-[0.92] tracking-tight text-[clamp(2.5rem,8vw,5rem)] min-[1600px]:text-[7.5rem] min-[2000px]:text-[9rem] text-left">
+              <h1 ref={titleWrapRef} className="hero-title-shimmer relative font-black uppercase leading-[0.92] tracking-tight text-[clamp(2.8rem,8vw,5rem)] min-[1600px]:text-[7.5rem] min-[2000px]:text-[9rem] text-left">
                 <span className="block text-foreground">{t('headlineLine1')}</span>
                 <span className="block text-foreground">{t('headlineLine2')}</span>
                 <span className="block">
@@ -657,26 +680,9 @@ export function HeroJornada() {
           />
         </div>
 
-        {/* z-[0] — Selos (Mobile e Desktop). Atrás do vídeo (que usará mix-blend-multiply) */}
-        {/* Mobile Seal: Aparece após a imagem estabilizar. */}
-        <div
-          className={`pointer-events-none absolute top-[38%] left-[2%] z-[0] lg:hidden ease-out ${
-            cap === 2 && isPaused
-              ? 'opacity-100 transition-opacity duration-500'
-              : 'opacity-0 transition-opacity duration-200'
-          }`}
-        >
-          <div>
-            <Seal text={tj('q2Seal')} className="h-48 w-48 text-primary animate-[spin_12s_linear_infinite]" />
-          </div>
-        </div>
-
         {/* Desktop Seal */}
         <div className="pointer-events-none absolute inset-0 z-[25] hidden lg:block w-full h-full">
-          <DesktopPhaseSeal show={cap === 2 && isPaused} text={tj('q2Seal')} alignRight={false} />
         </div>
-
-
 
         {/* z-30 — Folhas: 2 camadas com timing diferente criam profundidade de canópia */}
         <div ref={leafContainerRef} className="pointer-events-none absolute inset-0 z-30">
@@ -705,15 +711,15 @@ export function HeroJornada() {
         </div>
 
         {/* z-40 — Subtítulo + CTA (repouso) */}
-        <div data-rest className="absolute inset-x-0 top-0 z-40">
-          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] flex lg:justify-end justify-start pt-[15rem] md:pt-[20rem] lg:pt-[10.5rem]">
+        <div data-rest className="absolute inset-x-0 -top-8 lg:top-25 z-40">
+          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] flex lg:justify-end justify-start pt-[22rem] md:pt-[24rem] lg:pt-[10.5rem] !px-8 lg:!px-md">
               <div
                 ref={supportRef}
-                className={`lg:w-1/3 flex flex-col gap-md rounded-2xl bg-transparent backdrop-blur-[2px] md:bg-transparent md:backdrop-blur-none items-start text-left lg:text-center`}
+                className={`lg:w-1/3 flex flex-col lg:gap-md rounded-2xl bg-transparent backdrop-blur-[2px] md:bg-transparent md:backdrop-blur-none items-start lg:items-end text-left lg:text-right`}
               >
                 <span ref={accentLineRef} aria-hidden className="block h-1 w-12 rounded-full bg-primary" />
-                <p className="text-subtitle text-base text-foreground/70 sm:text-lg">{t('subtitle')}</p>
-                <div className={`flex flex-col gap-sm mx-auto w-full lg:mx-0 items-center text-center`}>
+                <p className="text-subtitle mt-5 mb-6 text-balance text-base text-foreground/70 sm:text-lg">{t('subtitle')}</p>
+                <div className={`flex flex-col gap-sm mx-auto w-full lg:mx-0 items-start lg:items-end text-left lg:text-right`}>
                   <Link
                     href="/contato"
                     className="text-body-regular pointer-events-auto inline-flex items-center justify-center rounded-full bg-primary px-lg py-sm text-sm text-white transition-colors hover:bg-primary-light"
@@ -801,7 +807,7 @@ function Support({ t, className = '' }: { t: TFn; className?: string }) {
   return (
     <div className={`flex flex-col gap-md ${className}`}>
       <span aria-hidden className="block h-1 w-12 rounded-full bg-primary" />
-      <p className="text-subtitle text-base text-foreground/70 sm:text-lg">{t('subtitle')}</p>
+      <p className="text-subtitle text-balance text-base text-foreground/70 sm:text-lg">{t('subtitle')}</p>
       <div className="mt-sm flex flex-col gap-sm items-start lg:items-end">
         <Link
           href="/contato"
@@ -820,7 +826,7 @@ type PhaseItem = { icon: PhaseIconName; lead: string; sub: string }
 /** Fases Q2/Q3: pílula + título bicolor + benefícios + selo; micro-stagger GSAP na entrada.
  *  `align` espelha o bloco (esquerda na fase 2, direita na fase 3 onde a planta fica à esquerda).
  *  Mobile: headline flutua no topo, conteúdo ancora no canto inferior direito, seal como marca d'água. */
-function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, align = 'left', yShift = '', mobileYShift = 'bottom-22' }: {
+function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, align = 'left', yShift = '', mobileYShift = '' }: {
   show: boolean; kicker: string; title: string; titleHi?: string; subtitle: string
   items?: PhaseItem[]; seal?: string; align?: 'left' | 'right'; yShift?: string; mobileYShift?: string
 }) {
@@ -842,14 +848,14 @@ function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, alig
         ? new SplitText(titleEl, { type: 'chars,lines' })
         : null
 
-      const lineOrigin = (mobile || align === 'right') ? 'right center' : 'left center'
+      const lineOrigin = (!mobile && align === 'right') ? 'right center' : 'left center'
 
       const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
       if (kickerEl) tl.fromTo(kickerEl, { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0)
       if (split)    tl.fromTo(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' }, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, 0.05)
       if (lineEl)   tl.fromTo(lineEl, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: DUR.sub, transformOrigin: lineOrigin }, 0.2)
       if (subEl)    tl.fromTo(subEl, { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0.28)
-      if (itemsEl)  tl.fromTo(itemsEl.children, { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub, stagger: STAGGER.card }, 0.34)
+      if (itemsEl)  tl.fromTo(itemsEl, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0.34)
 
       return () => { tl.kill(); split?.revert() }
     },
@@ -868,42 +874,44 @@ function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, alig
     >
       {/* ── MOBILE LAYOUT ────────────────────────────────────────── */}
       <div className="lg:hidden absolute inset-0">
-        {/* Headline fora do card, posicionada no topo */}
-        <div className="absolute top-20 left-md right-md z-2">
-          <h2 data-pt-m className="font-black uppercase leading-[0.88] tracking-tight text-[clamp(2rem,9vw,3rem)] text-left">
+        {/* Tag, Headline (e Subtítulo, caso sem YShift) */}
+        <div className="absolute top-6 left-8 right-md z-2 flex flex-col items-start text-left">
+          <span data-pk-m className="mb-md inline-flex items-center gap-xs rounded-full border border-primary/25 bg-white/60 px-sm py-[6px] backdrop-blur-sm">
+            <LeafGlyph className="h-3 w-3 text-primary" />
+            <span className="text-eyebrow text-primary uppercase tracking-widest text-[10px]">{kicker}</span>
+          </span>
+          <h2 data-pt-m className="font-black uppercase leading-[0.88] tracking-tight text-[clamp(2rem,9vw,3rem)] mb-3">
             <span className="text-foreground">{lead}</span>
             {titleHi && <span className="block italic font-semibold text-primary">{titleHi}</span>}
           </h2>
+          
+          {!mobileYShift && (
+            <div className="flex flex-col items-start mt-2">
+              <span data-pl-m aria-hidden className="block h-[2px] w-8 rounded-full bg-primary mb-2" />
+              <p data-ps-m className="text-subtitle text-balance text-foreground/90 font-medium leading-relaxed text-sm max-w-[85%]">{subtitle}</p>
+            </div>
+          )}
         </div>
 
-        {/* Conteúdo (kicker + linha + subtítulo + items) — canto inferior direito */}
-        <div className={`absolute ${mobileYShift} right-md max-w-62 flex flex-col items-end text-right text-sm z-2`}>
-          <span data-pk-m className="mb-sm inline-flex items-center gap-xs rounded-full border border-primary/25 bg-white/60 px-xs py-[4px] backdrop-blur-sm">
-            <LeafGlyph className="h-3 w-3 text-primary" />
-            <span className="text-eyebrow text-primary uppercase tracking-widest">{kicker}</span>
-          </span>
-          <span data-pl-m aria-hidden className="block h-[2px] w-8 rounded-full bg-primary mb-sm self-end" />
-          <p data-ps-m className="text-subtitle text-foreground/80 leading-relaxed">{subtitle}</p>
+        {mobileYShift && (
+          <div className={`absolute ${mobileYShift} ${align === 'right' ? 'right-8 items-end text-right' : 'left-8 items-start text-left'} z-2 flex flex-col w-[40%] sm:w-[50%]`}>
+            <span data-pl-m aria-hidden className="block h-[2px] w-8 rounded-full bg-primary mb-2" />
+            <p data-ps-m className="text-subtitle text-balance text-foreground/90 font-medium leading-relaxed text-sm">{subtitle}</p>
+          </div>
+        )}
+
+        {/* Orbit Cards na lateral direita */}
+        <div className="absolute bottom-20 right-16 z-2">
           {items && items.length > 0 && (
-            <ul data-pi-m className="mt-sm flex flex-col gap-[6px] w-full">
-              {items.map((it, i) => (
-                <li key={i} className="flex items-center gap-xs justify-end">
-                  <span className="flex flex-col text-right leading-tight">
-                    <span className="text-heading font-bold text-foreground">{it.lead}</span>
-                    <span className="text-body-regular text-foreground/60">{it.sub}</span>
-                  </span>
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-primary/25 text-primary">
-                    <PhaseIcon name={it.icon} className="h-3.5 w-3.5" />
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <div data-pi-m>
+              <OrbitalCards items={items} mobile />
+            </div>
           )}
         </div>
       </div>
 
       {/* ── DESKTOP LAYOUT (inalterado) ──────────────────────────── */}
-      <Container className={`hidden lg:flex min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] h-full items-center ${right ? 'justify-end' : 'justify-start'}`}>
+      <Container className={`hidden lg:flex min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] h-full items-center ${right ? 'justify-end' : 'justify-between'}`}>
         <div className={`flex flex-col ${right ? 'items-end text-right' : 'items-start text-left'} ${yShift} max-w-136 xl:max-w-168`}>
           <span data-pk className="mb-sm xl:mb-md inline-flex items-center gap-xs rounded-full border border-primary/25 bg-white/60 px-xs xl:px-sm py-[4px] xl:py-[6px] backdrop-blur-sm">
             <LeafGlyph className="h-3 w-3 xl:h-3.5 xl:w-3.5 text-primary" />
@@ -917,27 +925,14 @@ function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, alig
 
           <span data-pl aria-hidden className="block h-[2px] xl:h-[3px] w-8 xl:w-10 rounded-full bg-primary mb-sm xl:mb-md" />
 
-          <p data-ps className="text-subtitle text-xs xl:text-sm sm:text-base text-foreground/80 leading-relaxed max-w-112 xl:max-w-136">{subtitle}</p>
-
-          {items && items.length > 0 && (
-            <ul data-pi className={`mt-md xl:mt-lg flex flex-wrap gap-sm xl:gap-md sm:gap-lg ${right ? 'justify-end' : ''}`}>
-              {items.map((it, i) => (
-                <li
-                  key={i}
-                  className={`flex max-w-[8.5rem] xl:max-w-[10.5rem] flex-col gap-xs xl:gap-sm ${right ? 'items-end text-right' : ''} ${i > 0 ? 'border-l border-foreground/10 pl-sm xl:pl-md sm:pl-lg' : ''}`}
-                >
-                  <span className="flex h-8 w-8 xl:h-11 xl:w-11 items-center justify-center rounded-full border border-primary/25 text-primary">
-                    <PhaseIcon name={it.icon} className="h-4 w-4 xl:h-5 xl:w-5" />
-                  </span>
-                  <span className="flex flex-col leading-tight">
-                    <span className="text-heading text-[10px] xl:text-xs font-bold text-foreground">{it.lead}</span>
-                    <span className="text-body-regular text-[9px] xl:text-xs text-foreground/60">{it.sub}</span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
+          <p data-ps className="text-subtitle text-balance text-xs xl:text-sm sm:text-base text-foreground/80 leading-relaxed max-w-112 xl:max-w-136">{subtitle}</p>
         </div>
+
+        {items && items.length > 0 && (
+          <div data-pi className={`self-end pb-[15vh] 2xl:pb-[20vh] pr-12 lg:pr-24 xl:pr-32 2xl:pr-48 ${right ? 'mr-auto' : ''}`}>
+            <OrbitalCards items={items} />
+          </div>
+        )}
       </Container>
 
     </div>
@@ -994,34 +989,6 @@ function Seal({ text, className }: { text: string; className?: string }) {
         <path d="M0 -3 C13 -3 19 -12 19 -20 C7 -20 0 -12 0 -3 Z" />
       </g>
     </svg>
-  )
-}
-
-function DesktopPhaseSeal({ show, text, alignRight }: { show: boolean, text: string, alignRight?: boolean }) {
-  const ref = useRef<HTMLDivElement>(null)
-  
-  useGSAP(
-    () => {
-      if (!show || !ref.current) return
-      const sealEl = ref.current.querySelector<HTMLElement>('[data-pseal-inner]')
-      if (sealEl) {
-        gsap.fromTo(sealEl, { scale: 0.85, opacity: 0, rotate: -12 }, { scale: 1, opacity: 1, rotate: 0, duration: DUR.title, ease: EASE.micro })
-      }
-    },
-    { dependencies: [show], scope: ref }
-  )
-
-  return (
-    <div
-      ref={ref}
-      className={`absolute inset-0 w-full h-full transition-opacity duration-200 ease-out ${
-        show ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-      }`}
-    >
-      <div data-pseal-inner className={`absolute bottom-[6%] xl:bottom-[12%] ${alignRight ? 'left-[4%] xl:left-[6%]' : 'right-[4%] xl:right-[6%]'}`}>
-        <Seal text={text} className="h-24 w-24 text-primary xl:h-40 xl:w-40 animate-[spin_12s_linear_infinite]" />
-      </div>
-    </div>
   )
 }
 
@@ -1154,7 +1121,67 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitl
 
         <span data-gline aria-hidden className="mx-auto mt-lg block h-[3px] w-12 rounded-full bg-primary" />
 
-        <p data-gs className="text-subtitle mx-auto mt-lg text-base sm:text-lg text-foreground/70 leading-relaxed">{subtitle}</p>
+        <p data-gs className="text-subtitle text-balance mx-auto mt-lg text-base sm:text-lg text-foreground/70 leading-relaxed">{subtitle}</p>
+      </div>
+    </div>
+  )
+}
+
+function OrbitalCards({ items, mobile = false }: { items: PhaseItem[], mobile?: boolean }) {
+  // Container ainda menor para que os cards passem uns sobre os outros e sobre a esfera
+  const containerSize = mobile ? 'w-[140px]' : 'w-[200px]';
+
+  return (
+    <div className={`group relative flex items-center justify-center aspect-square ${containerSize} mx-auto lg:mx-0 mt-8`}>
+      <style>{`
+        @keyframes orbit-path {
+          0% { transform: rotate(0deg) translateY(var(--orbit-radius)) rotate(0deg); }
+          100% { transform: rotate(360deg) translateY(var(--orbit-radius)) rotate(-360deg); }
+        }
+        .animate-orbit-path {
+          animation: orbit-path 20s linear infinite;
+        }
+        .group:hover .animate-orbit-path {
+          animation-play-state: paused;
+        }
+      `}</style>
+
+      {/* Central Sphere - Menor */}
+      <div className="absolute inset-0 flex items-center justify-center z-10">
+        <div className={`rounded-full bg-gradient-to-br from-primary-light via-primary to-primary-dark shadow-[0_0_20px_rgba(0,166,80,0.6)] ${mobile ? 'w-10 h-10' : 'w-16 h-16 xl:w-20 xl:h-20'}`} />
+      </div>
+
+      {/* Orbit Track - Mantido para dar a ideia do caminho, se ajusta ao container */}
+      <div className="absolute inset-0 rounded-full border border-primary/20 z-0" />
+
+      {/* Rotating Container */}
+      <div className="absolute inset-0 flex items-center justify-center z-20">
+        {items.map((it, i) => {
+          // Delay negativo distribui os itens ao longo da órbita já na posição inicial correta
+          const delay = -(20 / items.length) * i;
+          return (
+            <div
+              key={i}
+              className="absolute animate-orbit-path hover:z-50"
+              style={{ 
+                animationDelay: `${delay}s`,
+                '--orbit-radius': mobile ? '-70px' : '-100px' 
+              } as React.CSSProperties}
+            >
+              <div 
+                className={`transition-all duration-300 ease-out hover:-translate-y-4 hover:-rotate-6 hover:scale-110 flex flex-col items-center gap-2 p-3 lg:p-4 rounded-xl bg-white/30 backdrop-blur-md border border-white/40 shadow-xl text-center cursor-default ${mobile ? 'w-[100px]' : 'w-[140px] xl:w-[160px]'}`}
+              >
+                <div className={`flex items-center justify-center rounded-full bg-primary/10 text-primary ${mobile ? 'h-8 w-8' : 'h-10 w-10 xl:h-12 xl:w-12'}`}>
+                  <PhaseIcon name={it.icon} className={mobile ? 'h-4 w-4' : 'h-5 w-5 xl:h-6 xl:w-6'} />
+                </div>
+                <div>
+                  <div className={`text-subtitle font-bold text-foreground leading-tight ${mobile ? 'text-[10px]' : 'text-xs xl:text-sm'}`}>{it.lead}</div>
+                  <div className={`text-foreground/70 leading-tight mt-1 ${mobile ? 'text-[9px]' : 'text-[10px] xl:text-xs'}`}>{it.sub}</div>
+                </div>
+              </div>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -1164,7 +1191,7 @@ function PhaseText({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div className="text-left py-md border-b border-foreground/5 last:border-0">
       <h2 className="text-balance text-[clamp(1.75rem,4vw,2.5rem)] font-black leading-tight tracking-tight text-foreground uppercase">{title}</h2>
-      <p className="text-subtitle mt-sm text-foreground/75 sm:text-lg">{subtitle}</p>
+      <p className="text-subtitle text-balance mt-sm text-foreground/75 sm:text-lg">{subtitle}</p>
     </div>
   )
 }
