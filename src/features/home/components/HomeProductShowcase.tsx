@@ -1,7 +1,8 @@
 'use client'
 
 import { useRef } from 'react'
-import { Leaf, Atom, Sprout, ChevronDown } from 'lucide-react'
+import type { CSSProperties } from 'react'
+import { Leaf, Atom, Sprout, ChevronDown, ArrowRight } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
@@ -203,6 +204,7 @@ export function HomeProductShowcase() {
 
       const parts = (el: HTMLElement) => ({
         text:  el.querySelector('.pcs-panel-text'),
+        cta:   el.querySelector('.pcs-panel-cta'),
         stats: el.querySelectorAll('.pcs-stat-row'),
       })
 
@@ -246,8 +248,9 @@ export function HomeProductShowcase() {
 
           // Visibilidade inicial dos painéis de texto
           products.forEach((el, i) => {
-            const { text, stats } = parts(el)
-            gsap.set([text, ...stats], { autoAlpha: i === startIndex ? 1 : 0, x: 0 })
+            const { text, cta, stats } = parts(el)
+            gsap.set([text, cta, ...stats], { autoAlpha: i === startIndex ? 1 : 0, x: 0 })
+            el.classList.toggle('is-active', i === startIndex)
           })
 
           // Dot ativo inicial
@@ -295,13 +298,18 @@ export function HomeProductShowcase() {
                 duration: isMotion ? 0.65 : 0.4,
                 ease: 'power2.inOut',
               }, 0)
+              // Zera o offset de mouse de quem sai do centro
+              if (i !== index) {
+                const wrap = bottle.querySelector('.pcs-bottle-wrap')
+                if (wrap) tl.to(wrap, { x: 0, y: 0, duration: 0.5, ease: 'power2.out' }, 0)
+              }
             })
 
             // Painéis fora da troca ficam ocultos (scroll rápido pula índices)
             products.forEach((el, i) => {
               if (i === index || i === from) return
               const p = parts(el)
-              tl.set([p.text, ...p.stats], { autoAlpha: 0 }, 0)
+              tl.set([p.text, p.cta, ...p.stats], { autoAlpha: 0 }, 0)
             })
 
             const curParts  = parts(products[from])
@@ -310,6 +318,7 @@ export function HomeProductShowcase() {
             if (isMotion) {
               // Saída do painel atual (direção acompanha o scroll)
               tl.to(curParts.text,  { autoAlpha: 0, x: -40 * dir, duration: 0.45, ease: 'power2.in' }, 0)
+                .to(curParts.cta,   { autoAlpha: 0, y: 12, duration: 0.35, ease: 'power2.in' }, 0)
                 .to(curParts.stats, { autoAlpha: 0, x: 40 * dir,  stagger: 0.04, duration: 0.45, ease: 'power2.in' }, 0)
 
               // Entrada do próximo painel
@@ -319,6 +328,11 @@ export function HomeProductShowcase() {
                 { autoAlpha: 1, x: 0, duration: 0.7, ease: 'power3.out' },
                 0.3,
               ).fromTo(
+                nextParts.cta,
+                { autoAlpha: 0, y: 12 },
+                { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+                0.45,
+              ).fromTo(
                 nextParts.stats,
                 { autoAlpha: 0, x: -45 * dir },
                 { autoAlpha: 1, x: 0, stagger: 0.06, duration: 0.7, ease: 'power3.out' },
@@ -326,9 +340,9 @@ export function HomeProductShowcase() {
               )
             } else {
               // Reduced motion: crossfade simples
-              tl.to([curParts.text, ...curParts.stats], { autoAlpha: 0, duration: 0.4 }, 0)
+              tl.to([curParts.text, curParts.cta, ...curParts.stats], { autoAlpha: 0, duration: 0.4 }, 0)
               tl.fromTo(
-                [nextParts.text, ...nextParts.stats],
+                [nextParts.text, nextParts.cta, ...nextParts.stats],
                 { autoAlpha: 0 },
                 { autoAlpha: 1, duration: 0.4 },
                 0.3,
@@ -337,6 +351,7 @@ export function HomeProductShowcase() {
 
             // Dot ativo (cor via var(--pcs-accent), transição no CSS)
             dots.forEach((d, i) => d.classList.toggle('is-active', i === index))
+            products.forEach((el, i) => el.classList.toggle('is-active', i === index))
           }
 
           /* ── Pin dirigido pelo scroll nativo ───────────────────────
@@ -352,9 +367,11 @@ export function HomeProductShowcase() {
             pin: true,
             pinSpacing: true,
             anticipatePin: 1,
-            onUpdate: (self) => {
-              const idx = Math.round(self.progress * (COUNT - 1))
-              if (idx !== currentIndexRef.current) applyIndex(idx)
+            onEnter: () => {
+              if (currentIndexRef.current !== 0) applyIndex(0)
+            },
+            onEnterBack: () => {
+              if (currentIndexRef.current !== COUNT - 1) applyIndex(COUNT - 1)
             },
           })
 
@@ -363,16 +380,31 @@ export function HomeProductShowcase() {
           const indexToY = (i: number) =>
             pinTrigger.start + ((pinTrigger.end - pinTrigger.start) * i) / (COUNT - 1)
 
-          const scrollToY = (y: number, duration = 0.8) => {
+          const scrollToY = (y: number, duration = 0.55) => {
             const l = lenisRef.current
-            if (l) l.scrollTo(y, { duration })
-            else window.scrollTo({ top: y, behavior: 'smooth' })
+            if (l) {
+              // force: executa mesmo se outro bloco tiver chamado lenis.stop()
+              // (a trava da seção Aminosan deixa o Lenis parado em alguns fluxos)
+              l.scrollTo(y, { duration, force: true })
+              return
+            }
+            // Fallback sem Lenis: tween manual (window.scrollTo smooth
+            // seria engolido por qualquer outro controle de scroll)
+            const proxy = { y: window.scrollY }
+            gsap.to(proxy, {
+              y,
+              duration,
+              ease: 'power2.out',
+              overwrite: true,
+              onUpdate: () => window.scrollTo(0, proxy.y),
+            })
           }
 
-          const goToIndex = (i: number) => {
+          const goToIndex = (i: number, duration = 0.55) => {
             if (i < 0 || i >= COUNT) return
             hideHint()
-            scrollToY(indexToY(i), 0.8)
+            if (i !== currentIndexRef.current) applyIndex(i)
+            scrollToY(indexToY(i), duration)
           }
           goToIndexRef.current = goToIndex
 
@@ -381,14 +413,112 @@ export function HomeProductShowcase() {
             scrollToY(pinTrigger.end + window.innerHeight, 1.1)
           }
 
-          // Snap suave: parou de rolar dentro da seção → assenta no produto
-          // mais próximo (via Lenis, sem brigar com o smooth scroll)
-          const onScrollEnd = () => {
-            if (!pinTrigger.isActive) return
-            const target = indexToY(currentIndexRef.current)
-            if (Math.abs(pinTrigger.scroll() - target) > 4) scrollToY(target, 0.55)
+          // Snap ao parar de rolar (detecção própria de inatividade — o
+          // 'scrollEnd' do ScrollTrigger não é confiável com o Lenis no meio):
+          // — dentro do pin: assenta no produto mais próximo;
+          // — nas bordas (seção parcialmente visível): completa o movimento na
+          //   direção do gesto, para nunca descansar com faixa da seção vizinha.
+          const settle = () => {
+            const scroll = window.scrollY
+            const vh = window.innerHeight
+
+            if (pinTrigger.isActive) {
+              const target = indexToY(currentIndexRef.current)
+              if (Math.abs(scroll - target) > 4) scrollToY(target, 0.55)
+              return
+            }
+            // Zona de entrada (catálogo espiando por baixo da seção anterior)
+            if (scroll < pinTrigger.start && scroll > pinTrigger.start - vh) {
+              scrollToY(lastDir > 0 ? pinTrigger.start : Math.max(0, pinTrigger.start - vh), 0.7)
+              return
+            }
+            // Zona de saída (próxima seção espiando por baixo do catálogo)
+            if (scroll > pinTrigger.end && scroll < pinTrigger.end + vh) {
+              scrollToY(lastDir > 0 ? pinTrigger.end + vh : pinTrigger.end, 0.7)
+            }
           }
-          ScrollTrigger.addEventListener('scrollEnd', onScrollEnd)
+
+          let stepLocked = false
+          let touchStartY = 0
+
+          const unlockStep = () => {
+            window.setTimeout(() => {
+              stepLocked = false
+            }, 420)
+          }
+
+          const stepCatalog = (dir: 1 | -1) => {
+            if (!pinTrigger.isActive || stepLocked) return
+            stepLocked = true
+            hideHint()
+
+            const current = currentIndexRef.current
+            if (dir > 0) {
+              if (current < COUNT - 1) goToIndex(current + 1, 0.5)
+              else skipRef.current?.()
+            } else if (current > 0) {
+              goToIndex(current - 1, 0.5)
+            }
+
+            unlockStep()
+          }
+
+          const onWheelStep = (e: WheelEvent) => {
+            if (!pinTrigger.isActive) return
+            if (Math.abs(e.deltaY) < 2) return
+            if (e.cancelable) e.preventDefault()
+            stepCatalog(e.deltaY > 0 ? 1 : -1)
+          }
+
+          const onTouchStart = (e: TouchEvent) => {
+            if (e.touches.length > 0) touchStartY = e.touches[0].clientY
+          }
+
+          const onTouchMoveStep = (e: TouchEvent) => {
+            if (!pinTrigger.isActive || e.touches.length === 0) return
+            const delta = touchStartY - e.touches[0].clientY
+            if (Math.abs(delta) < 18) return
+            if (e.cancelable) e.preventDefault()
+            stepCatalog(delta > 0 ? 1 : -1)
+            touchStartY = e.touches[0].clientY
+          }
+
+          let lastY   = window.scrollY
+          let lastDir = 1
+          let idleTimer: ReturnType<typeof setTimeout> | undefined
+          const onScroll = () => {
+            const y = window.scrollY
+            if (y !== lastY) lastDir = y > lastY ? 1 : -1
+            lastY = y
+            clearTimeout(idleTimer)
+            idleTimer = setTimeout(settle, 180)
+          }
+          window.addEventListener('scroll', onScroll, { passive: true })
+          window.addEventListener('wheel', onWheelStep, { passive: false })
+          window.addEventListener('touchstart', onTouchStart, { passive: true })
+          window.addEventListener('touchmove', onTouchMoveStep, { passive: false })
+
+          // Movimento sutil com o mouse — só no frasco ATIVO (desktop).
+          // O tween mira o wrap interno; o carrossel anima o elemento externo,
+          // então os dois nunca brigam.
+          let onPointerMove: ((e: PointerEvent) => void) | null = null
+          if (isMotion && !isMobile) {
+            onPointerMove = (e: PointerEvent) => {
+              if (!pinTrigger.isActive) return
+              const wrap = bottles[currentIndexRef.current]?.querySelector('.pcs-bottle-wrap')
+              if (!wrap) return
+              const nx = (e.clientX / window.innerWidth - 0.5) * 2
+              const ny = (e.clientY / window.innerHeight - 0.5) * 2
+              gsap.to(wrap, {
+                x: nx * 16,
+                y: ny * 10,
+                duration: 0.6,
+                ease: 'power2.out',
+                overwrite: 'auto',
+              })
+            }
+            window.addEventListener('pointermove', onPointerMove, { passive: true })
+          }
 
           // Teclado
           const handleKeyDown = (e: KeyboardEvent) => {
@@ -408,7 +538,12 @@ export function HomeProductShowcase() {
 
           return () => {
             window.removeEventListener('keydown', handleKeyDown)
-            ScrollTrigger.removeEventListener('scrollEnd', onScrollEnd)
+            window.removeEventListener('scroll', onScroll)
+            window.removeEventListener('wheel', onWheelStep)
+            window.removeEventListener('touchstart', onTouchStart)
+            window.removeEventListener('touchmove', onTouchMoveStep)
+            if (onPointerMove) window.removeEventListener('pointermove', onPointerMove)
+            clearTimeout(idleTimer)
             transitionTl?.kill()
             pinTrigger.kill()
             goToIndexRef.current = null
@@ -519,9 +654,10 @@ export function HomeProductShowcase() {
                           key={size}
                           className="pcs-size-tag"
                           style={{
+                            '--stat-accent': product.accent,
                             borderColor: `${product.accent}66`,
                             color: product.accent,
-                          }}
+                          } as CSSProperties}
                         >
                           {size}
                         </span>
@@ -530,6 +666,15 @@ export function HomeProductShowcase() {
                   </div>
                 </div>
 
+                <Link
+                  href={product.href}
+                  className="pcs-panel-cta"
+                  style={{ '--product-accent': product.accent, color: product.accent } as CSSProperties}
+                >
+                  <ArrowRight size={14} strokeWidth={2} aria-hidden />
+                  {t('hintReduced')}
+                </Link>
+
                 {/* Coluna 3 — stats */}
                 <div className="pcs-panel-stats">
                   {product.stats.map((stat, si) => {
@@ -537,7 +682,11 @@ export function HomeProductShowcase() {
                     const statUnit = t(`products.${i}.stats.${si}.unit`);
                     const Icon = STAT_ICONS[stat.icon]
                     return (
-                      <div key={statLabel} className="pcs-stat-row">
+                      <div
+                        key={statLabel}
+                        className="pcs-stat-row"
+                        style={{ '--stat-accent': product.accent } as CSSProperties}
+                      >
                         <div
                           className="pcs-stat-icon"
                           style={{

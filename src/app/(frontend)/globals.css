@@ -571,6 +571,10 @@ html.lenis body { height: auto; }
   grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1.2fr) minmax(0, 0.9fr);
   align-items: center;
   padding: 0 3rem;
+  pointer-events: none;
+}
+.pcs-product.is-active {
+  pointer-events: auto;
 }
 
 /* ----- Left text block ----- */
@@ -644,45 +648,65 @@ html.lenis body { height: auto; }
 .pcs-sizes-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.65rem;
 }
 .pcs-size-tag {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 2.75rem;
-  padding: 0.32rem 0.85rem;
+  width: 44px;
+  height: 44px;
   border-radius: 999px;
-  border: 1px solid;
+  border: 1.5px solid;
   font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(6px);
+  font-weight: 900;
+  letter-spacing: 0;
+  background: color-mix(in srgb, var(--stat-accent, var(--pcs-accent)) 8%, transparent);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--stat-accent, var(--pcs-accent)) 22%, transparent);
+  backdrop-filter: blur(8px);
+  transition: transform 0.35s ease, background-color 0.35s ease, filter 0.35s ease, color 0.35s ease;
+}
+.pcs-size-tag:hover {
+  transform: translateY(-3px) scale(1.08);
+  background: color-mix(in srgb, var(--stat-accent, var(--pcs-accent)) 15%, transparent);
+  filter: drop-shadow(0 0 14px var(--stat-accent, var(--pcs-accent)));
+  color: #fff !important;
 }
 
-/* CTA no bloco de texto (esquerda) */
+/* CTA central abaixo do produto */
 .pcs-panel-cta {
+  grid-column: 2;
+  align-self: end;
+  justify-self: center;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  margin-top: 1.25rem;
-  padding: 0.55rem 1.25rem;
-  border-radius: 999px;
-  border: 1px solid;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  gap: 0.5rem;
+  margin-bottom: 15vh;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  text-decoration: none;
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(6px);
-  transition: background 0.2s;
+  color: var(--product-accent, var(--pcs-accent));
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.42em;
+  background: transparent;
+  backdrop-filter: none;
+  z-index: 4;
+  transition: opacity 0.25s ease, transform 0.25s ease, text-underline-offset 0.25s ease;
   will-change: transform, opacity;
 }
 .pcs-panel-cta:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: inherit;
+  opacity: 0.86;
+  transform: translateX(4px);
+  text-underline-offset: 0.6em;
+  color: var(--product-accent, var(--pcs-accent));
+}
+.pcs-panel-cta svg {
+  flex-shrink: 0;
 }
 
 /* ----- Right stats ----- */
@@ -700,6 +724,7 @@ html.lenis body { height: auto; }
   align-items: center;
   gap: 1rem;
   will-change: transform, opacity;
+  cursor: pointer;
 }
 .pcs-stat-icon {
   width: 60px;
@@ -711,10 +736,33 @@ html.lenis body { height: auto; }
   align-items: center;
   justify-content: center;
   color: #fff;
+  transition: transform 0.35s ease, background-color 0.35s ease, filter 0.35s ease;
+}
+/* Hover nos stats — o GSAP anima o transform da row inteira (inline),
+   então o hover mexe só nos filhos (icon/text), sem conflito */
+.pcs-stat-row:hover .pcs-stat-icon {
+  transform: scale(1.12) translateX(-3px);
+  background-color: rgba(255, 255, 255, 0.1);
+  filter: drop-shadow(0 0 16px var(--stat-accent, var(--pcs-accent)));
+}
+.pcs-stat-row:hover .pcs-stat-icon svg {
+  transform: rotate(-8deg) scale(1.08);
+}
+.pcs-stat-row:hover .pcs-stat-text {
+  transform: translateX(7px);
+}
+.pcs-stat-row:hover .pcs-stat-value {
+  color: var(--stat-accent, var(--pcs-accent));
+  text-shadow: 0 0 18px color-mix(in srgb, var(--stat-accent, var(--pcs-accent)) 45%, transparent);
+}
+.pcs-stat-row:hover .pcs-stat-label,
+.pcs-stat-row:hover .pcs-stat-unit {
+  color: rgba(255, 255, 255, 0.92);
 }
 .pcs-stat-text {
   display: flex;
   flex-direction: column;
+  transition: transform 0.35s ease;
 }
 .pcs-stat-value-row {
   display: flex;
@@ -727,17 +775,23 @@ html.lenis body { height: auto; }
   font-size: 34px;
   line-height: 1;
   color: #fff;
+  transition: color 0.35s ease, text-shadow 0.35s ease;
 }
 .pcs-stat-unit {
   font-size: 0.75rem;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.7);
+  transition: color 0.35s ease;
 }
 .pcs-stat-label {
   font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.75);
   margin-top: 0.35rem;
   max-width: 150px;
+  transition: color 0.35s ease;
+}
+.pcs-stat-icon svg {
+  transition: transform 0.35s ease;
 }
 
 /* Scroll hint */
@@ -889,7 +943,12 @@ html.lenis body { height: auto; }
     max-width: 100%;
   }
   .pcs-panel-sizes { margin-top: 1.2rem; }
-  .pcs-panel-cta   { font-size: 0.62rem; padding: 0.4rem 0.9rem; }
+  .pcs-panel-cta {
+    align-self: center;
+    margin-bottom: 21vh;
+    font-size: 0.68rem;
+    padding: 0;
+  }
 
   /* Stats em linha no mobile */
   .pcs-panel-stats {

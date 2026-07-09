@@ -317,6 +317,23 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const lockScroll = (on: boolean) => {
         if (on) {
           lenisRef.current?.stop()
+          // Alinha a seção exatamente ao topo da viewport: sem isto a trava
+          // engata com o scroll alguns px além/aquém do 'top top' e sobra uma
+          // faixa da seção vizinha visível durante toda a animação.
+          const stage = stageRef.current
+          if (stage) {
+            const targetY = Math.round(window.scrollY + stage.getBoundingClientRect().top)
+            if (Math.abs(window.scrollY - targetY) > 1) {
+              const proxy = { y: window.scrollY }
+              gsap.to(proxy, {
+                y: targetY,
+                duration: 0.35,
+                ease: 'power2.out',
+                overwrite: true,
+                onUpdate: () => window.scrollTo(0, proxy.y),
+              })
+            }
+          }
           const sw = window.innerWidth - document.documentElement.clientWidth
           if (sw > 0 && !isMobile) {
             document.body.style.paddingRight = `${sw}px`
