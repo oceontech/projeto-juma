@@ -660,7 +660,9 @@
     },
     "hint": "desplaza para explorar",
     "hintReduced": "Ver producto",
-    "subtitle": "Línea Redutan® · Línea Juma"
+    "subtitle": "Línea Redutan® · Línea Juma",
+    "sizesLabel": "Tamaños disponibles",
+    "skip": "Saltar sección"
   },
   "homeCultures": {
     "kicker": "Cultivos",

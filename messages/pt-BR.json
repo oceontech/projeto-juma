@@ -660,7 +660,9 @@
     },
     "hint": "role para explorar",
     "hintReduced": "Ver produto",
-    "subtitle": "Linha Redutan® · Linha Juma"
+    "subtitle": "Linha Redutan® · Linha Juma",
+    "sizesLabel": "Tamanhos disponíveis",
+    "skip": "Pular seção"
   },
   "homeCultures": {
     "kicker": "Culturas",

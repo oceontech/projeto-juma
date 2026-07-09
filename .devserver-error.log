@@ -1,0 +1,8 @@
+⨯ Another next dev server is already running.
+
+- Local:        http://localhost:3000
+- PID:          16932
+- Dir:          C:\Users\Dell G15\OneDrive\Desktop\projeto juma
+- Log:          .next\dev\logs\next-development.log
+
+Run taskkill /PID 16932 /F to stop it.

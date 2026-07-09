@@ -293,11 +293,11 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       gsap.set(calloutLine,  { scaleY: 0 })
       gsap.set(calloutLabel, { autoAlpha: 0 })
 
-      const a3Tag = leftPanelRef.current?.querySelector('[data-a3-tag]')
-      const a3Title = leftPanelRef.current?.querySelector('[data-a3-title]')
-      const a3Desc1 = leftPanelRef.current?.querySelector('[data-a3-desc1]')
-      const a3Line = leftPanelRef.current?.querySelector('[data-a3-line]')
-      const a3Desc2 = leftPanelRef.current?.querySelector('[data-a3-desc2]')
+      const a3Tag = leftPanelRef.current?.querySelector<HTMLElement>('[data-a3-tag]') ?? null
+      const a3Title = leftPanelRef.current?.querySelector<HTMLElement>('[data-a3-title]') ?? null
+      const a3Desc1 = leftPanelRef.current?.querySelector<HTMLElement>('[data-a3-desc1]') ?? null
+      const a3Line = leftPanelRef.current?.querySelector<HTMLElement>('[data-a3-line]') ?? null
+      const a3Desc2 = leftPanelRef.current?.querySelector<HTMLElement>('[data-a3-desc2]') ?? null
       const a3Icons = leftPanelRef.current ? gsap.utils.toArray('[data-a3-icon]', leftPanelRef.current) : []
       const rightCards = root.current ? gsap.utils.toArray<HTMLElement>('[data-right-card]', root.current) : []
 

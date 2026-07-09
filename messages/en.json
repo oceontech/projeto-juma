@@ -660,7 +660,9 @@
     },
     "hint": "scroll to explore",
     "hintReduced": "View product",
-    "subtitle": "Redutan® Line · Juma Line"
+    "subtitle": "Redutan® Line · Juma Line",
+    "sizesLabel": "Available sizes",
+    "skip": "Skip section"
   },
   "homeCultures": {
     "kicker": "Crops",

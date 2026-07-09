@@ -439,7 +439,9 @@ html.lenis body { height: auto; }
 .pcs-root {
   position: relative;
   width: 100%;
+  height: 100vh;
   height: 100svh;
+  min-height: 100vh;
   /* Fundo sólido de segurança — evita flash branco antes do .pcs-bg renderizar */
   background: var(--pcs-mid, #0a2a22);
   /* Shared color vars (atualizadas via JS) — bg + podium herdam */
@@ -508,53 +510,21 @@ html.lenis body { height: auto; }
   pointer-events: none;
 }
 
-/* Shared stage lighting (podium) */
-.pcs-composition {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-}
-/* Rich floor shadow */
-.pcs-podium-glow {
-  position: absolute;
-  left: 50%;
-  bottom: 12vh;
-  transform: translate(-50%, 42%);
-  width: min(480px, 40vw);
-  height: 120px;
-  border-radius: 50%;
-  background: radial-gradient(ellipse at center, var(--pcs-mid) 0%, transparent 75%);
-  filter: blur(18px);
-  mix-blend-mode: multiply;
-  opacity: 0.85;
-}
-/* Deeper contact shadow on floor */
-.pcs-podium-spec {
-  position: absolute;
-  left: 50%;
-  bottom: 12vh;
-  transform: translate(-50%, 8%);
-  width: min(280px, 24vw);
-  height: 36px;
-  border-radius: 50%;
-  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--pcs-mid) 70%, #000 30%) 0%, transparent 70%);
-  filter: blur(5px);
-  mix-blend-mode: multiply;
-  opacity: 0.90;
-}
-
 /* Pinned slideshow */
 .pcs-showcase {
   position: relative;
   z-index: 10;
+  height: 100vh;
   height: 100svh;
+  min-height: 100vh;
   overflow: hidden;
 }
 .pcs-stage {
   position: relative;
   width: 100%;
+  height: 100vh;
   height: 100svh;
+  min-height: 100vh;
 }
 
 /* Bottle theater — shared overlay for all product images */
@@ -592,57 +562,13 @@ html.lenis body { height: auto; }
   height: 100%;
   width: auto;
   object-fit: contain;
-  filter: drop-shadow(0 24px 30px rgba(0, 0, 0, 0.45));
 }
-
-/* Layered ground shadow */
-.pcs-ambient-shadow {
-  position: absolute;
-  z-index: 1;
-  bottom: -2%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 120%;
-  height: 12%;
-  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.34) 0%, rgba(0, 0, 0, 0.14) 45%, transparent 72%);
-  filter: blur(18px);
-  pointer-events: none;
-}
-.pcs-contact-shadow {
-  position: absolute;
-  z-index: 2;
-  bottom: 1%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60%;
-  height: 5%;
-  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.35) 40%, transparent 70%);
-  filter: blur(7px);
-  pointer-events: none;
-}
-/* Glossy floor reflection */
-.pcs-reflection {
-  position: absolute;
-  z-index: 1;
-  top: 100%;
-  left: 50%;
-  height: 100%;
-  width: auto;
-  object-fit: contain;
-  transform: translateX(-50%) scaleY(-1);
-  opacity: 0.16;
-  filter: blur(2px);
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, transparent 42%);
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, transparent 42%);
-  pointer-events: none;
-}
-
 /* Stacked, centered product panels — text + stats crossfade in place */
 .pcs-product {
   position: absolute;
   inset: 0;
   display: grid;
-  grid-template-columns: 1fr minmax(360px, 0.9fr) 1fr;
+  grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1.2fr) minmax(0, 0.9fr);
   align-items: center;
   padding: 0 3rem;
 }
@@ -650,7 +576,7 @@ html.lenis body { height: auto; }
 /* ----- Left text block ----- */
 .pcs-panel-text {
   grid-column: 1;
-  max-width: 460px;
+  max-width: min(420px, 100%);
   justify-self: start;
   z-index: 3;
   will-change: transform, opacity;
@@ -666,11 +592,27 @@ html.lenis body { height: auto; }
 .pcs-panel-title {
   font-family: var(--font-heading);
   font-weight: 900;
-  font-size: clamp(2.75rem, 8vw, 8.25rem);
+  font-size: clamp(2.75rem, 6.2vw, 6.25rem);
   line-height: 0.92;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
   text-transform: uppercase;
   color: #ffffff;
+  max-width: 9ch;
+  overflow-wrap: break-word;
+}
+.pcs-panel-title-0 {
+  font-size: clamp(2.5rem, 5.4vw, 5.4rem);
+  max-width: none;
+  white-space: nowrap;
+}
+.pcs-panel-title-1,
+.pcs-panel-title-3 {
+  font-size: clamp(2.45rem, 5.1vw, 5.1rem);
+  max-width: none;
+}
+.pcs-title-line {
+  display: block;
+  white-space: nowrap;
 }
 .pcs-panel-divider {
   width: 64px;
@@ -684,6 +626,39 @@ html.lenis body { height: auto; }
   color: rgba(255, 255, 255, 0.82);
   max-width: 380px;
   margin: 0;
+}
+
+/* ----- Tamanhos disponíveis (tags) ----- */
+.pcs-panel-sizes {
+  margin-top: 1.6rem;
+}
+.pcs-sizes-label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 0.7rem;
+}
+.pcs-sizes-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.pcs-size-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  padding: 0.32rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(6px);
 }
 
 /* CTA no bloco de texto (esquerda) */
@@ -801,6 +776,64 @@ html.lenis body { height: auto; }
   60%, 100% { transform: translateX(100%); }
 }
 
+/* Navegação por produto (dots) — bottom center, acima do hint */
+.pcs-nav {
+  position: absolute;
+  bottom: 4.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  gap: 0.7rem;
+}
+.pcs-dot {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.4s, border-color 0.4s, transform 0.4s;
+}
+.pcs-dot:hover {
+  border-color: rgba(255, 255, 255, 0.85);
+  transform: scale(1.2);
+}
+.pcs-dot.is-active {
+  background: var(--pcs-accent);
+  border-color: var(--pcs-accent);
+  transform: scale(1.25);
+}
+
+/* Pular a seção — canto inferior direito */
+.pcs-skip {
+  position: absolute;
+  right: 2rem;
+  bottom: 2rem;
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(6px);
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.pcs-skip:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.45);
+  color: #fff;
+}
+
 /* ======================== Mobile ======================== */
 @media (max-width: 767px) {
   /* Rings e backlight: usar vw para não exceder largura, descer top */
@@ -819,10 +852,6 @@ html.lenis body { height: auto; }
   }
   /* bottle-wrap preenche o theater-bottle (52vh) */
   .pcs-bottle-wrap    { height: 100%; }
-  /* Remover sombras e reflexo abaixo do frasco */
-  .pcs-ambient-shadow { display: none; }
-  .pcs-contact-shadow { display: none; }
-  .pcs-reflection     { display: none; }
 
   .pcs-product {
     display: flex;
@@ -835,10 +864,20 @@ html.lenis body { height: auto; }
   }
   .pcs-panel-text {
     justify-self: auto;
-    max-width: 92%;
+    max-width: min(72vw, 19rem);
   }
   .pcs-panel-title {
-    font-size: clamp(2.5rem, 16vw, 4rem);
+    font-size: clamp(2.25rem, 11vw, 3.35rem);
+    max-width: 8.5ch;
+  }
+  .pcs-panel-title-0 {
+    font-size: clamp(2rem, 10vw, 3rem);
+    max-width: none;
+  }
+  .pcs-panel-title-1,
+  .pcs-panel-title-3 {
+    font-size: clamp(1.85rem, 9vw, 2.7rem);
+    max-width: none;
   }
   .pcs-panel-divider {
     margin-left: 0;
@@ -849,6 +888,7 @@ html.lenis body { height: auto; }
     margin-right: 0;
     max-width: 100%;
   }
+  .pcs-panel-sizes { margin-top: 1.2rem; }
   .pcs-panel-cta   { font-size: 0.62rem; padding: 0.4rem 0.9rem; }
 
   /* Stats em linha no mobile */
@@ -889,17 +929,17 @@ html.lenis body { height: auto; }
   .pcs-scroll-hint {
     display: none;
   }
-  .pcs-podium-glow {
-    bottom: auto;
-    top: 78vh;
-    width: 70vw;
-    height: 110px;
+  /* Dots descem para o lugar do hint; skip encolhe no canto */
+  .pcs-nav {
+    bottom: 1.35rem;
+    left: 1.5rem;
+    transform: none;
   }
-  .pcs-podium-spec {
-    bottom: auto;
-    top: 79vh;
-    width: 56vw;
-    height: 52px;
+  .pcs-skip {
+    right: 1rem;
+    bottom: 1rem;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.58rem;
   }
 }
 
