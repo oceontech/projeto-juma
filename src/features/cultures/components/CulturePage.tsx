@@ -16,19 +16,19 @@ const WHATSAPP = 'https://wa.me/5519999648186'
 
 export type CalcProduct = { id: string; label: string; gainPerHa: number }
 export type ManagePhase = { label: string; fase: string; products: string[] }
-export type RecommendedProduct = { slug: string; name: string; tag: string; desc: string; labelColor: string }
+export type RecommendedProduct = { slug: string; name: string; tag: string; desc: string; labelColor: string; image?: string }
 export type Challenge = { stage: string; title: string; desc: string }
 
-export const REC_META: Record<string, { name: string, labelColor: string }> = {
-  'aminosan': { name: 'Aminosan®', labelColor: '#659357' },
-  'fitofert': { name: 'Fitofert', labelColor: '#659357' },
-  'revigophos-amino': { name: 'RevigoPhos Amino', labelColor: '#302783' },
-  'acorda-ultra': { name: 'Acorda Ultra', labelColor: '#008dc2' },
-  'revigo-milho': { name: 'Revigo + Milho', labelColor: '#302783' },
-  'acorda-cana': { name: 'Acorda Cana', labelColor: '#79ab34' },
-  'linha-redutan': { name: 'Linha Redutan', labelColor: '#7d252a' },
-  'linha-revigo': { name: 'Linha Revigo', labelColor: '#302783' },
-  'revigo-pasto': { name: 'Revigo + Pasto', labelColor: '#302783' }
+export const REC_META: Record<string, { name: string, labelColor: string, image?: string }> = {
+  'aminosan': { name: 'Aminosan®', labelColor: '#659357', image: '/produtos/aminosan-20l.png' },
+  'fitofert': { name: 'Fitofert', labelColor: '#659357', image: '/produtos/fitofert-20l.png' },
+  'revigophos-amino': { name: 'RevigoPhos Amino', labelColor: '#302783', image: '/produtos/revigophos-amino-20l.png' },
+  'acorda-ultra': { name: 'Acorda Ultra', labelColor: '#008dc2', image: '/produtos/acorda-ultra-10l.png' },
+  'revigo-milho': { name: 'Revigo + Milho', labelColor: '#302783', image: '/produtos/revigo-milho-20l.png' },
+  'acorda-cana': { name: 'Acorda Cana', labelColor: '#79ab34', image: '/produtos/acorda-cana-20l.png' },
+  'linha-redutan': { name: 'Linha Redutan', labelColor: '#7d252a', image: '/produtos/redutan-npk-sili-5-1l.png' },
+  'linha-revigo': { name: 'Linha Revigo', labelColor: '#302783', image: '/produtos/revigo-cobre-ultra-20l.png' },
+  'revigo-pasto': { name: 'Revigo + Pasto', labelColor: '#302783', image: '/produtos/revigo-pasto-20l.png' }
 }
 
 export type CultureMeta = {
@@ -514,7 +514,8 @@ export function CulturePage({ slug }: { slug: string }) {
       name: REC_META[recSlug]?.name || recSlug,
       tag: recData.tag,
       desc: recData.desc,
-      labelColor: REC_META[recSlug]?.labelColor || '#000000'
+      labelColor: REC_META[recSlug]?.labelColor || '#000000',
+      image: REC_META[recSlug]?.image
     }))
   } : null;
 
@@ -602,87 +603,55 @@ export function CulturePage({ slug }: { slug: string }) {
 
   return (
     <div className="bg-[#F2F6F2]">
-      <Container>
-
-        {/* ══ HERO ══ */}
-        <div ref={heroRef} className="pt-8 pb-[clamp(56px,6vw,96px)]">
-          {/* Breadcrumb */}
-          <nav data-hero-el className="flex items-center gap-2 mb-8 text-[12.5px] font-medium uppercase tracking-[0.04em] text-[#5A5A57]">
-            <Link href="/culturas" className="hover:text-[#1A1A1A] border-b border-transparent hover:border-[#1A1A1A] transition-colors pb-px">
-              {tPage('breadcrumb')}
-            </Link>
-            <span className="text-[#7C7C78]">·</span>
-            <span className="text-[#1A1A1A]">{culture.name}</span>
-          </nav>
-
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-10 lg:gap-20 items-center">
-            {/* Hero image placeholder */}
-            <div
-              data-hero-el
-              className="relative aspect-[4/5] rounded-[24px] overflow-hidden"
-              style={{
-                boxShadow: '0 1px 2px rgba(20,30,20,.04), 0 24px 60px -32px rgba(20,30,20,.25)',
-              }}
+      {/* ══ HERO ══ */}
+      <div ref={heroRef} className="relative w-full min-h-[90vh] flex flex-col justify-center items-center pt-[140px] pb-[80px] overflow-hidden bg-black">
+        {/* Fullscreen Image */}
+        <Image src={culture.image} alt={culture.name} fill className="object-cover opacity-60" priority />
+        <div className="absolute inset-0 bg-black/40 pointer-events-none" />
+        
+        <Container className="relative z-10 w-full flex flex-col items-center">
+          {/* Glassmorphism Card */}
+          <div data-hero-el className="bg-black/30 backdrop-blur-md border border-white/20 p-8 md:p-14 rounded-3xl flex flex-col items-center text-center max-w-[840px] w-full shadow-2xl">
+            <span className="mb-6">
+              <Eyebrow dark icon={Leaf}>{tPage('heroEyebrow', { name: culture.name })}</Eyebrow>
+            </span>
+            <h1
+              data-hero-title
+              className="m-0 mb-6 font-black uppercase leading-[1.05] tracking-tight text-white drop-shadow-md"
+              style={{ fontSize: 'clamp(2rem, 5vw, 4.5rem)' }}
             >
-              <Image src={culture.image} alt={culture.name} fill className="object-cover" priority />
-              {/* Overlay gradient */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none" />
-              {/* Badge */}
-              <span className="absolute top-[22px] left-[22px] bg-white/94 rounded-full px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.08em] text-[#1A1A1A] z-10 shadow-md">
-                {culture.badge}
-              </span>
-              {/* Culture name watermark */}
-              <span
-                className="absolute bottom-6 left-6 text-white font-black uppercase leading-none select-none pointer-events-none z-10 drop-shadow-md"
-                style={{ fontSize: 'clamp(3rem,8vw,5rem)', opacity: 0.8 }}
+              {tPage.rich('heroTitle', { highlight: (chunks) => <span className="text-[#004B26] text-highlight inline-block">{chunks}</span> })}
+            </h1>
+            <p
+              className="text-white/90 leading-[1.55] m-0 mb-10 max-w-[54ch] drop-shadow-sm font-medium"
+              style={{ fontSize: 'clamp(17px,1.25vw,20px)' }}
+            >
+              {culture.description}
+            </p>
+            
+            <div className="flex flex-wrap justify-center items-center gap-4">
+              <a
+                href={WHATSAPP}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2.5 h-[54px] px-[28px] rounded-full text-[15px] font-semibold text-white bg-[#004B26] hover:bg-[#003A1D] transition-all hover:-translate-y-px shadow-lg"
               >
-                {culture.name}
-              </span>
-            </div>
-
-            {/* Body */}
-            <div className="flex flex-col">
-              <span data-hero-el>
-                <Eyebrow icon={Leaf}>{tPage('heroEyebrow', { name: culture.name })}</Eyebrow>
-              </span>
-              <h1
-                data-hero-title
-                className="m-0 mt-[22px] mb-6 font-black uppercase leading-[1.05] tracking-tight text-[#1A1A1A]"
-                style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', maxWidth: '14ch' }}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="w-4 h-4">
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                </svg>
+                {tPage('whatsappBtn')}
+              </a>
+              <a
+                href="#manejo"
+                className="inline-flex items-center gap-2.5 h-[54px] px-[28px] rounded-full text-[15px] font-semibold text-white border border-white/30 hover:bg-white/10 transition-all hover:-translate-y-px"
               >
-                {tPage.rich('heroTitle', { highlight: (chunks) => <span className="text-[#004B26] text-highlight inline-block">{chunks}</span> })}
-              </h1>
-              <p
-                data-hero-el
-                className="text-[#5A5A57] leading-[1.55] m-0 mb-9 max-w-[50ch]"
-                style={{ fontSize: 'clamp(17px,1.25vw,20px)' }}
-              >
-                {culture.description}
-              </p>
-              <div data-hero-el className="flex flex-wrap gap-3">
-                <a
-                  href={WHATSAPP}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2.5 h-[54px] px-[26px] rounded-full text-[15px] font-semibold text-white bg-[#004B26] hover:bg-[#003A1D] transition-all hover:-translate-y-px"
-                >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="w-4 h-4">
-                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-                  </svg>
-                  {tPage('whatsappBtn')}
-                </a>
-                <a
-                  href="#manejo"
-                  className="inline-flex items-center gap-2.5 h-[54px] px-[26px] rounded-full text-[15px] font-semibold text-[#1A1A1A] border border-black/[0.18] hover:border-black transition-all hover:-translate-y-px"
-                >
-                  {tPage('seeManagementBtn')}
-                  <ArrowIcon />
-                </a>
-              </div>
+                {tPage('seeManagementBtn')}
+                <ArrowIcon />
+              </a>
             </div>
           </div>
-        </div>
-      </Container>
+        </Container>
+      </div>
 
       {/* ══ SEÇÕES DINÂMICAS ══ */}
       <div ref={bodyRef}>
@@ -739,7 +708,7 @@ export function CulturePage({ slug }: { slug: string }) {
                     <span className="text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[#004B26]">
                       {c.stage}
                     </span>
-                    <h4 className="m-0 text-[18px] font-[650] tracking-[-0.01em] text-[#1A1A1A] leading-snug">{c.title}</h4>
+                    <h4 className="m-0 text-subtitle text-[18px] font-[650] tracking-[-0.01em] text-[#1A1A1A] leading-snug">{c.title}</h4>
                     <p className="m-0 text-[13.5px] text-[#5A5A57] leading-[1.5]">{c.desc}</p>
                   </article>
                 ))}
@@ -822,19 +791,32 @@ export function CulturePage({ slug }: { slug: string }) {
                       className="relative flex items-center justify-center overflow-hidden"
                       style={{ aspectRatio: '4/3', background: 'radial-gradient(80% 60% at 50% 70%, rgba(0,0,0,.10), transparent 70%), linear-gradient(160deg, #E8EFE2, #E4ECEA)' }}
                     >
-                      <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-[0.12em] px-3 py-1.5 rounded-full text-[#004B26] bg-[#DDE6C8]">
+                      <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-[0.12em] px-3 py-1.5 rounded-full text-[#004B26] bg-[#DDE6C8] z-10 shadow-sm">
                         {prod.tag}
                       </span>
-                      <div
-                        className="flex flex-col items-center gap-1 rounded-[6px] text-center text-white px-2 py-3 w-[6rem]"
-                        style={{ backgroundColor: prod.labelColor }}
-                      >
-                        <small style={{ fontSize: 8, letterSpacing: '0.08em', textTransform: 'uppercase', opacity: 0.8 }}>Juma Agro</small>
-                        <b style={{ fontSize: 14, fontWeight: 750, letterSpacing: '-0.01em' }}>{prod.name.replace('®', '').replace('+', '').trim()}</b>
-                      </div>
+                      {prod.image ? (
+                        <div className="relative z-10 h-full w-full flex items-center justify-center p-6 transition-transform duration-500 group-hover:scale-105">
+                          <Image
+                            src={prod.image}
+                            alt={prod.name}
+                            width={300}
+                            height={400}
+                            quality={90}
+                            className="object-contain h-full w-auto drop-shadow-xl"
+                          />
+                        </div>
+                      ) : (
+                        <div
+                          className="flex flex-col items-center gap-1 rounded-[6px] text-center text-white px-2 py-3 w-[6rem] relative z-10"
+                          style={{ backgroundColor: prod.labelColor }}
+                        >
+                          <small style={{ fontSize: 8, letterSpacing: '0.08em', textTransform: 'uppercase', opacity: 0.8 }}>Juma Agro</small>
+                          <b style={{ fontSize: 14, fontWeight: 750, letterSpacing: '-0.01em' }}>{prod.name.replace('®', '').replace('+', '').trim()}</b>
+                        </div>
+                      )}
                     </div>
                     <div className="p-5 flex flex-col flex-1 bg-white">
-                      <h3 className="m-0 mb-2 text-[19px] font-[650] tracking-[-0.01em] text-[#1A1A1A] leading-snug">{prod.name}</h3>
+                      <h3 className="m-0 mb-2 text-subtitle text-[19px] font-[650] tracking-[-0.01em] text-[#1A1A1A] leading-snug">{prod.name}</h3>
                       <p className="m-0 text-[14.5px] text-[#5A5A57] leading-[1.5] flex-1 mb-4">{prod.desc}</p>
                       <div className="self-end flex items-center justify-center h-[42px] w-[42px] rounded-full border border-black/[0.18] text-[#1A1A1A]/60 group-hover:bg-[#004B26] group-hover:border-[#004B26] group-hover:text-white transition-all">
                         <ArrowIcon />
