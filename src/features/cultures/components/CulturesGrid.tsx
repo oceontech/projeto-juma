@@ -210,7 +210,7 @@ export function CulturesGrid() {
               <span className="text-white/60 font-mono text-[10px] sm:text-sm font-bold tracking-widest mb-0.5 sm:mb-1 group-hover:text-white/90 transition-colors">
                 {culture.num}
               </span>
-              <span className="text-white font-montserrat text-[13px] sm:text-2xl font-bold tracking-tight leading-[1.1]">
+              <span className="text-white text-subtitle text-[13px] sm:text-2xl font-bold tracking-tight leading-[1.1]">
                 {t(`cultures.${culture.id}`)}
               </span>
             </div>
@@ -231,7 +231,7 @@ export function CulturesGrid() {
             </span>
           </div>
           <div className="md:w-2/3 max-w-[42rem]">
-            <h2 data-how-title className="font-montserrat text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-tight">
+            <h2 data-how-title className="font-montserrat uppercase text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-tight">
               {t('howTitle')}
             </h2>
             <p data-how-intro className="text-lg text-foreground/70 leading-relaxed">
