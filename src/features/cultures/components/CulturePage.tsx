@@ -537,9 +537,9 @@ export function CulturePage({ slug }: { slug: string }) {
       gsap.set(els, { y: 24, opacity: 0 })
       
       const tl = gsap.timeline({ delay: 0.15 })
-      tl.to(els, { y: 0, opacity: 1, duration: DUR.sub, stagger: 0.09, ease: EASE.reveal })
+      tl.to(els, { y: 0, opacity: 1, duration: DUR.sub, stagger: 0.04, ease: EASE.reveal })
       if (split) {
-        tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char, ease: EASE.reveal }, '-=0.4')
+        tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char, ease: EASE.reveal }, '<0.1')
       }
 
       return () => split?.revert()
@@ -583,13 +583,13 @@ export function CulturePage({ slug }: { slug: string }) {
         })
         
         tl.to(section, { y: 0, opacity: 1, duration: 0.8 })
-        if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub }, '-=0.6')
+        if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub }, '<0.1')
         if (split) {
-          tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, '-=0.4')
+          tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, '<0.1')
         }
-        if (lede) tl.to(lede, { y: 0, opacity: 1, duration: DUR.sub }, '-=0.4')
+        if (lede) tl.to(lede, { y: 0, opacity: 1, duration: DUR.sub }, '<0.2')
         if (contentEls.length > 0) {
-          tl.to(contentEls, { y: 0, opacity: 1, duration: DUR.sub, stagger: 0.08 }, '-=0.2')
+          tl.to(contentEls, { y: 0, opacity: 1, duration: 0.45, stagger: 0.03 }, '<0.2')
         }
       })
       
