@@ -94,7 +94,7 @@ export function Problem() {
         ref={pinRef}
         className="flex min-h-[88vh] flex-col justify-center py-3xl lg:py-5xl"
       >
-        <Container className="max-w-[72rem] min-[1600px]:max-w-[90rem]">
+        <Container className="max-w-[72rem] min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
           {/* Decoração topo */}
           <div className="mb-8">
             <span className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 mb-6 border border-primary/20 bg-primary/5 text-primary">
@@ -117,7 +117,7 @@ export function Problem() {
 
       {/* Corpo: dois parágrafos abaixo da área pinada */}
       <div ref={bodyRef} className="pb-4xl lg:pb-5xl">
-        <Container className="max-w-[72rem] min-[1600px]:max-w-[90rem]">
+        <Container className="max-w-[72rem] min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
           <div className="grid grid-cols-1 gap-xl border-t border-foreground/8 pt-xl lg:grid-cols-2 lg:gap-3xl lg:pt-2xl">
             <p className="text-subtitle m-0 max-w-none text-base leading-relaxed text-foreground/65 lg:text-lg">
               {t('bodyRest')}

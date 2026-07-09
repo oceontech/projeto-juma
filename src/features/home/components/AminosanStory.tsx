@@ -798,7 +798,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         />
 
         {/* z-30 — texto do Ato 1 */}
-        <Container className="absolute inset-0 z-30 flex h-full items-start pt-[10vh] md:pt-0 md:items-center min-[1600px]:max-w-[90rem]">
+        <Container className="absolute inset-0 z-30 flex h-full items-start pt-[10vh] md:pt-0 md:items-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
           <div ref={act1Ref} className="flex max-w-[88vw] md:max-w-[24rem] xl:max-w-[28rem] flex-col items-start bg-transparent p-0">
             <span data-a1 className="text-eyebrow mb-sm md:mb-md text-[10px] xl:text-xs uppercase tracking-[0.18em] text-primary">
               {t('eyebrow')}
@@ -825,7 +825,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         </div>
 
         {/* UI do Ato 3 */}
-        <Container className="allow-scroll touch-pan-y relative lg:absolute lg:inset-0 z-30 flex flex-col md:flex-row min-h-[100svh] lg:min-h-0 h-auto lg:h-full items-start md:items-center justify-between min-[1600px]:max-w-[90rem] pointer-events-none pt-[8vh] md:pt-0 pb-[8vh] md:pb-0 overflow-visible md:overflow-hidden hide-scrollbar">
+        <Container className="allow-scroll touch-pan-y relative lg:absolute lg:inset-0 z-30 flex flex-col md:flex-row min-h-[100svh] lg:min-h-0 h-auto lg:h-full items-start md:items-center justify-between min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pointer-events-none pt-[8vh] md:pt-0 pb-[8vh] md:pb-0 overflow-visible md:overflow-hidden hide-scrollbar">
           
           {/* Painel Esquerdo */}
           <div ref={leftPanelRef} className="pointer-events-auto flex flex-col items-start gap-1.5 md:gap-3 xl:gap-4 w-full md:w-auto max-w-full md:max-w-[24rem] xl:max-w-[28rem] bg-transparent p-0 mt-4 md:mt-0">

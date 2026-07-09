@@ -133,7 +133,7 @@ export function Solution() {
 
   return (
     <section ref={ref} className="bg-[#F7F8F6] py-4xl lg:py-5xl">
-      <Container className="min-[1600px]:max-w-[90rem]">
+      <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
 
         {/* Cabeçalho */}
         <div className="max-w-[52rem]">

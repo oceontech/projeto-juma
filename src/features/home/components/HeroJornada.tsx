@@ -480,12 +480,57 @@ export function HeroJornada() {
         }
       }
 
+      // ── Integração com o navegador de seções (SectionNav) ──────────
+      // O hero faz scroll-jacking (trava a página até a jornada terminar). Ao
+      // saltar por cima dele pelo nav, precisamos sincronizar o estado interno,
+      // senão a trava devolve o usuário ao topo no próximo scroll.
+      // 'complete' → finaliza a jornada (destrava o scroll normal).
+      // 'reset'    → volta ao frame inicial (o clique em "Início" replay o intro).
+      const skipToDone = () => {
+        if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
+        const video = videoRef.current
+        const targets = getTargets()
+        const end = targets[targets.length - 1]
+        if (video) { try { video.pause() } catch {}; try { video.currentTime = end } catch {} }
+        playingRef.current = false
+        directionRef.current = null
+        targetRef.current = null
+        autoRewindRef.current = false
+        stepRef.current = targetsLength
+        phaseRef.current = 'done'
+        setCap(4)
+        setIsPaused(true)
+        updateLeavesParallax(end)
+        fadeRest(false)
+        lockScroll(false)
+      }
+      const resetToStart = () => {
+        if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
+        const video = videoRef.current
+        if (video) { try { video.pause() } catch {}; try { video.currentTime = 0 } catch {} }
+        playingRef.current = false
+        directionRef.current = null
+        targetRef.current = null
+        autoRewindRef.current = false
+        stepRef.current = -1
+        phaseRef.current = 'rest'
+        setCap(0)
+        setIsPaused(true)
+        updateLeavesParallax(0)
+        fadeRest(true)
+        lockScroll(false)
+      }
+      const onNavComplete = () => { if (phaseRef.current !== 'done') skipToDone() }
+      const onNavReset    = () => { if (phaseRef.current !== 'rest') resetToStart() }
+
       window.addEventListener('wheel',      onWheel,     { passive: false })
       window.addEventListener('keydown',    onKey)
       window.addEventListener('touchstart', onTouchStart, { passive: true })
       window.addEventListener('touchmove',  onTouchMove,  { passive: false })
       window.addEventListener('touchend',   onTouchEnd,   { passive: true })
       window.addEventListener('scroll',     onScroll,     { passive: true })
+      window.addEventListener('herojornada:complete', onNavComplete)
+      window.addEventListener('herojornada:reset',    onNavReset)
 
       return () => {
         if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
@@ -496,6 +541,8 @@ export function HeroJornada() {
         window.removeEventListener('touchmove',  onTouchMove)
         window.removeEventListener('touchend',   onTouchEnd)
         window.removeEventListener('scroll',     onScroll)
+        window.removeEventListener('herojornada:complete', onNavComplete)
+        window.removeEventListener('herojornada:reset',    onNavReset)
       }
     },
     { dependencies: [enhanced, isMobile], scope: root },
@@ -505,7 +552,7 @@ export function HeroJornada() {
   if (!enhanced) {
     return (
       <section ref={root} className="sticky top-0 z-0 bg-white">
-        <Container className="grid grid-cols-1 items-start gap-xl pb-2xl pt-[7.5rem] lg:grid-cols-12 min-[1600px]:max-w-[90rem]">
+        <Container className="grid grid-cols-1 items-start gap-xl pb-2xl pt-[7.5rem] lg:grid-cols-12 min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
           <Headline t={t} className="lg:col-span-7 text-left" />
           <Support  t={t} className="lg:col-span-5 items-start text-left lg:items-end lg:text-right" />
         </Container>
@@ -524,7 +571,7 @@ export function HeroJornada() {
             </div>
           </div>
         </div>
-        <Container className="flex flex-col gap-2xl py-3xl min-[1600px]:max-w-[90rem]">
+        <Container className="flex flex-col gap-2xl py-3xl min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
           {[
             { title: tj('q1Title'), subtitle: tj('q1Subtitle'), src: isMobile ? '/hero/mobile/frame-1-campo.png' : '/hero/desktop/frame-1-campo.png' },
             { title: tj('q2Title'), subtitle: tj('q2Subtitle'), src: isMobile ? '/hero/mobile/frame-2-folha.png'  : '/hero/desktop/frame-2-folha.png'  },
@@ -577,8 +624,8 @@ export function HeroJornada() {
 
         {/* z-10 — Headline: sobe DE TRÁS das montanhas na entrada */}
         <div data-rest className="absolute inset-x-0 top-0 z-10 w-full">
-          <Container className="min-[1600px]:max-w-[90rem] pt-[6rem] lg:pt-[10rem]">
-            <div className="relative max-w-[60rem] min-[1600px]:max-w-[76rem]">
+          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pt-[6rem] lg:pt-[10rem]">
+            <div className="relative max-w-[60rem] min-[1600px]:max-w-[76rem] min-[2000px]:max-w-[92rem]">
 
               {/* Glow radial suave atrás do título */}
               <div
@@ -588,7 +635,7 @@ export function HeroJornada() {
                 style={{ background: 'radial-gradient(ellipse 75% 55% at 38% 52%, rgba(0,76,38,0.12), transparent 70%)' }}
               />
 
-              <h1 ref={titleWrapRef} className="hero-title-shimmer relative font-black uppercase leading-[0.92] tracking-tight text-[clamp(2.5rem,8vw,5rem)] min-[1600px]:text-[7rem] text-left">
+              <h1 ref={titleWrapRef} className="hero-title-shimmer relative font-black uppercase leading-[0.92] tracking-tight text-[clamp(2.5rem,8vw,5rem)] min-[1600px]:text-[7.5rem] min-[2000px]:text-[9rem] text-left">
                 <span className="block text-foreground">{t('headlineLine1')}</span>
                 <span className="block text-foreground">{t('headlineLine2')}</span>
                 <span className="block">
@@ -659,7 +706,7 @@ export function HeroJornada() {
 
         {/* z-40 — Subtítulo + CTA (repouso) */}
         <div data-rest className="absolute inset-x-0 top-0 z-40">
-          <Container className="min-[1600px]:max-w-[90rem] flex lg:justify-end justify-start pt-[15rem] md:pt-[20rem] lg:pt-[10.5rem]">
+          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] flex lg:justify-end justify-start pt-[15rem] md:pt-[20rem] lg:pt-[10.5rem]">
               <div
                 ref={supportRef}
                 className={`lg:w-1/3 flex flex-col gap-md rounded-2xl bg-transparent backdrop-blur-[2px] md:bg-transparent md:backdrop-blur-none items-start text-left lg:text-center`}
@@ -739,7 +786,7 @@ type TFn = ReturnType<typeof useTranslations>
 
 function Headline({ t, className = '' }: { t: TFn; className?: string }) {
   return (
-    <h1 className={`text-[clamp(2.75rem,8vw,5rem)] min-[1600px]:text-[7.5rem] font-black uppercase leading-[0.92] tracking-tight ${className}`}>
+    <h1 className={`text-[clamp(2.75rem,8vw,5rem)] min-[1600px]:text-[7.5rem] min-[2000px]:text-[9rem] font-black uppercase leading-[0.92] tracking-tight ${className}`}>
       <span className="block text-foreground">{t('headlineLine1')}</span>
       <span className="block text-foreground">{t('headlineLine2')}</span>
       <span className="block">
@@ -856,7 +903,7 @@ function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, alig
       </div>
 
       {/* ── DESKTOP LAYOUT (inalterado) ──────────────────────────── */}
-      <Container className={`hidden lg:flex min-[1600px]:max-w-360 h-full items-center ${right ? 'justify-end' : 'justify-start'}`}>
+      <Container className={`hidden lg:flex min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] h-full items-center ${right ? 'justify-end' : 'justify-start'}`}>
         <div className={`flex flex-col ${right ? 'items-end text-right' : 'items-start text-left'} ${yShift} max-w-136 xl:max-w-168`}>
           <span data-pk className="mb-sm xl:mb-md inline-flex items-center gap-xs rounded-full border border-primary/25 bg-white/60 px-xs xl:px-sm py-[4px] xl:py-[6px] backdrop-blur-sm">
             <LeafGlyph className="h-3 w-3 xl:h-3.5 xl:w-3.5 text-primary" />

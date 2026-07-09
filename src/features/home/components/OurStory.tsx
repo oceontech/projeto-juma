@@ -245,7 +245,7 @@ export function OurStory() {
 
       <section
         ref={cardRef}
-        className="relative overflow-hidden rounded-[2.5rem] max-w-[95vw] lg:max-w-[90rem] mx-auto border border-black/[0.06] bg-gradient-to-br from-black/[0.01] to-black/[0.04] backdrop-blur-xl"
+        className="relative overflow-hidden rounded-[2.5rem] max-w-[95vw] lg:max-w-[100rem] min-[2000px]:max-w-[120rem] mx-auto border border-black/[0.06] bg-gradient-to-br from-black/[0.01] to-black/[0.04] backdrop-blur-xl"
         style={{ transformOrigin: 'top center' }}
       >
         <Container className="grid min-h-screen grid-cols-1 items-center gap-2xl py-xl lg:py-2xl xl:py-3xl lg:grid-cols-2 lg:gap-xl xl:gap-4xl">

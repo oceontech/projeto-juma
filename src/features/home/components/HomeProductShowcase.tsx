@@ -32,6 +32,8 @@ type ProductEntry = {
   /** Cor de destaque (accent) — anéis, divider, ícone */
   accent: string
   href: string
+  /** Imagem do frasco (sem fundo) servida de /public */
+  image: string
 }
 
 /* ── Ícones dos stats ──────────────────────────────────────────── */
@@ -43,6 +45,10 @@ const STAT_ICONS: Record<StatIcon, LucideIcon> = {
 }
 
 /* ── Produtos — 13 itens na ordem do doc cores-por-produto.md ─── */
+
+/* ── Produtos do catálogo da home ─ 4 itens ───────────── */
+/* Texto (nome/linha/descrição/stats) vem das mensagens i18n por índice;
+   este array dá cores, valores dos stats, href e a imagem do frasco. */
 
 const PRODUCTS: ProductEntry[] = [
   {
@@ -57,58 +63,7 @@ const PRODUCTS: ProductEntry[] = [
     ],
     base: '#0c3b2e', mid: '#0a2a22', accent: '#34d399',
     href: '/produtos/aminosan',
-  },
-  {
-    name: 'LINHA REVIGO',
-    line: 'LINHA JUMA',
-    description:
-      'Linha completa de nutrição mineral avançada. Formulações especializadas que otimizam o aproveitamento de macro e micronutrientes pelas culturas.',
-    stats: [
-      { icon: 'molecule', value: '+19', unit: 'sc/ha', label: 'Soja Premium' },
-      { icon: 'leaf',     value: '+13', unit: 'sc/ha', label: 'Milho Alta Prod.' },
-      { icon: 'sprout',   value: '+8',  unit: 'sc/ha', label: 'Algodão Pluma' },
-    ],
-    base: '#0b2350', mid: '#081838', accent: '#3b82f6',
-    href: '/produtos/linha-revigo',
-  },
-  {
-    name: 'ADUBAN',
-    line: 'LINHA REDUTAN',
-    description:
-      'Adubo mineral organomineral de alta concentração. Fornece macronutrientes de forma equilibrada e sinérgica para o desenvolvimento pleno das culturas.',
-    stats: [
-      { icon: 'leaf',     value: '+16', unit: 'sc/ha', label: 'Soja Produção' },
-      { icon: 'molecule', value: '+12', unit: 'sc/ha', label: 'Milho Safra' },
-      { icon: 'sprout',   value: '+8',  unit: 'sc/ha', label: 'Feijão Rendimento' },
-    ],
-    base: '#3a100e', mid: '#280b09', accent: '#f87171',
-    href: '/produtos/aduban',
-  },
-  {
-    name: 'FITOFERT',
-    line: 'LINHA JUMA',
-    description:
-      'Fertilizante foliar completo com macro e micronutrientes de alta solubilidade. Supre deficiências nutricionais de forma rápida e eficiente.',
-    stats: [
-      { icon: 'leaf',     value: '+14', unit: 'sc/ha', label: 'Soja Foliar' },
-      { icon: 'sprout',   value: '+10', unit: 'sc/ha', label: 'Café Floração' },
-      { icon: 'molecule', value: '+6',  unit: 'sc/ha', label: 'Citros Qualidade' },
-    ],
-    base: '#0d3f30', mid: '#0b2d22', accent: '#22c55e',
-    href: '/produtos/fitofert',
-  },
-  {
-    name: 'REVIGOPHOS AMINO',
-    line: 'LINHA JUMA',
-    description:
-      'Fósforo aminoquelatado de pronta disponibilidade. Estimula o enraizamento profundo e o enchimento de grãos com máxima eficiência.',
-    stats: [
-      { icon: 'molecule', value: '+20', unit: 'sc/ha', label: 'Enraizamento' },
-      { icon: 'leaf',     value: '+16', unit: 'sc/ha', label: 'Enchimento de Grãos' },
-      { icon: 'sprout',   value: '+8',  unit: 'sc/ha', label: 'Vigor Inicial' },
-    ],
-    base: '#0c2060', mid: '#091545', accent: '#60a5fa',
-    href: '/produtos/revigophos-amino',
+    image: '/produtos/aminosan-1l.png',
   },
   {
     name: 'ACORDA ULTRA',
@@ -122,32 +77,7 @@ const PRODUCTS: ProductEntry[] = [
     ],
     base: '#0a3a44', mid: '#082a31', accent: '#22d3ee',
     href: '/produtos/acorda-ultra',
-  },
-  {
-    name: 'SUPERMIX',
-    line: 'LINHA JUMA',
-    description:
-      'Mix nutricional completo com micronutrientes quelados. Corrige deficiências múltiplas em uma única aplicação, com compatibilidade ampla de tanque.',
-    stats: [
-      { icon: 'sprout',   value: '+21', unit: 'sc/ha', label: 'Milho Verão' },
-      { icon: 'leaf',     value: '+14', unit: 'sc/ha', label: 'Soja Granados' },
-      { icon: 'molecule', value: '+9',  unit: 'sc/ha', label: 'Algodão Fibra' },
-    ],
-    base: '#1a3010', mid: '#10200a', accent: '#84cc16',
-    href: '/produtos/supermix',
-  },
-  {
-    name: 'REVIGO COBRE ULTRA',
-    line: 'LINHA JUMA',
-    description:
-      'Cobre complexado de alta mobilidade. Atua na fotossíntese e na síntese de lignina, blindando a lavoura contra adversidades.',
-    stats: [
-      { icon: 'leaf',     value: '+13', unit: 'sc/ha', label: 'Fotossíntese' },
-      { icon: 'molecule', value: '+17', unit: 'sc/ha', label: 'Defesa Natural' },
-      { icon: 'sprout',   value: '+6',  unit: 'sc/ha', label: 'Sanidade Foliar' },
-    ],
-    base: '#3f1320', mid: '#2b0d16', accent: '#fb7185',
-    href: '/produtos/revigo-cobre-ultra',
+    image: '/produtos/acorda-ultra-1l.png',
   },
   {
     name: 'KMEP ULTRA',
@@ -161,63 +91,25 @@ const PRODUCTS: ProductEntry[] = [
     ],
     base: '#3b0e10', mid: '#29090b', accent: '#ef4444',
     href: '/produtos/kmep-ultra',
+    image: '/produtos/kmep-ultra-10l.png',
   },
   {
-    name: 'REVIGO + MILHO',
+    name: 'REVIGOPHOS AMINO',
     line: 'LINHA JUMA',
     description:
-      'Pacote nutricional desenhado para o milho de alta produtividade. Equilíbrio de macro e micronutrientes do plantio à colheita.',
+      'Fósforo aminoquelatado de pronta disponibilidade. Estimula o enraizamento profundo e o enchimento de grãos com máxima eficiência.',
     stats: [
-      { icon: 'sprout',   value: '+25', unit: 'sc/ha', label: 'Milho Verão' },
-      { icon: 'leaf',     value: '+19', unit: 'sc/ha', label: 'Milho Safrinha' },
-      { icon: 'molecule', value: '+10', unit: 'sc/ha', label: 'Stay Green' },
+      { icon: 'molecule', value: '+20', unit: 'sc/ha', label: 'Enraizamento' },
+      { icon: 'leaf',     value: '+16', unit: 'sc/ha', label: 'Enchimento de Grãos' },
+      { icon: 'sprout',   value: '+8',  unit: 'sc/ha', label: 'Vigor Inicial' },
     ],
-    base: '#26400f', mid: '#1a2d0a', accent: '#a3e635',
-    href: '/produtos/revigo-milho',
-  },
-  {
-    name: 'LINHA REDUTAN',
-    line: 'LINHA REDUTAN',
-    description:
-      'Linha de adubação foliar sustentável à base de aminoácidos e quelatos orgânicos. Reduz perdas nutricionais e aumenta a eficiência de aproveitamento.',
-    stats: [
-      { icon: 'leaf',     value: '+17', unit: 'sc/ha', label: 'Soja Redutan' },
-      { icon: 'molecule', value: '+12', unit: 'sc/ha', label: 'Milho Nutrição' },
-      { icon: 'sprout',   value: '+9',  unit: 'sc/ha', label: 'Café Produção' },
-    ],
-    base: '#2a1616', mid: '#1e0f0f', accent: '#dc2626',
-    href: '/produtos/linha-redutan',
-  },
-  {
-    name: 'REVIGO + PASTO',
-    line: 'LINHA JUMA',
-    description:
-      'Tecnologia de recuperação e manutenção de pastagens. Mais massa verde, rebrota acelerada e maior capacidade de suporte animal.',
-    stats: [
-      { icon: 'leaf',     value: '+30', unit: '%',     label: 'Massa Verde' },
-      { icon: 'sprout',   value: '+24', unit: '%',     label: 'Rebrota' },
-      { icon: 'molecule', value: '+12', unit: 'UA/ha', label: 'Lotação' },
-    ],
-    base: '#2a1650', mid: '#1d0f38', accent: '#a78bfa',
-    href: '/produtos/revigo-pasto',
-  },
-  {
-    name: 'ACORDA CANA',
-    line: 'LINHA REDUTAN',
-    description:
-      'Estimulante de brotação para soqueiras. Quebra a dormência e uniformiza a rebrota, garantindo estande pleno já no início do ciclo.',
-    stats: [
-      { icon: 'sprout',   value: '+22', unit: 'sc/ha', label: 'Soqueira Nova' },
-      { icon: 'leaf',     value: '+15', unit: 'sc/ha', label: 'Rebrota Uniforme' },
-      { icon: 'molecule', value: '+9',  unit: 'sc/ha', label: 'Cana Planta' },
-    ],
-    base: '#3f2a0a', mid: '#2c1d07', accent: '#f59e0b',
-    href: '/produtos/acorda-cana',
+    base: '#0c2060', mid: '#091545', accent: '#60a5fa',
+    href: '/produtos/revigophos-amino',
+    image: '/produtos/revigophos-amino-10l.png',
   },
 ]
 
 const COUNT = PRODUCTS.length
-const PRODUCT_IMG = '/aminosan.png'
 
 /* ── Carrossel de frascos — funções de posição ────────────────── */
 
@@ -613,9 +505,9 @@ export function HomeProductShowcase() {
                   <div className="pcs-ambient-shadow" />
                   <div className="pcs-contact-shadow" />
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img className="pcs-bottle" src={PRODUCT_IMG} alt={name} draggable={false} />
+                  <img className="pcs-bottle" src={product.image} alt={name} draggable={false} />
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img className="pcs-reflection" src={PRODUCT_IMG} alt="" aria-hidden draggable={false} />
+                  <img className="pcs-reflection" src={product.image} alt="" aria-hidden draggable={false} />
                 </div>
               </div>
             )})}
@@ -691,7 +583,7 @@ export function HomeProductShowcase() {
 function ShowcaseReduced({ t }: { t: ReturnType<typeof useTranslations> }) {
   return (
     <section className="bg-[#0a0a0a] py-24">
-      <div className="mx-auto max-w-[90rem] px-6 lg:px-12">
+      <div className="mx-auto max-w-[100rem] min-[2000px]:max-w-[120rem] px-6 lg:px-8">
         <p className="mb-12 text-xs font-semibold uppercase tracking-[0.2em] text-white/40">
           {t('subtitle')}
         </p>

@@ -1,4 +1,21 @@
 {
+  "sectionNav": {
+    "label": "Secciones",
+    "inicio": "Inicio",
+    "historia": "Historia",
+    "origem": "Origen",
+    "produtos": "Productos",
+    "culturas": "Cultivos",
+    "numeros": "Resultados",
+    "desafio": "Desafío",
+    "programa": "Programa",
+    "linhas": "Líneas",
+    "calculadora": "Calculadora",
+    "experience": "Experience",
+    "depoimentos": "Opiniones",
+    "materias": "Artículos",
+    "contato": "Contacto"
+  },
   "nav": {
     "home": "Inicio",
     "products": "Productos",
@@ -584,82 +601,6 @@
         }
       },
       "1": {
-        "name": "LINHA REVIGO",
-        "line": "LÍNEA JUMA",
-        "description": "Línea completa de nutrición mineral avanzada. Formulaciones especializadas que optimizan el uso de macro y micronutrientes por los cultivos.",
-        "stats": {
-          "0": {
-            "label": "Soja Premium",
-            "unit": "sc/ha"
-          },
-          "1": {
-            "label": "Maíz Alta Prod.",
-            "unit": "sc/ha"
-          },
-          "2": {
-            "label": "Algodón Fibra",
-            "unit": "sc/ha"
-          }
-        }
-      },
-      "2": {
-        "name": "ADUBAN",
-        "line": "LÍNEA REDUTAN",
-        "description": "Abono organomineral de alta concentración. Proporciona macronutrientes de forma equilibrada y sinérgica para el pleno desarrollo de los cultivos.",
-        "stats": {
-          "0": {
-            "label": "Producción Soja",
-            "unit": "sc/ha"
-          },
-          "1": {
-            "label": "Cosecha Maíz",
-            "unit": "sc/ha"
-          },
-          "2": {
-            "label": "Rendimiento Frijol",
-            "unit": "sc/ha"
-          }
-        }
-      },
-      "3": {
-        "name": "FITOFERT",
-        "line": "LÍNEA JUMA",
-        "description": "Fertilizante foliar completo con macro y micronutrientes de alta solubilidad. Suple deficiencias nutricionales de forma rápida y eficiente.",
-        "stats": {
-          "0": {
-            "label": "Soja Foliar",
-            "unit": "sc/ha"
-          },
-          "1": {
-            "label": "Floración Café",
-            "unit": "sc/ha"
-          },
-          "2": {
-            "label": "Calidad Cítricos",
-            "unit": "sc/ha"
-          }
-        }
-      },
-      "4": {
-        "name": "REVIGOPHOS AMINO",
-        "line": "LÍNEA JUMA",
-        "description": "Fósforo aminoquelatado de pronta disponibilidad. Estimula el enraizamiento profundo y el llenado de granos con máxima eficiencia.",
-        "stats": {
-          "0": {
-            "label": "Enraizamiento",
-            "unit": "sc/ha"
-          },
-          "1": {
-            "label": "Llenado de Granos",
-            "unit": "sc/ha"
-          },
-          "2": {
-            "label": "Vigor Inicial",
-            "unit": "sc/ha"
-          }
-        }
-      },
-      "5": {
         "name": "ACORDA ULTRA",
         "line": "LÍNEA REDUTAN",
         "description": "Bioestimulante para el arranque de cultivos anuales. Estimula el enraizamiento profundo desde la germinación y aumenta el vigor inicial de las plantas.",
@@ -678,45 +619,7 @@
           }
         }
       },
-      "6": {
-        "name": "SUPERMIX",
-        "line": "LÍNEA JUMA",
-        "description": "Mezcla nutricional completa con micronutrientes quelados. Corrige deficiencias múltiples en una sola aplicación, con amplia compatibilidad de tanque.",
-        "stats": {
-          "0": {
-            "label": "Maíz Verano",
-            "unit": "sc/ha"
-          },
-          "1": {
-            "label": "Soja Granados",
-            "unit": "sc/ha"
-          },
-          "2": {
-            "label": "Algodón Fibra",
-            "unit": "sc/ha"
-          }
-        }
-      },
-      "7": {
-        "name": "REVIGO COBRE ULTRA",
-        "line": "LÍNEA JUMA",
-        "description": "Cobre complejado de alta movilidad. Actúa en la fotosíntesis y en la síntesis de lignina, blindando el cultivo contra adversidades.",
-        "stats": {
-          "0": {
-            "label": "Fotosíntesis",
-            "unit": "sc/ha"
-          },
-          "1": {
-            "label": "Defensa Natural",
-            "unit": "sc/ha"
-          },
-          "2": {
-            "label": "Sanidad Foliar",
-            "unit": "sc/ha"
-          }
-        }
-      },
-      "8": {
+      "2": {
         "name": "KMEP ULTRA",
         "line": "LÍNEA JUMA",
         "description": "Solución concentrada de potasio, magnesio y azufre. Proporciona nutrientes esenciales para la calidad final de la producción y resistencia a estreses.",
@@ -735,78 +638,21 @@
           }
         }
       },
-      "9": {
-        "name": "REVIGO + MILHO",
+      "3": {
+        "name": "REVIGOPHOS AMINO",
         "line": "LÍNEA JUMA",
-        "description": "Paquete nutricional diseñado para maíz de alta productividad. Equilibrio de macro y micronutrientes desde la siembra hasta la cosecha.",
+        "description": "Fósforo aminoquelatado de pronta disponibilidad. Estimula el enraizamiento profundo y el llenado de granos con máxima eficiencia.",
         "stats": {
           "0": {
-            "label": "Maíz Verano",
+            "label": "Enraizamiento",
             "unit": "sc/ha"
           },
           "1": {
-            "label": "Maíz Zafriña",
+            "label": "Llenado de Granos",
             "unit": "sc/ha"
           },
           "2": {
-            "label": "Stay Green",
-            "unit": "sc/ha"
-          }
-        }
-      },
-      "10": {
-        "name": "LINHA REDUTAN",
-        "line": "LÍNEA REDUTAN",
-        "description": "Línea de fertilización foliar sostenible a base de aminoácidos y quelatos orgánicos. Reduce las pérdidas nutricionales y aumenta la eficiencia de uso.",
-        "stats": {
-          "0": {
-            "label": "Soja Redutan",
-            "unit": "sc/ha"
-          },
-          "1": {
-            "label": "Nutrición Maíz",
-            "unit": "sc/ha"
-          },
-          "2": {
-            "label": "Producción Café",
-            "unit": "sc/ha"
-          }
-        }
-      },
-      "11": {
-        "name": "REVIGO + PASTO",
-        "line": "LÍNEA JUMA",
-        "description": "Tecnología de recuperación y mantenimiento de pastos. Más masa verde, rebrote acelerado y mayor capacidad de carga animal.",
-        "stats": {
-          "0": {
-            "label": "Masa Verde",
-            "unit": "%"
-          },
-          "1": {
-            "label": "Rebrote",
-            "unit": "%"
-          },
-          "2": {
-            "label": "Capacidad de Carga",
-            "unit": "UA/ha"
-          }
-        }
-      },
-      "12": {
-        "name": "ACORDA CANA",
-        "line": "LÍNEA REDUTAN",
-        "description": "Estimulante de brotación para socas. Rompe la latencia y uniformiza el rebrote, garantizando un stand completo desde el inicio del ciclo.",
-        "stats": {
-          "0": {
-            "label": "Soca Nueva",
-            "unit": "sc/ha"
-          },
-          "1": {
-            "label": "Rebrote Uniforme",
-            "unit": "sc/ha"
-          },
-          "2": {
-            "label": "Caña Planta",
+            "label": "Vigor Inicial",
             "unit": "sc/ha"
           }
         }

@@ -1,4 +1,21 @@
 {
+  "sectionNav": {
+    "label": "Sections",
+    "inicio": "Start",
+    "historia": "Story",
+    "origem": "Origin",
+    "produtos": "Products",
+    "culturas": "Crops",
+    "numeros": "Results",
+    "desafio": "Challenge",
+    "programa": "Program",
+    "linhas": "Lines",
+    "calculadora": "Calculator",
+    "experience": "Experience",
+    "depoimentos": "Reviews",
+    "materias": "Articles",
+    "contato": "Contact"
+  },
   "nav": {
     "home": "Home",
     "products": "Products",
@@ -584,82 +601,6 @@
         }
       },
       "1": {
-        "name": "LINHA REVIGO",
-        "line": "LINHA JUMA",
-        "description": "Complete advanced mineral nutrition line. Specialized formulations that optimize the use of macro and micronutrients by crops.",
-        "stats": {
-          "0": {
-            "label": "Premium Soybeans",
-            "unit": "bags/ha"
-          },
-          "1": {
-            "label": "High Yield Corn",
-            "unit": "bags/ha"
-          },
-          "2": {
-            "label": "Cotton Lint",
-            "unit": "bags/ha"
-          }
-        }
-      },
-      "2": {
-        "name": "ADUBAN",
-        "line": "LINHA REDUTAN",
-        "description": "High-concentration organomineral fertilizer. Provides macronutrients in a balanced and synergistic way for full crop development.",
-        "stats": {
-          "0": {
-            "label": "Soybean Production",
-            "unit": "bags/ha"
-          },
-          "1": {
-            "label": "Corn Harvest",
-            "unit": "bags/ha"
-          },
-          "2": {
-            "label": "Bean Yield",
-            "unit": "bags/ha"
-          }
-        }
-      },
-      "3": {
-        "name": "FITOFERT",
-        "line": "LINHA JUMA",
-        "description": "Complete foliar fertilizer with high-solubility macro and micronutrients. Fills nutritional deficiencies quickly and efficiently.",
-        "stats": {
-          "0": {
-            "label": "Foliar Soybeans",
-            "unit": "bags/ha"
-          },
-          "1": {
-            "label": "Coffee Flowering",
-            "unit": "bags/ha"
-          },
-          "2": {
-            "label": "Citrus Quality",
-            "unit": "bags/ha"
-          }
-        }
-      },
-      "4": {
-        "name": "REVIGOPHOS AMINO",
-        "line": "LINHA JUMA",
-        "description": "Readily available amino-chelated phosphorus. Stimulates deep rooting and grain filling with maximum efficiency.",
-        "stats": {
-          "0": {
-            "label": "Rooting",
-            "unit": "bags/ha"
-          },
-          "1": {
-            "label": "Grain Filling",
-            "unit": "bags/ha"
-          },
-          "2": {
-            "label": "Initial Vigor",
-            "unit": "bags/ha"
-          }
-        }
-      },
-      "5": {
         "name": "ACORDA ULTRA",
         "line": "LINHA REDUTAN",
         "description": "Biostimulant for annual crop startup. Stimulates deep rooting from germination and increases the initial vigor of plants.",
@@ -678,45 +619,7 @@
           }
         }
       },
-      "6": {
-        "name": "SUPERMIX",
-        "line": "LINHA JUMA",
-        "description": "Complete nutritional mix with chelated micronutrients. Corrects multiple deficiencies in a single application, with wide tank compatibility.",
-        "stats": {
-          "0": {
-            "label": "Summer Corn",
-            "unit": "bags/ha"
-          },
-          "1": {
-            "label": "Grained Soybeans",
-            "unit": "bags/ha"
-          },
-          "2": {
-            "label": "Cotton Fiber",
-            "unit": "bags/ha"
-          }
-        }
-      },
-      "7": {
-        "name": "REVIGO COBRE ULTRA",
-        "line": "LINHA JUMA",
-        "description": "Highly mobile complexed copper. Acts in photosynthesis and lignin synthesis, shielding the crop against adversities.",
-        "stats": {
-          "0": {
-            "label": "Photosynthesis",
-            "unit": "bags/ha"
-          },
-          "1": {
-            "label": "Natural Defense",
-            "unit": "bags/ha"
-          },
-          "2": {
-            "label": "Foliar Health",
-            "unit": "bags/ha"
-          }
-        }
-      },
-      "8": {
+      "2": {
         "name": "KMEP ULTRA",
         "line": "LINHA JUMA",
         "description": "Concentrated solution of potassium, magnesium, and sulfur. Provides essential nutrients for final production quality and stress resistance.",
@@ -735,78 +638,21 @@
           }
         }
       },
-      "9": {
-        "name": "REVIGO + MILHO",
+      "3": {
+        "name": "REVIGOPHOS AMINO",
         "line": "LINHA JUMA",
-        "description": "Nutritional package designed for high-yield corn. Balance of macro and micronutrients from planting to harvest.",
+        "description": "Readily available amino-chelated phosphorus. Stimulates deep rooting and grain filling with maximum efficiency.",
         "stats": {
           "0": {
-            "label": "Summer Corn",
+            "label": "Rooting",
             "unit": "bags/ha"
           },
           "1": {
-            "label": "Second Crop Corn",
+            "label": "Grain Filling",
             "unit": "bags/ha"
           },
           "2": {
-            "label": "Stay Green",
-            "unit": "bags/ha"
-          }
-        }
-      },
-      "10": {
-        "name": "LINHA REDUTAN",
-        "line": "LINHA REDUTAN",
-        "description": "Sustainable foliar fertilization line based on amino acids and organic chelates. Reduces nutritional losses and increases use efficiency.",
-        "stats": {
-          "0": {
-            "label": "Redutan Soybeans",
-            "unit": "bags/ha"
-          },
-          "1": {
-            "label": "Corn Nutrition",
-            "unit": "bags/ha"
-          },
-          "2": {
-            "label": "Coffee Production",
-            "unit": "bags/ha"
-          }
-        }
-      },
-      "11": {
-        "name": "REVIGO + PASTO",
-        "line": "LINHA JUMA",
-        "description": "Pasture recovery and maintenance technology. More green mass, accelerated regrowth, and greater animal carrying capacity.",
-        "stats": {
-          "0": {
-            "label": "Green Mass",
-            "unit": "%"
-          },
-          "1": {
-            "label": "Regrowth",
-            "unit": "%"
-          },
-          "2": {
-            "label": "Carrying Capacity",
-            "unit": "UA/ha"
-          }
-        }
-      },
-      "12": {
-        "name": "ACORDA CANA",
-        "line": "LINHA REDUTAN",
-        "description": "Sprouting stimulant for ratoons. Breaks dormancy and uniformizes regrowth, ensuring a full stand right at the beginning of the cycle.",
-        "stats": {
-          "0": {
-            "label": "New Ratoon",
-            "unit": "bags/ha"
-          },
-          "1": {
-            "label": "Uniform Regrowth",
-            "unit": "bags/ha"
-          },
-          "2": {
-            "label": "Plant Cane",
+            "label": "Initial Vigor",
             "unit": "bags/ha"
           }
         }

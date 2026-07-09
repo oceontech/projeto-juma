@@ -113,9 +113,9 @@ export function Navbar() {
         hidden && !open ? '-translate-y-[150%]' : 'translate-y-0'
       }`}
     >
-      {/* max-w-[80rem] (1280px) em telas xl/2xl (notebooks), expandindo para max-w-[90rem] (1440px) em monitores grandes (min-width: 1600px) */}
-      <Container className="min-[1600px]:max-w-[90rem]">
-        <div className="flex items-stretch gap-sm mx-auto w-full max-w-[1280px] min-[1600px]:max-w-[1440px]">
+      {/* 1344px em notebooks, 1600px em telas ≥1600px, 1920px em monitores grandes (≥2000px) */}
+      <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
+        <div className="flex items-stretch gap-sm mx-auto w-full max-w-[1344px] min-[1600px]:max-w-[1600px] min-[2000px]:max-w-[1920px]">
           {/* Pílula principal — flex-1 para ocupar toda a largura disponível */}
           <div id="main-nav-pill" className="flex-1 rounded-full border border-white/20 bg-gradient-to-r from-white/40 to-white/20 backdrop-blur-xl border-t border-t-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06),_0_0_0_1px_rgba(0,0,0,0.08),_inset_0_1px_2px_rgba(255,255,255,0.5)] origin-center overflow-hidden" style={{ willChange: 'width, opacity' }}>
               <div className="flex justify-between items-center gap-xl mx-auto w-full p-sm">
@@ -197,7 +197,7 @@ export function Navbar() {
           <div className="hidden xl:flex items-stretch justify-end gap-sm shrink-0">
             {/* Pílula de Idioma */}
             <div id="nav-lang-pill" className="flex items-center justify-center rounded-full border border-white/20 bg-gradient-to-r from-white/40 to-white/20 px-md backdrop-blur-xl border-t border-t-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06),_0_0_0_1px_rgba(0,0,0,0.08),_inset_0_1px_2px_rgba(255,255,255,0.5)]">
-              <LanguageSwitcher className="text-xs xl:text-sm shrink-0" />
+              <LanguageSwitcher className="shrink-0" align="right" />
             </div>
           </div>
         </div>
@@ -242,7 +242,7 @@ export function Navbar() {
             </nav>
 
             <div className="mt-md flex items-center justify-between border-t border-foreground/10 pt-md">
-              <LanguageSwitcher className="text-xs" />
+              <LanguageSwitcher className="text-xs" align="left" />
               <Link
                 href="/contato"
                 onClick={() => setOpen(false)}

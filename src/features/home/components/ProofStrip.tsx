@@ -148,7 +148,7 @@ export function ProofStrip() {
       <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.035]"
         style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E\")", backgroundSize: '180px' }} />
 
-      <Container className="min-[1600px]:max-w-[90rem]">
+      <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
         {/* Kicker topo */}
         <div className="pt-xl pb-md">
           <span data-kicker className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 border border-white/20 text-white/80">

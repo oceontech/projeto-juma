@@ -16,6 +16,7 @@ import { HomeExperience }   from '@/features/home/components/HomeExperience'
 import { HomeTestimonials } from '@/features/home/components/HomeTestimonials'
 import { HomeBlog }         from '@/features/home/components/HomeBlog'
 import { HomeCtaFinal }     from '@/features/home/components/HomeCtaFinal'
+import { SectionNav }        from '@/features/home/components/SectionNav'
 
 export default async function HomePage(props: {
   params: Promise<{ locale: string }>
@@ -25,23 +26,51 @@ export default async function HomePage(props: {
 
   return (
     <>
-      <div className="relative">
+      <SectionNav />
+
+      <div id="sec-inicio" className="relative">
         <HeroJornada />
-        <OurStory />
+        <div id="sec-historia" className="scroll-mt-24">
+          <OurStory />
+        </div>
       </div>
-      <AminosanStory />
-      <HomeProductShowcase />
-      <HomeCultures />
-      <HomeResults />
+      <div id="sec-origem" className="scroll-mt-24">
+        <AminosanStory />
+      </div>
+      <div id="sec-produtos" className="scroll-mt-24">
+        <HomeProductShowcase />
+      </div>
+      <div id="sec-culturas" className="scroll-mt-24">
+        <HomeCultures />
+      </div>
+      <div id="sec-numeros" className="scroll-mt-24">
+        <HomeResults />
+      </div>
       <ProofStrip />
-      <Problem />
-      <Solution />
-      <Lines />
-      <HomeCalculator />
-      <HomeExperience />
-      <HomeTestimonials />
-      <HomeBlog />
-      <HomeCtaFinal />
+      <div id="sec-desafio" className="scroll-mt-24">
+        <Problem />
+      </div>
+      <div id="sec-programa" className="scroll-mt-24">
+        <Solution />
+      </div>
+      <div id="sec-linhas" className="scroll-mt-24">
+        <Lines />
+      </div>
+      <div id="sec-calculadora" className="scroll-mt-24">
+        <HomeCalculator />
+      </div>
+      <div id="sec-experience" className="scroll-mt-24">
+        <HomeExperience />
+      </div>
+      <div id="sec-depoimentos" className="scroll-mt-24">
+        <HomeTestimonials />
+      </div>
+      <div id="sec-materias" className="scroll-mt-24">
+        <HomeBlog />
+      </div>
+      <div id="sec-contato" className="scroll-mt-24">
+        <HomeCtaFinal />
+      </div>
     </>
   )
 }
