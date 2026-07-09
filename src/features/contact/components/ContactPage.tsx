@@ -154,14 +154,14 @@ export function ContactPage() {
           </p>
         </div>
 
-      <div ref={gridRef} className="flex flex-col lg:flex-row gap-16 lg:gap-24 mb-32">
+      <div ref={gridRef} className="flex flex-col lg:flex-row gap-16 lg:gap-24 mb-32 text-subtitle">
         {/* Formulário */}
         <div data-contact-form className="lg:w-2/3">
           <form
             onSubmit={handleWhatsAppSubmit}
             className="bg-white rounded-3xl p-8 md:p-12 border border-foreground/10 shadow-sm"
           >
-            <h2 className="font-montserrat text-2xl font-black text-foreground mb-8">
+            <h2 className="text-subtitle text-2xl font-black text-foreground mb-8">
               {t('formTitle')}
             </h2>
 
