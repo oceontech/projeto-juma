@@ -143,7 +143,7 @@ export function HomeBlog() {
                 <span className="text-[11px] font-semibold tracking-[0.08em] uppercase" style={{ color: '#7a8f6e' }}>
                   {t(`articles.${i}.date`)} · {t(`articles.${i}.readTime`)}
                 </span>
-                <h3 className="text-[18px] font-bold leading-[1.35] tracking-[-0.01em] flex-1" style={{ color: '#0F1A0A' }}>
+                <h3 className="text-[18px] text-subtitle font-bold leading-[1.35] tracking-[-0.01em] flex-1" style={{ color: '#0F1A0A' }}>
                   {t(`articles.${i}.title`)}
                 </h3>
                 <Link
