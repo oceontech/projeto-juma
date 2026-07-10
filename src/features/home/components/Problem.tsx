@@ -36,10 +36,19 @@ export function Problem() {
          * drive o progress da timeline. Cada palavra parte de
          * opacity 0.08 e vai para 1 conforme o usuário desce.
          */
-        const split = new SplitText(title, { type: 'words' })
+        const split = new SplitText(title, { type: 'lines,words' })
         const words = split.words
 
-        gsap.set(words, { opacity: 0.08 })
+        // Distribui as 4 cores pelo total de palavras (4 blocos proporcionais)
+        const textColors = ['var(--color-foreground)', 'var(--color-primary)', 'var(--color-accent)', 'var(--color-secondary)']
+        const wordsPerColor = Math.ceil(words.length / textColors.length)
+        
+        words.forEach((word, index) => {
+          const colorIndex = Math.min(Math.floor(index / wordsPerColor), textColors.length - 1)
+          gsap.set(word, { color: textColors[colorIndex] })
+        })
+
+        gsap.set(words, { opacity: 0, filter: 'blur(12px)' })
 
         // Distribui as palavras em 7 unidades de timeline
         const step = words.length > 1 ? 7 / (words.length - 1) : 7
@@ -54,7 +63,7 @@ export function Problem() {
         })
 
         words.forEach((word, i) => {
-          tl.to(word, { opacity: 1, duration: step * 0.9 }, i * step)
+          tl.to(word, { opacity: 1, filter: 'blur(0px)', duration: step * 0.9 }, i * step)
         })
 
         // Anima a linha dinamicamente no final do scrub
@@ -66,15 +75,15 @@ export function Problem() {
 
         // Corpo: revela após o pin liberar (trigger proprio)
         if (body) {
-          gsap.set(body, { y: 28, opacity: 0 })
+          gsap.set(body, { y: 28, opacity: 0, filter: 'blur(8px)' })
           ScrollTrigger.create({
             trigger: body,
             start: 'top 85%',
             end: 'bottom 15%',
-            onEnter: () => gsap.to(body, { y: 0, opacity: 1, duration: 0.9, ease: EASE.reveal, overwrite: 'auto' }),
-            onLeave: () => gsap.to(body, { y: 28, opacity: 0, duration: 0.5, overwrite: 'auto' }),
-            onEnterBack: () => gsap.to(body, { y: 0, opacity: 1, duration: 0.9, ease: EASE.reveal, overwrite: 'auto' }),
-            onLeaveBack: () => gsap.to(body, { y: 28, opacity: 0, duration: 0.5, overwrite: 'auto' })
+            onEnter: () => gsap.to(body, { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.9, ease: EASE.reveal, overwrite: 'auto' }),
+            onLeave: () => gsap.to(body, { y: 28, opacity: 0, filter: 'blur(8px)', duration: 0.5, overwrite: 'auto' }),
+            onEnterBack: () => gsap.to(body, { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.9, ease: EASE.reveal, overwrite: 'auto' }),
+            onLeaveBack: () => gsap.to(body, { y: 28, opacity: 0, filter: 'blur(8px)', duration: 0.5, overwrite: 'auto' })
           })
         }
 
