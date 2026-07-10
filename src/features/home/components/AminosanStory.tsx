@@ -12,7 +12,6 @@
  */
 import { useEffect, useRef, useState, type HTMLAttributes, type ReactNode, type RefObject } from 'react'
 import Image from 'next/image'
-import { Leaf, Dna, Sprout, ShieldCheck, BarChart3, CalendarCheck, Users } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 import { gsap, ScrollTrigger, SplitText, useGSAP } from '@/features/animation/gsap'
@@ -20,10 +19,36 @@ import { useLenis } from '@/features/animation/SmoothScroll'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { StaggerGroup } from '@/features/animation/StaggerGroup'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
-import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
 
 type TFn = ReturnType<typeof useTranslations>
+
+type LineBottle = {
+  src: string
+  alt: string
+  x: number
+  mx: number
+  width: number
+  mobileWidth: number
+  scale: number
+  mobileScale: number
+  z: number
+  y?: number
+}
+
+const LINE_BOTTLES: LineBottle[] = [
+  { src: '/produtos/acorda-cana-20l.png', alt: 'Acorda Cana', x: -555, mx: -178, width: 178, mobileWidth: 84, scale: 0.88, mobileScale: 0.74, z: 1, y: 12 },
+  { src: '/produtos/acorda-ultra-10l.png', alt: 'Acorda Ultra', x: -438, mx: -138, width: 176, mobileWidth: 82, scale: 0.9, mobileScale: 0.78, z: 2, y: 10 },
+  { src: '/produtos/kmep-ultra-10l.png', alt: 'KMEP Ultra', x: -318, mx: -98, width: 182, mobileWidth: 84, scale: 0.92, mobileScale: 0.8, z: 3, y: 8 },
+  { src: '/produtos/acorda-ultra-1l.png', alt: 'Acorda Ultra 1L', x: -198, mx: -62, width: 124, mobileWidth: 60, scale: 0.94, mobileScale: 0.82, z: 5, y: -4 },
+  { src: '/produtos/redutan-npk-sili-4-1l.png', alt: 'Redutan NPK Sili-4', x: -112, mx: -30, width: 148, mobileWidth: 68, scale: 0.98, mobileScale: 0.88, z: 6, y: -8 },
+  { src: '/produtos/aminosan-1l.png', alt: 'Aminosan', x: 0, mx: 0, width: 176, mobileWidth: 84, scale: 1.18, mobileScale: 1.05, z: 12, y: -18 },
+  { src: '/produtos/redutan-npk-sili-5-1l.png', alt: 'Redutan NPK Sili-5', x: 124, mx: 34, width: 146, mobileWidth: 68, scale: 0.98, mobileScale: 0.88, z: 6, y: -8 },
+  { src: '/produtos/revigo-cobre-ultra-1l.png', alt: 'Revigo Cobre Ultra', x: 222, mx: 70, width: 132, mobileWidth: 62, scale: 0.95, mobileScale: 0.82, z: 5, y: -4 },
+  { src: '/produtos/fitofert-20l.png', alt: 'FitoFert', x: 342, mx: 108, width: 174, mobileWidth: 80, scale: 0.9, mobileScale: 0.78, z: 3, y: 10 },
+  { src: '/produtos/aminosan-20l.png', alt: 'Aminosan 20L', x: 464, mx: 148, width: 178, mobileWidth: 82, scale: 0.88, mobileScale: 0.76, z: 2, y: 12 },
+  { src: '/produtos/aduban-20l.png', alt: 'Aduban', x: 582, mx: 188, width: 176, mobileWidth: 82, scale: 0.86, mobileScale: 0.72, z: 1, y: 13 },
+]
 
 export function AminosanStory() {
   const t = useTranslations('aminosanStory')
@@ -216,19 +241,16 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
           <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-white to-transparent" />
         </div>
         <Container className="flex flex-col items-center gap-lg py-2xl">
-          <div ref={calloutsRef} className="flex w-full max-w-[28rem] flex-col gap-md">
-            <p className="text-subtitle text-center text-foreground/80">{t('callout1')}</p>
-            <p className="text-subtitle text-center text-foreground/80">{t('callout2')}</p>
-            <div className="flex flex-col items-center gap-xs text-center">
-              <span className="text-highlight text-2xl text-primary">{t('callout3Number')}</span>
-              <span className="text-subtitle text-foreground/80">{t('callout3Label')}</span>
-              <span className="text-[11px] text-foreground/50">{t('callout3Source')}</span>
+          <div ref={calloutsRef} className="flex w-full max-w-[28rem] flex-col items-center gap-md text-center">
+            <span className="text-eyebrow text-[10px] uppercase tracking-[0.18em] text-primary">{t('a3Eyebrow')}</span>
+            <BicolorTitle title={t('a3Title')} titleHi={t('a3TitleHi')} className="text-[clamp(1.75rem,7vw,3rem)] leading-tight" />
+            <p className="text-subtitle max-w-[22rem] text-sm text-foreground/80">{t('a3Body')}</p>
+            <div className="flex flex-col items-center gap-xs">
+              <span className="text-highlight text-2xl text-primary">{t('a3StatPrefix')}14 {t('a3StatUnit')}</span>
+              <span className="text-subtitle text-sm text-foreground/80">{t('a3StatLabel')}</span>
+              <span className="text-[11px] text-foreground/50">{t('a3StatSource')}</span>
             </div>
-            <p className="text-subtitle text-center text-foreground/80">{t('callout4')}</p>
           </div>
-          <Link href="/contato" className="text-body-regular inline-flex items-center justify-center rounded-full bg-primary px-xl py-md text-base text-white transition-colors hover:bg-primary-light">
-            {t('cta')}
-          </Link>
         </Container>
       </div>
 
@@ -257,8 +279,12 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
   const scrimRef        = useRef<HTMLDivElement>(null)
   const act1Ref         = useRef<HTMLDivElement>(null)
   const oldCalloutRef   = useRef<HTMLDivElement>(null)
+  const newCalloutRef   = useRef<HTMLDivElement>(null)
   const leftPanelRef    = useRef<HTMLDivElement>(null)
   const counterRef      = useRef<HTMLSpanElement>(null)
+  const brandMarkRef    = useRef<HTMLDivElement>(null)
+  const lineBottleRefs  = useRef<(HTMLDivElement | null)[]>([])
+  const counterPrefix   = t('a3StatPrefix')
 
   const lenis    = useLenis()
   const lenisRef = useRef(lenis)
@@ -276,6 +302,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const act1Items    = act1Ref.current ? gsap.utils.toArray<HTMLElement>('[data-a1]', act1Ref.current) : []
       const calloutLine  = oldCalloutRef.current?.querySelector<HTMLElement>('[data-line]') ?? null
       const calloutLabel = oldCalloutRef.current?.querySelector<HTMLElement>('[data-label]') ?? null
+      const calloutDot = oldCalloutRef.current?.querySelector<HTMLElement>('[data-dot]') ?? null
 
       const titleSplit = titleEl
         ? new SplitText(titleEl, { type: 'chars,lines' })
@@ -286,33 +313,87 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       gsap.set(videoFwd,     { autoAlpha: 0, zIndex: 1 })
       gsap.set(videoRev,     { autoAlpha: 0, zIndex: 0 })
       gsap.set(newImgRef.current, { autoAlpha: 0 })
-      gsap.set(oldImg,       { scale: 1.04, autoAlpha: 1, yPercent: 100 })
+      gsap.set(brandMarkRef.current, { autoAlpha: 0, y: -18, filter: 'blur(8px)' })
+      gsap.set(oldImg,       { scale: 1.04, autoAlpha: 0, yPercent: 100, filter: 'blur(8px)' })
       gsap.set(scrimRef.current, { autoAlpha: 0 })
       gsap.set(titleChars,   { x: 20, autoAlpha: 0, filter: 'blur(10px)' })
       gsap.set(act1Items,    { y: 20, autoAlpha: 0, filter: 'blur(10px)' })
-      gsap.set(calloutLine,  { scaleY: 0 })
-      gsap.set(calloutLabel, { autoAlpha: 0 })
+      gsap.set(calloutLine,  { scaleX: 0 })
+      gsap.set(calloutDot, { scale: 0, autoAlpha: 0 })
+      gsap.set(calloutLabel, { autoAlpha: 0, x: 12 })
 
-      const a3Tag = leftPanelRef.current?.querySelector<HTMLElement>('[data-a3-tag]') ?? null
+      const a3Eyebrow = leftPanelRef.current?.querySelector<HTMLElement>('[data-a3-tag]') ?? null
       const a3Title = leftPanelRef.current?.querySelector<HTMLElement>('[data-a3-title]') ?? null
-      const a3Desc1 = leftPanelRef.current?.querySelector<HTMLElement>('[data-a3-desc1]') ?? null
+      const a3Body = leftPanelRef.current?.querySelector<HTMLElement>('[data-a3-body]') ?? null
       const a3Line = leftPanelRef.current?.querySelector<HTMLElement>('[data-a3-line]') ?? null
-      const a3Desc2 = leftPanelRef.current?.querySelector<HTMLElement>('[data-a3-desc2]') ?? null
-      const a3Icons = leftPanelRef.current ? gsap.utils.toArray('[data-a3-icon]', leftPanelRef.current) : []
-      const rightCards = root.current ? gsap.utils.toArray<HTMLElement>('[data-right-card]', root.current) : []
+      const a3Stat = leftPanelRef.current?.querySelector<HTMLElement>('[data-a3-stat]') ?? null
+      const newCalloutLine = newCalloutRef.current?.querySelector<HTMLElement>('[data-line]') ?? null
+      const newCalloutLabel = newCalloutRef.current?.querySelector<HTMLElement>('[data-label]') ?? null
+      const newCalloutDot = newCalloutRef.current?.querySelector<HTMLElement>('[data-dot]') ?? null
+      const lineBottles = lineBottleRefs.current.filter(Boolean) as HTMLDivElement[]
 
       gsap.set(leftPanelRef.current, { autoAlpha: 1 }) // O painel em si fica visível, os filhos animam
-      gsap.set(a3Tag, { autoAlpha: 0, y: -20, filter: 'blur(10px)' })
+      gsap.set(a3Eyebrow, { autoAlpha: 0, y: -20, filter: 'blur(10px)' })
       gsap.set(a3Title, { autoAlpha: 0, y: 30 })
-      gsap.set(a3Desc1, { autoAlpha: 0, filter: 'blur(10px)' })
+      gsap.set(a3Body, { autoAlpha: 0, filter: 'blur(10px)' })
       gsap.set(a3Line, { scaleX: 0 })
-      gsap.set(a3Desc2, { autoAlpha: 0, filter: 'blur(10px)' })
-      gsap.set(a3Icons, { autoAlpha: 0, y: 20, filter: 'blur(5px)' })
-      gsap.set(rightCards, { autoAlpha: 0, y: 40, filter: 'blur(15px)' })
-      if (counterRef.current) counterRef.current.innerText = "+10 a +0"
+      gsap.set(a3Stat, { autoAlpha: 0, y: 20, filter: 'blur(10px)' })
+      gsap.set(newCalloutLine, { scaleX: 0 })
+      gsap.set(newCalloutDot, { scale: 0, autoAlpha: 0 })
+      gsap.set(newCalloutLabel, { autoAlpha: 0, x: 12 })
+      lineBottles.forEach((bottle, index) => {
+        const item = LINE_BOTTLES[index]
+        gsap.set(bottle, {
+          xPercent: -50,
+          x: 0,
+          y: isMobile ? 0 : item.y ?? 0,
+          scale: 0.48,
+          autoAlpha: 0,
+          filter: 'blur(10px)',
+          zIndex: item.z,
+          transformOrigin: 'bottom center',
+        })
+      })
+      if (counterRef.current) counterRef.current.innerText = `${counterPrefix}10`
 
       // ── Helpers de animação
       let currentTl: gsap.core.Timeline | null = null
+      let lineTl: gsap.core.Timeline | null = null
+
+      const showLineBottles = (delay = 0) => {
+        lineTl?.kill()
+        const tl = lineTl = gsap.timeline({ delay })
+        lineBottles.forEach((bottle, index) => {
+          const item = LINE_BOTTLES[index]
+          const x = isMobile ? item.mx : item.x
+          const scale = isMobile ? item.mobileScale : item.scale
+          tl.to(bottle, {
+            x,
+            scale,
+            autoAlpha: 1,
+            filter: 'blur(0px)',
+            duration: 0.95,
+            ease: 'power3.out',
+          }, Math.min(Math.abs(x) / (isMobile ? 800 : 2600), 0.18))
+        })
+        return tl
+      }
+
+      const hideLineBottles = (delay = 0) => {
+        lineTl?.kill()
+        const tl = lineTl = gsap.timeline({ delay })
+        lineBottles.forEach((bottle) => {
+          tl.to(bottle, {
+            x: 0,
+            scale: 0.48,
+            autoAlpha: 0,
+            filter: 'blur(10px)',
+            duration: 0.45,
+            ease: 'power2.inOut',
+          }, 0)
+        })
+        return tl
+      }
 
       const lockScroll = (on: boolean) => {
         if (on) {
@@ -355,91 +436,102 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
 
       let stIntro: ScrollTrigger | null = null
+      let stIntroExit: ScrollTrigger | null = null
 
-      const introTl = gsap.timeline()
-      introTl.to(scrimRef.current, { autoAlpha: 1, duration: 0.4, ease: 'none' }, 0)
-      introTl.to(oldImg,           { scale: 1, yPercent: 0, duration: 0.5, ease: 'none' }, 0)
-      introTl.to(titleChars,       { x: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.5, stagger: STAGGER.char, ease: 'none' }, 0.05)
-      introTl.to(act1Items,        { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.6, stagger: 0.1, ease: 'power2.out' }, 0.1)
-      introTl.to(calloutLine,      { scaleY: 1, duration: 0.35, transformOrigin: 'top', ease: 'none' }, 0.35)
-      introTl.to(calloutLabel,     { autoAlpha: 1, duration: 0.3 }, 0.5)
+      type Phase = 'act1' | 'act3' | 'line'
+      let phase: Phase = 'act1'
+      let direction: 'forward' | 'backward' | null = null
+      let isLocked = false
+      let animFrame: number | null = null
+      let lineIsAnimating = false
+      let pendingIntroExit = false
+      const cooldownRef = { current: 0 }
+
+      const introTl = gsap.timeline({ paused: true })
+      introTl.to(scrimRef.current, { autoAlpha: 1, duration: 0.5, ease: 'power1.out' }, 0)
+      introTl.to(oldImg,           { scale: 1, yPercent: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.95, ease: 'power3.out' }, 0)
+      introTl.to(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.7, ease: 'power3.out' }, 0.1)
+      introTl.to(titleChars,       { x: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.72, stagger: STAGGER.char, ease: 'power2.out' }, 0.16)
+      introTl.to(act1Items,        { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.72, stagger: 0.12, ease: 'power2.out' }, 0.28)
+      introTl.to(calloutLine,      { scaleX: 1, duration: 0.55, transformOrigin: 'left', ease: 'power2.out' }, 0.62)
+      introTl.to(calloutDot,       { scale: 1, autoAlpha: 1, duration: 0.35, ease: 'back.out(1.8)' }, 0.92)
+      introTl.to(calloutLabel,     { x: 0, autoAlpha: 1, duration: 0.48, ease: 'power2.out' }, 0.98)
+
+      const playIntro = (restart = false) => {
+        if (phase !== 'act1' || direction) return
+        introTl.timeScale(1)
+        if (restart) introTl.restart()
+        else if (introTl.progress() < 1) introTl.play()
+      }
+
+      const reverseIntro = () => {
+        if (phase !== 'act1' || direction) {
+          pendingIntroExit = true
+          return
+        }
+        pendingIntroExit = false
+        videoFwd.pause()
+        videoRev.pause()
+        gsap.set([videoFwd, videoRev], { autoAlpha: 0, zIndex: 0 })
+        gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: 1, yPercent: 0, filter: 'blur(0px)' })
+        introTl.progress(1).timeScale(1.9).reverse()
+      }
 
       stIntro = ScrollTrigger.create({
         trigger: stageTrigger,
-        start: 'top bottom',
-        end: 'top top',
-        // scrub:true (sem lag) — com scrub:1 a timeline "deve" progresso (inércia de
-        // 1s) no exato instante em que o scroll cruza 'top top'; o onEnter mata o
-        // trigger nesse instante e a entrada fica presa a meio caminho (frasco/scrim
-        // somem, tela em branco) até o usuário rolar de novo. Sem lag, o progresso
-        // sempre bate 1 exatamente quando o scroll chega no fim do range.
-        scrub: true,
-        animation: introTl,
+        start: 'top 82%',
+        onEnter: () => playIntro(true),
+        onEnterBack: () => playIntro(true),
       })
 
-      // ScrollTrigger.kill() sem argumentos mata TAMBÉM a animation associada
-      // (kill(revert, allowAnimation) — allowAnimation undefined = mata a timeline).
-      // Isso desfazia o progress(1) forçado logo abaixo: a timeline renderizava o
-      // frasco no lugar e, no mesmo tick, era morta e revertida — frasco e scrim
-      // somem, tela em branco, até o usuário rolar de novo. `kill(false, true)`
-      // mata só o ScrollTrigger e preserva a timeline (e o progress(1)) intacta.
-      const killIntro = () => {
-        if (!stIntro) return
-        introTl.progress(1)
-        stIntro.kill(false, true)
-        stIntro = null
-      }
+      stIntroExit = ScrollTrigger.create({
+        trigger: stageTrigger,
+        start: 'top 24%',
+        onEnter: () => playIntro(false),
+        onLeaveBack: () => reverseIntro(),
+      })
 
       const showAct3UI = (delay = 0) => {
         currentTl?.kill()
         const tl = currentTl = gsap.timeline({ delay })
 
-        tl.to(a3Tag, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.6, ease: 'power2.out' }, 0)
+        tl.to(a3Eyebrow, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.6, ease: 'power2.out' }, 0)
         tl.to(a3Title, { y: 0, autoAlpha: 1, duration: 0.6, ease: 'power2.out' }, 0.1)
-        tl.to(a3Desc1, { autoAlpha: 1, filter: 'blur(0px)', duration: 0.6, ease: 'power2.out' }, 0.2)
+        tl.to(a3Body, { autoAlpha: 1, filter: 'blur(0px)', duration: 0.6, ease: 'power2.out' }, 0.2)
         tl.to(a3Line, { scaleX: 1, duration: 0.5, ease: 'power2.out' }, 0.3)
-        tl.to(a3Desc2, { autoAlpha: 1, filter: 'blur(0px)', duration: 0.6, ease: 'power2.out' }, 0.4)
-        
-        if (a3Icons.length > 0) {
-          tl.to(a3Icons, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.5, stagger: 0.1, ease: 'power2.out' }, 0.5)
-        }
+        tl.to(a3Stat, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.6, ease: 'power2.out' }, 0.35)
+        tl.to(newCalloutLine, { scaleX: 1, duration: 0.45, transformOrigin: 'left', ease: 'power2.out' }, 0.52)
+        tl.to(newCalloutDot, { scale: 1, autoAlpha: 1, duration: 0.3, ease: 'back.out(1.8)' }, 0.72)
+        tl.to(newCalloutLabel, { x: 0, autoAlpha: 1, duration: 0.42, ease: 'power2.out' }, 0.76)
 
-        if (rightCards.length > 0) {
-          tl.to(rightCards, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.8, stagger: 0.25, ease: 'power3.out' }, 0.2)
-        }
-
-        tl.to({ val: 0 }, {
+        tl.to({ val: 10 }, {
           val: 14,
           duration: 1.0,
           ease: 'power2.out',
           onUpdate: function() {
             if (counterRef.current) {
-              counterRef.current.innerText = `+10 a +${Math.round(this.targets()[0].val)}`
+              counterRef.current.innerText = `${counterPrefix}${Math.round(this.targets()[0].val)}`
             }
           }
-        }, 0.5)
+        }, 0.45)
       }
 
       const hideAct3UI = (delay = 0) => {
         currentTl?.kill()
         const tl = currentTl = gsap.timeline({ delay })
 
-        if (rightCards.length > 0) {
-          tl.to(rightCards, { y: 40, autoAlpha: 0, filter: 'blur(15px)', duration: 0.4, stagger: 0.1, ease: 'power2.in' }, 0)
-        }
-        
-        if (a3Icons.length > 0) {
-          tl.to(a3Icons, { y: 20, autoAlpha: 0, filter: 'blur(5px)', duration: 0.3, stagger: 0.05, ease: 'power2.in' }, 0)
-        }
-        tl.to(a3Desc2, { autoAlpha: 0, filter: 'blur(10px)', duration: 0.3, ease: 'power2.in' }, 0.1)
+        tl.to(newCalloutLabel, { x: 12, autoAlpha: 0, duration: 0.24, ease: 'power2.in' }, 0)
+        tl.to(newCalloutDot, { scale: 0, autoAlpha: 0, duration: 0.2, ease: 'power2.in' }, 0.08)
+        tl.to(newCalloutLine, { scaleX: 0, duration: 0.28, ease: 'power2.in' }, 0.1)
+        tl.to(a3Stat, { y: 20, autoAlpha: 0, filter: 'blur(10px)', duration: 0.3, ease: 'power2.in' }, 0.1)
         tl.to(a3Line, { scaleX: 0, duration: 0.3, ease: 'power2.in' }, 0.15)
-        tl.to(a3Desc1, { autoAlpha: 0, filter: 'blur(10px)', duration: 0.3, ease: 'power2.in' }, 0.2)
+        tl.to(a3Body, { autoAlpha: 0, filter: 'blur(10px)', duration: 0.3, ease: 'power2.in' }, 0.2)
         tl.to(a3Title, { y: 30, autoAlpha: 0, duration: 0.3, ease: 'power2.in' }, 0.25)
-        tl.to(a3Tag, { y: -20, autoAlpha: 0, filter: 'blur(10px)', duration: 0.3, ease: 'power2.in' }, 0.3)
+        tl.to(a3Eyebrow, { y: -20, autoAlpha: 0, filter: 'blur(10px)', duration: 0.3, ease: 'power2.in' }, 0.3)
 
         tl.set({}, {
           onComplete: () => {
-            if (counterRef.current) counterRef.current.innerText = "+10 a +0"
+            if (counterRef.current) counterRef.current.innerText = `${counterPrefix}10`
           }
         })
       }
@@ -452,13 +544,6 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
        * keyframe em diante. Por isso o rebobinar usa o clipe reverso, nunca seek manual.
        * O que É igual ao HeroJornada: o estado (fase/direção) responde instantaneamente
        * a cada gesto de scroll, sem esperar a transição anterior terminar. */
-      type Phase = 'act1' | 'act3'
-      let phase: Phase = 'act1'
-      let direction: 'forward' | 'backward' | null = null
-      let isLocked = false
-      let animFrame: number | null = null
-      const cooldownRef = { current: 0 }
-
       const release = () => {
         isLocked = false
         lockScroll(false)
@@ -471,6 +556,25 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         try { target.currentTime = targetDur - (progress * targetDur) } catch(e) {}
       }
 
+      const showStaticAct1 = (exitAfter = false) => {
+        videoFwd.pause()
+        videoRev.pause()
+        gsap.killTweensOf([videoFwd, videoRev])
+        gsap.set(videoFwd, { autoAlpha: 0, zIndex: 0 })
+        gsap.set(videoRev, { autoAlpha: 0, zIndex: 0 })
+        gsap.set(newImgRef.current, { autoAlpha: 0 })
+        gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: 1, yPercent: 0, filter: 'blur(0px)' })
+        gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
+        hideLineBottles(0)
+        try { videoFwd.currentTime = 0 } catch(e) {}
+        try { videoRev.currentTime = 0 } catch(e) {}
+        if (exitAfter) {
+          requestAnimationFrame(() => reverseIntro())
+        } else {
+          introTl.timeScale(1).progress(1).pause()
+        }
+      }
+
       const stopPlayback = () => {
         if (animFrame) cancelAnimationFrame(animFrame)
         direction = null
@@ -478,16 +582,43 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           gsap.set(videoFwd, { autoAlpha: 1 })
           gsap.set(videoRev, { autoAlpha: 0 })
           gsap.set(newImgRef.current, { autoAlpha: 1 })
-          gsap.set(oldImg, { autoAlpha: 0 })
+            gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
+          gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
+          hideLineBottles(0)
           try { videoRev.currentTime = 0 } catch(e) {}
         } else {
-          gsap.set(videoFwd, { autoAlpha: 0 })
-          gsap.set(videoRev, { autoAlpha: 1 })
-          gsap.set(newImgRef.current, { autoAlpha: 0 })
-          gsap.set(oldImg, { autoAlpha: 1 })
-          try { videoFwd.currentTime = 0 } catch(e) {}
+          const stageTop = stageTrigger.getBoundingClientRect().top
+          showStaticAct1(pendingIntroExit || stageTop > window.innerHeight * 0.24)
         }
         cooldownRef.current = performance.now() + 300
+      }
+
+      const openProductLine = () => {
+        if (lineIsAnimating || phase !== 'act3' || direction) return
+        lineIsAnimating = true
+        gsap.to(newImgRef.current, { autoAlpha: 0, duration: 0.32, ease: 'power2.out', overwrite: true })
+        gsap.to(brandMarkRef.current, { autoAlpha: 0, duration: 0.24, ease: 'power2.out', overwrite: true })
+        gsap.to(videoFwd, { autoAlpha: 0, duration: 0.32, ease: 'power2.out', overwrite: true })
+        const tl = showLineBottles(0)
+        tl.eventCallback('onComplete', () => {
+          phase = 'line'
+          lineIsAnimating = false
+          cooldownRef.current = performance.now() + 180
+        })
+      }
+
+      const closeProductLine = () => {
+        if (lineIsAnimating || phase !== 'line' || direction) return
+        lineIsAnimating = true
+        gsap.to(newImgRef.current, { autoAlpha: 1, duration: 0.32, ease: 'power2.out', overwrite: true })
+        gsap.to(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.24, ease: 'power2.out', overwrite: true })
+        gsap.to(videoFwd, { autoAlpha: 1, duration: 0.32, ease: 'power2.out', overwrite: true })
+        const tl = hideLineBottles(0)
+        tl.eventCallback('onComplete', () => {
+          phase = 'act3'
+          lineIsAnimating = false
+          cooldownRef.current = performance.now() + 180
+        })
       }
 
       const tick = () => {
@@ -500,8 +631,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
             return
           }
         } else {
-          if (videoRev.currentTime >= ((videoRev.duration > 0 && isFinite(videoRev.duration)) ? videoRev.duration : 3) - 0.1) {
-            videoRev.pause()
+          if (videoRev.currentTime >= ((videoRev.duration > 0 && isFinite(videoRev.duration)) ? videoRev.duration : 3) - 0.18) {
             phase = 'act1'
             stopPlayback()
             return
@@ -532,6 +662,12 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       const startPlayback = (dir: 'forward' | 'backward') => {
         if (animFrame) cancelAnimationFrame(animFrame)
+        if (dir === 'forward') {
+          introTl.progress(1)
+          gsap.set(oldImg, { autoAlpha: 1, scale: 1, yPercent: 0, filter: 'blur(0px)' })
+        } else {
+          gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
+        }
         const oldDir = direction
         direction = dir
 
@@ -555,21 +691,30 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
             // Se uma reversão mais nova assumiu enquanto esperávamos o seek, esta
             // chamada é obsoleta — aplicar o reveal aqui pisaria no estado atual.
             if (direction !== 'forward') return
-            gsap.set(videoFwd, { zIndex: 1, autoAlpha: 1 })
+                gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: 1, yPercent: 0, filter: 'blur(0px)' })
+            gsap.set(videoFwd, { zIndex: 9, autoAlpha: 1 })
             gsap.set(videoRev, { zIndex: 0, autoAlpha: 0 })
-            gsap.set(oldImg, { autoAlpha: 0 })
             gsap.set(newImgRef.current, { autoAlpha: 0 })
 
-            videoFwd.play().catch(() => {})
+            const handoffTl = gsap.timeline({
+              onComplete: () => {
+                if (direction !== 'forward') return
+                videoFwd.play().catch(() => {})
+                beginTick()
+              },
+            })
+            handoffTl.to(oldImg, { autoAlpha: 0, scale: 0.992, filter: 'blur(4px)', duration: 0.24, ease: 'power1.inOut', overwrite: 'auto' }, 0)
 
+            gsap.to(brandMarkRef.current, { y: -18, autoAlpha: 0, filter: 'blur(8px)', duration: fwdDur * 0.22, ease: 'power1.inOut', overwrite: 'auto' })
+            gsap.to(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: fwdDur * 0.22, delay: fwdDur * 0.42, ease: 'power1.inOut', overwrite: 'auto' })
             gsap.to(titleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)', duration: fwdDur * 0.4, stagger: STAGGER.char, ease: 'power1.inOut', overwrite: 'auto' })
             gsap.to(act1Items, { y: 20, autoAlpha: 0, filter: 'blur(10px)', duration: fwdDur * 0.4, stagger: 0.05, ease: 'power1.inOut', overwrite: 'auto' })
-            gsap.to(calloutLine, { scaleY: 0, duration: fwdDur * 0.3, ease: 'power1.inOut', overwrite: 'auto' })
-            gsap.to(calloutLabel, { autoAlpha: 0, duration: fwdDur * 0.3, ease: 'power1.inOut', overwrite: 'auto' })
+            gsap.to(calloutLabel, { x: 12, autoAlpha: 0, duration: fwdDur * 0.24, ease: 'power1.inOut', overwrite: 'auto' })
+            gsap.to(calloutDot, { scale: 0, autoAlpha: 0, duration: fwdDur * 0.22, ease: 'power1.inOut', overwrite: 'auto' })
+            gsap.to(calloutLine, { scaleX: 0, duration: fwdDur * 0.3, ease: 'power1.inOut', overwrite: 'auto' })
             gsap.to(scrimRef.current, { autoAlpha: 0, duration: fwdDur * 0.8, ease: 'power1.inOut', overwrite: 'auto' })
 
             showAct3UI(fwdDur * 0.4)
-            beginTick()
           })
 
         } else {
@@ -585,20 +730,25 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
           revealWhenReady(videoRev, needsSync, () => {
             if (direction !== 'backward') return
+                gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
             gsap.set(videoRev, { zIndex: 1, autoAlpha: 1 })
             gsap.set(videoFwd, { zIndex: 0, autoAlpha: 0 })
-            gsap.set(oldImg, { autoAlpha: 0 })
+            gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
             gsap.set(newImgRef.current, { autoAlpha: 0 })
+            hideLineBottles(0)
 
             videoRev.play().catch(() => {})
 
             hideAct3UI(0)
 
-            gsap.to(titleChars, { x: 0, autoAlpha: 1, filter: 'blur(0px)', duration: fwdDur * 0.4, stagger: STAGGER.char, ease: 'power1.inOut', overwrite: 'auto' })
-            gsap.to(act1Items, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: fwdDur * 0.4, stagger: 0.1, ease: 'power1.inOut', overwrite: 'auto' })
-            gsap.to(calloutLine, { scaleY: 1, duration: fwdDur * 0.3, ease: 'power1.inOut', overwrite: 'auto' })
-            gsap.to(calloutLabel, { autoAlpha: 1, duration: fwdDur * 0.3, ease: 'power1.inOut', overwrite: 'auto' })
-            gsap.to(scrimRef.current, { autoAlpha: 1, duration: fwdDur * 0.8, ease: 'power1.inOut', overwrite: 'auto' })
+            gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
+            gsap.set(brandMarkRef.current, { y: -18, autoAlpha: 0, filter: 'blur(8px)' })
+            gsap.set(titleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)' })
+            gsap.set(act1Items, { y: 20, autoAlpha: 0, filter: 'blur(10px)' })
+            gsap.set(calloutLine, { scaleX: 0 })
+            gsap.set(calloutDot, { scale: 0, autoAlpha: 0 })
+            gsap.set(calloutLabel, { x: 12, autoAlpha: 0 })
+            gsap.set(scrimRef.current, { autoAlpha: 0 })
 
             beginTick()
           })
@@ -619,18 +769,21 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         trigger: stageRef.current,
         start: 'top top',
         onEnter: () => {
-          killIntro()
+          playIntro(false)
           if (phase === 'act1' && !isLocked && !direction) {
             isLocked = true
             lockScroll(true)
           }
         },
         onEnterBack: () => {
-          killIntro()
+          if (phase === 'act1') playIntro(false)
           if (phase === 'act3' && !isLocked && !direction) {
             isLocked = true
             lockScroll(true)
             startPlayback('backward')
+          } else if (phase === 'line' && !isLocked && !direction) {
+            isLocked = true
+            lockScroll(true)
           }
         },
         // onLeaveBack: o release() em act3 solta o scroll bem no início do estágio
@@ -639,8 +792,11 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         // baixo — sem isto o onEnterBack acima nunca dispara e a seção fica presa no
         // Ato 3 pra sempre.
         onLeaveBack: () => {
-          killIntro()
-          if (phase === 'act3' && !isLocked && direction !== 'backward') {
+          if (phase === 'line' && !isLocked && !direction) {
+            isLocked = true
+            lockScroll(true)
+            closeProductLine()
+          } else if (phase === 'act3' && !isLocked && direction !== 'backward') {
             isLocked = true
             lockScroll(true)
             startPlayback('backward')
@@ -666,11 +822,38 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         }
       }
 
+      const lockIfStageIsActive = () => {
+        if (isLocked || direction) return false
+        const stage = stageRef.current
+        if (!stage) return false
+        const rect = stage.getBoundingClientRect()
+        const active = rect.top <= 48 && rect.bottom >= window.innerHeight * 0.5
+        if (!active) return false
+        playIntro(false)
+        isLocked = true
+        lockScroll(true)
+        return true
+      }
+
       const onWheel = (e: WheelEvent) => {
-        if (!isLocked) return
+        if (!isLocked && !lockIfStageIsActive()) return
+        if (lineIsAnimating) {
+          e.preventDefault()
+          return
+        }
         if (e.deltaY > 0) {
-          if (phase === 'act3' && !direction) { release(); return; }
+          if (phase === 'act3' && !direction && performance.now() > cooldownRef.current) {
+            e.preventDefault()
+            openProductLine()
+            return
+          }
+          if (phase === 'line' && !direction && !lineIsAnimating) { release(); return; }
         } else if (e.deltaY < 0) {
+          if (phase === 'line' && !direction && performance.now() > cooldownRef.current) {
+            e.preventDefault()
+            closeProductLine()
+            return
+          }
           if (phase === 'act1' && !direction) { release(); return; }
         }
         e.preventDefault()
@@ -685,7 +868,21 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         const down = downKeys.includes(e.key)
         const up   = upKeys.includes(e.key)
         if (!down && !up) return
-        if (down && phase === 'act3' && !direction) { release(); return; }
+        if (lineIsAnimating) {
+          e.preventDefault()
+          return
+        }
+        if (down && phase === 'act3' && !direction && performance.now() > cooldownRef.current) {
+          e.preventDefault()
+          openProductLine()
+          return
+        }
+        if (down && phase === 'line' && !direction && !lineIsAnimating) { release(); return; }
+        if (up && phase === 'line' && !direction && performance.now() > cooldownRef.current) {
+          e.preventDefault()
+          closeProductLine()
+          return
+        }
         if (up && phase === 'act1' && !direction) { release(); return; }
         e.preventDefault()
         if (down) handleForward()
@@ -705,12 +902,15 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const onTouchEnd = (e: TouchEvent) => {
         if (!isLocked) return
         if ((e.target as HTMLElement).closest('.allow-scroll')) return
+        if (lineIsAnimating) return
         const endY = e.changedTouches[0] ? e.changedTouches[0].clientY : touchY
         const dy   = touchY - endY
         if (dy > 30) {
-          if (phase === 'act3' && !direction) { release(); return; }
+          if (phase === 'act3' && !direction && performance.now() > cooldownRef.current) { openProductLine(); return; }
+          if (phase === 'line' && !direction && !lineIsAnimating) { release(); return; }
           handleForward()
         } else if (dy < -30) {
+          if (phase === 'line' && !direction && performance.now() > cooldownRef.current) { closeProductLine(); return; }
           if (phase === 'act1' && !direction) { release(); return; }
           handleBackward()
         }
@@ -732,9 +932,11 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       return () => {
         stIntro?.kill()
+        stIntroExit?.kill()
         introTl.kill()
         stTop.kill()
         titleSplit?.revert()
+        lineTl?.kill()
         lenisRef.current?.start()
 
         // Limpeza dos event listeners globais
@@ -757,7 +959,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           muted playsInline preload="auto"
           poster="/heritage/desktop/morph-aminosan-1-antigo.png"
           aria-label={t('videoAlt')}
-          className="absolute inset-0 z-0 h-full w-full object-cover hidden lg:block"
+          className="absolute inset-0 z-0 h-full w-full object-cover opacity-0 hidden lg:block"
         >
           <source src="/heritage/desktop/morph-aminosan.mp4" type="video/mp4" />
         </video>
@@ -776,7 +978,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           muted playsInline preload="auto"
           poster="/heritage/mobile/morph-aminosan-1-antigo.png"
           aria-label={t('videoAlt')}
-          className="absolute z-0 block lg:hidden inset-x-0 !top-[20svh] !h-[80svh] w-full object-contain"
+          className="absolute z-0 opacity-0 block lg:hidden inset-x-0 !top-[20svh] !h-[80svh] w-full object-contain"
         >
           <source src="/heritage/mobile/morph-aminosan.mp4" type="video/mp4" />
         </video>
@@ -799,6 +1001,28 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           priority
         />
 
+        <div className="aminosan-line-bottles" aria-hidden>
+          {LINE_BOTTLES.map((item, index) => (
+            <div
+              key={`${item.alt}-${item.src}`}
+              ref={(el) => { lineBottleRefs.current[index] = el }}
+              className="aminosan-line-bottles__item"
+              style={{
+                width: `clamp(${item.mobileWidth}px, ${item.width / 14.4}vw, ${item.width}px)`,
+              }}
+            >
+              <Image
+                src={item.src}
+                alt=""
+                width={1000}
+                height={1000}
+                sizes="(max-width: 1023px) 18vw, 14vw"
+                className="aminosan-line-bottles__image"
+              />
+            </div>
+          ))}
+        </div>
+
         {/* z-10 — foto estática do frasco novo */}
         <Image
           ref={newImgRef}
@@ -808,6 +1032,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           className="absolute z-10 pointer-events-none opacity-0 object-cover md:!object-cover lg:!inset-0 max-lg:!top-[20svh] max-lg:!h-[80svh] max-lg:!object-contain"
           priority
         />
+
+        <AminosanBrandMark refEl={brandMarkRef} />
 
         {/* z-20 — scrim lateral para legibilidade do Ato 1 */}
         <div ref={scrimRef} aria-hidden
@@ -833,76 +1059,36 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           </div>
         </Container>
 
-        {/* Callout do Ato 1 */}
-        <div ref={oldCalloutRef} className="absolute right-[4%] md:right-[6%] xl:right-[12%] bottom-[20vh] md:bottom-auto md:top-1/4 xl:top-1/3 z-30 flex items-start gap-2 md:gap-sm">
-          <span data-line aria-hidden className="mt-[4px] md:mt-[6px] block h-6 md:h-8 xl:h-10 w-px bg-primary/50" style={{ transformOrigin: 'top' }} />
-          <span data-label className="text-subtitle max-w-[6.5rem] md:max-w-[7rem] xl:max-w-[8.5rem] text-sm xl:text-xs text-foreground/70 drop-shadow-md md:drop-shadow-none">
-            {t('oldBottleCaption')}
-          </span>
-        </div>
+        <BottleCallout refEl={oldCalloutRef} eyebrow={t('eyebrow')}>
+          {t('oldBottleCaption')}
+        </BottleCallout>
 
-        {/* UI do Ato 3 */}
-        <Container className="allow-scroll touch-pan-y relative lg:absolute lg:inset-0 z-30 flex flex-col md:flex-row min-h-[100svh] lg:min-h-0 h-auto lg:h-full items-start md:items-center justify-between min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pointer-events-none pt-[8vh] md:pt-0 pb-[8vh] md:pb-0 overflow-visible md:overflow-hidden hide-scrollbar">
-          
-          {/* Painel Esquerdo */}
-          <div ref={leftPanelRef} className="pointer-events-auto flex flex-col items-start gap-1.5 md:gap-3 xl:gap-4 w-full md:w-auto max-w-full md:max-w-[24rem] xl:max-w-[28rem] bg-transparent p-0 mt-4 md:mt-0">
-            <h2 data-a3-title className="uppercase text-4xl md:text-5xl xl:text-6xl font-black text-primary">Aminosan</h2>
-            <p data-a3-desc1 className="text-subtitle text-sm md:text-lg xl:text-xl text-foreground/80 leading-tight">
-              {t('a3Desc1')}
+        {/* UI do Ato 3 — mesmo desenho do Ato 1: coluna de texto à esquerda, frasco em cena.
+            No mobile o bloco de prova (número + handoff + CTA) desce para o rodapé da tela,
+            deixando o frasco visível no meio. */}
+        <Container className="allow-scroll touch-pan-y relative lg:absolute lg:inset-0 z-30 flex min-h-[100svh] lg:min-h-0 h-auto lg:h-full items-stretch md:items-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pointer-events-none pt-[8vh] md:pt-0 pb-[8vh] md:pb-0">
+          <div ref={leftPanelRef} className="pointer-events-auto flex w-full flex-1 md:flex-none md:w-auto max-w-full md:max-w-[24rem] xl:max-w-[28rem] flex-col items-start">
+            <span data-a3-tag className="text-eyebrow mb-sm md:mb-md text-[10px] xl:text-xs uppercase tracking-[0.18em] text-primary">
+              {t('a3Eyebrow')}
+            </span>
+            <BicolorTitle data-a3-title title={t('a3Title')} titleHi={t('a3TitleHi')} className="text-[clamp(1.75rem,7vw,3.75rem)] md:text-[clamp(1.75rem,3.2vw,3.75rem)]" />
+            <p data-a3-body className="text-subtitle mt-sm md:mt-md max-w-[22rem] md:max-w-none text-sm xl:text-base text-foreground/80">
+              {t('a3Body')}
             </p>
-            <div data-a3-line className="w-8 md:w-12 h-[3px] md:h-1 bg-primary/40 rounded-full my-0.5 md:my-1 xl:my-2" style={{ transformOrigin: 'left' }} />
-            <p data-a3-desc2 className="text-subtitle text-sm xl:text-base text-foreground/70">
-              {t('a3Desc2Start')} <span className="text-primary">{t('a3Desc2Bold')}</span>
-            </p>
-            <div className="flex flex-row md:grid md:grid-cols-4 justify-between md:gap-2 xl:gap-4 mt-1 md:mt-2 xl:mt-4 w-full">
-              <div data-a3-icon className="flex flex-col items-center md:items-start text-center md:text-left gap-1 md:gap-2 w-[22%] md:w-auto">
-                <Dna className="w-4 h-4 md:w-5 md:h-5 xl:w-6 xl:h-6 text-primary" />
-                <span className="text-subtitle text-[11px] xl:text-[10px] text-foreground/70 leading-tight">{t('a3Icon1')}</span>
-              </div>
-              <div data-a3-icon className="flex flex-col items-center md:items-start text-center md:text-left gap-1 md:gap-2 w-[22%] md:w-auto">
-                <Sprout className="w-4 h-4 md:w-5 md:h-5 xl:w-6 xl:h-6 text-primary" />
-                <span className="text-subtitle text-[11px] xl:text-[10px] text-foreground/70 leading-tight">{t('a3Icon2')}</span>
-              </div>
-              <div data-a3-icon className="flex flex-col items-center md:items-start text-center md:text-left gap-1 md:gap-2 w-[22%] md:w-auto">
-                <ShieldCheck className="w-4 h-4 md:w-5 md:h-5 xl:w-6 xl:h-6 text-primary" />
-                <span className="text-subtitle text-[11px] xl:text-[10px] text-foreground/70 leading-tight">{t('a3Icon3')}</span>
-              </div>
-              <div data-a3-icon className="flex flex-col items-center md:items-start text-center md:text-left gap-1 md:gap-2 w-[22%] md:w-auto">
-                <BarChart3 className="w-4 h-4 md:w-5 md:h-5 xl:w-6 xl:h-6 text-primary" />
-                <span className="text-subtitle text-[11px] xl:text-[10px] text-foreground/70 leading-tight">{t('a3Icon4')}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Spacer for media on mobile */}
-          <div className="md:hidden h-[35svh] w-full shrink-0" aria-hidden />
-
-          {/* Cards Direitos */}
-          <div className="pointer-events-auto flex flex-col gap-5 xl:gap-6 w-full md:w-auto md:max-w-[20rem] xl:max-w-[24rem] mt-auto md:mt-0 mb-8 md:mb-0">
-            <div data-right-card className="flex items-start md:items-center gap-4 xl:gap-5 w-full bg-transparent p-0 snap-center shrink-0">
-              <CalendarCheck className="w-6 h-6 xl:w-8 xl:h-8 text-primary shrink-0" />
-              <div className="flex flex-col gap-0.5 md:gap-1">
-                <span className="text-highlight text-xl md:text-2xl xl:text-3xl text-primary"><span ref={counterRef}>+10 a +0</span> {t('a3Card1Unit')}</span>
-                <span className="text-subtitle text-sm text-foreground/80 leading-tight">{t('a3Card1Text')}</span>
-                <span className="text-subtitle text-[11px] text-foreground/50 mt-1 leading-tight">{t('a3Card1Source')}</span>
-              </div>
-            </div>
-            
-            <div data-right-card className="flex items-start md:items-center gap-3 xl:gap-4 w-full bg-transparent p-0 snap-center shrink-0">
-              <Sprout className="w-6 h-6 xl:w-8 xl:h-8 text-primary shrink-0" />
-              <div className="flex flex-col gap-0.5 md:gap-1">
-                <span className="text-subtitle text-sm xl:text-base text-foreground/80 leading-tight">{t('a3Card2Text')} <span className="text-primary">{t('a3Card2Bold')}</span></span>
-              </div>
-            </div>
-
-            <div data-right-card className="flex items-start md:items-center gap-3 xl:gap-4 w-full bg-transparent p-0 snap-center shrink-0">
-              <Users className="w-6 h-6 xl:w-8 xl:h-8 text-primary shrink-0" />
-              <div className="flex flex-col gap-0.5 md:gap-1">
-                <span className="text-subtitle text-sm xl:text-base text-foreground/80 leading-tight">{t('a3Card3Text')} <span className="text-primary">{t('a3Card3Bold')}</span></span>
+            <div className="mt-auto md:mt-0 flex flex-col items-start">
+              <div data-a3-line className="my-md md:my-lg h-px w-10 md:w-12 bg-primary/40" style={{ transformOrigin: 'left' }} />
+              <div data-a3-stat className="flex flex-col gap-1">
+                <span className="text-highlight text-2xl md:text-3xl xl:text-4xl text-primary"><span ref={counterRef}>{t('a3StatPrefix')}10</span> {t('a3StatUnit')}</span>
+                <span className="text-subtitle text-sm text-foreground/80">{t('a3StatLabel')}</span>
+                <span className="text-[11px] text-foreground/50">{t('a3StatSource')}</span>
               </div>
             </div>
           </div>
         </Container>
+
+        <BottleCallout refEl={newCalloutRef} eyebrow={t('a3Eyebrow')}>
+          {t('newBottleCaption')}
+        </BottleCallout>
       </section>
     </div>
   )
@@ -929,6 +1115,45 @@ function Callout({ className = '', labelClassName = 'max-w-[12rem] xl:max-w-[14r
     <div ref={refEl} className={`absolute flex flex-col ${className}`}>
       <span data-label className={`text-subtitle rounded-2xl bg-white/70 px-4 py-3 text-xs xl:text-sm text-foreground/80 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.04)] text-left block ${labelClassName}`}>
         {children}
+      </span>
+    </div>
+  )
+}
+
+function AminosanBrandMark({ refEl }: { refEl: RefObject<HTMLDivElement | null> }) {
+  return (
+    <div
+      ref={refEl}
+      aria-label="Aminosan registrado"
+      className="pointer-events-none absolute left-1/2 top-[9svh] z-30 -translate-x-1/2 text-center max-md:top-[7svh]"
+    >
+      <span className="font-black uppercase leading-none tracking-[0.02em] text-foreground text-[clamp(1.65rem,2.35vw,3rem)]">
+        AMINOSAN<sup className="ml-1 align-super text-[0.36em] leading-none">&reg;</sup>
+      </span>
+    </div>
+  )
+}
+
+
+function BottleCallout({
+  refEl,
+  eyebrow,
+  children,
+}: {
+  refEl: RefObject<HTMLDivElement | null>
+  eyebrow: string
+  children: ReactNode
+}) {
+  return (
+    <div
+      ref={refEl}
+      className="aminosan-bottle-callout pointer-events-none absolute right-[4%] bottom-[18vh] md:right-auto md:left-[63.5%] md:bottom-auto md:top-[56%] md:-translate-y-1/2 xl:left-[64%] z-30 flex items-center gap-3"
+    >
+      <span data-line aria-hidden className="aminosan-bottle-callout__line" style={{ transformOrigin: 'left' }} />
+      <span data-dot aria-hidden className="aminosan-bottle-callout__dot" />
+      <span data-label className="aminosan-bottle-callout__card">
+        <span className="aminosan-bottle-callout__meta">{eyebrow}</span>
+        <span className="aminosan-bottle-callout__text">{children}</span>
       </span>
     </div>
   )

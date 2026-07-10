@@ -1025,6 +1025,111 @@ html.lenis body { height: auto; }
   z-index: 5;
   opacity: 0;
 }
+
+/* Heritage Aminosan callouts */
+.aminosan-bottle-callout {
+  --callout-green: #004C26;
+  opacity: 0.95;
+}
+.aminosan-bottle-callout__line {
+  position: relative;
+  display: block;
+  width: clamp(5.5rem, 8vw, 8.25rem);
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(0, 76, 38, 0.68));
+}
+.aminosan-bottle-callout__dot {
+  display: block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border: 1px solid rgba(0, 76, 38, 0.55);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 0 0 7px rgba(0, 76, 38, 0.05);
+  animation: aminosan-callout-pulse 2.4s ease-in-out infinite;
+}
+.aminosan-bottle-callout__card {
+  position: relative;
+  display: flex;
+  width: clamp(8.5rem, 10vw, 10.75rem);
+  flex-direction: column;
+  gap: 0.28rem;
+  padding-left: 0.9rem;
+}
+.aminosan-bottle-callout__card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.1rem;
+  bottom: 0.15rem;
+  width: 1px;
+  background: rgba(0, 76, 38, 0.34);
+}
+.aminosan-bottle-callout__meta {
+  position: relative;
+  font-family: var(--font-heading);
+  font-size: clamp(0.82rem, 0.95vw, 1.05rem);
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--callout-green);
+}
+.aminosan-bottle-callout__text {
+  position: relative;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: rgba(26, 26, 26, 0.64);
+}
+@keyframes aminosan-callout-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 7px rgba(0, 76, 38, 0.05); }
+  50% { transform: scale(1.22); box-shadow: 0 0 0 11px rgba(0, 76, 38, 0.015); }
+}
+
+@media (max-width: 767px) {
+  .aminosan-bottle-callout {
+    right: 1.25rem;
+    bottom: 14vh;
+    gap: 0.65rem;
+  }
+  .aminosan-bottle-callout__line {
+    width: 3rem;
+  }
+  .aminosan-bottle-callout__card {
+    width: min(9rem, 42vw);
+  }
+  .aminosan-bottle-callout__text {
+    font-size: 0.7rem;
+  }
+}
+
+/* Aminosan act 3: portfolio opens behind the current bottle */
+.aminosan-line-bottles {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+}
+.aminosan-line-bottles__item {
+  position: absolute;
+  left: 50%;
+  bottom: 14.5%;
+  transform-origin: bottom center;
+  will-change: transform, opacity, filter;
+}
+.aminosan-line-bottles__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+}
+
+@media (max-width: 1023px) {
+  .aminosan-line-bottles__item {
+    bottom: 25%;
+  }
+}
 .hero-title-shimmer.shimmer-active::after {
   animation: hero-shimmer-sweep 0.8s ease-out forwards;
 }
