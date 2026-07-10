@@ -444,7 +444,6 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       let isLocked = false
       let animFrame: number | null = null
       let lineIsAnimating = false
-      let pendingIntroExit = false
       const cooldownRef = { current: 0 }
 
       const introTl = gsap.timeline({ paused: true })
@@ -465,11 +464,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       }
 
       const reverseIntro = () => {
-        if (phase !== 'act1' || direction) {
-          pendingIntroExit = true
-          return
-        }
-        pendingIntroExit = false
+        if (phase !== 'act1' || direction) return
         videoFwd.pause()
         videoRev.pause()
         gsap.set([videoFwd, videoRev], { autoAlpha: 0, zIndex: 0 })
@@ -572,6 +567,12 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           requestAnimationFrame(() => reverseIntro())
         } else {
           introTl.timeScale(1).progress(1).pause()
+          gsap.set(scrimRef.current, { autoAlpha: 1 })
+          gsap.set(titleChars, { x: 0, autoAlpha: 1, filter: 'blur(0px)' })
+          gsap.set(act1Items, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
+          gsap.set(calloutLine, { scaleX: 1, transformOrigin: 'left' })
+          gsap.set(calloutDot, { scale: 1, autoAlpha: 1 })
+          gsap.set(calloutLabel, { x: 0, autoAlpha: 1 })
         }
       }
 
@@ -588,7 +589,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           try { videoRev.currentTime = 0 } catch(e) {}
         } else {
           const stageTop = stageTrigger.getBoundingClientRect().top
-          showStaticAct1(pendingIntroExit || stageTop > window.innerHeight * 0.24)
+          showStaticAct1(stageTop > window.innerHeight * 0.24)
         }
         cooldownRef.current = performance.now() + 300
       }
@@ -749,6 +750,14 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
             gsap.set(calloutDot, { scale: 0, autoAlpha: 0 })
             gsap.set(calloutLabel, { x: 12, autoAlpha: 0 })
             gsap.set(scrimRef.current, { autoAlpha: 0 })
+
+            gsap.to(scrimRef.current, { autoAlpha: 1, duration: fwdDur * 0.28, delay: fwdDur * 0.48, ease: 'power1.inOut', overwrite: 'auto' })
+            gsap.to(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: fwdDur * 0.24, delay: fwdDur * 0.54, ease: 'power1.inOut', overwrite: 'auto' })
+            gsap.to(titleChars, { x: 0, autoAlpha: 1, filter: 'blur(0px)', duration: fwdDur * 0.28, delay: fwdDur * 0.56, stagger: STAGGER.char, ease: 'power1.inOut', overwrite: 'auto' })
+            gsap.to(act1Items, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: fwdDur * 0.28, delay: fwdDur * 0.6, stagger: 0.08, ease: 'power1.inOut', overwrite: 'auto' })
+            gsap.to(calloutLine, { scaleX: 1, duration: fwdDur * 0.18, delay: fwdDur * 0.66, ease: 'power1.inOut', overwrite: 'auto' })
+            gsap.to(calloutDot, { scale: 1, autoAlpha: 1, duration: fwdDur * 0.16, delay: fwdDur * 0.73, ease: 'back.out(1.8)', overwrite: 'auto' })
+            gsap.to(calloutLabel, { x: 0, autoAlpha: 1, duration: fwdDur * 0.2, delay: fwdDur * 0.76, ease: 'power1.inOut', overwrite: 'auto' })
 
             beginTick()
           })
