@@ -19,6 +19,7 @@ type TestimonialData = {
   initials: string;
   name: string;
   location: string;
+  image?: string;
 };
 
 export function HomeTestimonials() {
@@ -59,12 +60,19 @@ export function HomeTestimonials() {
     return () => split?.revert()
   }, { scope: ref })
 
+  const unsplashImages = [
+    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?fit=crop&w=100&h=100&q=80",
+    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?fit=crop&w=100&h=100&q=80",
+    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?fit=crop&w=100&h=100&q=80"
+  ];
+
   const testimonialsData: TestimonialData[] = TESTIMONIALS.map(i => ({
     text: t(`testimonials.${i}.text` as any),
     badge: t(`testimonials.${i}.badge` as any),
     initials: t(`testimonials.${i}.initials` as any),
     name: t(`testimonials.${i}.name` as any),
     location: t(`testimonials.${i}.location` as any),
+    image: unsplashImages[i]
   }));
 
   return (
@@ -169,7 +177,7 @@ export const TestimonialsColumn = (props: {
                 if (hoveredIdx === idx) setHoveredIdx(null);
                 else setHoveredIdx(idx);
               }}
-              className={`rounded-[24px] p-7 flex flex-col gap-5 w-full shrink-0 transition-all duration-500 cursor-pointer ${
+              className={`rounded-[24px] p-7 flex flex-col gap-3 w-full shrink-0 transition-all duration-500 cursor-pointer ${
                 isHovered 
                   ? 'scale-[1.03] shadow-2xl z-10 opacity-100' 
                   : isAnyHovered 
@@ -180,27 +188,35 @@ export const TestimonialsColumn = (props: {
             >
               <div
                 className="text-[80px] leading-none font-black select-none"
-                style={{ color: '#DDE6C8', lineHeight: 1 }}
+                style={{ color: '#DDE6C8', lineHeight: 0.5 }}
                 aria-hidden
               >
                 "
               </div>
-              <p className="text-[16px] leading-[1.65] flex-1" style={{ color: '#1a2a12' }}>
-                {item.text}
-              </p>
               <span
-                className="inline-block text-[12px] font-bold tracking-[0.06em] uppercase rounded-full px-3 py-1.5 w-fit"
+                className="absolute -top-4 right-8 inline-block text-[12px] font-bold tracking-[0.06em] uppercase rounded-full px-3 py-1.5 w-fit"
                 style={{ backgroundColor: '#E8EFE2', color: '#004B26' }}
               >
                 {item.badge}
               </span>
+              <p className="text-[16px] leading-[1.65] flex-1 p-0 m-0 mb-6" style={{ color: '#1a2a12' }}>
+                {item.text}
+              </p>
               <div className="flex items-center gap-3 pt-2" style={{ borderTop: '1px solid rgba(0,0,0,.06)' }}>
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-[14px]"
-                  style={{ backgroundColor: '#004B26', color: '#F0E27A' }}
-                >
-                  {item.initials}
-                </div>
+                {item.image ? (
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                  />
+                ) : (
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-[14px]"
+                    style={{ backgroundColor: '#004B26', color: '#F0E27A' }}
+                  >
+                    {item.initials}
+                  </div>
+                )}
                 <div>
                   <div className="text-[14px] text-subtitle font-bold" style={{ color: '#0F1A0A' }}>{item.name}</div>
                   <div className="text-[12px]" style={{ color: '#7a8f6e' }}>{item.location}</div>
