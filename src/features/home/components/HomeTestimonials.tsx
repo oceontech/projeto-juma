@@ -3,7 +3,6 @@
 import { CheckCircle2 } from 'lucide-react'
 
 import React, { useRef, useState, useEffect } from 'react'
-import { motion, useAnimate } from 'motion/react'
 import { gsap, SplitText } from '@/features/animation/gsap'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
@@ -124,27 +123,7 @@ export const TestimonialsColumn = (props: {
   duration?: number;
 }) => {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
-  const [scope, animate] = useAnimate();
-  const controlsRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!scope.current) return;
-    controlsRef.current = animate(scope.current, { translateY: ["0%", "-50%"] }, {
-      duration: props.duration || 10,
-      repeat: Infinity,
-      ease: "linear",
-    });
-    return () => controlsRef.current?.stop();
-  }, [animate, scope, props.duration]);
-
-  useEffect(() => {
-    if (hoveredIdx !== null) {
-      controlsRef.current?.pause();
-    } else {
-      controlsRef.current?.play();
-    }
-  }, [hoveredIdx]);
 
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
@@ -161,8 +140,11 @@ export const TestimonialsColumn = (props: {
   return (
     <div className={props.className} ref={containerRef}>
       <div
-        ref={scope}
-        className="flex flex-col gap-6 pb-6"
+        className="home-testimonials-marquee flex flex-col gap-6 pb-6"
+        style={{
+          animationDuration: `${props.duration || 10}s`,
+          animationPlayState: hoveredIdx !== null ? 'paused' : 'running',
+        }}
       >
         {items.map((item, idx) => {
           const isHovered = hoveredIdx === idx;
@@ -177,7 +159,7 @@ export const TestimonialsColumn = (props: {
                 if (hoveredIdx === idx) setHoveredIdx(null);
                 else setHoveredIdx(idx);
               }}
-              className={`rounded-[24px] p-7 flex flex-col gap-3 w-full shrink-0 transition-all duration-500 cursor-pointer ${
+              className={`relative rounded-[24px] p-7 flex flex-col gap-3 w-full shrink-0 transition-all duration-500 cursor-pointer ${
                 isHovered 
                   ? 'scale-[1.03] shadow-2xl z-10 opacity-100' 
                   : isAnyHovered 

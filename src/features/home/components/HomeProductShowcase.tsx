@@ -360,6 +360,29 @@ export function HomeProductShowcase() {
              ativo. O usuário nunca fica preso — pode atravessar a
              seção na velocidade que quiser. */
 
+          /* Flags do handoff com a seção Aminosan (vídeo de transição):
+             handingOff evita que o onEnter "restaure" as cores no meio da
+             entrada branco→cor; leavingUp evita disparo duplo da saída. */
+          let handingOff = false
+          let leavingUp = false
+
+          /* Estado visual pleno do produto atual — usado quando a seção é
+             alcançada sem o handoff (âncora do menu, reload no meio da página)
+             depois de ter ficado branca por uma saída para cima. */
+          const restoreVisual = () => {
+            const i = currentIndexRef.current
+            gsap.set(root, {
+              '--pcs-base':   PRODUCTS[i].base,
+              '--pcs-mid':    PRODUCTS[i].mid,
+              '--pcs-accent': PRODUCTS[i].accent,
+            })
+            gsap.to(spotlightRef.current,       { opacity: 0.5,  duration: 0.4, overwrite: 'auto' })
+            gsap.to(mobileSpotlightRef.current, { opacity: 0.85, duration: 0.4, overwrite: 'auto' })
+            bottles.forEach((b, bi) => gsap.set(b, getRoleProps(getRole(bi, i), isMobile)))
+            const p = parts(products[i])
+            gsap.set([p.text, p.cta, ...p.stats], { autoAlpha: 1, x: 0, y: 0 })
+          }
+
           const pinTrigger = ScrollTrigger.create({
             trigger: root,
             start: 'top top',
@@ -368,7 +391,11 @@ export function HomeProductShowcase() {
             pinSpacing: true,
             anticipatePin: 1,
             onEnter: () => {
+              // Rede de segurança: qualquer entrada por cima cancela um
+              // "saindo pra cima" que tenha ficado pendente.
+              leavingUp = false
               if (currentIndexRef.current !== 0) applyIndex(0)
+              if (!handingOff) restoreVisual()
             },
             onEnterBack: () => {
               if (currentIndexRef.current !== COUNT - 1) applyIndex(COUNT - 1)
@@ -379,6 +406,15 @@ export function HomeProductShowcase() {
 
           const indexToY = (i: number) =>
             pinTrigger.start + ((pinTrigger.end - pinTrigger.start) * i) / (COUNT - 1)
+
+          const isTopHandoffZone = () => {
+            const scroll = window.scrollY
+            return (
+              currentIndexRef.current === 0 &&
+              scroll <= pinTrigger.start + 24 &&
+              scroll > pinTrigger.start - window.innerHeight * 0.9
+            )
+          }
 
           const scrollToY = (y: number, duration = 0.55) => {
             const l = lenisRef.current
@@ -413,12 +449,120 @@ export function HomeProductShowcase() {
             scrollToY(pinTrigger.end + window.innerHeight, 1.1)
           }
 
+          /* ── Handoff vindo da seção Aminosan ───────────────────────
+             O vídeo de transição termina no trio Aminosan sobre fundo
+             branco; o catálogo entra branco e a cor + textos do produto 0
+             aparecem gradualmente enquanto o auto-scroll assenta no pin. */
+          const runHandoffIn = () => {
+            handingOff = true
+            leavingUp = false
+            hideHint()
+            transitionTl?.kill()
+            currentIndexRef.current = 0
+            dots.forEach((d, i) => d.classList.toggle('is-active', i === 0))
+            products.forEach((el, i) => el.classList.toggle('is-active', i === 0))
+            const p0 = parts(products[0])
+
+            // Estado inicial: fundo branco, painel oculto, spotlights apagados
+            gsap.set(root, { '--pcs-base': '#ffffff', '--pcs-mid': '#ffffff', '--pcs-accent': PRODUCTS[0].accent })
+            gsap.set([p0.text, p0.cta, ...p0.stats], { autoAlpha: 0 })
+            gsap.set([spotlightRef.current, mobileSpotlightRef.current], { opacity: 0 })
+            bottles.forEach((bottle, i) => {
+              gsap.set(bottle, getRoleProps(getRole(i, 0), isMobile))
+            })
+            // O trio chega grande (frame cheio do vídeo) e "assenta" no slot do
+            // carrossel — suaviza a diferença de enquadramento no corte.
+            gsap.set(bottles[0], { scale: 1.15 })
+            products.forEach((el, i) => {
+              if (i === 0) return
+              const p = parts(el)
+              gsap.set([p.text, p.cta, ...p.stats], { autoAlpha: 0 })
+            })
+
+            const tl = gsap.timeline({
+              delay: 0.2,
+              defaults: { overwrite: 'auto' },
+              onComplete: () => { handingOff = false },
+            })
+            transitionTl = tl
+            tl.to(bottles[0], { scale: 1, duration: 1.0, ease: 'power2.out' }, 0)
+            tl.to(root, { '--pcs-base': PRODUCTS[0].base, '--pcs-mid': PRODUCTS[0].mid, duration: 1.3, ease: 'power2.inOut' }, 0)
+            tl.to(spotlightRef.current,       { opacity: 0.5,  duration: 0.9, ease: 'power2.out' }, 0.35)
+            tl.to(mobileSpotlightRef.current, { opacity: 0.85, duration: 0.9, ease: 'power2.out' }, 0.35)
+            if (isMotion) {
+              tl.fromTo(p0.text,  { autoAlpha: 0, x: 45 },  { autoAlpha: 1, x: 0, duration: 0.7, ease: 'power3.out' }, 0.55)
+                .fromTo(p0.cta,   { autoAlpha: 0, y: 12 },  { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 0.7)
+                .fromTo(p0.stats, { autoAlpha: 0, x: -45 }, { autoAlpha: 1, x: 0, stagger: 0.06, duration: 0.7, ease: 'power3.out' }, 0.55)
+            } else {
+              tl.to([p0.text, p0.cta, ...p0.stats], { autoAlpha: 1, duration: 0.4 }, 0.5)
+            }
+          }
+          window.addEventListener('aminosan:handoff-forward', runHandoffIn)
+
+          /* Saída para cima a partir do produto 0: o fundo volta a branco
+             (o reverso do vídeo roda sobre branco na seção acima) e o scroll
+             sobe até o stage do Aminosan — o ScrollTrigger de lá assume,
+             trava o scroll e toca o clipe reverso trio→linha. */
+          const runHandoffOut = () => {
+            if (leavingUp) return
+            hideHint()
+            transitionTl?.kill()
+            clearTimeout(idleTimer)
+            lenisRef.current?.stop()
+            lenisRef.current?.scrollTo(pinTrigger.start, { immediate: true, force: true })
+            window.scrollTo(0, pinTrigger.start)
+            ScrollTrigger.update()
+            leavingUp = true
+            const p0 = parts(products[0])
+            // Simétrico à entrada: primeiro prepara o catálogo para casar com o
+            // frame final do vídeo de transição (mesmo trio, mas full-frame e
+            // sobre branco) — tira a cor, some com os textos e amplia o trio.
+            // Só então salta INSTANTANEAMENTE para o stage do Aminosan e manda
+            // tocar o clipe em reverso. O wheel/tecla no produto 0 já vêm com
+            // preventDefault (pin ativo), então a página fica parada durante o
+            // preparo — sem o "tranco" do scroll suave anterior.
+            const tl = gsap.timeline({
+              defaults: { overwrite: 'auto' },
+              onComplete: () => {
+                // Cancela qualquer assentamento pendente antes do salto.
+                clearTimeout(idleTimer)
+                // Alvo = topo REAL da seção Aminosan (não o pinStart estimado),
+                // para o stage cair exatamente no topo da viewport.
+                const amino = document.getElementById('sec-origem')
+                const y = amino
+                  ? Math.round(amino.getBoundingClientRect().top + window.scrollY)
+                  : pinTrigger.start - window.innerHeight
+                // Salto SÍNCRONO: aplica no DOM na hora (nativo) e alinha o alvo
+                // do Lenis. Só então dispara o evento — assim, quando o Aminosan
+                // travar logo abaixo, o stage já está no topo e o lockScroll não
+                // precisa de tween de alinhamento (a rolagem residual que sobrava
+                // vinha justamente de travar com o scrollY ainda no catálogo,
+                // porque o immediate do Lenis só aplica no próximo tick).
+                lenisRef.current?.scrollTo(y, { immediate: true, force: true })
+                window.scrollTo(0, y)
+                // leavingUp CONTINUA true: enquanto estivermos acima do catálogo
+                // ele não pode mexer no scroll (settle desligado). Só volta a
+                // false ao reentrar (runHandoffIn ou onEnter do pin).
+                window.dispatchEvent(new CustomEvent('aminosan:handoff-backward'))
+              },
+            })
+            transitionTl = tl
+            tl.to(root, { '--pcs-base': '#ffffff', '--pcs-mid': '#ffffff', duration: 0.5, ease: 'power2.inOut' }, 0)
+            tl.to([spotlightRef.current, mobileSpotlightRef.current], { opacity: 0, duration: 0.3 }, 0)
+            tl.to([p0.text, p0.cta, ...p0.stats], { autoAlpha: 0, duration: 0.28 }, 0)
+            tl.to(bottles[0], { scale: 1.15, duration: 0.5, ease: 'power2.in' }, 0)
+          }
+
           // Snap ao parar de rolar (detecção própria de inatividade — o
           // 'scrollEnd' do ScrollTrigger não é confiável com o Lenis no meio):
           // — dentro do pin: assenta no produto mais próximo;
           // — nas bordas (seção parcialmente visível): completa o movimento na
           //   direção do gesto, para nunca descansar com faixa da seção vizinha.
           const settle = () => {
+            // Durante um handoff (entrando do vídeo ou saindo pra cima) o scroll
+            // é dirigido pelo Aminosan/pela timeline — o catálogo não pode
+            // assentar nada, senão briga com aquele controle.
+            if (leavingUp || handingOff) return
             const scroll = window.scrollY
             const vh = window.innerHeight
 
@@ -429,6 +573,10 @@ export function HomeProductShowcase() {
             }
             // Zona de entrada (catálogo espiando por baixo da seção anterior)
             if (scroll < pinTrigger.start && scroll > pinTrigger.start - vh) {
+              if (lastDir < 0 && currentIndexRef.current === 0) {
+                runHandoffOut()
+                return
+              }
               scrollToY(lastDir > 0 ? pinTrigger.start : Math.max(0, pinTrigger.start - vh), 0.7)
               return
             }
@@ -448,6 +596,7 @@ export function HomeProductShowcase() {
           }
 
           const stepCatalog = (dir: 1 | -1) => {
+            if (leavingUp || handingOff) return
             if (!pinTrigger.isActive || stepLocked) return
             stepLocked = true
             hideHint()
@@ -458,14 +607,22 @@ export function HomeProductShowcase() {
               else skipRef.current?.()
             } else if (current > 0) {
               goToIndex(current - 1, 0.5)
+            } else {
+              runHandoffOut()
             }
 
             unlockStep()
           }
 
           const onWheelStep = (e: WheelEvent) => {
-            if (!pinTrigger.isActive) return
             if (Math.abs(e.deltaY) < 2) return
+            if (!pinTrigger.isActive) {
+              if (e.deltaY < 0 && isTopHandoffZone()) {
+                if (e.cancelable) e.preventDefault()
+                runHandoffOut()
+              }
+              return
+            }
             if (e.cancelable) e.preventDefault()
             stepCatalog(e.deltaY > 0 ? 1 : -1)
           }
@@ -475,9 +632,17 @@ export function HomeProductShowcase() {
           }
 
           const onTouchMoveStep = (e: TouchEvent) => {
-            if (!pinTrigger.isActive || e.touches.length === 0) return
+            if (e.touches.length === 0) return
             const delta = touchStartY - e.touches[0].clientY
             if (Math.abs(delta) < 18) return
+            if (!pinTrigger.isActive) {
+              if (delta < 0 && isTopHandoffZone()) {
+                if (e.cancelable) e.preventDefault()
+                runHandoffOut()
+              }
+              touchStartY = e.touches[0].clientY
+              return
+            }
             if (e.cancelable) e.preventDefault()
             stepCatalog(delta > 0 ? 1 : -1)
             touchStartY = e.touches[0].clientY
@@ -494,9 +659,9 @@ export function HomeProductShowcase() {
             idleTimer = setTimeout(settle, 180)
           }
           window.addEventListener('scroll', onScroll, { passive: true })
-          window.addEventListener('wheel', onWheelStep, { passive: false })
+          window.addEventListener('wheel', onWheelStep, { passive: false, capture: true })
           window.addEventListener('touchstart', onTouchStart, { passive: true })
-          window.addEventListener('touchmove', onTouchMoveStep, { passive: false })
+          window.addEventListener('touchmove', onTouchMoveStep, { passive: false, capture: true })
 
           // Movimento sutil com o mouse — só no frasco ATIVO (desktop).
           // O tween mira o wrap interno; o carrossel anima o elemento externo,
@@ -522,26 +687,35 @@ export function HomeProductShowcase() {
 
           // Teclado
           const handleKeyDown = (e: KeyboardEvent) => {
-            if (!pinTrigger.isActive) return
+            if (!pinTrigger.isActive) {
+              if ((e.key === 'ArrowUp' || e.key === 'PageUp') && isTopHandoffZone()) {
+                e.preventDefault()
+                runHandoffOut()
+              }
+              return
+            }
             if (e.key === 'ArrowDown' || e.key === 'PageDown') {
               e.preventDefault()
               if (currentIndexRef.current < COUNT - 1) goToIndex(currentIndexRef.current + 1)
               else skipRef.current?.()
             } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+              e.preventDefault()
               if (currentIndexRef.current > 0) {
-                e.preventDefault()
                 goToIndex(currentIndexRef.current - 1)
+              } else {
+                runHandoffOut()
               }
             }
           }
           window.addEventListener('keydown', handleKeyDown)
 
           return () => {
+            window.removeEventListener('aminosan:handoff-forward', runHandoffIn)
             window.removeEventListener('keydown', handleKeyDown)
             window.removeEventListener('scroll', onScroll)
-            window.removeEventListener('wheel', onWheelStep)
+            window.removeEventListener('wheel', onWheelStep, { capture: true })
             window.removeEventListener('touchstart', onTouchStart)
-            window.removeEventListener('touchmove', onTouchMoveStep)
+            window.removeEventListener('touchmove', onTouchMoveStep, { capture: true })
             if (onPointerMove) window.removeEventListener('pointermove', onPointerMove)
             clearTimeout(idleTimer)
             transitionTl?.kill()

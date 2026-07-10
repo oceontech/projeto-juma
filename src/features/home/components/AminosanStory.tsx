@@ -3,12 +3,15 @@
 /**
  * "A transformação do Aminosan"
  *
- * Desktop: seção com scroll capturado. Ao entrar, o vídeo toca normalmente
- * (play nativo, fluido). Quando o vídeo pausa no último frame, as informações
- * do Ato 3 aparecem e o scroll é liberado — o usuário pode sair para cima ou
- * para baixo. Rolar para cima de volta ao topo da seção dispara o reverso.
+ * Desktop: seção com scroll capturado. Cadeia de 3 clipes ligados ao scroll,
+ * cada um com um reverso gravado (play sempre nativo, nunca seek manual):
+ *   act1 ──morph──▶ act3 ──line──▶ line ──cat──▶ exit (handoff para o catálogo)
+ * Em cada fase de repouso um still idêntico ao frame de borda cobre o vídeo.
+ * O fim do clipe "cat" libera o scroll, rola até o catálogo e dispara o evento
+ * 'aminosan:handoff-forward' (HomeProductShowcase faz a entrada branco→cor).
  *
- * Mobile / reduced-motion: SimpleVersion — dois blocos full-bleed, sem lock.
+ * Mobile compartilha os mesmos clipes 1920×1080 (object-contain).
+ * Reduced-motion: SimpleVersion — dois blocos full-bleed, sem lock.
  */
 import { useEffect, useRef, useState, type HTMLAttributes, type ReactNode, type RefObject } from 'react'
 import Image from 'next/image'
@@ -23,32 +26,11 @@ import { Container } from '@/components/layout/Container'
 
 type TFn = ReturnType<typeof useTranslations>
 
-type LineBottle = {
-  src: string
-  alt: string
-  x: number
-  mx: number
-  width: number
-  mobileWidth: number
-  scale: number
-  mobileScale: number
-  z: number
-  y?: number
-}
-
-const LINE_BOTTLES: LineBottle[] = [
-  { src: '/produtos/acorda-cana-20l.png', alt: 'Acorda Cana', x: -555, mx: -178, width: 178, mobileWidth: 84, scale: 0.88, mobileScale: 0.74, z: 1, y: 12 },
-  { src: '/produtos/acorda-ultra-10l.png', alt: 'Acorda Ultra', x: -438, mx: -138, width: 176, mobileWidth: 82, scale: 0.9, mobileScale: 0.78, z: 2, y: 10 },
-  { src: '/produtos/kmep-ultra-10l.png', alt: 'KMEP Ultra', x: -318, mx: -98, width: 182, mobileWidth: 84, scale: 0.92, mobileScale: 0.8, z: 3, y: 8 },
-  { src: '/produtos/acorda-ultra-1l.png', alt: 'Acorda Ultra 1L', x: -198, mx: -62, width: 124, mobileWidth: 60, scale: 0.94, mobileScale: 0.82, z: 5, y: -4 },
-  { src: '/produtos/redutan-npk-sili-4-1l.png', alt: 'Redutan NPK Sili-4', x: -112, mx: -30, width: 148, mobileWidth: 68, scale: 0.98, mobileScale: 0.88, z: 6, y: -8 },
-  { src: '/produtos/aminosan-1l.png', alt: 'Aminosan', x: 0, mx: 0, width: 176, mobileWidth: 84, scale: 1.18, mobileScale: 1.05, z: 12, y: -18 },
-  { src: '/produtos/redutan-npk-sili-5-1l.png', alt: 'Redutan NPK Sili-5', x: 124, mx: 34, width: 146, mobileWidth: 68, scale: 0.98, mobileScale: 0.88, z: 6, y: -8 },
-  { src: '/produtos/revigo-cobre-ultra-1l.png', alt: 'Revigo Cobre Ultra', x: 222, mx: 70, width: 132, mobileWidth: 62, scale: 0.95, mobileScale: 0.82, z: 5, y: -4 },
-  { src: '/produtos/fitofert-20l.png', alt: 'FitoFert', x: 342, mx: 108, width: 174, mobileWidth: 80, scale: 0.9, mobileScale: 0.78, z: 3, y: 10 },
-  { src: '/produtos/aminosan-20l.png', alt: 'Aminosan 20L', x: 464, mx: 148, width: 178, mobileWidth: 82, scale: 0.88, mobileScale: 0.76, z: 2, y: 12 },
-  { src: '/produtos/aduban-20l.png', alt: 'Aduban', x: 582, mx: 188, width: 176, mobileWidth: 82, scale: 0.86, mobileScale: 0.72, z: 1, y: 13 },
-]
+/* Vídeos e stills compartilhados por desktop e mobile */
+const STAGE_VIDEO_CLASS =
+  'absolute inset-0 z-0 h-full w-full object-cover opacity-0 max-lg:top-[20svh] max-lg:h-[80svh] max-lg:object-contain'
+const STAGE_IMAGE_CLASS =
+  'absolute z-10 pointer-events-none object-cover md:!object-cover lg:!inset-0 max-lg:!top-[20svh] max-lg:!h-[80svh] max-lg:!object-contain'
 
 export function AminosanStory() {
   const t = useTranslations('aminosanStory')
@@ -96,11 +78,11 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
       const textItems = textCardRef.current ? gsap.utils.toArray<HTMLElement>(textCardRef.current.children) : []
       const calloutItems = calloutsRef.current ? gsap.utils.toArray<HTMLElement>(calloutsRef.current.children) : []
 
-      if (reduced) { 
+      if (reduced) {
         gsap.set(oldImg, { scale: 1, opacity: 1, yPercent: 0 })
         gsap.set(textItems, { y: 0, opacity: 1 })
         gsap.set(calloutItems, { y: 0, opacity: 1 })
-        return 
+        return
       }
 
       // --- Scrubbed Video Playback ---
@@ -127,11 +109,11 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
           gsap.set(video, { opacity: 1 })
 
           if (calloutSectionRef.current) {
-            lenis?.scrollTo(calloutSectionRef.current, { 
-              duration: 2.5, 
+            lenis?.scrollTo(calloutSectionRef.current, {
+              duration: 2.5,
               force: true,
               lock: true,
-              ease: (t: number) => t === 1 ? 1 : 1 - Math.pow(2, -10 * t) 
+              ease: (t: number) => t === 1 ? 1 : 1 - Math.pow(2, -10 * t)
             } as any)
           }
         }
@@ -190,7 +172,7 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
 
   return (
     <section ref={stageRef} className="relative w-full h-[250vh] bg-white">
-      
+
       {/* Fundo Fixo (Sticky) - Vídeo e Imagem */}
       <div className="sticky top-0 w-full h-[100svh] overflow-hidden bg-white flex flex-col">
         {/* Spacer invisível para empurrar a garrafa para baixo do texto */}
@@ -198,7 +180,7 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
         <div className="relative flex-1 w-full mt-auto">
           <Image
             ref={oldImgRef}
-            src={isMobile ? '/heritage/mobile/morph-aminosan-1-antigo.png' : '/heritage/desktop/morph-aminosan-1-antigo.png'}
+            src="/heritage/desktop/morph-aminosan-1-antigo.png"
             alt={t('oldBottleAlt')}
             fill sizes="100vw"
             className="object-cover object-bottom z-10"
@@ -207,11 +189,11 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
           <video
             ref={videoRef}
             muted playsInline preload="auto"
-            poster={isMobile ? '/heritage/mobile/morph-aminosan-1-antigo.png' : '/heritage/desktop/morph-aminosan-1-antigo.png'}
+            poster="/heritage/desktop/morph-aminosan-1-antigo.png"
             aria-label={t('videoAlt')}
             className="absolute inset-0 h-full w-full object-cover object-bottom opacity-0 z-0"
           >
-            <source src={isMobile ? '/heritage/mobile/morph-aminosan.mp4' : '/heritage/desktop/morph-aminosan.mp4'} type="video/mp4" />
+            <source src="/heritage/desktop/morph-aminosan.mp4" type="video/mp4" />
           </video>
         </div>
       </div>
@@ -233,7 +215,7 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
       <div ref={calloutSectionRef} className="absolute top-[150vh] left-0 w-full min-h-[100svh] bg-white z-20 pointer-events-auto flex flex-col justify-end">
         <div className="relative h-[70vh] w-full overflow-hidden sm:h-[75vh]">
           <Image
-            src={isMobile ? '/heritage/mobile/morph-aminosan-2-novo.png' : '/heritage/desktop/morph-aminosan-2-novo.png'}
+            src="/heritage/desktop/morph-aminosan-2-novo.png"
             alt={t('newBottleAlt')}
             fill sizes="100vw"
             className="object-cover"
@@ -260,22 +242,26 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
 
 /* ── CinematicVersion — desktop ─────────────────────────────────────── */
 /*
- * Máquina de 2 estados: 'act1' e 'act3'.
- * act1 → act3: video.play() nativo (sempre fluido).
- * act3 → act1: crossfade — fade in da oldImg cobre o vídeo enquanto callouts
- *              somem; currentTime é resetado em background (invisível).
+ * Máquina de 4 fases de repouso: 'act1' → 'act3' → 'line' → 'exit'.
+ * Cada transição é um par de clipes (forward + reverso gravado) tocado com
+ * play() nativo — os clipes não têm keyframes densos o bastante para scrub
+ * manual de currentTime ficar fluido (ver comentário do syncVideos).
  * Durante cada transição o scroll é travado; depois é liberado.
  */
 
 function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
   const root            = useRef<HTMLDivElement>(null)
   const stageRef        = useRef<HTMLElement>(null)
-  const videoFwdDesktopRef = useRef<HTMLVideoElement>(null)
-  const videoRevDesktopRef = useRef<HTMLVideoElement>(null)
-  const videoFwdMobileRef  = useRef<HTMLVideoElement>(null)
-  const videoRevMobileRef  = useRef<HTMLVideoElement>(null)
+  const morphFwdRef     = useRef<HTMLVideoElement>(null)
+  const morphRevRef     = useRef<HTMLVideoElement>(null)
+  const lineFwdRef      = useRef<HTMLVideoElement>(null)
+  const lineRevRef      = useRef<HTMLVideoElement>(null)
+  const catFwdRef       = useRef<HTMLVideoElement>(null)
+  const catRevRef       = useRef<HTMLVideoElement>(null)
   const oldImgRef       = useRef<HTMLImageElement>(null)
   const newImgRef       = useRef<HTMLImageElement>(null)
+  const lineImgRef      = useRef<HTMLImageElement>(null)
+  const trioImgRef      = useRef<HTMLImageElement>(null)
   const scrimRef        = useRef<HTMLDivElement>(null)
   const act1Ref         = useRef<HTMLDivElement>(null)
   const oldCalloutRef   = useRef<HTMLDivElement>(null)
@@ -283,7 +269,6 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
   const leftPanelRef    = useRef<HTMLDivElement>(null)
   const counterRef      = useRef<HTMLSpanElement>(null)
   const brandMarkRef    = useRef<HTMLDivElement>(null)
-  const lineBottleRefs  = useRef<(HTMLDivElement | null)[]>([])
   const counterPrefix   = t('a3StatPrefix')
 
   const lenis    = useLenis()
@@ -292,11 +277,20 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
   useGSAP(
     () => {
-      const videoFwd = isMobile ? videoFwdMobileRef.current : videoFwdDesktopRef.current
-      const videoRev = isMobile ? videoRevMobileRef.current : videoRevDesktopRef.current
+      const morphFwd = morphFwdRef.current
+      const morphRev = morphRevRef.current
+      const lineFwd  = lineFwdRef.current
+      const lineRev  = lineRevRef.current
+      const catFwd   = catFwdRef.current
+      const catRev   = catRevRef.current
       const stageTrigger = stageRef.current
       const oldImg = oldImgRef.current
-      if (!videoFwd || !videoRev || !stageTrigger || !oldImg) return
+      if (!morphFwd || !morphRev || !lineFwd || !lineRev || !catFwd || !catRev || !stageTrigger || !oldImg) return
+
+      const allVideos = [morphFwd, morphRev, lineFwd, lineRev, catFwd, catRev]
+      const newImg  = newImgRef.current
+      const lineImg = lineImgRef.current
+      const trioImg = trioImgRef.current
 
       const titleEl      = act1Ref.current?.querySelector<HTMLElement>('[data-a1-title]') ?? null
       const act1Items    = act1Ref.current ? gsap.utils.toArray<HTMLElement>('[data-a1]', act1Ref.current) : []
@@ -310,9 +304,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const titleChars = titleSplit?.chars ?? (titleEl ? [titleEl] : [])
 
       // ── Estado inicial: tudo invisível
-      gsap.set(videoFwd,     { autoAlpha: 0, zIndex: 1 })
-      gsap.set(videoRev,     { autoAlpha: 0, zIndex: 0 })
-      gsap.set(newImgRef.current, { autoAlpha: 0 })
+      gsap.set(allVideos,    { autoAlpha: 0, zIndex: 0 })
+      gsap.set(morphFwd,     { zIndex: 1 })
+      gsap.set([newImg, lineImg, trioImg], { autoAlpha: 0 })
       gsap.set(brandMarkRef.current, { autoAlpha: 0, y: -18, filter: 'blur(8px)' })
       gsap.set(oldImg,       { scale: 1.04, autoAlpha: 0, yPercent: 100, filter: 'blur(8px)' })
       gsap.set(scrimRef.current, { autoAlpha: 0 })
@@ -330,7 +324,6 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const newCalloutLine = newCalloutRef.current?.querySelector<HTMLElement>('[data-line]') ?? null
       const newCalloutLabel = newCalloutRef.current?.querySelector<HTMLElement>('[data-label]') ?? null
       const newCalloutDot = newCalloutRef.current?.querySelector<HTMLElement>('[data-dot]') ?? null
-      const lineBottles = lineBottleRefs.current.filter(Boolean) as HTMLDivElement[]
 
       gsap.set(leftPanelRef.current, { autoAlpha: 1 }) // O painel em si fica visível, os filhos animam
       gsap.set(a3Eyebrow, { autoAlpha: 0, y: -20, filter: 'blur(10px)' })
@@ -341,59 +334,10 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       gsap.set(newCalloutLine, { scaleX: 0 })
       gsap.set(newCalloutDot, { scale: 0, autoAlpha: 0 })
       gsap.set(newCalloutLabel, { autoAlpha: 0, x: 12 })
-      lineBottles.forEach((bottle, index) => {
-        const item = LINE_BOTTLES[index]
-        gsap.set(bottle, {
-          xPercent: -50,
-          x: 0,
-          y: isMobile ? 0 : item.y ?? 0,
-          scale: 0.48,
-          autoAlpha: 0,
-          filter: 'blur(10px)',
-          zIndex: item.z,
-          transformOrigin: 'bottom center',
-        })
-      })
       if (counterRef.current) counterRef.current.innerText = `${counterPrefix}10`
 
       // ── Helpers de animação
       let currentTl: gsap.core.Timeline | null = null
-      let lineTl: gsap.core.Timeline | null = null
-
-      const showLineBottles = (delay = 0) => {
-        lineTl?.kill()
-        const tl = lineTl = gsap.timeline({ delay })
-        lineBottles.forEach((bottle, index) => {
-          const item = LINE_BOTTLES[index]
-          const x = isMobile ? item.mx : item.x
-          const scale = isMobile ? item.mobileScale : item.scale
-          tl.to(bottle, {
-            x,
-            scale,
-            autoAlpha: 1,
-            filter: 'blur(0px)',
-            duration: 0.95,
-            ease: 'power3.out',
-          }, Math.min(Math.abs(x) / (isMobile ? 800 : 2600), 0.18))
-        })
-        return tl
-      }
-
-      const hideLineBottles = (delay = 0) => {
-        lineTl?.kill()
-        const tl = lineTl = gsap.timeline({ delay })
-        lineBottles.forEach((bottle) => {
-          tl.to(bottle, {
-            x: 0,
-            scale: 0.48,
-            autoAlpha: 0,
-            filter: 'blur(10px)',
-            duration: 0.45,
-            ease: 'power2.inOut',
-          }, 0)
-        })
-        return tl
-      }
 
       const lockScroll = (on: boolean) => {
         if (on) {
@@ -438,13 +382,26 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       let stIntro: ScrollTrigger | null = null
       let stIntroExit: ScrollTrigger | null = null
 
-      type Phase = 'act1' | 'act3' | 'line'
+      /* Fases de repouso e segmentos de vídeo entre elas:
+       * act1 ──morph──▶ act3 ──line──▶ line ──cat──▶ exit */
+      type Phase = 'act1' | 'act3' | 'line' | 'exit'
+      type SegName = 'morph' | 'line' | 'cat'
+      type Dir = 'forward' | 'backward'
+
+      const SEGMENTS: Record<SegName, { fwd: HTMLVideoElement; rev: HTMLVideoElement; back: Phase; fore: Phase }> = {
+        morph: { fwd: morphFwd, rev: morphRev, back: 'act1', fore: 'act3' },
+        line:  { fwd: lineFwd,  rev: lineRev,  back: 'act3', fore: 'line' },
+        cat:   { fwd: catFwd,   rev: catRev,   back: 'line', fore: 'exit' },
+      }
+
       let phase: Phase = 'act1'
-      let direction: 'forward' | 'backward' | null = null
+      let activeSeg: SegName | null = null
+      let direction: Dir | null = null
       let isLocked = false
       let animFrame: number | null = null
-      let lineIsAnimating = false
       const cooldownRef = { current: 0 }
+
+      const safeDur = (v: HTMLVideoElement) => (v.duration > 0 && isFinite(v.duration)) ? v.duration : 3
 
       const introTl = gsap.timeline({ paused: true })
       introTl.to(scrimRef.current, { autoAlpha: 1, duration: 0.5, ease: 'power1.out' }, 0)
@@ -465,9 +422,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       const reverseIntro = () => {
         if (phase !== 'act1' || direction) return
-        videoFwd.pause()
-        videoRev.pause()
-        gsap.set([videoFwd, videoRev], { autoAlpha: 0, zIndex: 0 })
+        allVideos.forEach((v) => v.pause())
+        gsap.set(allVideos, { autoAlpha: 0, zIndex: 0 })
         gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: 1, yPercent: 0, filter: 'blur(0px)' })
         introTl.progress(1).timeScale(1.9).reverse()
       }
@@ -531,38 +487,32 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         })
       }
 
-      /* ── Máquina de direção: dois vídeos, playback SEMPRE nativo (play()) nos dois
-       * sentidos — o "reverso" é um clipe gravado/codificado ao contrário, tocado pra
-       * frente normalmente. `morph-aminosan.mp4` não tem keyframes densos o bastante
-       * para um scrub manual de currentTime (como o HeroJornada faz) ficar fluido;
-       * tentar isso aqui causa engasgo porque cada seek força decodificar do último
-       * keyframe em diante. Por isso o rebobinar usa o clipe reverso, nunca seek manual.
-       * O que É igual ao HeroJornada: o estado (fase/direção) responde instantaneamente
-       * a cada gesto de scroll, sem esperar a transição anterior terminar. */
+      /* ── Máquina de direção: cada segmento tem dois clipes, playback SEMPRE
+       * nativo (play()) nos dois sentidos — o "reverso" é um clipe gravado/
+       * codificado ao contrário, tocado pra frente normalmente. Os clipes não
+       * têm keyframes densos o bastante para um scrub manual de currentTime
+       * (como o HeroJornada faz) ficar fluido; tentar isso aqui causa engasgo
+       * porque cada seek força decodificar do último keyframe em diante.
+       * O estado (fase/direção) responde instantaneamente a cada gesto de
+       * scroll, sem esperar a transição anterior terminar. */
       const release = () => {
         isLocked = false
         lockScroll(false)
       }
 
       const syncVideos = (source: HTMLVideoElement, target: HTMLVideoElement) => {
-        const sourceDur = (source.duration > 0 && isFinite(source.duration)) ? source.duration : 3
-        const targetDur = (target.duration > 0 && isFinite(target.duration)) ? target.duration : 3
-        const progress = source.currentTime / sourceDur
-        try { target.currentTime = targetDur - (progress * targetDur) } catch(e) {}
+        const progress = source.currentTime / safeDur(source)
+        try { target.currentTime = safeDur(target) - (progress * safeDur(target)) } catch(e) {}
       }
 
       const showStaticAct1 = (exitAfter = false) => {
-        videoFwd.pause()
-        videoRev.pause()
-        gsap.killTweensOf([videoFwd, videoRev])
-        gsap.set(videoFwd, { autoAlpha: 0, zIndex: 0 })
-        gsap.set(videoRev, { autoAlpha: 0, zIndex: 0 })
-        gsap.set(newImgRef.current, { autoAlpha: 0 })
+        allVideos.forEach((v) => v.pause())
+        gsap.killTweensOf(allVideos)
+        gsap.set(allVideos, { autoAlpha: 0, zIndex: 0 })
+        gsap.set([newImg, lineImg, trioImg], { autoAlpha: 0 })
         gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: 1, yPercent: 0, filter: 'blur(0px)' })
         gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
-        hideLineBottles(0)
-        try { videoFwd.currentTime = 0 } catch(e) {}
-        try { videoRev.currentTime = 0 } catch(e) {}
+        allVideos.forEach((v) => { try { v.currentTime = 0 } catch(e) {} })
         if (exitAfter) {
           requestAnimationFrame(() => reverseIntro())
         } else {
@@ -576,17 +526,68 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         }
       }
 
+      /* Repouso no Ato 3: still do frasco novo por cima, morph parado no fim */
+      const restAct3 = () => {
+        gsap.set(morphFwd, { autoAlpha: 1, zIndex: 1 })
+        gsap.set([morphRev, lineFwd, lineRev, catFwd, catRev], { autoAlpha: 0, zIndex: 0 })
+        gsap.set(newImg, { autoAlpha: 1 })
+        gsap.set([lineImg, trioImg], { autoAlpha: 0 })
+        gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
+        gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
+        ;[morphRev, lineFwd, lineRev].forEach((v) => { try { v.currentTime = 0 } catch(e) {} })
+      }
+
+      /* Repouso na linha completa: still da linha por cima */
+      const restLine = () => {
+        gsap.set(lineFwd, { autoAlpha: 1, zIndex: 1 })
+        gsap.set([morphFwd, morphRev, lineRev, catFwd, catRev], { autoAlpha: 0, zIndex: 0 })
+        gsap.set(lineImg, { autoAlpha: 1 })
+        gsap.set([newImg, trioImg], { autoAlpha: 0 })
+        gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
+        gsap.set(brandMarkRef.current, { autoAlpha: 0, y: -18, filter: 'blur(8px)' })
+        ;[lineRev, catFwd, catRev].forEach((v) => { try { v.currentTime = 0 } catch(e) {} })
+      }
+
+      /* Fim da cadeia: trio do catálogo em cena, scroll liberado + handoff */
+      const restExit = () => {
+        gsap.set(catFwd, { autoAlpha: 1, zIndex: 1 })
+        gsap.set([morphFwd, morphRev, lineFwd, lineRev, catRev], { autoAlpha: 0, zIndex: 0 })
+        gsap.set(trioImg, { autoAlpha: 1 })
+        gsap.set([newImg, lineImg], { autoAlpha: 0 })
+        gsap.set(brandMarkRef.current, { autoAlpha: 0 })
+        try { catRev.currentTime = 0 } catch(e) {}
+      }
+
+      /* O vídeo da transição termina já "dentro" do catálogo: libera o scroll,
+       * rola até o pin do HomeProductShowcase e avisa o catálogo para fazer a
+       * entrada (fundo branco→cor + textos). O still do trio some durante a
+       * rolagem para não duplicar com o trio do próprio catálogo. */
+      const finishExit = () => {
+        // O vídeo já termina no primeiro produto do catálogo (trio Aminosan) —
+        // sem rolagem visível. Avisa o catálogo para se montar (fundo branco +
+        // trio no lugar), depois salta INSTANTANEAMENTE uma viewport (fim do
+        // stage = início do pin do catálogo). O corte é imperceptível porque os
+        // dois lados mostram o mesmo trio; a cor e os textos brotam já no
+        // catálogo. O still full-frame fica fora de tela após o salto.
+        window.dispatchEvent(new CustomEvent('aminosan:handoff-forward'))
+        const targetY = Math.round(window.scrollY + stageTrigger.getBoundingClientRect().bottom)
+        release()
+        requestAnimationFrame(() => {
+          lenisRef.current?.scrollTo(targetY, { immediate: true, force: true } as any)
+        })
+      }
+
       const stopPlayback = () => {
         if (animFrame) cancelAnimationFrame(animFrame)
         direction = null
+        activeSeg = null
         if (phase === 'act3') {
-          gsap.set(videoFwd, { autoAlpha: 1 })
-          gsap.set(videoRev, { autoAlpha: 0 })
-          gsap.set(newImgRef.current, { autoAlpha: 1 })
-            gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
-          gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
-          hideLineBottles(0)
-          try { videoRev.currentTime = 0 } catch(e) {}
+          restAct3()
+        } else if (phase === 'line') {
+          restLine()
+        } else if (phase === 'exit') {
+          restExit()
+          finishExit()
         } else {
           const stageTop = stageTrigger.getBoundingClientRect().top
           showStaticAct1(stageTop > window.innerHeight * 0.24)
@@ -594,60 +595,28 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         cooldownRef.current = performance.now() + 300
       }
 
-      const openProductLine = () => {
-        if (lineIsAnimating || phase !== 'act3' || direction) return
-        lineIsAnimating = true
-        gsap.to(newImgRef.current, { autoAlpha: 0, duration: 0.32, ease: 'power2.out', overwrite: true })
-        gsap.to(brandMarkRef.current, { autoAlpha: 0, duration: 0.24, ease: 'power2.out', overwrite: true })
-        gsap.to(videoFwd, { autoAlpha: 0, duration: 0.32, ease: 'power2.out', overwrite: true })
-        const tl = showLineBottles(0)
-        tl.eventCallback('onComplete', () => {
-          phase = 'line'
-          lineIsAnimating = false
-          cooldownRef.current = performance.now() + 180
-        })
-      }
-
-      const closeProductLine = () => {
-        if (lineIsAnimating || phase !== 'line' || direction) return
-        lineIsAnimating = true
-        gsap.to(newImgRef.current, { autoAlpha: 1, duration: 0.32, ease: 'power2.out', overwrite: true })
-        gsap.to(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.24, ease: 'power2.out', overwrite: true })
-        gsap.to(videoFwd, { autoAlpha: 1, duration: 0.32, ease: 'power2.out', overwrite: true })
-        const tl = hideLineBottles(0)
-        tl.eventCallback('onComplete', () => {
-          phase = 'act3'
-          lineIsAnimating = false
-          cooldownRef.current = performance.now() + 180
-        })
-      }
-
       const tick = () => {
-        if (!direction) return
-        if (direction === 'forward') {
-          if (videoFwd.currentTime >= ((videoFwd.duration > 0 && isFinite(videoFwd.duration)) ? videoFwd.duration : 3) - 0.1) {
-            videoFwd.pause()
-            phase = 'act3'
-            stopPlayback()
-            return
-          }
-        } else {
-          if (videoRev.currentTime >= ((videoRev.duration > 0 && isFinite(videoRev.duration)) ? videoRev.duration : 3) - 0.18) {
-            phase = 'act1'
-            stopPlayback()
-            return
-          }
+        if (!direction || !activeSeg) return
+        const seg = SEGMENTS[activeSeg]
+        const video = direction === 'forward' ? seg.fwd : seg.rev
+        const margin = direction === 'forward' ? 0.1 : 0.18
+        if (video.currentTime >= safeDur(video) - margin) {
+          video.pause()
+          phase = direction === 'forward' ? seg.fore : seg.back
+          stopPlayback()
+          return
         }
         animFrame = requestAnimationFrame(tick)
       }
+      const beginTick = () => { animFrame = requestAnimationFrame(tick) }
 
-      // O clipe não tem keyframes densos (ver comentário do syncVideos mais abaixo):
-      // um seek de currentTime força o browser a decodificar do último keyframe em
-      // diante, o que não é instantâneo. Revelar o vídeo (crossfade + play) e chamar
-      // tick() ANTES desse seek terminar mostra, por um instante, o frame de ANTES
-      // do seek — visto como um "piscar" no frame final ou inicial errado. Esperar o
-      // 'seeked' antes de revelar é o mesmo princípio do HeroJornada: só avança/mostra
-      // o vídeo quando ele já está no ponto certo, nunca no meio de uma decodificação.
+      // Os clipes não têm keyframes densos (ver comentário da máquina acima):
+      // um seek de currentTime força o browser a decodificar do último keyframe
+      // em diante, o que não é instantâneo. Revelar o vídeo (crossfade + play) e
+      // chamar tick() ANTES desse seek terminar mostra, por um instante, o frame
+      // de ANTES do seek — visto como um "piscar" no frame final ou inicial
+      // errado. Esperar o 'seeked' antes de revelar é o mesmo princípio do
+      // HeroJornada: só avança/mostra o vídeo quando ele já está no ponto certo.
       const revealWhenReady = (video: HTMLVideoElement, needsSeek: boolean, reveal: () => void) => {
         if (!needsSeek) { reveal(); return }
         let done = false
@@ -661,46 +630,58 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         setTimeout(finish, 200) // salvaguarda: nunca trava esperando um 'seeked' que não chega
       }
 
-      const startPlayback = (dir: 'forward' | 'backward') => {
+      /* Prepara a mecânica comum de um segmento (sync de reversão no meio do
+       * caminho + revelação segura) e devolve os papéis dos clipes. Só
+       * sincroniza a partir do outro clipe se estávamos ATIVAMENTE tocando ele
+       * (reversão no meio do caminho). Num início "frio" a partir do repouso, o
+       * clipe alvo já está em 0 (os rest* garantem isso) — sincronizar de novo
+       * leria o currentTime "intocado" do outro clipe (do priming) como se
+       * fosse progresso real e pularia o clipe alvo direto pro final, fazendo a
+       * transição inteira sumir. */
+      const engage = (name: SegName, dir: Dir, reveal: (video: HTMLVideoElement, fwdDur: number) => void) => {
         if (animFrame) cancelAnimationFrame(animFrame)
+        const seg = SEGMENTS[name]
+        const oldDir = activeSeg === name ? direction : null
+        activeSeg = name
+        direction = dir
+        const video = dir === 'forward' ? seg.fwd : seg.rev
+        const other = dir === 'forward' ? seg.rev : seg.fwd
+        const needsSync = oldDir !== null && oldDir !== dir
+        if (needsSync) {
+          syncVideos(other, video)
+          other.pause()
+        }
+        const fwdDur = safeDur(seg.fwd)
+        revealWhenReady(video, needsSync, () => {
+          // Se uma reversão mais nova assumiu enquanto esperávamos o seek, esta
+          // chamada é obsoleta — aplicar o reveal aqui pisaria no estado atual.
+          if (direction !== dir || activeSeg !== name) return
+          gsap.set(video, { zIndex: 9, autoAlpha: 1 })
+          gsap.set(other, { zIndex: 0, autoAlpha: 0 })
+          reveal(video, fwdDur)
+        })
+      }
+
+      /* ── Segmento morph: act1 ⇄ act3 ─────────────────────────────── */
+      const startMorph = (dir: Dir) => {
         if (dir === 'forward') {
           introTl.progress(1)
           gsap.set(oldImg, { autoAlpha: 1, scale: 1, yPercent: 0, filter: 'blur(0px)' })
         } else {
           gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
         }
-        const oldDir = direction
-        direction = dir
 
-        const fwdDur = (videoFwd.duration > 0 && isFinite(videoFwd.duration)) ? videoFwd.duration : 3
-        const beginTick = () => { animFrame = requestAnimationFrame(tick) }
+        engage('morph', dir, (video, fwdDur) => {
+          gsap.set([lineFwd, lineRev, catFwd, catRev], { autoAlpha: 0, zIndex: 0 })
+          gsap.set([newImg, lineImg, trioImg], { autoAlpha: 0 })
 
-        if (dir === 'forward') {
-          // Só sincroniza a partir do reverso se estávamos ATIVAMENTE tocando ele
-          // (reversão no meio do caminho). Num início "frio" a partir do repouso em
-          // act1, videoFwd já está em 0 (stopPlayback garante isso) — sincronizar
-          // aqui de novo lia o currentTime=0 "intocado" do reverso (do priming) como
-          // se fosse "progresso zero do reverso = já no fim do forward" e pulava
-          // videoFwd direto pro final, fazendo a transição inteira sumir.
-          const needsSync = oldDir === 'backward'
-          if (needsSync) {
-            syncVideos(videoRev, videoFwd)
-            videoRev.pause()
-          }
-
-          revealWhenReady(videoFwd, needsSync, () => {
-            // Se uma reversão mais nova assumiu enquanto esperávamos o seek, esta
-            // chamada é obsoleta — aplicar o reveal aqui pisaria no estado atual.
-            if (direction !== 'forward') return
-                gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: 1, yPercent: 0, filter: 'blur(0px)' })
-            gsap.set(videoFwd, { zIndex: 9, autoAlpha: 1 })
-            gsap.set(videoRev, { zIndex: 0, autoAlpha: 0 })
-            gsap.set(newImgRef.current, { autoAlpha: 0 })
+          if (dir === 'forward') {
+            gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: 1, yPercent: 0, filter: 'blur(0px)' })
 
             const handoffTl = gsap.timeline({
               onComplete: () => {
-                if (direction !== 'forward') return
-                videoFwd.play().catch(() => {})
+                if (direction !== 'forward' || activeSeg !== 'morph') return
+                video.play().catch(() => {})
                 beginTick()
               },
             })
@@ -716,33 +697,13 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
             gsap.to(scrimRef.current, { autoAlpha: 0, duration: fwdDur * 0.8, ease: 'power1.inOut', overwrite: 'auto' })
 
             showAct3UI(fwdDur * 0.4)
-          })
-
-        } else {
-          // Mesmo raciocínio do ramo forward: só sincroniza se estávamos tocando
-          // o forward de verdade. Do repouso em act3, videoRev já foi zerado pelo
-          // stopPlayback — reler o forward "intocado" aqui era redundante e, no
-          // pior caso, arriscava o mesmo pulo instantâneo na direção contrária.
-          const needsSync = oldDir === 'forward'
-          if (needsSync) {
-            syncVideos(videoFwd, videoRev)
-            videoFwd.pause()
-          }
-
-          revealWhenReady(videoRev, needsSync, () => {
-            if (direction !== 'backward') return
-                gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
-            gsap.set(videoRev, { zIndex: 1, autoAlpha: 1 })
-            gsap.set(videoFwd, { zIndex: 0, autoAlpha: 0 })
+          } else {
             gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
-            gsap.set(newImgRef.current, { autoAlpha: 0 })
-            hideLineBottles(0)
 
-            videoRev.play().catch(() => {})
+            video.play().catch(() => {})
 
             hideAct3UI(0)
 
-            gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
             gsap.set(brandMarkRef.current, { y: -18, autoAlpha: 0, filter: 'blur(8px)' })
             gsap.set(titleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)' })
             gsap.set(act1Items, { y: 20, autoAlpha: 0, filter: 'blur(10px)' })
@@ -760,20 +721,77 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
             gsap.to(calloutLabel, { x: 0, autoAlpha: 1, duration: fwdDur * 0.2, delay: fwdDur * 0.76, ease: 'power1.inOut', overwrite: 'auto' })
 
             beginTick()
-          })
-        }
+          }
+        })
+      }
+
+      /* ── Segmento line: act3 ⇄ linha completa (vídeo 2) ──────────────
+       * O primeiro frame do clipe é idêntico ao still do frasco novo, e o
+       * último à linha completa — os fades curtos só mascaram desvio de
+       * codificação de 1px. A UI do Ato 3 permanece visível na fase line
+       * (mesmo comportamento da montagem CSS que este vídeo substitui). */
+      const startLine = (dir: Dir) => {
+        engage('line', dir, (video) => {
+          gsap.set([morphFwd, morphRev, catFwd, catRev], { autoAlpha: 0, zIndex: 0 })
+          gsap.set(oldImg, { autoAlpha: 0 })
+          gsap.set(trioImg, { autoAlpha: 0 })
+
+          if (dir === 'forward') {
+            gsap.to(newImg, { autoAlpha: 0, duration: 0.18, ease: 'power1.out', overwrite: true })
+            gsap.to(lineImg, { autoAlpha: 0, duration: 0.18, ease: 'power1.out', overwrite: true })
+            gsap.to(brandMarkRef.current, { y: -18, autoAlpha: 0, filter: 'blur(8px)', duration: 0.32, ease: 'power2.out', overwrite: true })
+          } else {
+            gsap.to(lineImg, { autoAlpha: 0, duration: 0.18, ease: 'power1.out', overwrite: true })
+            gsap.set(newImg, { autoAlpha: 0 })
+            gsap.to(brandMarkRef.current, {
+              y: 0, autoAlpha: 1, filter: 'blur(0px)',
+              duration: 0.4, delay: safeDur(SEGMENTS.line.rev) * 0.55,
+              ease: 'power2.out', overwrite: true,
+            })
+          }
+
+          video.play().catch(() => {})
+          beginTick()
+        })
+      }
+
+      /* ── Segmento cat: linha completa ⇄ trio do catálogo (vídeo da
+       * transição). No sentido forward a UI do Ato 3 sai de cena — estamos
+       * deixando a seção; no backward ela volta junto com a linha. */
+      const startCat = (dir: Dir) => {
+        engage('cat', dir, (video) => {
+          gsap.set([morphFwd, morphRev, lineFwd, lineRev], { autoAlpha: 0, zIndex: 0 })
+          gsap.set([oldImg, newImg], { autoAlpha: 0 })
+
+          if (dir === 'forward') {
+            gsap.to(lineImg, { autoAlpha: 0, duration: 0.18, ease: 'power1.out', overwrite: true })
+            gsap.to(trioImg, { autoAlpha: 0, duration: 0.18, ease: 'power1.out', overwrite: true })
+            hideAct3UI(0)
+          } else {
+            gsap.to(trioImg, { autoAlpha: 0, duration: 0.18, ease: 'power1.out', overwrite: true })
+            gsap.set(lineImg, { autoAlpha: 0 })
+            showAct3UI(safeDur(SEGMENTS.cat.rev) * 0.45)
+          }
+
+          video.play().catch(() => {})
+          beginTick()
+        })
+      }
+
+      const startSeg = (name: SegName, dir: Dir) => {
+        if (name === 'morph') startMorph(dir)
+        else if (name === 'line') startLine(dir)
+        else startCat(dir)
       }
 
       // Um único ScrollTrigger no mesmo ponto ('top top') cobre os dois sentidos —
       // igual ao autoRewind do HeroJornada, mas usando o cruzamento de posição do
       // ScrollTrigger (já comprovado confiável na entrada) em vez de recalcular a
-      // posição "à mão" num listener de scroll separado (a tentativa anterior usava
-      // um segundo ponto de gatilho próprio e exigia sair inteiramente da tela antes
-      // de rearmar, o que na prática quase nunca disparava de volta).
+      // posição "à mão" num listener de scroll separado.
       // onEnter: entrando pela primeira vez (rest em act1) → só trava, o próprio
       // gesto de scroll seguinte é que inicia o forward (via handleForward).
-      // onEnterBack: voltando de baixo depois de já ter chegado em act3 → trava E
-      // já dispara o rebobinar sozinho, sem esperar mais um gesto.
+      // onEnterBack: voltando de baixo → trava E já dispara o rebobinar do
+      // segmento correspondente à fase em que a seção ficou, sem esperar gesto.
       let stTop = ScrollTrigger.create({
         trigger: stageRef.current,
         start: 'top top',
@@ -799,15 +817,25 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
             if (isLocked) release()
             return
           }
-          if (phase === 'act3' && !isLocked && !direction) {
+          if (isLocked || direction) return
+          if (phase === 'act3') {
             isLocked = true
             lockScroll(true)
-            startPlayback('backward')
-          } else if (phase === 'line' && !isLocked && !direction) {
+            startMorph('backward')
+          } else if (phase === 'line') {
             isLocked = true
             lockScroll(true)
+          } else if (phase === 'exit') {
+            isLocked = true
+            lockScroll(true)
+            startCat('backward')
           }
         },
+        // onLeaveBack: o release() em act3/line solta o scroll bem no início do
+        // estágio (ele ficou travado ali a transição inteira); se o usuário
+        // reverte antes de rolar a tela inteira pra baixo, ele sai por CIMA sem
+        // nunca cruzar a borda de baixo — sem isto o onEnterBack acima nunca
+        // dispara e a seção fica presa na fase avançada pra sempre.
         onLeaveBack: () => {
           const rect = stageRef.current?.getBoundingClientRect()
           if (rect && Math.abs(rect.top) > 150) {
@@ -817,11 +845,11 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           if (phase === 'line' && !isLocked && !direction) {
             isLocked = true
             lockScroll(true)
-            closeProductLine()
+            startLine('backward')
           } else if (phase === 'act3' && !isLocked && direction !== 'backward') {
             isLocked = true
             lockScroll(true)
-            startPlayback('backward')
+            startMorph('backward')
           } else if (isLocked) {
             release()
           }
@@ -830,20 +858,26 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       const handleForward = () => {
         if (!isLocked) return
-        if (direction === 'backward') {
-          startPlayback('forward')
-        } else if (phase === 'act1' && !direction && performance.now() > cooldownRef.current) {
-          startPlayback('forward')
+        if (direction === 'backward' && activeSeg) {
+          startSeg(activeSeg, 'forward')
+          return
         }
+        if (direction || performance.now() <= cooldownRef.current) return
+        if (phase === 'act1') startMorph('forward')
+        else if (phase === 'act3') startLine('forward')
+        else if (phase === 'line') startCat('forward')
       }
 
       const handleBackward = () => {
         if (!isLocked) return
-        if (direction === 'forward') {
-          startPlayback('backward')
-        } else if (phase === 'act3' && !direction && performance.now() > cooldownRef.current) {
-          startPlayback('backward')
+        if (direction === 'forward' && activeSeg) {
+          startSeg(activeSeg, 'backward')
+          return
         }
+        if (direction || performance.now() <= cooldownRef.current) return
+        if (phase === 'act3') startMorph('backward')
+        else if (phase === 'line') startLine('backward')
+        else if (phase === 'exit') startCat('backward')
       }
 
       const lockIfStageIsActive = () => {
@@ -861,25 +895,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       const onWheel = (e: WheelEvent) => {
         if (!isLocked && !lockIfStageIsActive()) return
-        if (lineIsAnimating) {
-          e.preventDefault()
-          return
-        }
-        if (e.deltaY > 0) {
-          if (phase === 'act3' && !direction && performance.now() > cooldownRef.current) {
-            e.preventDefault()
-            openProductLine()
-            return
-          }
-          if (phase === 'line' && !direction && !lineIsAnimating) { release(); return; }
-        } else if (e.deltaY < 0) {
-          if (phase === 'line' && !direction && performance.now() > cooldownRef.current) {
-            e.preventDefault()
-            closeProductLine()
-            return
-          }
-          if (phase === 'act1' && !direction) { release(); return; }
-        }
+        if (e.deltaY < 0 && phase === 'act1' && !direction) { release(); return }
         e.preventDefault()
         if (e.deltaY > 0) handleForward()
         else if (e.deltaY < 0) handleBackward()
@@ -892,22 +908,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         const down = downKeys.includes(e.key)
         const up   = upKeys.includes(e.key)
         if (!down && !up) return
-        if (lineIsAnimating) {
-          e.preventDefault()
-          return
-        }
-        if (down && phase === 'act3' && !direction && performance.now() > cooldownRef.current) {
-          e.preventDefault()
-          openProductLine()
-          return
-        }
-        if (down && phase === 'line' && !direction && !lineIsAnimating) { release(); return; }
-        if (up && phase === 'line' && !direction && performance.now() > cooldownRef.current) {
-          e.preventDefault()
-          closeProductLine()
-          return
-        }
-        if (up && phase === 'act1' && !direction) { release(); return; }
+        if (up && phase === 'act1' && !direction) { release(); return }
         e.preventDefault()
         if (down) handleForward()
         else if (up) handleBackward()
@@ -926,19 +927,28 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const onTouchEnd = (e: TouchEvent) => {
         if (!isLocked) return
         if ((e.target as HTMLElement).closest('.allow-scroll')) return
-        if (lineIsAnimating) return
         const endY = e.changedTouches[0] ? e.changedTouches[0].clientY : touchY
         const dy   = touchY - endY
         if (dy > 30) {
-          if (phase === 'act3' && !direction && performance.now() > cooldownRef.current) { openProductLine(); return; }
-          if (phase === 'line' && !direction && !lineIsAnimating) { release(); return; }
           handleForward()
         } else if (dy < -30) {
-          if (phase === 'line' && !direction && performance.now() > cooldownRef.current) { closeProductLine(); return; }
-          if (phase === 'act1' && !direction) { release(); return; }
+          if (phase === 'act1' && !direction) { release(); return }
           handleBackward()
         }
       }
+
+      // Volta a partir do catálogo: o catálogo já preparou o frame (trio full-
+      // frame no branco, igual ao fim do vídeo) e saltou de volta para cá. A
+      // seção continua em 'exit' com o trio still visível — travamos e tocamos
+      // o clipe de transição em reverso (trio → linha), seguindo a cadeia acima.
+      const onHandoffBackward = () => {
+        if (isLocked || direction || phase !== 'exit') return
+        restExit()
+        isLocked = true
+        lockScroll(true)
+        startCat('backward')
+      }
+      window.addEventListener('aminosan:handoff-backward', onHandoffBackward)
 
       window.addEventListener('wheel',      onWheel,     { passive: false })
       window.addEventListener('keydown',    onKey)
@@ -951,8 +961,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       // play/pause real já está em andamento — resolver tarde aqui pausaria e
       // resetaria pra 0 um vídeo que já está tocando de verdade, piscando o frame
       // inicial no meio da transição.
-      videoFwd.play().then(() => { if (!direction) { videoFwd.pause(); videoFwd.currentTime = 0 } }).catch(() => {})
-      videoRev.play().then(() => { if (!direction) { videoRev.pause(); videoRev.currentTime = 0 } }).catch(() => {})
+      allVideos.forEach((v) => {
+        v.play().then(() => { if (!direction) { v.pause(); v.currentTime = 0 } }).catch(() => {})
+      })
 
       return () => {
         stIntro?.kill()
@@ -960,10 +971,12 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         introTl.kill()
         stTop.kill()
         titleSplit?.revert()
-        lineTl?.kill()
+        currentTl?.kill()
+        if (animFrame) cancelAnimationFrame(animFrame)
         lenisRef.current?.start()
 
         // Limpeza dos event listeners globais
+        window.removeEventListener('aminosan:handoff-backward', onHandoffBackward)
         window.removeEventListener('wheel',      onWheel)
         window.removeEventListener('keydown',    onKey)
         window.removeEventListener('touchstart', onTouchStart)
@@ -977,84 +990,71 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
   return (
     <div ref={root} className="relative w-full bg-white">
       <section ref={stageRef} className="relative z-10 h-auto lg:h-[100svh] min-h-[100svh] lg:min-h-0 w-full overflow-visible lg:overflow-hidden bg-white">
-        {/* Vídeos desktop: forward + reverso (clipe gravado ao contrário) */}
+        {/* Vídeos da cadeia — desktop e mobile compartilham os mesmos clipes.
+            Cada segmento tem um clipe forward e um reverso gravado. */}
         <video
-          ref={isMobile ? null : videoFwdDesktopRef}
+          ref={morphFwdRef}
           muted playsInline preload="auto"
           poster="/heritage/desktop/morph-aminosan-1-antigo.png"
           aria-label={t('videoAlt')}
-          className="absolute inset-0 z-0 h-full w-full object-cover opacity-0 hidden lg:block"
+          className={STAGE_VIDEO_CLASS}
         >
           <source src="/heritage/desktop/morph-aminosan.mp4" type="video/mp4" />
         </video>
-        <video
-          ref={isMobile ? null : videoRevDesktopRef}
-          muted playsInline preload="auto"
-          aria-hidden="true"
-          className="absolute inset-0 z-0 h-full w-full object-cover opacity-0 hidden lg:block"
-        >
+        <video ref={morphRevRef} muted playsInline preload="auto" aria-hidden="true" className={STAGE_VIDEO_CLASS}>
           <source src="/heritage/desktop/morph-aminosan-reverse.mp4" type="video/mp4" />
         </video>
-
-        {/* Vídeos mobile: forward + reverso */}
-        <video
-          ref={isMobile ? videoFwdMobileRef : null}
-          muted playsInline preload="auto"
-          poster="/heritage/mobile/morph-aminosan-1-antigo.png"
-          aria-label={t('videoAlt')}
-          className="absolute z-0 opacity-0 block lg:hidden inset-x-0 !top-[20svh] !h-[80svh] w-full object-contain"
-        >
-          <source src="/heritage/mobile/morph-aminosan.mp4" type="video/mp4" />
+        <video ref={lineFwdRef} muted playsInline preload="auto" aria-hidden="true" className={STAGE_VIDEO_CLASS}>
+          <source src="/heritage/desktop/line-aminosan.mp4" type="video/mp4" />
         </video>
-        <video
-          ref={isMobile ? videoRevMobileRef : null}
-          muted playsInline preload="auto"
-          aria-hidden="true"
-          className="absolute z-0 opacity-0 block lg:hidden inset-x-0 !top-[20svh] !h-[80svh] w-full object-contain"
-        >
-          <source src="/heritage/mobile/morph-aminosan-reverse.mp4" type="video/mp4" />
+        <video ref={lineRevRef} muted playsInline preload="auto" aria-hidden="true" className={STAGE_VIDEO_CLASS}>
+          <source src="/heritage/desktop/line-aminosan-reverse.mp4" type="video/mp4" />
+        </video>
+        <video ref={catFwdRef} muted playsInline preload="auto" aria-hidden="true" className={STAGE_VIDEO_CLASS}>
+          <source src="/heritage/desktop/line-to-catalog.mp4" type="video/mp4" />
+        </video>
+        <video ref={catRevRef} muted playsInline preload="auto" aria-hidden="true" className={STAGE_VIDEO_CLASS}>
+          <source src="/heritage/desktop/line-to-catalog-reverse.mp4" type="video/mp4" />
         </video>
 
         {/* z-10 — foto estática do frasco antigo */}
         <Image
           ref={oldImgRef}
-          src={isMobile ? "/heritage/mobile/morph-aminosan-1-antigo.png" : "/heritage/desktop/morph-aminosan-1-antigo.png"}
+          src="/heritage/desktop/morph-aminosan-1-antigo.png"
           alt={t('oldBottleAlt')}
           fill sizes="100vw"
-          className="absolute z-10 object-cover md:!object-cover lg:!inset-0 max-lg:!top-[20svh] max-lg:!h-[80svh] max-lg:!object-contain"
+          className={STAGE_IMAGE_CLASS}
           priority
         />
-
-        <div className="aminosan-line-bottles" aria-hidden>
-          {LINE_BOTTLES.map((item, index) => (
-            <div
-              key={`${item.alt}-${item.src}`}
-              ref={(el) => { lineBottleRefs.current[index] = el }}
-              className="aminosan-line-bottles__item"
-              style={{
-                width: `clamp(${item.mobileWidth}px, ${item.width / 14.4}vw, ${item.width}px)`,
-              }}
-            >
-              <Image
-                src={item.src}
-                alt=""
-                width={1000}
-                height={1000}
-                sizes="(max-width: 1023px) 18vw, 14vw"
-                className="aminosan-line-bottles__image"
-              />
-            </div>
-          ))}
-        </div>
 
         {/* z-10 — foto estática do frasco novo */}
         <Image
           ref={newImgRef}
-          src={isMobile ? "/heritage/mobile/morph-aminosan-2-novo.png" : "/heritage/desktop/morph-aminosan-2-novo.png"}
+          src="/heritage/desktop/morph-aminosan-2-novo.png"
           alt={t('newBottleAlt')}
           fill sizes="100vw"
-          className="absolute z-10 pointer-events-none opacity-0 object-cover md:!object-cover lg:!inset-0 max-lg:!top-[20svh] max-lg:!h-[80svh] max-lg:!object-contain"
+          className={`${STAGE_IMAGE_CLASS} opacity-0`}
           priority
+        />
+
+        {/* z-10 — still da linha completa (repouso da fase line) */}
+        <Image
+          ref={lineImgRef}
+          src="/heritage/desktop/line-aminosan-full.png"
+          alt=""
+          aria-hidden
+          fill sizes="100vw"
+          className={`${STAGE_IMAGE_CLASS} opacity-0`}
+        />
+
+        {/* z-10 — still do trio do catálogo (fim da transição) */}
+        <Image
+          ref={trioImgRef}
+          src="/produtos/aminosan-trio.png"
+          alt=""
+          aria-hidden
+          fill sizes="100vw"
+          className={`${STAGE_IMAGE_CLASS} opacity-0`}
         />
 
         <AminosanBrandMark refEl={brandMarkRef} />

@@ -1102,34 +1102,18 @@ html.lenis body { height: auto; }
   }
 }
 
-/* Aminosan act 3: portfolio opens behind the current bottle */
-.aminosan-line-bottles {
-  position: absolute;
-  inset: 0;
-  z-index: 12;
-  pointer-events: none;
-}
-.aminosan-line-bottles__item {
-  position: absolute;
-  left: 50%;
-  bottom: 14.5%;
-  transform-origin: bottom center;
-  will-change: transform, opacity, filter;
-}
-.aminosan-line-bottles__image {
-  display: block;
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-  user-select: none;
-  pointer-events: none;
+.home-testimonials-marquee {
+  animation-name: home-testimonials-scroll;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
 }
 
-@media (max-width: 1023px) {
-  .aminosan-line-bottles__item {
-    bottom: 25%;
-  }
+@keyframes home-testimonials-scroll {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
 }
+
 .hero-title-shimmer.shimmer-active::after {
   animation: hero-shimmer-sweep 0.8s ease-out forwards;
 }
