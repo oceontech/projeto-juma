@@ -770,13 +770,26 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         start: 'top top',
         onEnter: () => {
           playIntro(false)
+          const rect = stageRef.current?.getBoundingClientRect()
+          if (rect && Math.abs(rect.top) > 150) {
+            if (isLocked) release()
+            return
+          }
           if (phase === 'act1' && !isLocked && !direction) {
             isLocked = true
             lockScroll(true)
           }
         },
+        onLeave: () => {
+          if (isLocked) release()
+        },
         onEnterBack: () => {
           if (phase === 'act1') playIntro(false)
+          const rect = stageRef.current?.getBoundingClientRect()
+          if (rect && Math.abs(rect.top) > 150) {
+            if (isLocked) release()
+            return
+          }
           if (phase === 'act3' && !isLocked && !direction) {
             isLocked = true
             lockScroll(true)
@@ -786,12 +799,12 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
             lockScroll(true)
           }
         },
-        // onLeaveBack: o release() em act3 solta o scroll bem no início do estágio
-        // (ele ficou travado ali a transição inteira); se o usuário reverte antes de
-        // rolar a tela inteira pra baixo, ele sai por CIMA sem nunca cruzar a borda de
-        // baixo — sem isto o onEnterBack acima nunca dispara e a seção fica presa no
-        // Ato 3 pra sempre.
         onLeaveBack: () => {
+          const rect = stageRef.current?.getBoundingClientRect()
+          if (rect && Math.abs(rect.top) > 150) {
+            if (isLocked) release()
+            return
+          }
           if (phase === 'line' && !isLocked && !direction) {
             isLocked = true
             lockScroll(true)
@@ -800,6 +813,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
             isLocked = true
             lockScroll(true)
             startPlayback('backward')
+          } else if (isLocked) {
+            release()
           }
         },
       })
