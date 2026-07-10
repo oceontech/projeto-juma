@@ -620,7 +620,7 @@ export function CulturePage({ slug }: { slug: string }) {
               className="m-0 mb-6 font-black uppercase leading-[1.05] tracking-tight text-white drop-shadow-md"
               style={{ fontSize: 'clamp(2rem, 5vw, 4.5rem)' }}
             >
-              {tPage.rich('heroTitle', { highlight: (chunks) => <span className="text-[#004B26] text-highlight inline-block">{chunks}</span> })}
+              {tPage.rich('heroTitle', { highlight: (chunks) => <span className="text-[#e1d78b] text-highlight inline-block">{chunks}</span> })}
             </h1>
             <p
               className="text-white/90 leading-[1.55] m-0 mb-10 max-w-[54ch] drop-shadow-sm font-medium"

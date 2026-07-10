@@ -191,7 +191,7 @@ export function CulturesGrid() {
         </div>
 
         {/* Grade de Culturas */}
-        <div ref={gridRef} className="grid grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4 mb-32">
+        <div ref={gridRef} className="grid grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-4 mb-32">
         {CULTURE_KEYS.map((culture) => (
           <Link
             key={culture.id}
