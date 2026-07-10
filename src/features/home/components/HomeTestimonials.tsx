@@ -3,13 +3,23 @@
 import { CheckCircle2 } from 'lucide-react'
 
 import React, { useRef, useState, useEffect } from 'react'
-import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
+import { motion, useAnimate } from 'motion/react'
+import { gsap, SplitText } from '@/features/animation/gsap'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
+import { useGSAP } from '@/features/animation/gsap'
 import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
 
 const TESTIMONIALS = [0, 1, 2]
+
+type TestimonialData = {
+  text: string;
+  badge: string;
+  initials: string;
+  name: string;
+  location: string;
+};
 
 export function HomeTestimonials() {
   const t = useTranslations('homeTestimonials');
@@ -18,8 +28,6 @@ export function HomeTestimonials() {
 
   useGSAP(() => {
     if (reduced || !ref.current) return
-    const cards = gsap.utils.toArray<HTMLElement>('[data-testi-card]', ref.current)
-    gsap.set(cards, { y: 80, opacity: 0, filter: 'blur(12px)' })
     
     const header = ref.current.querySelector<HTMLElement>('[data-header]')
     let split: SplitText | null = null;
@@ -47,24 +55,17 @@ export function HomeTestimonials() {
       if (split) tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, '-=0.4')
       if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: DUR.sub }, '-=0.4')
     }
-
-    gsap.to(cards, {
-      y: 0,
-      opacity: 1,
-      filter: 'blur(0px)',
-      duration: 0.8,
-      stagger: 0.25,
-      ease: EASE.reveal,
-      scrollTrigger: {
-        trigger: ref.current,
-        start: 'top 78%',
-        end: 'bottom 15%',
-        toggleActions: 'play reverse play reverse',
-      }
-    })
     
     return () => split?.revert()
   }, { scope: ref })
+
+  const testimonialsData: TestimonialData[] = TESTIMONIALS.map(i => ({
+    text: t(`testimonials.${i}.text` as any),
+    badge: t(`testimonials.${i}.badge` as any),
+    initials: t(`testimonials.${i}.initials` as any),
+    name: t(`testimonials.${i}.name` as any),
+    location: t(`testimonials.${i}.location` as any),
+  }));
 
   return (
     <section
@@ -96,122 +97,85 @@ export function HomeTestimonials() {
         </div>
 
         {/* Cards */}
-        <div className="hidden lg:grid lg:grid-cols-3 gap-4">
-          {TESTIMONIALS.map((_, i) => (
-            <article
-              key={i}
-              data-testi-card
-              className="rounded-[24px] p-7 flex flex-col gap-5"
-              style={{ backgroundColor: '#fff', border: '1px solid rgba(0,0,0,.07)' }}
-            >
-              {/* Aspas */}
-              <div
-                className="text-[80px] leading-none font-black select-none"
-                style={{ color: '#DDE6C8', lineHeight: 1 }}
-                aria-hidden
-              >
-                "
-              </div>
-
-              <p className="text-[16px] leading-[1.65] flex-1" style={{ color: '#1a2a12' }}>
-                {t(`testimonials.${i}.text`)}
-              </p>
-
-              {/* Badge resultado */}
-              <span
-                className="inline-block text-[12px] font-bold tracking-[0.06em] uppercase rounded-full px-3 py-1.5 w-fit"
-                style={{ backgroundColor: '#E8EFE2', color: '#004B26' }}
-              >
-                {t(`testimonials.${i}.badge`)}
-              </span>
-
-              {/* Autor */}
-              <div className="flex items-center gap-3 pt-2" style={{ borderTop: '1px solid rgba(0,0,0,.06)' }}>
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-[14px]"
-                  style={{ backgroundColor: '#004B26', color: '#F0E27A' }}
-                >
-                  {t(`testimonials.${i}.initials`)}
-                </div>
-                <div>
-                  <div className="text-[14px] font-bold" style={{ color: '#0F1A0A' }}>{t(`testimonials.${i}.name`)}</div>
-                  <div className="text-[12px]" style={{ color: '#7a8f6e' }}>{t(`testimonials.${i}.location`)}</div>
-                </div>
-              </div>
-            </article>
-          ))}
+        <div 
+          className="flex justify-center gap-6 overflow-hidden h-[500px] md:h-[600px] lg:h-[700px]" 
+          style={{ maskImage: 'linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)', WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)' }}
+        >
+          <TestimonialsColumn testimonials={testimonialsData} duration={25} className="w-full md:w-1/2 lg:w-1/3" />
+          <TestimonialsColumn testimonials={testimonialsData} duration={35} className="hidden md:block md:w-1/2 lg:w-1/3" />
+          <TestimonialsColumn testimonials={testimonialsData} duration={45} className="hidden lg:block lg:w-1/3" />
         </div>
-        
-        <MobileTestimonialsMarquee testimonials={TESTIMONIALS} t={t} />
       </Container>
     </section>
   )
 }
 
-function MobileTestimonialsMarquee({ testimonials, t }: { testimonials: typeof TESTIMONIALS, t: any }) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const trackRef = useRef<HTMLDivElement>(null)
-  const [pausedIndex, setPausedIndex] = useState<number | null>(null)
-  const [isPaused, setIsPaused] = useState(false)
-  const reduced = useReducedMotion()
-
-  const items = [...testimonials, ...testimonials, ...testimonials]
-  const tlRef = useRef<gsap.core.Tween | null>(null)
-
-  useGSAP(() => {
-    if (reduced || !trackRef.current) return
-    const track = trackRef.current
-    const setWidth = 336 * testimonials.length // 320px + 16px gap = 336
-
-    tlRef.current = gsap.to(track, {
-      x: -setWidth,
-      ease: 'none',
-      duration: testimonials.length * 5.5,
-      repeat: -1,
-      modifiers: {
-        x: gsap.utils.unitize(x => parseFloat(x) % setWidth)
-      }
-    })
-
-    return () => { tlRef.current?.kill() }
-  }, { scope: containerRef, dependencies: [reduced, testimonials.length] })
+export const TestimonialsColumn = (props: {
+  className?: string;
+  testimonials: TestimonialData[];
+  duration?: number;
+}) => {
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [scope, animate] = useAnimate();
+  const controlsRef = useRef<any>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (tlRef.current) {
-      if (isPaused) tlRef.current.pause()
-      else tlRef.current.play()
+    if (!scope.current) return;
+    controlsRef.current = animate(scope.current, { translateY: ["0%", "-50%"] }, {
+      duration: props.duration || 10,
+      repeat: Infinity,
+      ease: "linear",
+    });
+    return () => controlsRef.current?.stop();
+  }, [animate, scope, props.duration]);
+
+  useEffect(() => {
+    if (hoveredIdx !== null) {
+      controlsRef.current?.pause();
+    } else {
+      controlsRef.current?.play();
     }
-  }, [isPaused])
+  }, [hoveredIdx]);
 
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setIsPaused(false)
-        setPausedIndex(null)
+        setHoveredIdx(null);
       }
-    }
-    document.addEventListener('click', handleOutsideClick)
-    return () => document.removeEventListener('click', handleOutsideClick)
-  }, [])
+    };
+    document.addEventListener('click', handleOutsideClick);
+    return () => document.removeEventListener('click', handleOutsideClick);
+  }, []);
+
+  const items = [...props.testimonials, ...props.testimonials, ...props.testimonials];
 
   return (
-    <div ref={containerRef} data-testi-card className="w-screen relative left-1/2 -translate-x-1/2 overflow-hidden block lg:hidden pb-12 pt-4">
-      <div ref={trackRef} className="flex gap-4 w-max pl-6">
-        {items.map((itemIndex, idx) => {
-          const isClicked = pausedIndex === idx
+    <div className={props.className} ref={containerRef}>
+      <div
+        ref={scope}
+        className="flex flex-col gap-6 pb-6"
+      >
+        {items.map((item, idx) => {
+          const isHovered = hoveredIdx === idx;
+          const isAnyHovered = hoveredIdx !== null;
+          
           return (
             <article
               key={idx}
+              onMouseEnter={() => setHoveredIdx(idx)}
+              onMouseLeave={() => setHoveredIdx(null)}
               onClick={() => {
-                if (pausedIndex === idx) {
-                  setIsPaused(false)
-                  setPausedIndex(null)
-                } else {
-                  setIsPaused(true)
-                  setPausedIndex(idx)
-                }
+                if (hoveredIdx === idx) setHoveredIdx(null);
+                else setHoveredIdx(idx);
               }}
-              className={`rounded-[24px] p-7 flex flex-col gap-5 w-[320px] shrink-0 transition-all duration-500 cursor-pointer ${isClicked ? 'scale-[1.03] shadow-2xl z-10 opacity-100' : isPaused ? 'scale-[0.98] opacity-50 shadow-sm z-0' : 'scale-100 opacity-100 hover:scale-[1.02]'}`}
+              className={`rounded-[24px] p-7 flex flex-col gap-5 w-full shrink-0 transition-all duration-500 cursor-pointer ${
+                isHovered 
+                  ? 'scale-[1.03] shadow-2xl z-10 opacity-100' 
+                  : isAnyHovered 
+                    ? 'scale-[0.98] opacity-50 shadow-sm z-0' 
+                    : 'scale-100 opacity-100 hover:scale-[1.02]'
+              }`}
               style={{ backgroundColor: '#fff', border: '1px solid rgba(0,0,0,.07)' }}
             >
               <div
@@ -222,30 +186,30 @@ function MobileTestimonialsMarquee({ testimonials, t }: { testimonials: typeof T
                 "
               </div>
               <p className="text-[16px] leading-[1.65] flex-1" style={{ color: '#1a2a12' }}>
-                {t(`testimonials.${itemIndex}.text` as any)}
+                {item.text}
               </p>
               <span
                 className="inline-block text-[12px] font-bold tracking-[0.06em] uppercase rounded-full px-3 py-1.5 w-fit"
                 style={{ backgroundColor: '#E8EFE2', color: '#004B26' }}
               >
-                {t(`testimonials.${itemIndex}.badge` as any)}
+                {item.badge}
               </span>
               <div className="flex items-center gap-3 pt-2" style={{ borderTop: '1px solid rgba(0,0,0,.06)' }}>
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-[14px]"
                   style={{ backgroundColor: '#004B26', color: '#F0E27A' }}
                 >
-                  {t(`testimonials.${itemIndex}.initials` as any)}
+                  {item.initials}
                 </div>
                 <div>
-                  <div className="text-[14px] font-bold" style={{ color: '#0F1A0A' }}>{t(`testimonials.${itemIndex}.name` as any)}</div>
-                  <div className="text-[12px]" style={{ color: '#7a8f6e' }}>{t(`testimonials.${itemIndex}.location` as any)}</div>
+                  <div className="text-[14px] text-subtitle font-bold" style={{ color: '#0F1A0A' }}>{item.name}</div>
+                  <div className="text-[12px]" style={{ color: '#7a8f6e' }}>{item.location}</div>
                 </div>
               </div>
             </article>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }
