@@ -232,7 +232,7 @@ export function AboutPage() {
 
         {/* Linha do Tempo */}
         <div ref={historyRef} className="mb-32">
-          <div className="flex flex-col md:flex-row gap-12 mb-16">
+          <div className="flex flex-col gap-12 mb-16">
             <div className="md:w-1/3 shrink-0">
               <span data-hist-eyebrow className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary" />
@@ -240,7 +240,7 @@ export function AboutPage() {
               </span>
             </div>
             <div className="md:w-2/3 max-w-[42rem]">
-              <h2 data-hist-title className="font-montserrat text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-tight">
+              <h2 data-hist-title className="font-montserrat uppercase text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-tight">
                 {t('historyTitle')}
               </h2>
               <p data-hist-intro className="text-lg text-foreground/70 leading-relaxed">
