@@ -9,6 +9,7 @@ import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { Preloader } from '@/components/layout/Preloader'
 import { SmoothScroll } from '@/features/animation/SmoothScroll'
+import { MobileLogo } from '@/components/layout/MobileLogo'
 import '../globals.css'
 
 const montserrat = Montserrat({
@@ -77,6 +78,7 @@ export default async function LocaleLayout(props: {
         <NextIntlClientProvider messages={messages}>
           <SmoothScroll>
             <Navbar />
+            <MobileLogo />
             <main id="main" className="flex-1">
               {props.children}
             </main>
