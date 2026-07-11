@@ -308,7 +308,7 @@ export function ArticlesPage() {
       </div>
 
       {/* CTA WhatsApp */}
-      <div ref={ctaRef} className="rounded-3xl bg-[#004C26] text-white p-12 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden mb-8">
+      <div ref={ctaRef} className="rounded-3xl bg-[#004C26] text-white p-10 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden mb-8">
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
         <div className="relative z-10 max-w-[36rem]">
           <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-white mb-4">
@@ -316,7 +316,7 @@ export function ArticlesPage() {
             {t('ctaEyebrow')}
           </span>
           <h2 className="font-montserrat text-3xl md:text-4xl font-black uppercase tracking-tight mb-4 leading-tight text-white">
-            {t('ctaTitleStart')}<br />{t('ctaTitleEnd')}
+            {t('ctaTitleStart')} {t('ctaTitleEnd')}
           </h2>
           <p className="text-white text-lg">
             {t('ctaBody')}
@@ -325,7 +325,7 @@ export function ArticlesPage() {
         <div className="relative z-10 shrink-0">
           <Link
             href="/contato"
-            className="inline-flex items-center gap-3 bg-yellow-400 text-primary px-8 py-4 rounded-full font-bold uppercase tracking-wider text-sm transition-transform hover:scale-105 shadow-xl hover:shadow-yellow-400/20"
+            className="inline-flex items-center gap-3 bg-white text-primary px-8 py-4 rounded-full font-bold uppercase tracking-wider text-sm transition-transform hover:scale-105 shadow-xl hover:shadow-yellow-400/20"
           >
             {t('ctaButton')}
             <ArrowTopRightIcon className="h-4 w-4" />
