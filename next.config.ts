@@ -33,6 +33,9 @@ const nextConfig: NextConfig = {
       {
         pathname: '/assets/linha-produtos/**',
       },
+      {
+        pathname: '/materias/**',
+      },
     ],
     remotePatterns: [
       {

@@ -1,12 +1,14 @@
 'use client'
 
 import React, { useState, useRef } from 'react'
+import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
 import { gsap, SplitText, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
+import { DropdownMenu } from '@/components/ui/dropdown-menu-framer'
 
 const ARTICLE_CATEGORY_KEYS = ['all', 'manejo', 'nutricao', 'pecuaria', 'pesquisa', 'sustentabilidade'] as const
 
@@ -17,7 +19,8 @@ const ARTICLES = [
     category: 'nutricao',
     date: '15 ABR 2026',
     readTime: '6 MIN',
-    color: 'from-green-600 to-green-800'
+    color: 'from-green-600 to-green-800',
+    image: '/materias/nutricao-fase-certa.png'
   },
   {
     id: 'manejo-pastagem',
@@ -25,7 +28,8 @@ const ARTICLES = [
     category: 'pecuaria',
     date: '02 ABR 2026',
     readTime: '8 MIN',
-    color: 'from-amber-600 to-orange-800'
+    color: 'from-amber-600 to-orange-800',
+    image: '/materias/manejo-pastagem.png'
   },
   {
     id: 'tratamento-sementes',
@@ -33,7 +37,8 @@ const ARTICLES = [
     category: 'manejo',
     date: '25 MAR 2026',
     readTime: '5 MIN',
-    color: 'from-blue-600 to-indigo-800'
+    color: 'from-blue-600 to-indigo-800',
+    image: '/materias/tratamento-sementes.png'
   },
   {
     id: 'aminoacidos-foliares',
@@ -41,7 +46,8 @@ const ARTICLES = [
     category: 'pesquisa',
     date: '18 MAR 2026',
     readTime: '7 MIN',
-    color: 'from-purple-600 to-purple-900'
+    color: 'from-purple-600 to-purple-900',
+    image: '/materias/aminoacidos-foliares.png'
   },
   {
     id: 'calda-eficiente',
@@ -49,7 +55,8 @@ const ARTICLES = [
     category: 'sustentabilidade',
     date: '11 MAR 2026',
     readTime: '4 MIN',
-    color: 'from-teal-600 to-emerald-800'
+    color: 'from-teal-600 to-emerald-800',
+    image: '/materias/calda-eficiente.png'
   },
   {
     id: 'floracao-cafe',
@@ -57,7 +64,8 @@ const ARTICLES = [
     category: 'nutricao',
     date: '04 MAR 2026',
     readTime: '6 MIN',
-    color: 'from-green-600 to-green-800'
+    color: 'from-green-600 to-green-800',
+    image: '/materias/floracao-cafe.png'
   }
 ]
 
@@ -154,6 +162,11 @@ export function ArticlesPage() {
 
   const filteredArticles = ARTICLES.filter(a => activeCategory === 'all' || a.category === activeCategory)
 
+  const getCategoryCount = (id: string) => {
+    if (id === 'all') return ARTICLES.length
+    return ARTICLES.filter((a) => a.category === id).length
+  }
+
   return (
     <Container>
       <div ref={containerRef}>
@@ -172,26 +185,21 @@ export function ArticlesPage() {
         </div>
 
         {/* Filtros */}
-        <div ref={filtersRef} className="flex flex-col md:flex-row md:items-center gap-4 mb-16">
-        <span className="text-sm font-semibold uppercase tracking-wider text-foreground/50 shrink-0 md:w-24">
-          {t('filterLabel')}
-        </span>
-        <div className="flex flex-wrap gap-2">
-          {ARTICLE_CATEGORY_KEYS.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-full border text-sm font-medium transition-all ${
-                activeCategory === cat
-                  ? 'bg-primary border-primary text-white shadow-md'
-                  : 'border-foreground/20 text-foreground/80 hover:bg-foreground/5 hover:border-foreground/30'
-              }`}
+        <div ref={filtersRef} className="relative z-50 flex flex-col md:flex-row md:items-center gap-4 mb-16">
+          <div className="flex flex-wrap gap-4 items-center">
+            <DropdownMenu 
+              options={ARTICLE_CATEGORY_KEYS.map(cat => ({
+                label: t(`categories.${cat}`),
+                active: activeCategory === cat,
+                count: getCategoryCount(cat),
+                onClick: () => setActiveCategory(cat)
+              }))}
             >
-              {t(`categories.${cat}`)}
-            </button>
-          ))}
+              <span className="font-semibold text-foreground/60 mr-1">{t('filterLabel')}</span> 
+              {t(`categories.${activeCategory}`)}
+            </DropdownMenu>
+          </div>
         </div>
-      </div>
 
       {/* Destaque */}
       {activeCategory === 'all' && (
@@ -201,20 +209,18 @@ export function ArticlesPage() {
             className="group flex flex-col md:flex-row rounded-3xl overflow-hidden border border-foreground/10 bg-white shadow-sm hover:shadow-xl transition-all duration-300"
           >
             <div className="md:w-1/2 relative min-h-[300px] md:min-h-[400px] bg-gradient-to-br from-[#004C26] to-green-900 overflow-hidden">
+              <Image src="/materias/capa-destaque.png" alt={t('featuredTitle')} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500" />
               <span className="absolute top-6 left-6 z-10 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full bg-white/90 backdrop-blur text-foreground shadow-sm">
                 {t('featuredBadge')}
               </span>
-              <div className="absolute inset-0 flex items-center justify-center text-white/20 font-montserrat font-bold text-2xl">
-                Capa Destaque
-              </div>
             </div>
 
             <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
               <span className="text-xs font-bold tracking-widest uppercase text-primary mb-4">
                 {t('featuredLabel')}
               </span>
-              <h2 className="font-montserrat text-2xl md:text-3xl font-black text-foreground mb-4 group-hover:text-primary transition-colors">
+              <h2 className="text-subtitle text-2xl md:text-3xl font-black text-foreground mb-4 group-hover:text-primary transition-colors">
                 {t('featuredTitle')}
               </h2>
               <p className="text-foreground/70 leading-relaxed mb-8 flex-1">
@@ -230,7 +236,7 @@ export function ArticlesPage() {
 
       {/* Grade de Artigos */}
       <div className="mb-24">
-        <div className="flex flex-col md:flex-row gap-12 mb-16">
+        <div className="flex flex-col gap-12 mb-16">
           <div className="md:w-1/3 shrink-0">
             <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
               <span className="h-1.5 w-1.5 rounded-full bg-primary" />
@@ -238,7 +244,7 @@ export function ArticlesPage() {
             </span>
           </div>
           <div className="md:w-2/3 max-w-[42rem]">
-            <h2 className="font-montserrat text-3xl md:text-4xl font-black text-foreground tracking-tight mb-4 leading-tight">
+            <h2 className="font-montserrat uppercase text-3xl md:text-4xl font-black text-foreground tracking-tight mb-4 leading-tight">
               {t('allArticlesTitle')}
             </h2>
             <p className="text-lg text-foreground/70 leading-relaxed">
@@ -257,20 +263,18 @@ export function ArticlesPage() {
                 className="group flex flex-col h-full rounded-2xl overflow-hidden border border-foreground/10 bg-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
               >
                 <div className={`relative h-48 bg-gradient-to-br ${article.color} overflow-hidden`}>
+                  <Image src={article.image} alt={article.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                   <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500" />
                   <span className="absolute top-4 left-4 z-10 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-white/90 backdrop-blur text-foreground shadow-sm">
                     {t(`categories.${article.category}`)}
                   </span>
-                  <div className="absolute inset-0 flex items-center justify-center text-white/30 font-montserrat font-bold">
-                    Capa: {t(`categories.${article.category}`)}
-                  </div>
                 </div>
 
                 <div className="p-6 flex flex-col flex-1">
                   <span className="text-[10px] font-bold tracking-widest uppercase text-foreground/50 mb-3">
                     {article.date} · {article.readTime} {t('readingTime')}
                   </span>
-                  <h3 className="text-lg font-bold font-montserrat text-foreground mb-6 group-hover:text-primary transition-colors leading-snug">
+                  <h3 className="text-lg font-bold text-subtitle text-foreground mb-6 group-hover:text-primary transition-colors leading-snug">
                     {article.title}
                   </h3>
                   <span className="mt-auto inline-flex items-center gap-2 text-primary font-bold uppercase tracking-wider text-xs transition-transform group-hover:translate-x-1">
