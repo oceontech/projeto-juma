@@ -309,7 +309,7 @@ export function AboutPage() {
                 <span className="h-1.5 w-1.5 rounded-full bg-white/70" />
                 {t('purposeEyebrow')}
               </span>
-              <h2 data-hl-title className="font-montserrat text-5xl md:text-7xl lg:text-[100px] font-black uppercase tracking-tighter mb-8 leading-[0.95] text-white">
+              <h2 data-hl-title className="font-montserrat text-4xl md:text-7xl lg:text-[100px] font-black uppercase tracking-tighter mb-8 leading-[0.95] text-white">
                 {t('purposeTitleStart')} <em className="text-highlight text-yellow-400">{t('purposeTitleHighlight')}</em><br />
                 {t('purposeTitleEnd')}
               </h2>
@@ -360,7 +360,7 @@ export function AboutPage() {
         </div>
 
         {/* CTA Final */}
-        <div ref={ctaRef} className="rounded-3xl bg-primary text-white p-12 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden">
+        <div ref={ctaRef} className="rounded-3xl bg-primary text-white p-8 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
           <div className="relative z-10 max-w-[36rem]">
             <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-white mb-4">
@@ -377,7 +377,7 @@ export function AboutPage() {
           <div className="relative z-10 shrink-0">
             <Link
               href="/contato"
-              className="inline-flex items-center gap-3 bg-yellow-400 text-primary px-8 py-4 rounded-full font-bold uppercase tracking-wider text-sm transition-transform hover:scale-105 shadow-xl hover:shadow-yellow-400/20"
+              className="inline-flex items-center gap-3 bg-white text-primary px-8 py-4 rounded-full font-bold uppercase tracking-wider text-sm transition-transform hover:scale-105 shadow-xl hover:shadow-yellow-400/20"
             >
               {t('ctaButton')}
               <ArrowTopRightIcon className="h-4 w-4" />
