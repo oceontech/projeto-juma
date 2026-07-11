@@ -339,25 +339,25 @@ export function ProductPage({ slug }: { slug: string }) {
             <span className="text-[#1A1A1A]">{product.name}</span>
           </nav>
 
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-10 lg:gap-20 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] xl:grid-cols-[480px_1fr] gap-10 lg:gap-16 xl:gap-20 items-start">
 
             {/* Visual — CSS bottle */}
             <div
               data-hero-el
-              className="relative aspect-[4/5] rounded-[24px] overflow-hidden grid place-items-center"
+              className="relative w-full max-w-[500px] mx-auto lg:max-w-none aspect-[4/5] rounded-[24px] overflow-hidden grid place-items-center"
               style={{
                 background: 'radial-gradient(80% 60% at 50% 70%, rgba(0,0,0,.10), transparent 70%), linear-gradient(160deg, #E8EFE2, #E4ECEA)',
                 boxShadow: '0 1px 2px rgba(20,30,20,.04), 0 24px 60px -32px rgba(20,30,20,.25)',
               }}
             >
-              <div className="relative z-10 h-full w-full flex items-center justify-center p-8 transition-transform duration-500 hover:scale-105">
+              <div className="relative z-10 h-full w-full flex items-center justify-center p-6 md:p-8 transition-transform duration-500 hover:scale-105">
                 <Image
                   src={product.image || "/produtos/placeholder-produto.png"}
                   alt={`Imagem do produto ${product.name}`}
                   width={1000}
                   height={1500}
                   quality={100}
-                  className="object-contain h-full w-auto drop-shadow-2xl"
+                  className="object-contain w-full h-full max-w-[90%] max-h-[90%] drop-shadow-2xl"
                   priority
                 />
               </div>
@@ -384,7 +384,7 @@ export function ProductPage({ slug }: { slug: string }) {
               <p
                 data-hero-el
                 className="text-[#2A2A28] leading-[1.55] mb-8 max-w-[50ch] m-0"
-                style={{ fontSize: 17 }}
+                style={{ fontSize: 25 }}
               >
                 {product.description}
               </p>
