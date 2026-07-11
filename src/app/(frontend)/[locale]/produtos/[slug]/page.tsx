@@ -27,7 +27,7 @@ export default async function ProdutoPage(props: {
   if (!(PRODUCT_SLUGS as readonly string[]).includes(slug)) notFound()
 
   return (
-    <div className="pt-[80px]">
+    <div className="pt-[80px] bg-[#F2F6F2]">
       <ProductPage slug={slug} />
     </div>
   )

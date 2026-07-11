@@ -585,30 +585,23 @@ export function ProductPage({ slug }: { slug: string }) {
               title={tPage.rich("galleryTitle", { name: nameShort, br: () => <br /> })}
               lede={tPage("galleryLede")}
             />
-            <div
-              className="grid gap-3.5"
-              style={{
-                gridTemplateColumns: '2fr 1fr 1fr',
-                gridTemplateRows: '220px 220px',
-              }}
-            >
-              {[
-                'linear-gradient(160deg, #5d7a3a, #2c3a18)',
-                'linear-gradient(160deg, #7fa356, #364a1f)',
-                'linear-gradient(160deg, #6c4226, #2a1a10)',
-                'linear-gradient(160deg, #b3a268, #5e4910)',
-                'linear-gradient(160deg, #80a558, #2c3e1d)',
-              ].map((grad, i) => (
-                <div
-                  key={i}
-                  data-animate-content
-                  className="rounded-[18px] overflow-hidden"
-                  style={{
-                    backgroundImage: grad,
-                    gridRow: i === 0 ? 'span 2' : undefined,
-                  }}
-                />
-              ))}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-[60vh] md:h-[80vh]">
+              <div data-animate-content className="col-span-2 row-span-2 bg-black/5 rounded-[18px] overflow-hidden relative group">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 flex items-center justify-center text-black/20 font-bold" style={{ fontFamily: 'var(--font-montserrat)' }}>Foto 1</div>
+              </div>
+              <div data-animate-content className="bg-black/5 rounded-[18px] overflow-hidden relative group">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 flex items-center justify-center text-black/20 font-bold" style={{ fontFamily: 'var(--font-montserrat)' }}>Foto 2</div>
+              </div>
+              <div data-animate-content className="bg-black/5 rounded-[18px] overflow-hidden relative group">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 flex items-center justify-center text-black/20 font-bold" style={{ fontFamily: 'var(--font-montserrat)' }}>Foto 3</div>
+              </div>
+              <div data-animate-content className="col-span-2 bg-black/5 rounded-[18px] overflow-hidden relative group">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 flex items-center justify-center text-black/20 font-bold" style={{ fontFamily: 'var(--font-montserrat)' }}>Foto 4</div>
+              </div>
             </div>
           </Container>
         </section>
