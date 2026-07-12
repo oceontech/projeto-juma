@@ -28,6 +28,9 @@ const nextConfig: NextConfig = {
         pathname: '/produtos/**',
       },
       {
+        pathname: '/assets/about/**',
+      },
+      {
         pathname: '/assets/cultures/**',
       },
       {
