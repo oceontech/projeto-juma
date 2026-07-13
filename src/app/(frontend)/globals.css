@@ -393,7 +393,7 @@ html.lenis body { height: auto; }
   border: none;
   border-radius: 9999px;
   box-shadow: 0 0 10px rgba(240, 226, 122, 0.4), 0 4px 10px rgba(240, 226, 122, 0.1);
-  color: #1a1a1a !important;
+  color: #000 !important;
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
   overflow: hidden;
   transition: all 0.3s ease;
