@@ -9,6 +9,8 @@ import { gsap, SplitText, ScrollTrigger, useGSAP } from '@/features/animation/gs
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
+import { Leaf, Tractor, Sun, TreePine, Sprout, LucideIcon } from 'lucide-react'
+
 function ArrowTopRightIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden {...props}>
@@ -19,6 +21,13 @@ function ArrowTopRightIcon(props: React.SVGProps<SVGSVGElement>) {
 
 const TIMELINE_KEYS = ['y1985', 'y1992', 'y2003', 'y2015', 'y2024'] as const
 const TIMELINE_YEARS = ['1985', '1992', '2003', '2015', '2024']
+const TIMELINE_ICONS: Record<typeof TIMELINE_KEYS[number], LucideIcon> = {
+  y1985: Sprout,
+  y1992: Tractor,
+  y2003: Sun,
+  y2015: Leaf,
+  y2024: TreePine
+}
 const VALUE_KEYS = ['v1', 'v2', 'v3'] as const
 
 const VALUES_CONTENT: Record<typeof VALUE_KEYS[number], { image: string }> = {
@@ -73,12 +82,24 @@ export function AboutPage() {
         const histEyebrow = history.querySelector('[data-hist-eyebrow]')
         const histTitle = history.querySelector('[data-hist-title]')
         const histIntro = history.querySelector('[data-hist-intro]')
+        
+        const histSplit = histTitle ? new SplitText(histTitle as HTMLElement, { type: 'chars,lines' }) : null
+        const histChars = histSplit?.chars ?? []
+        
+        const track = history.querySelector('[data-hist-track]')
+        const line = history.querySelector('[data-hist-line]')
+        const nodes = gsap.utils.toArray<HTMLElement>('[data-hist-node]', history)
         const cards = gsap.utils.toArray<HTMLElement>('[data-hist-card]', history)
 
         if (histEyebrow) gsap.set(histEyebrow, { y: 15, opacity: 0 })
-        if (histTitle) gsap.set(histTitle, { y: 20, opacity: 0 })
+        if (histTitle) gsap.set(histTitle, { opacity: 0 })
+        if (histChars.length) gsap.set(histChars, { x: 20, opacity: 0, filter: 'blur(10px)' })
         if (histIntro) gsap.set(histIntro, { y: 20, opacity: 0 })
+        
+        // Initial state for cards
+        gsap.set(cards, { opacity: 0, filter: 'blur(10px)', y: 20 })
 
+        // Intro animation for the timeline section
         ScrollTrigger.create({
           trigger: history,
           start: 'top 80%',
@@ -86,52 +107,96 @@ export function AboutPage() {
           onEnter: () => {
             const tlHist = gsap.timeline({ defaults: { ease: EASE.reveal } })
             if (histEyebrow) tlHist.to(histEyebrow, { y: 0, opacity: 1, duration: 0.5 })
-            if (histTitle) tlHist.to(histTitle, { y: 0, opacity: 1, duration: 0.7 }, 0.1)
-            if (histIntro) tlHist.to(histIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.25)
+            if (histTitle) tlHist.set(histTitle, { opacity: 1 }, 0.1)
+            if (histChars.length) tlHist.to(histChars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, 0.1)
+            if (histIntro) tlHist.to(histIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.4)
           }
         })
 
-        if (cards.length) {
-          cards.forEach((card, i) => {
-            gsap.set(card, { 
-              scale: 1 - (i * 0.05), 
-              opacity: 1 - (i * 0.2), 
-              y: -i * 30,
-              zIndex: cards.length - i
-            })
-          })
-
+        if (track && line && cards.length) {
           const scrubTl = gsap.timeline({
             scrollTrigger: {
               trigger: history,
               start: 'top top',
               end: 'bottom bottom',
               scrub: 1,
+              invalidateOnRefresh: true,
             }
           })
 
-          cards.forEach((card, i) => {
-            if (i < cards.length - 1) {
-              // Current card goes up, scales up, and fades out
-              scrubTl.to(card, {
-                scale: 1.05,
-                opacity: 0,
-                y: -100,
-                duration: 1,
-                ease: 'power1.inOut'
-              }, i)
+          // Calculate horizontal scroll
+          scrubTl.to(track, {
+            x: () => -(track.scrollWidth - window.innerWidth),
+            ease: 'none',
+            duration: 1
+          }, 0)
 
-              // Subsequent cards move forward in the stack
-              for (let j = i + 1; j < cards.length; j++) {
-                const stepIndex = j - i - 1;
-                scrubTl.to(cards[j], {
-                  scale: 1 - (stepIndex * 0.05),
-                  opacity: 1 - (stepIndex * 0.2),
-                  y: -stepIndex * 30,
-                  duration: 1,
-                  ease: 'power1.inOut'
-                }, i)
+          // Calculate and insert card blur animations and icon updates
+          // Using a short delay inside requestAnimationFrame to ensure layout is done
+          requestAnimationFrame(() => {
+            const maxScroll = track.scrollWidth - window.innerWidth
+            
+            const p_values = cards.map(card => {
+              // No mobile, dispara logo que o card entra na tela (80% da tela)
+              // No desktop, dispara um pouco antes do centro
+              const isMobile = window.innerWidth < 768
+              const triggerOffset = isMobile 
+                ? window.innerWidth * 0.8 
+                : (window.innerWidth - card.offsetWidth) / 2 + (window.innerWidth * 0.05)
+              
+              let p = (card.offsetLeft - triggerOffset) / maxScroll
+              return Math.max(0, Math.min(1, p))
+            })
+            
+            const p_min = p_values[0] || 0
+            const p_max = p_values[p_values.length - 1] || 1
+            const p_range = p_max - p_min || 1
+
+            let prevP = 0
+
+            cards.forEach((card, i) => {
+              const p = p_values[i]
+              const nodeP = (p - p_min) / p_range
+              
+              // Set node position on fixed bar
+              if (nodes[i]) {
+                gsap.set(nodes[i], { left: `${nodeP * 100}%`, xPercent: -50, yPercent: -50 })
               }
+
+              // Animate line to this node
+              if (p > prevP) {
+                scrubTl.to(line, {
+                  width: `${nodeP * 100}%`,
+                  ease: 'none',
+                  duration: p - prevP
+                }, prevP)
+              }
+              prevP = p
+
+              // Blur in card
+              scrubTl.to(card, {
+                opacity: 1,
+                filter: 'blur(0px)',
+                y: 0,
+                duration: 0.1,
+                ease: 'power2.out'
+              }, p)
+
+              // Light up node
+              if (nodes[i]) {
+                scrubTl.to(nodes[i], {
+                  borderColor: '#004C26',
+                  color: '#ffffff',
+                  backgroundColor: '#004C26',
+                  duration: 0.05,
+                  ease: 'power1.inOut'
+                }, p)
+              }
+            })
+
+            // Finish the line if needed
+            if (prevP < 1) {
+              scrubTl.to(line, { width: '100%', ease: 'none', duration: 1 - prevP }, prevP)
             }
           })
         }
@@ -276,8 +341,8 @@ export function AboutPage() {
   )
 
   return (
-    <Container>
-      <div ref={containerRef}>
+    <div ref={containerRef}>
+      <Container>
         {/* Cabeçalho */}
         <div className="mb-24">
           <span ref={eyebrowRef} className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary mb-6">
@@ -292,37 +357,75 @@ export function AboutPage() {
           </p>
         </div>
 
-        {/* Linha do Tempo */}
-        <div ref={historyRef} className="mb-32 relative h-[400vh]">
-          <div className="sticky top-0 h-screen w-full flex flex-col justify-center pt-20 pb-32 md:pt-24 md:pb-[15vh]">
-            <div className="flex flex-col gap-6 md:gap-12 mb-6 md:mb-12 z-20 relative">
-              <div className="md:w-1/3 shrink-0">
-                <span data-hist-eyebrow className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
-                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                  {t('historyEyebrow')}
-                </span>
-              </div>
-              <div className="md:w-2/3 max-w-[42rem]">
-                <h2 data-hist-title className="font-montserrat uppercase text-3xl md:text-5xl font-black text-foreground tracking-tight mb-4 md:mb-6 leading-tight">
-                  {t('historyTitle')}
-                </h2>
-                <p data-hist-intro className="text-lg text-foreground/70 leading-relaxed">
-                  {t('historyIntro')}
-                </p>
-              </div>
-            </div>
+      </Container>
 
-            <div className="relative flex-1 w-full flex justify-center items-center">
-              <div className="relative w-full max-w-6xl max-h-[800px] min-h-[450px] lg:min-h-[550px]">
+      {/* Linha do Tempo */}
+      <div ref={historyRef} className="mb-8 relative h-[400vh]">
+        <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden bg-background">
+          
+          {/* INTRO TEXT (FIXED ABOVE PROGRESS BAR) */}
+          <div className="absolute top-[0%] md:top-[12%] left-0 w-full z-30 flex justify-center px-4 pointer-events-none">
+            <div className="text-center max-w-[800px] pointer-events-auto">
+              <span data-hist-eyebrow className="inline-flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary mb-4">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                {t('historyEyebrow')}
+              </span>
+              <h2 data-hist-title className="font-montserrat uppercase text-3xl md:text-5xl font-black text-foreground tracking-tight mb-4 leading-tight mx-auto">
+                {t('historyTitle')}
+              </h2>
+              <p data-hist-intro className="text-base md:text-lg text-foreground/70 leading-relaxed mx-auto max-w-[600px]">
+                {t('historyIntro')}
+              </p>
+            </div>
+          </div>
+
+          {/* FIXED PROGRESS BAR */}
+          <div className="absolute top-[35%] md:top-[42%] left-0 w-full z-30 pointer-events-none flex justify-center">
+            <Container>
+              <div className="px-[5vw] md:px-[10vw] w-full">
+                <div className="relative w-full flex items-center h-16">
+                {/* Background Line */}
+                <div className="absolute left-0 right-0 h-1 bg-foreground/10" />
+                {/* Animated Line */}
+                <div data-hist-line className="absolute left-0 h-1 bg-[#004C26] origin-left z-10" style={{ width: '0%' }} />
+
+                {/* Nodes Container */}
+                <div className="absolute left-0 right-0 h-full">
+                  {TIMELINE_KEYS.map((key, i) => {
+                    const Icon = TIMELINE_ICONS[key]
+                    return (
+                      <div 
+                        key={`node-${key}`}
+                        data-hist-node={i}
+                        className="absolute top-1/2 w-10 h-10 md:w-14 md:h-14 rounded-full border-[3px] border-[#004C26]/20 bg-background flex items-center justify-center text-[#004C26]/40 transition-colors duration-300 shadow-sm z-20 pointer-events-auto"
+                        style={{ left: `${(i / (TIMELINE_KEYS.length - 1)) * 100}%`, transform: 'translate(-50%, -50%)' }}
+                      >
+                        <span className="absolute bottom-full mb-2 md:mb-3 text-[10px] md:text-xs font-bold font-montserrat text-[#004C26]">
+                          {TIMELINE_YEARS[i]}
+                        </span>
+                        <Icon className="w-5 h-5 md:w-6 md:h-6" />
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+              </div>
+            </Container>
+          </div>
+
+          {/* SCROLLING TRACK */}
+          <div data-hist-track className="flex flex-col justify-end h-full w-max pb-8 md:pb-16">
+              <div className="flex gap-16 md:gap-32 px-[5vw] md:px-[10vw] w-max relative z-10 items-start">
+                {/* Cards */}
                 {TIMELINE_KEYS.map((key, i) => (
                   <div 
-                    key={key} 
+                    key={`card-${key}`} 
                     data-hist-card 
-                    className="absolute top-0 left-0 w-full h-full flex flex-col justify-start bg-white border border-foreground/5 dark:border-white/10 rounded-[2rem] md:rounded-[3rem] p-8 sm:p-12 md:p-20 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_35px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden"
+                    className="w-[85vw] sm:w-[60vw] md:w-[40vw] max-w-[600px] shrink-0 flex flex-col justify-start bg-white border border-foreground/5 dark:border-white/10 rounded-[2rem] md:rounded-[3rem] p-8 sm:p-12 md:p-16 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden"
                   >
                     {/* Marca d'água estourando nas bordas */}
-                    <div className="absolute -bottom-6 -right-6 md:-bottom-12 md:-right-12 pointer-events-none opacity-[0.2] select-none">
-                      <span className="text-subtitle text-[10rem] md:text-[14rem] lg:text-[18rem] font-black leading-none text-primary">
+                    <div className="absolute -bottom-6 -right-6 md:-bottom-12 md:-right-12 pointer-events-none opacity-[0.05] select-none">
+                      <span className="text-subtitle text-[8rem] md:text-[12rem] lg:text-[14rem] font-black leading-none text-primary">
                         {TIMELINE_YEARS[i]}
                       </span>
                     </div>
@@ -332,10 +435,10 @@ export function AboutPage() {
                         <span className="w-8 md:w-12 h-1 bg-primary rounded-full"></span>
                         {TIMELINE_YEARS[i]}
                       </div>
-                      <h3 className="font-montserrat uppercase text-2xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 md:mb-6 leading-tight drop-shadow-sm">
+                      <h3 className="font-montserrat uppercase text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4 md:mb-6 leading-tight drop-shadow-sm">
                         {t(`timeline.${key}.title`)}
                       </h3>
-                      <p className="text-foreground/80 text-base text-subtitle md:text-lg lg:text-xl leading-relaxed drop-shadow-sm font-medium">
+                      <p className="text-foreground/80 text-base md:text-lg lg:text-xl leading-relaxed drop-shadow-sm font-medium">
                         {t(`timeline.${key}.desc`)}
                       </p>
                     </div>
@@ -346,6 +449,7 @@ export function AboutPage() {
           </div>
         </div>
 
+      <Container>
         {/* Valores */}
         <div ref={valuesRef} className="mb-32">
           <div className="flex flex-col gap-12 mb-16">
@@ -486,7 +590,7 @@ export function AboutPage() {
             </Link>
           </div>
         </div>
-      </div>
-    </Container>
+      </Container>
+    </div>
   )
 }
