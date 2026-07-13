@@ -132,8 +132,7 @@ export function Solution() {
               if (timelineTip) gsap.to(timelineTip, { scale: 0.2, duration: 0.2, overwrite: 'auto' })
             },
             onLeave: () => {
-              if (bg) gsap.to(bg, { opacity: 0.15, scale: 0.9, filter: 'blur(12px)', duration: 0.6, ease: 'power2.out', overwrite: 'auto' })
-              if (card) gsap.to(card, { opacity: 0, y: -20, scale: 0.95, duration: 0.4, ease: 'power2.in', overwrite: 'auto' })
+              // Mantém a imagem e o card visíveis ao rolar para baixo
               if (dot) gsap.to(dot, { scale: 1, backgroundColor: '#004C26', borderColor: '#004C26', duration: 0.3, ease: 'power2.out', overwrite: 'auto' })
               if (icon) gsap.to(icon, { color: '#FFFFFF', duration: 0.3, ease: 'power2.out', overwrite: 'auto' })
             },
