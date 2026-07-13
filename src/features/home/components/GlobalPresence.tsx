@@ -176,11 +176,12 @@ export function GlobalPresence({ variant = 'section' }: { variant?: 'section' | 
 
         <Globe markers={MARKERS} focus={FOCUS} onDragChange={setDragging} />
 
-        {/* camada de pins/cards: esmaece enquanto o usuário gira o globo */}
+        {/* camada de pins/cards: acompanha o balanço idle do globo
+            (--globe-sway-px, setada pelo Globe) e esmaece durante o drag */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 transition-opacity duration-300"
-          style={{ opacity: dragging ? 0.2 : 1 }}
+          style={{ opacity: dragging ? 0.2 : 1, transform: 'translateX(var(--globe-sway-px, 0px))' }}
         >
           {/* conectores (curvas suaves do card ao pin) */}
           <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" fill="none">

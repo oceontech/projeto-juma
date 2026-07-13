@@ -76,6 +76,9 @@ export function Globe({ markers, focus, className = '', onDragChange }: GlobePro
     if (!canvas) return
 
     const [homePhi, homeTheta] = locationToAngles(focus[0], focus[1])
+    // Captura o host ANTES do createGlobe: o cobe v2 envolve o canvas num div
+    // próprio, e a var --globe-sway-px precisa viver num ancestral do overlay.
+    const host = canvas.parentElement
     let globe: ReturnType<typeof createGlobe> | null = null
     let ro: ResizeObserver | null = null
     let rafId = 0
@@ -102,9 +105,11 @@ export function Globe({ markers, focus, className = '', onDragChange }: GlobePro
         markers: markers.map((m) => ({ location: m.location, size: m.size ?? 0.05, color: m.color })),
       })
 
-      // Balanço idle: oscilação senoidal mínima (~1,5°) em torno do repouso,
-      // lenta o bastante para o pin não se afastar do card. Cross-fade com o
-      // drag: a amplitude vai a zero enquanto o usuário segura o globo.
+      // Balanço idle: oscilação senoidal (~4°) em torno do repouso. O
+      // deslocamento equivalente em px é exportado via --globe-sway-px no
+      // elemento pai, para a camada de pins/cards acompanhar o giro e nada
+      // descolar. Cross-fade com o drag: a amplitude vai a zero enquanto o
+      // usuário segura o globo.
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
       let idleWeight = 1
 
@@ -115,15 +120,21 @@ export function Globe({ markers, focus, className = '', onDragChange }: GlobePro
           // sem interação, o offset decai (~1s) e o globo volta ao enquadramento
           rest.current.phi *= 0.94
           rest.current.theta *= 0.94
-          idleWeight = Math.min(1, idleWeight + 0.02)
+          idleWeight = Math.min(1, idleWeight + 0.015)
         }
         const t = now / 1000
-        const idlePhi = reduced ? 0 : Math.sin(t * 0.32) * 0.026 * idleWeight
-        const idleTheta = reduced ? 0 : Math.sin(t * 0.21 + 1.3) * 0.009 * idleWeight
+        const idlePhi = reduced ? 0 : Math.sin(t * 0.55) * 0.07 * idleWeight
+        const idleTheta = reduced ? 0 : Math.sin(t * 0.34 + 1.3) * 0.014 * idleWeight
         globe?.update({
           phi: homePhi + rest.current.phi + drag.current.phi + idlePhi,
           theta: homeTheta + rest.current.theta + drag.current.theta + idleTheta,
         })
+        // px na tela por radiano de giro: raio visível (~0,39·largura) vezes a
+        // profundidade média dos pins no enquadramento (~0,86)
+        if (host) {
+          const sway = idlePhi * canvas.offsetWidth * 0.39 * 0.86
+          host.style.setProperty('--globe-sway-px', `${sway.toFixed(2)}px`)
+        }
         rafId = requestAnimationFrame(tick)
       }
       rafId = requestAnimationFrame(tick)
