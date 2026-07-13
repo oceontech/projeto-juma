@@ -365,23 +365,23 @@ export function AboutPage() {
         <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden bg-background">
           
           {/* INTRO TEXT (FIXED ABOVE PROGRESS BAR) */}
-          <div className="absolute top-[0%] md:top-[12%] left-0 w-full z-30 flex justify-center px-4 pointer-events-none">
+          <div className="absolute top-[2%] left-0 w-full z-30 flex justify-center px-4 pointer-events-none">
             <div className="text-center max-w-[800px] pointer-events-auto">
-              <span data-hist-eyebrow className="inline-flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary mb-4">
+              <span data-hist-eyebrow className="inline-flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary mb-3 md:mb-4">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                 {t('historyEyebrow')}
               </span>
-              <h2 data-hist-title className="font-montserrat uppercase text-3xl md:text-5xl font-black text-foreground tracking-tight mb-4 leading-tight mx-auto">
+              <h2 data-hist-title className="font-montserrat uppercase text-3xl md:text-4xl lg:text-5xl font-black text-foreground tracking-tight mb-3 md:mb-4 leading-tight mx-auto">
                 {t('historyTitle')}
               </h2>
-              <p data-hist-intro className="text-base md:text-lg text-foreground/70 leading-relaxed mx-auto max-w-[600px]">
+              <p data-hist-intro className="text-sm md:text-base lg:text-lg text-foreground/70 leading-relaxed mx-auto max-w-[600px]">
                 {t('historyIntro')}
               </p>
             </div>
           </div>
 
           {/* FIXED PROGRESS BAR */}
-          <div className="absolute top-[35%] md:top-[42%] left-0 w-full z-30 pointer-events-none flex justify-center">
+          <div className="absolute top-[32%] md:top-[38%] left-0 w-full z-30 pointer-events-none flex justify-center">
             <Container>
               <div className="px-[5vw] md:px-[10vw] w-full">
                 <div className="relative w-full flex items-center h-16">
@@ -415,31 +415,31 @@ export function AboutPage() {
           </div>
 
           {/* SCROLLING TRACK */}
-          <div data-hist-track className="flex flex-col justify-end h-full w-max pb-8 md:pb-16">
+          <div data-hist-track className="flex flex-col justify-start pt-[42vh] md:pt-[48vh] h-full w-max pb-8 md:pb-16">
               <div className="flex gap-16 md:gap-32 px-[5vw] md:px-[10vw] w-max relative z-10 items-start">
                 {/* Cards */}
                 {TIMELINE_KEYS.map((key, i) => (
                   <div 
                     key={`card-${key}`} 
                     data-hist-card 
-                    className="w-[85vw] sm:w-[60vw] md:w-[40vw] max-w-[600px] shrink-0 flex flex-col justify-start bg-white border border-foreground/5 dark:border-white/10 rounded-[2rem] md:rounded-[3rem] p-8 sm:p-12 md:p-16 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden"
+                    className="w-[85vw] sm:w-[60vw] md:w-[40vw] max-w-[550px] shrink-0 flex flex-col justify-start bg-white border border-foreground/5 dark:border-white/10 rounded-[2rem] md:rounded-[2.5rem] p-6 sm:p-8 md:p-10 lg:p-12 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden"
                   >
                     {/* Marca d'água estourando nas bordas */}
-                    <div className="absolute -bottom-6 -right-6 md:-bottom-12 md:-right-12 pointer-events-none opacity-[0.05] select-none">
-                      <span className="text-subtitle text-[8rem] md:text-[12rem] lg:text-[14rem] font-black leading-none text-primary">
+                    <div className="absolute -bottom-6 -right-6 md:-bottom-8 md:-right-8 pointer-events-none opacity-[0.05] select-none">
+                      <span className="text-subtitle text-[6rem] md:text-[8rem] lg:text-[10rem] font-black leading-none text-primary">
                         {TIMELINE_YEARS[i]}
                       </span>
                     </div>
                     
                     <div className="relative z-10 w-full">
-                      <div className="font-mono text-xl md:text-2xl lg:text-3xl font-bold text-primary mb-4 flex items-center gap-4">
-                        <span className="w-8 md:w-12 h-1 bg-primary rounded-full"></span>
+                      <div className="font-mono text-lg md:text-xl lg:text-2xl font-bold text-primary mb-2 md:mb-4 flex items-center gap-4">
+                        <span className="w-8 md:w-10 h-1 bg-primary rounded-full"></span>
                         {TIMELINE_YEARS[i]}
                       </div>
-                      <h3 className="font-montserrat uppercase text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4 md:mb-6 leading-tight drop-shadow-sm">
+                      <h3 className="font-montserrat uppercase text-xl md:text-2xl lg:text-3xl font-bold text-foreground mb-3 md:mb-4 leading-tight drop-shadow-sm">
                         {t(`timeline.${key}.title`)}
                       </h3>
-                      <p className="text-foreground/80 text-base md:text-lg lg:text-xl leading-relaxed drop-shadow-sm font-medium">
+                      <p className="text-foreground/80 text-sm md:text-base lg:text-lg leading-relaxed drop-shadow-sm font-medium">
                         {t(`timeline.${key}.desc`)}
                       </p>
                     </div>
