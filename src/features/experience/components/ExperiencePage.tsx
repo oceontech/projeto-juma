@@ -214,7 +214,7 @@ export function ExperiencePage() {
 
       {/* O que é o programa */}
       <div id="programa" ref={programRef} className="mb-32">
-        <div className="flex flex-col md:flex-row gap-12 mb-16">
+        <div className="flex flex-col gap-12 mb-16">
           <div className="md:w-1/3 shrink-0">
             <span data-prog-eyebrow className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
               <span className="h-1.5 w-1.5 rounded-full bg-primary" />
@@ -222,7 +222,7 @@ export function ExperiencePage() {
             </span>
           </div>
           <div className="md:w-2/3 max-w-[42rem]">
-            <h2 data-prog-title className="font-montserrat text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-tight">
+            <h2 data-prog-title className="font-montserrat uppercase text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-tight">
               {t('programTitle')}
             </h2>
             <p data-prog-intro className="text-lg text-foreground/70 leading-relaxed">
@@ -255,7 +255,7 @@ export function ExperiencePage() {
 
       {/* O que você vivencia */}
       <div ref={benefitsRef} className="mb-32">
-        <div className="flex flex-col md:flex-row gap-12 mb-16">
+        <div className="flex flex-col gap-12 mb-16">
           <div className="md:w-1/3 shrink-0">
             <span data-ben-eyebrow className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
               <span className="h-1.5 w-1.5 rounded-full bg-primary" />
@@ -263,7 +263,7 @@ export function ExperiencePage() {
             </span>
           </div>
           <div className="md:w-2/3 max-w-[42rem]">
-            <h2 data-ben-title className="font-montserrat text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-tight">
+            <h2 data-ben-title className="font-montserrat uppercase text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-tight">
               {t('benefitsTitle')}
             </h2>
             <p data-ben-intro className="text-lg text-foreground/70 leading-relaxed">
@@ -293,7 +293,7 @@ export function ExperiencePage() {
 
       {/* Galeria */}
       <div ref={galleryRef} className="mb-32">
-        <div className="flex flex-col md:flex-row gap-12 mb-16">
+        <div className="flex flex-col gap-12 mb-16">
           <div className="md:w-1/3 shrink-0">
             <span data-gal-eyebrow className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
               <span className="h-1.5 w-1.5 rounded-full bg-primary" />
@@ -301,7 +301,7 @@ export function ExperiencePage() {
             </span>
           </div>
           <div className="md:w-2/3 max-w-[42rem]">
-            <h2 data-gal-title className="font-montserrat text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-tight">
+            <h2 data-gal-title className="font-montserrat uppercase text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-tight">
               {t('galleryTitle')}
             </h2>
             <p data-gal-intro className="text-lg text-foreground/70 leading-relaxed">

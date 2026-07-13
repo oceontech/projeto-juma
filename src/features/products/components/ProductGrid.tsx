@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl'
 import { gsap, SplitText, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
+import { DropdownMenu } from '@/components/ui/dropdown-menu-framer'
 
 const CATEGORY_IDS = [
   { id: 'all', key: 'all' as const },
@@ -234,13 +235,12 @@ export function ProductGrid() {
 
       if (grid) {
         const cards = gsap.utils.toArray<HTMLElement>('[data-product-card]', grid)
-        gsap.set(cards, { y: 24, opacity: 0 })
-        ScrollTrigger.create({
-          trigger: grid,
-          start: 'top 85%',
+        gsap.set(cards, { y: 20, opacity: 0 })
+        ScrollTrigger.batch(cards, {
+          start: 'top 95%', // Gatilho antecipado para não parecer travado
           once: true,
-          onEnter: () => {
-            gsap.to(cards, { y: 0, opacity: 1, duration: 0.8, stagger: STAGGER.card, ease: EASE.reveal })
+          onEnter: (batch) => {
+            gsap.to(batch, { y: 0, opacity: 1, duration: 0.4, stagger: 0.05, ease: 'power2.out' })
           }
         })
       }
@@ -290,52 +290,30 @@ export function ProductGrid() {
           </p>
         </div>
 
-      <div ref={filtersRef} className="space-y-6 mb-12">
-        {/* Filtros Categoria */}
-        <div className="flex flex-col md:flex-row md:items-center gap-4">
-          <span className="text-sm font-semibold uppercase tracking-wider text-foreground/50 shrink-0 md:w-24">
-            {t('filterCategory')}
-          </span>
-          <div className="flex flex-wrap gap-2">
-            {CATEGORY_IDS.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
-                className={`flex cursor-pointer items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-medium transition-all ${
-                  activeCategory === cat.id
-                    ? 'bg-primary border-primary text-white shadow-md'
-                    : 'border-foreground/20 text-foreground/80 hover:bg-foreground/5 hover:border-foreground/30'
-                }`}
-              >
-                {t(`categories.${cat.key}`)}
-                <span className={`text-[0.8em] font-bold ${activeCategory === cat.id ? 'text-white/80' : 'text-foreground/40'}`}>
-                  {getCategoryCount(cat.id)}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
+      <div ref={filtersRef} className="relative z-50 flex flex-col md:flex-row md:items-center gap-4 mb-12">
+        <div className="flex flex-wrap gap-4 items-center">
+          <DropdownMenu 
+            options={CATEGORY_IDS.map(cat => ({
+              label: t(`categories.${cat.key}`),
+              active: activeCategory === cat.id,
+              count: getCategoryCount(cat.id),
+              onClick: () => setActiveCategory(cat.id)
+            }))}
+          >
+            <span className="font-semibold text-foreground/60 mr-1">{t('filterCategory')}:</span> 
+            {t(`categories.${CATEGORY_IDS.find(c => c.id === activeCategory)?.key || 'all'}`)}
+          </DropdownMenu>
 
-        {/* Filtros Cultura */}
-        <div className="flex flex-col md:flex-row md:items-center gap-4">
-          <span className="text-sm font-semibold uppercase tracking-wider text-foreground/50 shrink-0 md:w-24">
-            {t('filterCulture')}
-          </span>
-          <div className="flex flex-wrap gap-2">
-            {CULTURE_IDS.map((cul) => (
-              <button
-                key={cul.id}
-                onClick={() => setActiveCulture(cul.id)}
-                className={`px-4 py-2 rounded-full border text-sm font-medium transition-all cursor-pointer ${
-                  activeCulture === cul.id
-                    ? 'bg-primary border-primary text-white shadow-md'
-                    : 'border-foreground/20 text-foreground/80 hover:bg-foreground/5 hover:border-foreground/30'
-                }`}
-              >
-                {t(`cultures.${cul.key}`)}
-              </button>
-            ))}
-          </div>
+          <DropdownMenu
+            options={CULTURE_IDS.map(cul => ({
+              label: t(`cultures.${cul.key}`),
+              active: activeCulture === cul.id,
+              onClick: () => setActiveCulture(cul.id)
+            }))}
+          >
+            <span className="font-semibold text-foreground/60 mr-1">{t('filterCulture')}:</span>
+            {t(`cultures.${CULTURE_IDS.find(c => c.id === activeCulture)?.key || 'all'}`)}
+          </DropdownMenu>
         </div>
       </div>
 
@@ -350,12 +328,10 @@ export function ProductGrid() {
               className="group flex flex-col h-full rounded-2xl overflow-hidden border border-foreground/10 bg-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
             >
               <div
-                className="relative h-64 flex items-center justify-center p-6 overflow-hidden transition-colors duration-500"
-                style={{ backgroundColor: `${product.color}15` }}
+                className="relative h-64 flex items-center justify-center p-6 overflow-hidden transition-colors duration-500 bg-[#f4f9f0]"
               >
                 <div
-                  className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-300"
-                  style={{ backgroundColor: product.color }}
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[#ebf4e3]"
                 />
                 <span className="absolute top-4 left-4 z-10 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded bg-white/90 backdrop-blur text-foreground shadow-sm">
                   {t(`products.${product.tKey}.tag`)}

@@ -330,7 +330,7 @@ export function OurStory() {
 
             <div
               ref={statsRootRef}
-              className="mt-xl lg:mt-2xl grid gap-md grid-cols-2 md:grid-cols-3 xl:gap-lg w-full"
+              className="mt-xl lg:mt-2xl grid gap-md grid-cols-1 md:grid-cols-3 xl:gap-lg w-full"
             >
               <Stat icon="users" label={t('stat1')} />
               <Stat icon="sprout" label={t('stat2')} />
@@ -408,7 +408,7 @@ type StatIcon = 'users' | 'sprout' | 'network'
 
 function Stat({ icon, label }: { icon: StatIcon; label: string }) {
   return (
-    <div data-stat className="flex w-full items-start gap-sm">
+    <div data-stat className="flex w-full items-center gap-sm">
       <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full border border-primary/25 text-primary">
         <StatIconGlyph name={icon} className="h-4 w-4" />
       </span>

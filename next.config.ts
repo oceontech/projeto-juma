@@ -28,10 +28,16 @@ const nextConfig: NextConfig = {
         pathname: '/produtos/**',
       },
       {
+        pathname: '/assets/about/**',
+      },
+      {
         pathname: '/assets/cultures/**',
       },
       {
         pathname: '/assets/linha-produtos/**',
+      },
+      {
+        pathname: '/materias/**',
       },
     ],
     remotePatterns: [

@@ -63,51 +63,57 @@ export function Lines() {
       if (gline)
         tlHead.to(gline, { scaleX: 1, opacity: 1, duration: 0.8, ease: 'power3.out' }, 0.2)
 
-      let cardSplits: SplitText[] = []
-
-      // Cards de linha: clip-path reveal, um por um
+      // Cards de linha: animações responsivas
       const cards = gsap.utils.toArray<HTMLElement>('[data-line-card]', ref.current)
 
-      cards.forEach((card, i) => {
-        const img = card.querySelector<HTMLElement>('[data-line-image]')
-        const title = card.querySelector<HTMLElement>('[data-line-title]')
-        const support = card.querySelector<HTMLElement>('[data-line-support]')
-        const link = card.querySelector<HTMLElement>('[data-line-link]')
+      if (cards.length > 0) {
+        const mm = gsap.matchMedia()
 
-        let chars: Element[] = []
-        if (title) {
-          const splitTitle = new SplitText(title, { type: 'chars,words' })
-          cardSplits.push(splitTitle)
-          chars = splitTitle.chars
-        }
+        // Desktop e Tablet (sm em diante) - Stagger no grupo
+        mm.add('(min-width: 640px)', () => {
+          gsap.set(cards, { opacity: 0, filter: 'blur(12px)' })
 
-        if (img) gsap.set(img, { opacity: 0, scale: 1.15, filter: 'blur(12px)' })
-        if (chars.length) gsap.set(chars, { opacity: 0, x: 15, filter: 'blur(8px)' })
-        if (support) gsap.set(support, { opacity: 0, y: 15 })
-        if (link) gsap.set(link, { opacity: 0, y: 15 })
+          const tlCards = gsap.timeline({
+            scrollTrigger: {
+              trigger: cards[0].parentElement || ref.current,
+              start: 'top 85%',
+              end: 'bottom 15%',
+              toggleActions: 'play reverse play reverse',
+            }
+          })
 
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: card,
-            start: 'top 85%',
-            end: 'bottom 15%',
-            toggleActions: 'play reverse play reverse',
-          },
-          defaults: { ease: EASE.reveal }
+          tlCards.to(cards, {
+            opacity: 1,
+            filter: 'blur(0px)',
+            duration: 1.4,
+            stagger: 0.3,
+            ease: 'power3.out'
+          })
         })
 
-        const d = i * 0.08
+        // Mobile - ScrollTrigger individual para cada card
+        mm.add('(max-width: 639px)', () => {
+          cards.forEach((card) => {
+            gsap.set(card, { opacity: 0, filter: 'blur(12px)' })
 
-        // Stagger internal card elements
-        if (img) tl.to(img, { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 1.2, ease: 'power3.out' }, d)
-        if (chars.length) tl.to(chars, { opacity: 1, x: 0, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, d + 0.15)
-        if (support) tl.to(support, { opacity: 1, y: 0, duration: 0.8 }, d + 0.35)
-        if (link) tl.to(link, { opacity: 1, y: 0, duration: 0.8 }, d + 0.45)
-      })
+            gsap.to(card, {
+              scrollTrigger: {
+                trigger: card,
+                start: 'top 85%',
+                end: 'bottom 15%',
+                toggleActions: 'play reverse play reverse',
+              },
+              opacity: 1,
+              filter: 'blur(0px)',
+              duration: 1.4,
+              ease: 'power3.out'
+            })
+          })
+        })
+      }
 
       return () => {
         split?.revert()
-        cardSplits.forEach(s => s.revert())
       }
     },
     { scope: ref, dependencies: [reduced] },

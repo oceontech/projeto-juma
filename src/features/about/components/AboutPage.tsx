@@ -2,6 +2,7 @@
 
 import React, { useRef } from 'react'
 import { Link } from '@/i18n/navigation'
+import Image from 'next/image'
 import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
 import { gsap, SplitText, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
@@ -19,6 +20,12 @@ function ArrowTopRightIcon(props: React.SVGProps<SVGSVGElement>) {
 const TIMELINE_KEYS = ['y1985', 'y1992', 'y2003', 'y2015', 'y2024'] as const
 const TIMELINE_YEARS = ['1985', '1992', '2003', '2015', '2024']
 const VALUE_KEYS = ['v1', 'v2', 'v3'] as const
+
+const VALUES_CONTENT: Record<typeof VALUE_KEYS[number], { image: string }> = {
+  v1: { image: '/assets/about/ao-lado-produtor.webp' },
+  v2: { image: '/assets/about/conhecimento-aplicado.webp' },
+  v3: { image: '/assets/about/responsabilidade.webp' }
+}
 
 export function AboutPage() {
   const t = useTranslations('aboutPage')
@@ -66,8 +73,7 @@ export function AboutPage() {
         const histEyebrow = history.querySelector('[data-hist-eyebrow]')
         const histTitle = history.querySelector('[data-hist-title]')
         const histIntro = history.querySelector('[data-hist-intro]')
-        const line = history.querySelector('[data-hist-line]')
-        const timelineItems = gsap.utils.toArray<HTMLElement>('[data-hist-item]', history)
+        const cards = gsap.utils.toArray<HTMLElement>('[data-hist-card]', history)
 
         if (histEyebrow) gsap.set(histEyebrow, { y: 15, opacity: 0 })
         if (histTitle) gsap.set(histTitle, { y: 20, opacity: 0 })
@@ -85,33 +91,48 @@ export function AboutPage() {
           }
         })
 
-        if (line) {
-          gsap.set(line, { scaleY: 0, transformOrigin: 'top center' })
-          ScrollTrigger.create({
-            trigger: line,
-            start: 'top 70%',
-            end: 'bottom 75%',
-            scrub: true,
-            animation: gsap.to(line, { scaleY: 1, ease: 'none' })
-          })
-        }
-
-        if (timelineItems.length) {
-          timelineItems.forEach((item) => {
-            const dot = item.querySelector('[data-hist-dot]')
-            const content = item.querySelector('[data-hist-content]')
-            if (dot) gsap.set(dot, { scale: 0 })
-            if (content) gsap.set(content, { y: 20, opacity: 0 })
-
-            ScrollTrigger.create({
-              trigger: item,
-              start: 'top 85%',
-              once: true,
-              onEnter: () => {
-                if (content) gsap.to(content, { y: 0, opacity: 1, duration: 0.7, ease: EASE.reveal })
-                if (dot) gsap.to(dot, { scale: 1, duration: 0.5, ease: 'back.out(1.7)', delay: 0.15 })
-              }
+        if (cards.length) {
+          cards.forEach((card, i) => {
+            gsap.set(card, { 
+              scale: 1 - (i * 0.05), 
+              opacity: 1 - (i * 0.2), 
+              y: -i * 30,
+              zIndex: cards.length - i
             })
+          })
+
+          const scrubTl = gsap.timeline({
+            scrollTrigger: {
+              trigger: history,
+              start: 'top top',
+              end: 'bottom bottom',
+              scrub: 1,
+            }
+          })
+
+          cards.forEach((card, i) => {
+            if (i < cards.length - 1) {
+              // Current card goes up, scales up, and fades out
+              scrubTl.to(card, {
+                scale: 1.05,
+                opacity: 0,
+                y: -100,
+                duration: 1,
+                ease: 'power1.inOut'
+              }, i)
+
+              // Subsequent cards move forward in the stack
+              for (let j = i + 1; j < cards.length; j++) {
+                const stepIndex = j - i - 1;
+                scrubTl.to(cards[j], {
+                  scale: 1 - (stepIndex * 0.05),
+                  opacity: 1 - (stepIndex * 0.2),
+                  y: -stepIndex * 30,
+                  duration: 1,
+                  ease: 'power1.inOut'
+                }, i)
+              }
+            }
           })
         }
       }
@@ -125,8 +146,6 @@ export function AboutPage() {
         if (vEyebrow) gsap.set(vEyebrow, { y: 15, opacity: 0 })
         if (vTitle) gsap.set(vTitle, { y: 20, opacity: 0 })
         if (vIntro) gsap.set(vIntro, { y: 20, opacity: 0 })
-        if (vCards.length) gsap.set(vCards, { y: 24, opacity: 0 })
-
         ScrollTrigger.create({
           trigger: values,
           start: 'top 80%',
@@ -136,11 +155,54 @@ export function AboutPage() {
             if (vEyebrow) tlVal.to(vEyebrow, { y: 0, opacity: 1, duration: 0.5 })
             if (vTitle) tlVal.to(vTitle, { y: 0, opacity: 1, duration: 0.7 }, 0.1)
             if (vIntro) tlVal.to(vIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.25)
-            if (vCards.length) {
-              tlVal.to(vCards, { y: 0, opacity: 1, duration: 0.8, stagger: STAGGER.card }, 0.4)
-            }
           }
         })
+
+        if (vCards.length > 0) {
+          const mm = gsap.matchMedia()
+
+          // Desktop e Tablet (sm em diante) - Stagger no grupo
+          mm.add('(min-width: 640px)', () => {
+            gsap.set(vCards, { opacity: 0, filter: 'blur(12px)' })
+
+            const tlCards = gsap.timeline({
+              scrollTrigger: {
+                trigger: vCards[0].parentElement || values,
+                start: 'top 85%',
+                end: 'bottom 15%',
+                toggleActions: 'play reverse play reverse',
+              }
+            })
+
+            tlCards.to(vCards, {
+              opacity: 1,
+              filter: 'blur(0px)',
+              duration: 1.4,
+              stagger: 0.3,
+              ease: 'power3.out'
+            })
+          })
+
+          // Mobile - ScrollTrigger individual para cada card
+          mm.add('(max-width: 639px)', () => {
+            vCards.forEach((card) => {
+              gsap.set(card, { opacity: 0, filter: 'blur(12px)' })
+
+              gsap.to(card, {
+                scrollTrigger: {
+                  trigger: card,
+                  start: 'top 85%',
+                  end: 'bottom 15%',
+                  toggleActions: 'play reverse play reverse',
+                },
+                opacity: 1,
+                filter: 'blur(0px)',
+                duration: 1.4,
+                ease: 'power3.out'
+              })
+            })
+          })
+        }
       }
 
       if (highlight) {
@@ -231,46 +293,62 @@ export function AboutPage() {
         </div>
 
         {/* Linha do Tempo */}
-        <div ref={historyRef} className="mb-32">
-          <div className="flex flex-col md:flex-row gap-12 mb-16">
-            <div className="md:w-1/3 shrink-0">
-              <span data-hist-eyebrow className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                {t('historyEyebrow')}
-              </span>
-            </div>
-            <div className="md:w-2/3 max-w-[42rem]">
-              <h2 data-hist-title className="font-montserrat text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-tight">
-                {t('historyTitle')}
-              </h2>
-              <p data-hist-intro className="text-lg text-foreground/70 leading-relaxed">
-                {t('historyIntro')}
-              </p>
-            </div>
-          </div>
-
-          <div className="relative ml-4 md:ml-6 pl-8 md:pl-12 space-y-16">
-            <div data-hist-line className="absolute left-0 top-0 bottom-0 w-[1px] bg-foreground/10 origin-top" />
-            {TIMELINE_KEYS.map((key, i) => (
-              <div key={key} data-hist-item className="relative group">
-                <div data-hist-dot className="absolute -left-[37px] md:-left-[53px] top-1 h-3 w-3 rounded-full bg-primary ring-4 ring-white transition-transform group-hover:scale-150 group-hover:bg-green-600 duration-300 z-10" />
-                <div data-hist-content className="flex flex-col md:flex-row gap-4 md:gap-8 items-start">
-                  <div className="font-mono text-xl font-bold text-primary shrink-0 w-24">
-                    {TIMELINE_YEARS[i]}
-                  </div>
-                  <div>
-                    <h3 className="font-montserrat text-xl font-bold text-foreground mb-3">{t(`timeline.${key}.title`)}</h3>
-                    <p className="text-foreground/70 leading-relaxed">{t(`timeline.${key}.desc`)}</p>
-                  </div>
-                </div>
+        <div ref={historyRef} className="mb-32 relative h-[400vh]">
+          <div className="sticky top-0 h-screen w-full flex flex-col justify-center pt-20 pb-32 md:pt-24 md:pb-[15vh]">
+            <div className="flex flex-col gap-6 md:gap-12 mb-6 md:mb-12 z-20 relative">
+              <div className="md:w-1/3 shrink-0">
+                <span data-hist-eyebrow className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  {t('historyEyebrow')}
+                </span>
               </div>
-            ))}
+              <div className="md:w-2/3 max-w-[42rem]">
+                <h2 data-hist-title className="font-montserrat uppercase text-3xl md:text-5xl font-black text-foreground tracking-tight mb-4 md:mb-6 leading-tight">
+                  {t('historyTitle')}
+                </h2>
+                <p data-hist-intro className="text-lg text-foreground/70 leading-relaxed">
+                  {t('historyIntro')}
+                </p>
+              </div>
+            </div>
+
+            <div className="relative flex-1 w-full flex justify-center items-center">
+              <div className="relative w-full max-w-6xl max-h-[800px] min-h-[450px] lg:min-h-[550px]">
+                {TIMELINE_KEYS.map((key, i) => (
+                  <div 
+                    key={key} 
+                    data-hist-card 
+                    className="absolute top-0 left-0 w-full h-full flex flex-col justify-start bg-white border border-foreground/5 dark:border-white/10 rounded-[2rem] md:rounded-[3rem] p-8 sm:p-12 md:p-20 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_35px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden"
+                  >
+                    {/* Marca d'água estourando nas bordas */}
+                    <div className="absolute -bottom-6 -right-6 md:-bottom-12 md:-right-12 pointer-events-none opacity-[0.2] select-none">
+                      <span className="text-subtitle text-[10rem] md:text-[14rem] lg:text-[18rem] font-black leading-none text-primary">
+                        {TIMELINE_YEARS[i]}
+                      </span>
+                    </div>
+                    
+                    <div className="relative z-10 w-full">
+                      <div className="font-mono text-xl md:text-2xl lg:text-3xl font-bold text-primary mb-4 flex items-center gap-4">
+                        <span className="w-8 md:w-12 h-1 bg-primary rounded-full"></span>
+                        {TIMELINE_YEARS[i]}
+                      </div>
+                      <h3 className="font-montserrat uppercase text-2xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 md:mb-6 leading-tight drop-shadow-sm">
+                        {t(`timeline.${key}.title`)}
+                      </h3>
+                      <p className="text-foreground/80 text-base text-subtitle md:text-lg lg:text-xl leading-relaxed drop-shadow-sm font-medium">
+                        {t(`timeline.${key}.desc`)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Valores */}
         <div ref={valuesRef} className="mb-32">
-          <div className="flex flex-col md:flex-row gap-12 mb-16">
+          <div className="flex flex-col gap-12 mb-16">
             <div className="md:w-1/3 shrink-0">
               <span data-val-eyebrow className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary" />
@@ -278,7 +356,7 @@ export function AboutPage() {
               </span>
             </div>
             <div className="md:w-2/3 max-w-[42rem]">
-              <h2 data-val-title className="font-montserrat text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-tight">
+              <h2 data-val-title className="font-montserrat uppercase text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-tight">
                 {t('valuesTitle')}
               </h2>
               <p data-val-intro className="text-lg text-foreground/70 leading-relaxed">
@@ -287,16 +365,40 @@ export function AboutPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {VALUE_KEYS.map((key, i) => (
-              <div key={key} data-val-card className="p-8 rounded-3xl bg-foreground/5 border border-foreground/10 group hover:-translate-y-1 transition-all duration-300">
-                <span className="text-primary font-mono text-sm font-bold tracking-widest mb-6 block">
-                  0{i + 1}
-                </span>
-                <h3 className="font-montserrat text-xl font-bold text-foreground mb-4">{t(`values.${key}.title`)}</h3>
-                <p className="text-foreground/70 leading-relaxed">{t(`values.${key}.desc`)}</p>
-              </div>
-            ))}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {VALUE_KEYS.map((key, i) => {
+              const { image } = VALUES_CONTENT[key]
+
+              return (
+                <div 
+                  key={key} 
+                  data-val-card 
+                  className="group relative flex flex-col min-h-[420px] overflow-hidden rounded-3xl border border-foreground/10 bg-white transition-shadow hover:shadow-lg"
+                >
+                  {/* Imagem de Fundo (Máscara idêntica a Lines.tsx) */}
+                  <div className="absolute pointer-events-none z-0 overflow-hidden bottom-0 w-full h-[65%] [mask-image:linear-gradient(to_top,black_40%,transparent)] [-webkit-mask-image:linear-gradient(to_top,black_40%,transparent)]">
+                    <div className="w-full h-full relative">
+                      <Image 
+                        src={image} 
+                        alt="" 
+                        fill 
+                        className="object-cover object-center group-hover:scale-105 transition-transform duration-700" 
+                      />
+                    </div>
+                  </div>
+
+                  {/* Conteúdo */}
+                  <div className="relative z-10 flex flex-col gap-4 p-8 lg:p-10 w-full mb-auto h-full">
+                    <h3 className="font-montserrat uppercase text-2xl font-black leading-[1.05] tracking-tight text-foreground">
+                      {t(`values.${key}.title`)}
+                    </h3>
+                    <p className="text-foreground/70 text-sm text-subtitle not-first-of-type:leading-relaxed max-w-[90%]">
+                      {t(`values.${key}.desc`)}
+                    </p>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
 
@@ -309,7 +411,7 @@ export function AboutPage() {
                 <span className="h-1.5 w-1.5 rounded-full bg-white/70" />
                 {t('purposeEyebrow')}
               </span>
-              <h2 data-hl-title className="font-montserrat text-5xl md:text-7xl lg:text-[100px] font-black uppercase tracking-tighter mb-8 leading-[0.95] text-white">
+              <h2 data-hl-title className="font-montserrat text-4xl md:text-7xl lg:text-[100px] font-black uppercase tracking-tighter mb-8 leading-[0.95] text-white">
                 {t('purposeTitleStart')} <em className="text-highlight text-yellow-400">{t('purposeTitleHighlight')}</em><br />
                 {t('purposeTitleEnd')}
               </h2>
@@ -322,7 +424,7 @@ export function AboutPage() {
 
         {/* Galeria */}
         <div ref={galleryRef} className="mb-32">
-          <div className="flex flex-col md:flex-row gap-12 mb-16">
+          <div className="flex flex-col gap-12 mb-16">
             <div className="md:w-1/3 shrink-0">
               <span data-gal-eyebrow className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary" />
@@ -360,7 +462,7 @@ export function AboutPage() {
         </div>
 
         {/* CTA Final */}
-        <div ref={ctaRef} className="rounded-3xl bg-primary text-white p-12 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden">
+        <div ref={ctaRef} className="rounded-3xl bg-primary text-white p-8 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
           <div className="relative z-10 max-w-[36rem]">
             <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-white mb-4">
@@ -377,7 +479,7 @@ export function AboutPage() {
           <div className="relative z-10 shrink-0">
             <Link
               href="/contato"
-              className="inline-flex items-center gap-3 bg-yellow-400 text-primary px-8 py-4 rounded-full font-bold uppercase tracking-wider text-sm transition-transform hover:scale-105 shadow-xl hover:shadow-yellow-400/20"
+              className="inline-flex items-center gap-3 bg-white text-primary px-8 py-4 rounded-full font-bold uppercase tracking-wider text-sm transition-transform hover:scale-105 shadow-xl hover:shadow-yellow-400/20"
             >
               {t('ctaButton')}
               <ArrowTopRightIcon className="h-4 w-4" />

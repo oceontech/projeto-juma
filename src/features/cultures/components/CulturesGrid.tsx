@@ -223,7 +223,7 @@ export function CulturesGrid() {
 
       {/* Como funciona */}
       <div ref={howRef} className="mb-32">
-        <div className="flex flex-col md:flex-row gap-12 mb-16">
+        <div className="flex flex-col gap-12 mb-16">
           <div className="md:w-1/3 shrink-0">
             <span data-how-eyebrow className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
               <span className="h-1.5 w-1.5 rounded-full bg-primary" />
