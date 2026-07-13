@@ -10,6 +10,7 @@ import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
 import { Leaf, Tractor, Sun, TreePine, Sprout, LucideIcon } from 'lucide-react'
+import { GlobalPresence } from '@/features/home/components/GlobalPresence'
 
 function ArrowTopRightIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -524,6 +525,11 @@ export function AboutPage() {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Presença internacional (globo com sede BR + filial EUA) */}
+        <div className="mb-32">
+          <GlobalPresence variant="embedded" />
         </div>
 
         {/* Galeria */}

@@ -12,6 +12,7 @@
     "linhas": "Líneas",
     "calculadora": "Calculadora",
     "experience": "Experience",
+    "presenca": "Presencia",
     "depoimentos": "Opiniones",
     "materias": "Artículos",
     "contato": "Contacto"
@@ -733,6 +734,19 @@
     "titleHighlight": "de cerca.",
     "desc": "Un programa de inmersión para conocer en la práctica cómo nacen y funcionan nuestras soluciones en el campo, desde la investigación hasta la cosecha, codo a codo con nuestro equipo agronómico.",
     "cta": "Quiero participar"
+  },
+  "globalPresence": {
+    "eyebrow": "Presencia internacional",
+    "titleL1": "Juma está",
+    "titleL2": "en Brasil y en",
+    "titleHighlight": "Estados Unidos",
+    "body": "Con sede en Brasil y filial en Estados Unidos, Juma amplía su presencia para atender mercados estratégicos con cercanía, agilidad y la misma excelencia que construyó su historia.",
+    "support": "Conectando la experiencia brasileña con oportunidades globales.",
+    "brazilName": "Brasil",
+    "brazilSub": "Sede · Mogi Guaçu, SP",
+    "usName": "Estados Unidos",
+    "usSub": "Filial · Lakeland, FL",
+    "globeAria": "Globo interactivo con la sede en Brasil y la filial en Estados Unidos"
   },
   "homeTestimonials": {
     "kicker": "Resultados Aplicados",

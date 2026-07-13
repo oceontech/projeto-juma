@@ -12,6 +12,7 @@
     "linhas": "Lines",
     "calculadora": "Calculator",
     "experience": "Experience",
+    "presenca": "Presence",
     "depoimentos": "Reviews",
     "materias": "Articles",
     "contato": "Contact"
@@ -733,6 +734,19 @@
     "titleHighlight": "up close.",
     "desc": "An immersion program to see in practice how our solutions are born and work in the field — from research to harvest, side by side with our agronomic team.",
     "cta": "I want to participate"
+  },
+  "globalPresence": {
+    "eyebrow": "International presence",
+    "titleL1": "Juma is present",
+    "titleL2": "in Brazil and the",
+    "titleHighlight": "United States",
+    "body": "Headquartered in Brazil with a branch in the United States, Juma expands its reach to serve strategic markets with proximity, agility and the same excellence that built its history.",
+    "support": "Connecting Brazilian expertise to global opportunities.",
+    "brazilName": "Brazil",
+    "brazilSub": "Headquarters · Mogi Guaçu, SP",
+    "usName": "United States",
+    "usSub": "Branch · Lakeland, FL",
+    "globeAria": "Interactive globe showing the headquarters in Brazil and the branch in the United States"
   },
   "homeTestimonials": {
     "kicker": "Applied Results",

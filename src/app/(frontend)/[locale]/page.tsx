@@ -12,6 +12,7 @@ import { Solution }         from '@/features/home/components/Solution'
 import { Lines }            from '@/features/home/components/Lines'
 import { HomeCalculator }   from '@/features/home/components/HomeCalculator'
 import { HomeExperience }   from '@/features/home/components/HomeExperience'
+import { GlobalPresence }   from '@/features/home/components/GlobalPresence'
 import { HomeTestimonials } from '@/features/home/components/HomeTestimonials'
 import { HomeBlog }         from '@/features/home/components/HomeBlog'
 import { HomeCtaFinal }     from '@/features/home/components/HomeCtaFinal'
@@ -59,6 +60,9 @@ export default async function HomePage(props: {
       </div>
       <div id="sec-experience" data-nav-theme="dark" className="scroll-mt-24">
         <HomeExperience />
+      </div>
+      <div id="sec-presenca" className="scroll-mt-24">
+        <GlobalPresence />
       </div>
       <div id="sec-depoimentos" className="scroll-mt-24">
         <HomeTestimonials />

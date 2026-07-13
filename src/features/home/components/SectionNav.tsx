@@ -30,6 +30,7 @@ const SECTIONS: Section[] = [
   { id: 'sec-linhas', key: 'linhas', dark: false },
   { id: 'sec-calculadora', key: 'calculadora', dark: false },
   { id: 'sec-experience', key: 'experience', dark: true },
+  { id: 'sec-presenca', key: 'presenca', dark: false },
   { id: 'sec-depoimentos', key: 'depoimentos', dark: false },
   { id: 'sec-materias', key: 'materias', dark: false },
   { id: 'sec-contato', key: 'contato', dark: true },
