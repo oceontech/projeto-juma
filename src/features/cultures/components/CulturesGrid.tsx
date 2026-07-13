@@ -102,14 +102,36 @@ export function CulturesGrid() {
 
       if (grid) {
         const cards = gsap.utils.toArray<HTMLElement>('[data-culture-card]', grid)
-        gsap.set(cards, { y: 24, opacity: 0 })
-        ScrollTrigger.create({
-          trigger: grid,
-          start: 'top 85%',
-          once: true,
-          onEnter: () => {
-            gsap.to(cards, { y: 0, opacity: 1, duration: 0.8, stagger: STAGGER.card, ease: EASE.reveal })
-          }
+        const mm = gsap.matchMedia()
+
+        mm.add('(min-width: 640px)', () => {
+          gsap.set(cards, { y: 24, opacity: 0, filter: 'blur(12px)' })
+          ScrollTrigger.create({
+            trigger: grid,
+            start: 'top 65%',
+            once: true,
+            onEnter: () => {
+              gsap.to(cards, { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.0, stagger: 0.1, ease: EASE.reveal })
+            }
+          })
+        })
+
+        mm.add('(max-width: 639px)', () => {
+          cards.forEach((card) => {
+            gsap.set(card, { y: 24, opacity: 0, filter: 'blur(12px)' })
+            gsap.to(card, {
+              y: 0,
+              opacity: 1,
+              filter: 'blur(0px)',
+              duration: 1.0,
+              ease: EASE.reveal,
+              scrollTrigger: {
+                trigger: card,
+                start: 'top 75%',
+                once: true,
+              }
+            })
+          })
         })
       }
 

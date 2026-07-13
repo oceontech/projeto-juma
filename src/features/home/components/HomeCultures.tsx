@@ -32,8 +32,6 @@ export function HomeCultures() {
   useGSAP(() => {
     if (reduced || !ref.current) return
     const cards = gsap.utils.toArray<HTMLElement>('[data-culture-card]', ref.current)
-    gsap.set(cards, { y: 40, opacity: 0, filter: 'blur(12px)' })
-
     const header = ref.current.querySelector<HTMLElement>('[data-header]')
     let split: SplitText | null = null;
     if (header) {
@@ -61,19 +59,43 @@ export function HomeCultures() {
       if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: DUR.sub }, '-=0.4')
     }
 
-    gsap.to(cards, {
-      y: 0,
-      opacity: 1,
-      filter: 'blur(0px)',
-      duration: 0.9,
-      stagger: 0.08,
-      ease: EASE.reveal,
-      scrollTrigger: {
-        trigger: ref.current,
-        start: 'top 75%',
-        end: 'bottom 15%',
-        toggleActions: 'play reverse play reverse',
-      }
+    const mm = gsap.matchMedia()
+
+    mm.add('(min-width: 640px)', () => {
+      gsap.set(cards, { y: 40, opacity: 0, filter: 'blur(12px)' })
+      gsap.to(cards, {
+        y: 0,
+        opacity: 1,
+        filter: 'blur(0px)',
+        duration: 1.0,
+        stagger: 0.1,
+        ease: EASE.reveal,
+        scrollTrigger: {
+          trigger: ref.current,
+          start: 'top 65%',
+          end: 'bottom 15%',
+          toggleActions: 'play reverse play reverse',
+        }
+      })
+    })
+
+    mm.add('(max-width: 639px)', () => {
+      cards.forEach((card) => {
+        gsap.set(card, { y: 40, opacity: 0, filter: 'blur(12px)' })
+        gsap.to(card, {
+          y: 0,
+          opacity: 1,
+          filter: 'blur(0px)',
+          duration: 1.0,
+          ease: EASE.reveal,
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 75%',
+            end: 'bottom 15%',
+            toggleActions: 'play reverse play reverse',
+          }
+        })
+      })
     })
 
     return () => split?.revert()

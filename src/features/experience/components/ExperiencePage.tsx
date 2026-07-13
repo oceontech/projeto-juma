@@ -78,7 +78,6 @@ export function ExperiencePage() {
         if (pEyebrow) gsap.set(pEyebrow, { y: 15, opacity: 0 })
         if (pTitle) gsap.set(pTitle, { y: 20, opacity: 0 })
         if (pIntro) gsap.set(pIntro, { y: 20, opacity: 0 })
-        if (pCards.length) gsap.set(pCards, { y: 24, opacity: 0 })
 
         ScrollTrigger.create({
           trigger: program,
@@ -89,11 +88,42 @@ export function ExperiencePage() {
             if (pEyebrow) tlProg.to(pEyebrow, { y: 0, opacity: 1, duration: 0.5 })
             if (pTitle) tlProg.to(pTitle, { y: 0, opacity: 1, duration: 0.7 }, 0.1)
             if (pIntro) tlProg.to(pIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.25)
-            if (pCards.length) {
-              tlProg.to(pCards, { y: 0, opacity: 1, duration: 0.8, stagger: STAGGER.card }, 0.4)
-            }
           }
         })
+
+        if (pCards.length) {
+          const mm = gsap.matchMedia()
+
+          mm.add('(min-width: 640px)', () => {
+            gsap.set(pCards, { y: 24, opacity: 0, filter: 'blur(12px)' })
+            ScrollTrigger.create({
+              trigger: program,
+              start: 'top 50%',
+              once: true,
+              onEnter: () => {
+                gsap.to(pCards, { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.0, stagger: 0.1, ease: EASE.reveal, delay: 0.4 })
+              }
+            })
+          })
+
+          mm.add('(max-width: 639px)', () => {
+            pCards.forEach((card) => {
+              gsap.set(card, { y: 24, opacity: 0, filter: 'blur(12px)' })
+              gsap.to(card, {
+                y: 0,
+                opacity: 1,
+                filter: 'blur(0px)',
+                duration: 1.0,
+                ease: EASE.reveal,
+                scrollTrigger: {
+                  trigger: card,
+                  start: 'top 75%',
+                  once: true,
+                }
+              })
+            })
+          })
+        }
       }
 
       if (benefits) {
