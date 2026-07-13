@@ -11,6 +11,7 @@ import {
   legalName,
 } from '@/config/site'
 import { Container } from './Container'
+import { FooterReveal } from './FooterReveal'
 import { socialIcons } from '@/components/icons/social'
 
 export function Footer() {
@@ -21,9 +22,10 @@ export function Footer() {
   return (
     <footer className="bg-primary text-white/80">
       <Container as="div" className="py-3xl">
+        <FooterReveal>
         <div className="grid gap-2xl md:grid-cols-2 lg:grid-cols-4">
           {/* Marca */}
-          <div className="flex flex-col gap-lg">
+          <div data-footer-col className="flex flex-col gap-lg">
             <Image
               src="/brand/logo-juma-agro.png"
               alt="Juma Agro"
@@ -60,7 +62,7 @@ export function Footer() {
           </div>
 
           {/* Navegação */}
-          <nav aria-label={tf('navTitle')}>
+          <nav data-footer-col aria-label={tf('navTitle')}>
             <h2 className="text-eyebrow mb-md text-xs uppercase tracking-widest text-white/50">
               {tf('navTitle')}
             </h2>
@@ -89,7 +91,7 @@ export function Footer() {
           </nav>
 
           {/* Contato */}
-          <div>
+          <div data-footer-col>
             <h2 className="text-eyebrow mb-md text-xs uppercase tracking-widest text-white/50">
               {tf('contactTitle')}
             </h2>
@@ -131,7 +133,7 @@ export function Footer() {
           </div>
 
           {/* Endereços */}
-          <div className="flex flex-col gap-lg text-sm">
+          <div data-footer-col className="flex flex-col gap-lg text-sm">
             <div className="not-italic">
               <h2 className="text-eyebrow mb-sm text-xs uppercase tracking-widest text-white/50">
                 {tf('addressBrTitle')}
@@ -162,7 +164,7 @@ export function Footer() {
         </div>
 
         {/* Linha legal */}
-        <div className="mt-3xl flex flex-col gap-sm border-t border-white/15 pt-lg text-xs text-white/60 sm:flex-row sm:items-center sm:justify-between">
+        <div data-footer-legal className="mt-3xl flex flex-col gap-sm border-t border-white/15 pt-lg text-xs text-white/60 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-body-regular max-w-none">
             © {year} {legalName}. {tf('rights')}
           </p>
@@ -173,6 +175,7 @@ export function Footer() {
             {tf('privacy')}
           </Link>
         </div>
+        </FooterReveal>
       </Container>
     </footer>
   )
