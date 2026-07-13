@@ -54,3 +54,5 @@ Thumbs.db
 /blob-report/
 /playwright/.cache/
 .yarn/install-state.gz
+
+.vercel

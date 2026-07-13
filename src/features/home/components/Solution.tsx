@@ -81,16 +81,23 @@ export function Solution() {
           gsap.set(timelineProgress, { scaleY: 0, transformOrigin: 'top center' })
           gsap.set(timelineTip, { top: 0 })
           
-          gsap.to([timelineProgress, timelineTip], {
-            scaleY: (i, target) => target === timelineProgress ? 1 : undefined,
-            top: (i, target) => target === timelineTip ? '100%' : undefined,
+          const timelineScroll = {
+            trigger: stepsRef.current,
+            start: 'top 50%', // Inicia quando o topo da timeline chega próximo do centro
+            end: 'bottom 50%', // Termina quando o fundo chega próximo do centro
+            scrub: 0.5,
+          }
+
+          gsap.to(timelineProgress, {
+            scaleY: 1,
             ease: 'none',
-            scrollTrigger: {
-              trigger: stepsRef.current,
-              start: 'top 50%', // Inicia quando o topo da timeline chega próximo do centro
-              end: 'bottom 50%', // Termina quando o fundo chega próximo do centro
-              scrub: 0.5,
-            }
+            scrollTrigger: timelineScroll,
+          })
+
+          gsap.to(timelineTip, {
+            top: '100%',
+            ease: 'none',
+            scrollTrigger: timelineScroll,
           })
         }
 
