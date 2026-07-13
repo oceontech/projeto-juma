@@ -11,7 +11,7 @@ import { useLenis } from '@/features/animation/SmoothScroll'
 import { Spotlight } from '@/components/ui/Spotlight'
 import { useTranslations } from 'next-intl'
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬ Tipos Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+/* â”€â”€ Tipos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 type StatIcon = 'leaf' | 'molecule' | 'sprout'
 
@@ -27,20 +27,20 @@ type ProductEntry = {
   line: string
   description: string
   stats: Stat[]
-  /** Cor escura de fundo (base) Ã¢â‚¬â€ radial gradient borda */
+  /** Cor escura de fundo (base) — radial gradient borda */
   base: string
-  /** Cor escura de fundo (mid) Ã¢â‚¬â€ radial gradient centro */
+  /** Cor escura de fundo (mid) — radial gradient centro */
   mid: string
-  /** Cor de destaque (accent) Ã¢â‚¬â€ anÃƒÂ©is, divider, ÃƒÂ­cone */
+  /** Cor de destaque (accent) — anéis, divider, ícone */
   accent: string
-  /** Tamanhos disponÃƒÂ­veis (tags), ex: ['1L', '10L', '20L'] */
+  /** Tamanhos disponíveis (tags), ex: ['1L', '10L', '20L'] */
   sizes: string[]
   href: string
   /** Imagem do frasco (sem fundo) servida de /public */
   image: string
 }
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬ ÃƒÂcones dos stats Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+/* ── Ícones dos stats ──────────────────────────────────────────── */
 
 const STAT_ICONS: Record<StatIcon, LucideIcon> = {
   leaf: Leaf,
@@ -48,16 +48,16 @@ const STAT_ICONS: Record<StatIcon, LucideIcon> = {
   sprout: Sprout,
 }
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬ Produtos do catÃƒÂ¡logo da home Ã¢â€â‚¬ 4 itens Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
-/* Texto (nome/linha/descriÃƒÂ§ÃƒÂ£o/stats) vem das mensagens i18n por ÃƒÂ­ndice;
-   este array dÃƒÂ¡ cores, valores dos stats, href e a imagem do frasco. */
+/* ── Produtos do catálogo da home ─ 4 itens ───────────── */
+/* Texto (nome/linha/descrição/stats) vem das mensagens i18n por índice;
+   este array dá cores, valores dos stats, href e a imagem do frasco. */
 
 const PRODUCTS: ProductEntry[] = [
   {
     name: 'AMINOSAN',
     line: 'LINHA REDUTAN',
     description:
-      'Bioativador organomineral ÃƒÂ  base de aminoÃƒÂ¡cidos livres. Acelera o metabolismo da planta e potencializa a absorÃƒÂ§ÃƒÂ£o de nutrientes em todas as fases.',
+      'Bioativador organomineral à base de aminoácidos livres. Acelera o metabolismo da planta e potencializa a absorção de nutrientes em todas as fases.',
     stats: [
       { icon: 'leaf', value: '+14', unit: 'sc/ha', label: 'Acorda Cana' },
       { icon: 'molecule', value: '+20', unit: 'sc/ha', label: 'RevigoPhos Amino' },
@@ -74,11 +74,11 @@ const PRODUCTS: ProductEntry[] = [
     name: 'ACORDA ULTRA',
     line: 'LINHA REDUTAN',
     description:
-      'Bioestimulante para arranque de culturas anuais. Estimula o enraizamento profundo desde a germinaÃƒÂ§ÃƒÂ£o e aumenta o vigor inicial das plantas.',
+      'Bioestimulante para arranque de culturas anuais. Estimula o enraizamento profundo desde a germinação e aumenta o vigor inicial das plantas.',
     stats: [
       { icon: 'sprout', value: '+18', unit: 'sc/ha', label: 'Soja Arranque' },
       { icon: 'leaf', value: '+11', unit: 'sc/ha', label: 'Milho Vigor' },
-      { icon: 'molecule', value: '+7', unit: 'sc/ha', label: 'FeijÃƒÂ£o Inicial' },
+      { icon: 'molecule', value: '+7', unit: 'sc/ha', label: 'Feijão Inicial' },
     ],
     base: '#052538',
     mid: '#031018',
@@ -91,10 +91,10 @@ const PRODUCTS: ProductEntry[] = [
     name: 'KMEP ULTRA',
     line: 'LINHA JUMA',
     description:
-      'SoluÃƒÂ§ÃƒÂ£o concentrada de potÃƒÂ¡ssio, magnÃƒÂ©sio e enxofre. Fornece nutrientes essenciais para a qualidade final da produÃƒÂ§ÃƒÂ£o e resistÃƒÂªncia a estresses.',
+      'Solução concentrada de potássio, magnésio e enxofre. Fornece nutrientes essenciais para a qualidade final da produção e resistência a estresses.',
     stats: [
-      { icon: 'molecule', value: '+15', unit: 'sc/ha', label: 'Qualidade GrÃƒÂ£o' },
-      { icon: 'leaf', value: '+11', unit: 'sc/ha', label: 'ResistÃƒÂªncia' },
+      { icon: 'molecule', value: '+15', unit: 'sc/ha', label: 'Qualidade Grão' },
+      { icon: 'leaf', value: '+11', unit: 'sc/ha', label: 'Resistência' },
       { icon: 'sprout', value: '+7', unit: 'sc/ha', label: 'Produtividade' },
     ],
     base: '#141414',
@@ -108,10 +108,10 @@ const PRODUCTS: ProductEntry[] = [
     name: 'REVIGOPHOS AMINO',
     line: 'LINHA JUMA',
     description:
-      'FÃƒÂ³sforo aminoquelatado de pronta disponibilidade. Estimula o enraizamento profundo e o enchimento de grÃƒÂ£os com mÃƒÂ¡xima eficiÃƒÂªncia.',
+      'Fósforo aminoquelatado de pronta disponibilidade. Estimula o enraizamento profundo e o enchimento de grãos com máxima eficiência.',
     stats: [
       { icon: 'molecule', value: '+20', unit: 'sc/ha', label: 'Enraizamento' },
-      { icon: 'leaf', value: '+16', unit: 'sc/ha', label: 'Enchimento de GrÃƒÂ£os' },
+      { icon: 'leaf', value: '+16', unit: 'sc/ha', label: 'Enchimento de Grãos' },
       { icon: 'sprout', value: '+8', unit: 'sc/ha', label: 'Vigor Inicial' },
     ],
     base: '#062418',
@@ -125,7 +125,7 @@ const PRODUCTS: ProductEntry[] = [
 
 const COUNT = PRODUCTS.length
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬ Carrossel de frascos Ã¢â‚¬â€ funÃƒÂ§ÃƒÂµes de posiÃƒÂ§ÃƒÂ£o Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+/* ── Carrossel de frascos — funções de posição ────────────────── */
 
 type Role = 'center' | 'left' | 'right' | 'hidden'
 
@@ -334,9 +334,9 @@ function getFullFrameBottleProps(): RoleProps {
     transformOrigin: 'center center',
   }
 }
-/* Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    Componente principal
-   Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 export function HomeProductShowcase() {
   const t = useTranslations('homeProductShowcase')
@@ -405,7 +405,7 @@ export function HomeProductShowcase() {
   const hintRef = useRef<HTMLDivElement>(null)
 
   const currentIndexRef = useRef(0)
-  /** Handlers expostos ao JSX (dots e botÃƒÂ£o de pular), criados dentro do GSAP */
+  /** Handlers expostos ao JSX (dots e botão de pular), criados dentro do GSAP */
   const goToIndexRef = useRef<((i: number) => void) | null>(null)
   const skipRef = useRef<(() => void) | null>(null)
 
@@ -469,7 +469,7 @@ export function HomeProductShowcase() {
             isDesktop: boolean
           }
 
-          // ÃƒÂndice atual sobrevive a mudanÃƒÂ§as de breakpoint (o mm re-executa)
+          // Índice atual sobrevive a mudanças de breakpoint (o mm re-executa)
           const startIndex = Math.min(Math.max(currentIndexRef.current, 0), COUNT - 1)
 
           // Cores iniciais
@@ -484,7 +484,7 @@ export function HomeProductShowcase() {
           setAminosanFrameMode(true)
           gsap.set(handoffStillRef.current, { autoAlpha: 0, scale: 1, filter: 'blur(0px)' })
 
-          // Spotlight: fade-in inicial Ã¢â‚¬â€ desktop
+          // Spotlight: fade-in inicial — desktop
           gsap.set(spotlightRef.current, { opacity: 0 })
           gsap.to(spotlightRef.current, {
             opacity: 0.5,
@@ -492,7 +492,7 @@ export function HomeProductShowcase() {
             delay: 0.75,
             ease: 'power2.out',
           })
-          // Spotlight: fade-in inicial Ã¢â‚¬â€ mobile
+          // Spotlight: fade-in inicial — mobile
           gsap.set(mobileSpotlightRef.current, { opacity: 0 })
           gsap.to(mobileSpotlightRef.current, {
             opacity: 0.85,
@@ -501,7 +501,7 @@ export function HomeProductShowcase() {
             ease: 'power2.out',
           })
 
-          // Visibilidade inicial dos painÃƒÂ©is de texto
+          // Visibilidade inicial dos painéis de texto
           products.forEach((el, i) => {
             const { text, cta, stats } = parts(el)
             gsap.set([text, cta, ...stats], { autoAlpha: i === startIndex ? 1 : 0, x: 0 })
@@ -511,10 +511,10 @@ export function HomeProductShowcase() {
           // Dot ativo inicial
           dots.forEach((d, i) => d.classList.toggle('is-active', i === startIndex))
 
-          /* Ã¢â€â‚¬Ã¢â€â‚¬ TransiÃƒÂ§ÃƒÂ£o entre produtos Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-             InterrompÃƒÂ­vel: um scroll rÃƒÂ¡pido pode atravessar vÃƒÂ¡rios
-             produtos; a timeline anterior ÃƒÂ© morta e a nova parte do
-             estado atual (overwrite), entÃƒÂ£o nunca trava nem enfileira. */
+          /* ── Transição entre produtos ──────────────────────────────
+             Interrompível: um scroll rápido pode atravessar vários
+             produtos; a timeline anterior é morta e a nova parte do
+             estado atual (overwrite), então nunca trava nem enfileira. */
 
           let transitionTl: gsap.core.Timeline | null = null
 
@@ -552,7 +552,7 @@ export function HomeProductShowcase() {
               0,
             )
 
-            // Spotlight: dim rÃƒÂ¡pido, volta devagar
+            // Spotlight: dim rápido, volta devagar
             tl.to(spotlightRef.current, { opacity: 0.2, duration: 0.15, ease: 'power2.in' }, 0)
               .to(spotlightRef.current, { opacity: 0.5, duration: 0.35, ease: 'power2.out' }, 0.4)
               .to(
@@ -600,7 +600,7 @@ export function HomeProductShowcase() {
               }
             })
 
-            // PainÃƒÂ©is fora da troca ficam ocultos (scroll rÃƒÂ¡pido pula ÃƒÂ­ndices)
+            // Painéis fora da troca ficam ocultos (scroll rápido pula índices)
             products.forEach((el, i) => {
               if (i === index || i === from) return
               const p = parts(el)
@@ -611,7 +611,7 @@ export function HomeProductShowcase() {
             const nextParts = parts(products[index])
 
             if (isMotion) {
-              // SaÃƒÂ­da do painel atual (direÃƒÂ§ÃƒÂ£o acompanha o scroll)
+              // Saída do painel atual (direção acompanha o scroll)
               tl.to(
                 curParts.text,
                 { autoAlpha: 0, x: -40 * dir, duration: 0.45, ease: 'power2.in' },
@@ -624,7 +624,7 @@ export function HomeProductShowcase() {
                   0,
                 )
 
-              // Entrada do prÃƒÂ³ximo painel
+              // Entrada do próximo painel
               tl.fromTo(
                 nextParts.text,
                 { autoAlpha: 0, x: 45 * dir },
@@ -658,27 +658,27 @@ export function HomeProductShowcase() {
               )
             }
 
-            // Dot ativo (cor via var(--pcs-accent), transiÃƒÂ§ÃƒÂ£o no CSS)
+            // Dot ativo (cor via var(--pcs-accent), transição no CSS)
             dots.forEach((d, i) => d.classList.toggle('is-active', i === index))
             products.forEach((el, i) => el.classList.toggle('is-active', i === index))
           }
 
-          /* Ã¢â€â‚¬Ã¢â€â‚¬ Pin dirigido pelo scroll nativo Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+          /* â”€â”€ Pin dirigido pelo scroll nativo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
              Sem Observer nem preventDefault: o scroll (Lenis/touch)
-             segue livre e o progresso do pin decide qual produto estÃƒÂ¡
-             ativo. O usuÃƒÂ¡rio nunca fica preso Ã¢â‚¬â€ pode atravessar a
-             seÃƒÂ§ÃƒÂ£o na velocidade que quiser. */
+             segue livre e o progresso do pin decide qual produto está
+             ativo. O usuário nunca fica preso — pode atravessar a
+             seção na velocidade que quiser. */
 
-          /* Flags do handoff com a seÃƒÂ§ÃƒÂ£o Aminosan (vÃƒÂ­deo de transiÃƒÂ§ÃƒÂ£o):
+          /* Flags do handoff com a seção Aminosan (vídeo de transição):
              handingOff evita que o onEnter "restaure" as cores no meio da
-             entrada brancoÃ¢â€ â€™cor; leavingUp evita disparo duplo da saÃƒÂ­da. */
+             entrada branco→cor; leavingUp evita disparo duplo da saída. */
           let handingOff = false
           let leavingUp = false
           let aminosanVideoHandoff = false
 
-          /* Estado visual pleno do produto atual Ã¢â‚¬â€ usado quando a seÃƒÂ§ÃƒÂ£o ÃƒÂ©
-             alcanÃƒÂ§ada sem o handoff (ÃƒÂ¢ncora do menu, reload no meio da pÃƒÂ¡gina)
-             depois de ter ficado branca por uma saÃƒÂ­da para cima. */
+          /* Estado visual pleno do produto atual — usado quando a seção é
+             alcançada sem o handoff (âncora do menu, reload no meio da página)
+             depois de ter ficado branca por uma saída para cima. */
           const restoreVisual = () => {
             const i = currentIndexRef.current
             gsap.set(root, {
@@ -743,7 +743,7 @@ export function HomeProductShowcase() {
             pinSpacing: true,
             anticipatePin: 1,
             onEnter: () => {
-              // Rede de seguranÃƒÂ§a: qualquer entrada por cima cancela um
+              // Rede de segurança: qualquer entrada por cima cancela um
               // "saindo pra cima" que tenha ficado pendente.
               leavingUp = false
               if (currentIndexRef.current !== 0) applyIndex(0)
@@ -754,7 +754,7 @@ export function HomeProductShowcase() {
             },
           })
 
-          /* Ã¢â€â‚¬Ã¢â€â‚¬ NavegaÃƒÂ§ÃƒÂ£o programÃƒÂ¡tica (dots, teclado, pular) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+          /* ── Navegação programática (dots, teclado, pular) ──────── */
 
           const indexToY = (i: number) =>
             pinTrigger.start + ((pinTrigger.end - pinTrigger.start) * i) / (COUNT - 1)
@@ -772,7 +772,7 @@ export function HomeProductShowcase() {
             const l = lenisRef.current
             if (l) {
               // force: executa mesmo se outro bloco tiver chamado lenis.stop()
-              // (a trava da seÃƒÂ§ÃƒÂ£o Aminosan deixa o Lenis parado em alguns fluxos)
+              // (a trava da seção Aminosan deixa o Lenis parado em alguns fluxos)
               l.scrollTo(y, { duration, force: true })
               return
             }
@@ -801,9 +801,9 @@ export function HomeProductShowcase() {
             scrollToY(pinTrigger.end + window.innerHeight, 1.1)
           }
 
-          /* Ã¢â€â‚¬Ã¢â€â‚¬ Handoff vindo da seÃƒÂ§ÃƒÂ£o Aminosan Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-             O vÃƒÂ­deo de transiÃƒÂ§ÃƒÂ£o termina no trio Aminosan sobre fundo
-             branco; o catÃƒÂ¡logo entra branco e a cor + textos do produto 0
+          /* ── Handoff vindo da seção Aminosan ───────────────────────
+             O vídeo de transição termina no trio Aminosan sobre fundo
+             branco; o catálogo entra branco e a cor + textos do produto 0
              aparecem gradualmente enquanto o auto-scroll assenta no pin. */
           const runHandoffIn = () => {
             handingOff = true
@@ -930,10 +930,10 @@ export function HomeProductShowcase() {
           }
           window.addEventListener('aminosan:handoff-forward', runHandoffIn)
 
-          /* SaÃƒÂ­da para cima a partir do produto 0: o fundo volta a branco
-             (o reverso do vÃƒÂ­deo roda sobre branco na seÃƒÂ§ÃƒÂ£o acima) e o scroll
-             sobe atÃƒÂ© o stage do Aminosan Ã¢â‚¬â€ o ScrollTrigger de lÃƒÂ¡ assume,
-             trava o scroll e toca o clipe reverso trioÃ¢â€ â€™linha. */
+          /* Saída para cima a partir do produto 0: o fundo volta a branco
+             (o reverso do vídeo roda sobre branco na seção acima) e o scroll
+             sobe até o stage do Aminosan — o ScrollTrigger de lá assume,
+             trava o scroll e toca o clipe reverso trioâ†’linha. */
           const runHandoffOut = () => {
             if (leavingUp) return
             hideHint()
@@ -945,34 +945,34 @@ export function HomeProductShowcase() {
             ScrollTrigger.update()
             leavingUp = true
             const p0 = parts(products[0])
-            // SimÃƒÂ©trico ÃƒÂ  entrada: primeiro prepara o catÃƒÂ¡logo para casar com o
-            // frame final do vÃƒÂ­deo de transiÃƒÂ§ÃƒÂ£o (mesmo trio, mas full-frame e
-            // sobre branco) Ã¢â‚¬â€ tira a cor, some com os textos e amplia o trio.
-            // SÃƒÂ³ entÃƒÂ£o salta INSTANTANEAMENTE para o stage do Aminosan e manda
-            // tocar o clipe em reverso. O wheel/tecla no produto 0 jÃƒÂ¡ vÃƒÂªm com
-            // preventDefault (pin ativo), entÃƒÂ£o a pÃƒÂ¡gina fica parada durante o
-            // preparo Ã¢â‚¬â€ sem o "tranco" do scroll suave anterior.
+            // Simétrico à entrada: primeiro prepara o catálogo para casar com o
+            // frame final do vídeo de transição (mesmo trio, mas full-frame e
+            // sobre branco) — tira a cor, some com os textos e amplia o trio.
+            // Só então salta INSTANTANEAMENTE para o stage do Aminosan e manda
+            // tocar o clipe em reverso. O wheel/tecla no produto 0 já vêm com
+            // preventDefault (pin ativo), então a página fica parada durante o
+            // preparo — sem o "tranco" do scroll suave anterior.
             const tl = gsap.timeline({
               defaults: { overwrite: 'auto' },
               onComplete: () => {
                 // Cancela qualquer assentamento pendente antes do salto.
                 clearTimeout(idleTimer)
-                // Alvo = topo REAL da seÃƒÂ§ÃƒÂ£o Aminosan (nÃƒÂ£o o pinStart estimado),
+                // Alvo = topo REAL da seção Aminosan (não o pinStart estimado),
                 // para o stage cair exatamente no topo da viewport.
                 const amino = document.getElementById('sec-origem')
                 const y = amino
                   ? Math.round(amino.getBoundingClientRect().top + window.scrollY)
                   : pinTrigger.start - window.innerHeight
-                // Salto SÃƒÂNCRONO: aplica no DOM na hora (nativo) e alinha o alvo
-                // do Lenis. SÃƒÂ³ entÃƒÂ£o dispara o evento Ã¢â‚¬â€ assim, quando o Aminosan
-                // travar logo abaixo, o stage jÃƒÂ¡ estÃƒÂ¡ no topo e o lockScroll nÃƒÂ£o
+                // Salto SÍNCRONO: aplica no DOM na hora (nativo) e alinha o alvo
+                // do Lenis. Só então dispara o evento — assim, quando o Aminosan
+                // travar logo abaixo, o stage já está no topo e o lockScroll não
                 // precisa de tween de alinhamento (a rolagem residual que sobrava
-                // vinha justamente de travar com o scrollY ainda no catÃƒÂ¡logo,
-                // porque o immediate do Lenis sÃƒÂ³ aplica no prÃƒÂ³ximo tick).
+                // vinha justamente de travar com o scrollY ainda no catálogo,
+                // porque o immediate do Lenis só aplica no próximo tick).
                 lenisRef.current?.scrollTo(y, { immediate: true, force: true })
                 window.scrollTo(0, y)
-                // leavingUp CONTINUA true: enquanto estivermos acima do catÃƒÂ¡logo
-                // ele nÃƒÂ£o pode mexer no scroll (settle desligado). SÃƒÂ³ volta a
+                // leavingUp CONTINUA true: enquanto estivermos acima do catálogo
+                // ele não pode mexer no scroll (settle desligado). Só volta a
                 // false ao reentrar (runHandoffIn ou onEnter do pin).
                 window.dispatchEvent(new CustomEvent('aminosan:handoff-backward'))
               },
@@ -1017,15 +1017,15 @@ export function HomeProductShowcase() {
             )
           }
 
-          // Snap ao parar de rolar (detecÃƒÂ§ÃƒÂ£o prÃƒÂ³pria de inatividade Ã¢â‚¬â€ o
-          // 'scrollEnd' do ScrollTrigger nÃƒÂ£o ÃƒÂ© confiÃƒÂ¡vel com o Lenis no meio):
-          // Ã¢â‚¬â€ dentro do pin: assenta no produto mais prÃƒÂ³ximo;
-          // Ã¢â‚¬â€ nas bordas (seÃƒÂ§ÃƒÂ£o parcialmente visÃƒÂ­vel): completa o movimento na
-          //   direÃƒÂ§ÃƒÂ£o do gesto, para nunca descansar com faixa da seÃƒÂ§ÃƒÂ£o vizinha.
+          // Snap ao parar de rolar (detecção própria de inatividade — o
+          // 'scrollEnd' do ScrollTrigger não é confiável com o Lenis no meio):
+          // — dentro do pin: assenta no produto mais próximo;
+          // — nas bordas (seção parcialmente visível): completa o movimento na
+          //   direção do gesto, para nunca descansar com faixa da seção vizinha.
           const settle = () => {
-            // Durante um handoff (entrando do vÃƒÂ­deo ou saindo pra cima) o scroll
-            // ÃƒÂ© dirigido pelo Aminosan/pela timeline Ã¢â‚¬â€ o catÃƒÂ¡logo nÃƒÂ£o pode
-            // assentar nada, senÃƒÂ£o briga com aquele controle.
+            // Durante um handoff (entrando do vídeo ou saindo pra cima) o scroll
+            // é dirigido pelo Aminosan/pela timeline — o catálogo não pode
+            // assentar nada, senão briga com aquele controle.
             if (leavingUp || handingOff || aminosanVideoHandoff) return
             const scroll = window.scrollY
             const vh = window.innerHeight
@@ -1035,7 +1035,7 @@ export function HomeProductShowcase() {
               if (Math.abs(scroll - target) > 4) scrollToY(target, 0.55)
               return
             }
-            // Zona de entrada (catÃƒÂ¡logo espiando por baixo da seÃƒÂ§ÃƒÂ£o anterior)
+            // Zona de entrada (catálogo espiando por baixo da seção anterior)
             if (scroll < pinTrigger.start && scroll > pinTrigger.start - vh) {
               if (lastDir < 0 && currentIndexRef.current === 0) {
                 runHandoffOut()
@@ -1044,7 +1044,7 @@ export function HomeProductShowcase() {
               scrollToY(lastDir > 0 ? pinTrigger.start : Math.max(0, pinTrigger.start - vh), 0.7)
               return
             }
-            // Zona de saÃƒÂ­da (prÃƒÂ³xima seÃƒÂ§ÃƒÂ£o espiando por baixo do catÃƒÂ¡logo)
+            // Zona de saída (próxima seção espiando por baixo do catálogo)
             if (scroll > pinTrigger.end && scroll < pinTrigger.end + vh) {
               scrollToY(lastDir > 0 ? pinTrigger.end + vh : pinTrigger.end, 0.7)
             }
@@ -1154,9 +1154,9 @@ export function HomeProductShowcase() {
 
           const settleTimers = [window.setTimeout(settle, 320), window.setTimeout(settle, 950)]
 
-          // Movimento sutil com o mouse Ã¢â‚¬â€ sÃƒÂ³ no frasco ATIVO (desktop).
+          // Movimento sutil com o mouse — só no frasco ATIVO (desktop).
           // O tween mira o wrap interno; o carrossel anima o elemento externo,
-          // entÃƒÂ£o os dois nunca brigam.
+          // então os dois nunca brigam.
           let onPointerMove: ((e: PointerEvent) => void) | null = null
           if (isMotion && !isMobile) {
             onPointerMove = (e: PointerEvent) => {
@@ -1241,7 +1241,7 @@ export function HomeProductShowcase() {
 
       {/* Showcase */}
       <section ref={containerRef} className="pcs-showcase">
-        {/* Desktop spotlight Ã¢â‚¬â€ canto superior direito, espelhado */}
+        {/* Desktop spotlight — canto superior direito, espelhado */}
         <Spotlight
           ref={spotlightRef}
           className="hidden lg:block -top-20 right-[-280px]"
@@ -1250,7 +1250,7 @@ export function HomeProductShowcase() {
           fillOpacity={0.6}
           style={{ transform: 'scaleX(-1)' }}
         />
-        {/* Mobile spotlight Ã¢â‚¬â€ feixe de cima para o produto */}
+        {/* Mobile spotlight — feixe de cima para o produto */}
         <Spotlight
           ref={mobileSpotlightRef}
           className="block lg:hidden -top-40 right-0"
@@ -1264,7 +1264,7 @@ export function HomeProductShowcase() {
         />
 
         <div className="pcs-stage">
-          {/* Still de ponte entre o vÃƒÂ­deo branco e o catÃƒÂ¡logo. */}
+          {/* Still de ponte entre o vídeo branco e o catálogo. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             ref={handoffStillRef}
@@ -1275,7 +1275,7 @@ export function HomeProductShowcase() {
             className="pointer-events-none absolute inset-0 z-[3] h-full w-full object-cover opacity-0"
           />
 
-          {/* Teatro de frascos Ã¢â‚¬â€ todos os produtos posicionados, GSAP anima */}
+          {/* Teatro de frascos — todos os produtos posicionados, GSAP anima */}
           <div className="pcs-bottle-theater" aria-hidden>
             {PRODUCTS.map((product, i) => {
               const name = t(`products.${i}.name`)
@@ -1296,13 +1296,13 @@ export function HomeProductShowcase() {
             })}
           </div>
 
-          {/* PainÃƒÂ©is de texto Ã¢â‚¬â€ sobrepostos no grid (3 cols: texto | frasco | stats) */}
+          {/* Painéis de texto — sobrepostos no grid (3 cols: texto | frasco | stats) */}
           {PRODUCTS.map((product, i) => {
             const name = t(`products.${i}.name`)
             const description = t(`products.${i}.description`)
             return (
               <article key={name} className="pcs-product">
-                {/* Coluna 1 Ã¢â‚¬â€ texto */}
+                {/* Coluna 1 — texto */}
                 <div className="pcs-panel-text">
                   <div className="pcs-panel-main">
                     <div className="pcs-panel-brand" aria-hidden="true">
@@ -1361,7 +1361,7 @@ export function HomeProductShowcase() {
                   {t('hintReduced')}
                 </Link>
 
-                {/* Coluna 3 Ã¢â‚¬â€ stats */}
+                {/* Coluna 3 — stats */}
                 <div className="pcs-panel-stats">
                   {product.stats.map((stat, si) => {
                     const statLabel = t(`products.${i}.stats.${si}.label`)
@@ -1406,7 +1406,7 @@ export function HomeProductShowcase() {
         </div>
       </section>
 
-      {/* NavegaÃ§Ã£o por produto (dots) */}
+      {/* Navegação por produto (dots) */}
       <nav className="pcs-nav" aria-label={t('subtitle')}>
         {PRODUCTS.map((product, i) => (
           <button
@@ -1422,7 +1422,7 @@ export function HomeProductShowcase() {
         ))}
       </nav>
 
-      {/* Pular a seÃƒÂ§ÃƒÂ£o sem passar por todos os produtos */}
+      {/* Pular a seção sem passar por todos os produtos */}
       <button type="button" className="pcs-skip" onClick={() => skipRef.current?.()}>
         {t('skip')}
         <ChevronDown size={14} strokeWidth={2.5} aria-hidden />
@@ -1437,9 +1437,9 @@ export function HomeProductShowcase() {
   )
 }
 
-/* Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
-   VersÃƒÂ£o acessÃƒÂ­vel (prefers-reduced-motion)
-   Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   Versão acessível (prefers-reduced-motion)
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 function ShowcaseReduced({ t }: { t: ReturnType<typeof useTranslations> }) {
   return (
@@ -1478,7 +1478,7 @@ function ShowcaseReduced({ t }: { t: ReturnType<typeof useTranslations> }) {
                   ))}
                 </div>
                 <span className="text-xs font-semibold" style={{ color: product.accent }}>
-                  {t('hintReduced')} Ã¢â€ â€™
+                  {t('hintReduced')} â†’
                 </span>
               </Link>
             )

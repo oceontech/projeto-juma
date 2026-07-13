@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl'
 import { gsap, SplitText, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
-import { DropdownMenu } from '@/components/ui/dropdown-menu-framer'
+import { DropdownMenu } from '@/components/ui/dropdown-menu'
 
 const CATEGORY_IDS = [
   { id: 'all', key: 'all' as const },
