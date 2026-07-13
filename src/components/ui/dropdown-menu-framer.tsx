@@ -2,7 +2,13 @@
 
 import { ChevronDown } from "lucide-react";
 import React, { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+
+/**
+ * Dropdown com animação de abrir/fechar via transições CSS puras.
+ * Sem framer-motion — o projeto usa motor único GSAP + Lenis (ADR-021).
+ * O painel fica sempre montado e alterna opacidade/transform/filter, o que
+ * dá o efeito de entrada e saída sem precisar de AnimatePresence.
+ */
 
 export type DropdownOption = {
   label: string;
@@ -22,10 +28,10 @@ const DropdownMenu = ({ options, children }: DropdownMenuProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const toggleDropdown = () => {
-    setIsOpen(!isOpen);
+    setIsOpen((v) => !v);
   };
 
-  // Close dropdown when clicking outside
+  // Fecha ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -49,86 +55,77 @@ const DropdownMenu = ({ options, children }: DropdownMenuProps) => {
       <button
         type="button"
         onClick={toggleDropdown}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
         className="px-4 py-2 flex items-center justify-between gap-2 bg-background hover:bg-foreground/5 shadow-sm border border-foreground/20 rounded-xl backdrop-blur-sm transition-all"
       >
         {children ?? "Menu"}
-        <motion.span
-          className="ml-2 shrink-0"
-          animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={{ duration: 0.4, ease: "easeInOut", type: "spring" }}
+        <span
+          className="ml-2 shrink-0 transition-transform duration-300 ease-in-out"
+          style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
         >
           <ChevronDown className="h-4 w-4 text-foreground/50" />
-        </motion.span>
+        </span>
       </button>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ y: -5, scale: 0.95, filter: "blur(10px)", opacity: 0 }}
-            animate={{ y: 0, scale: 1, filter: "blur(0px)", opacity: 1 }}
-            exit={{ y: -5, scale: 0.95, opacity: 0, filter: "blur(10px)" }}
-            transition={{ duration: 0.4, ease: "circInOut", type: "spring" }}
-            className="absolute z-50 w-64 mt-2 p-1 bg-background border border-foreground/10 rounded-xl shadow-lg backdrop-blur-sm flex flex-col gap-1 overflow-hidden"
-          >
-            {options && options.length > 0 ? (
-              options.map((option, index) => (
-                <motion.button
-                  initial={{
-                    opacity: 0,
-                    x: 10,
-                    scale: 0.95,
-                    filter: "blur(10px)",
-                  }}
-                  animate={{ opacity: 1, x: 0, scale: 1, filter: "blur(0px)" }}
-                  exit={{
-                    opacity: 0,
-                    x: 10,
-                    scale: 0.95,
-                    filter: "blur(10px)",
-                  }}
-                  transition={{
-                    duration: 0.3,
-                    delay: Math.min(index * 0.05, 0.3), // cap delay so it doesn't take forever
-                    ease: "easeInOut",
-                    type: "spring",
-                  }}
-                  whileTap={{
-                    scale: 0.98,
-                  }}
-                  key={option.label}
-                  onClick={() => {
-                    option.onClick();
-                    setIsOpen(false);
-                  }}
-                  className={`px-3 py-2.5 cursor-pointer text-sm rounded-lg w-full text-left flex items-center justify-between gap-x-2 transition-colors ${
+      <div
+        role="menu"
+        aria-hidden={!isOpen}
+        className="absolute z-50 w-64 mt-2 p-1 bg-background border border-foreground/10 rounded-xl shadow-lg backdrop-blur-sm flex flex-col gap-1 overflow-hidden"
+        style={{
+          transition:
+            "opacity 0.3s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease",
+          opacity: isOpen ? 1 : 0,
+          transform: isOpen ? "translateY(0) scale(1)" : "translateY(-6px) scale(0.96)",
+          filter: isOpen ? "blur(0px)" : "blur(10px)",
+          transformOrigin: "top center",
+          pointerEvents: isOpen ? "auto" : "none",
+        }}
+      >
+        {options && options.length > 0 ? (
+          options.map((option, index) => (
+            <button
+              type="button"
+              key={option.label}
+              role="menuitem"
+              tabIndex={isOpen ? 0 : -1}
+              onClick={() => {
+                option.onClick();
+                setIsOpen(false);
+              }}
+              style={{
+                transition: "opacity 0.3s ease, transform 0.3s ease",
+                transitionDelay: isOpen ? `${Math.min(index * 0.04, 0.24)}s` : "0s",
+                opacity: isOpen ? 1 : 0,
+                transform: isOpen ? "translateX(0)" : "translateX(8px)",
+              }}
+              className={`px-3 py-2.5 cursor-pointer text-sm rounded-lg w-full text-left flex items-center justify-between gap-x-2 transition-colors active:scale-[0.98] ${
+                option.active
+                  ? "bg-primary/10 text-primary font-medium"
+                  : "text-foreground/80 hover:bg-foreground/5"
+              }`}
+            >
+              <div className="flex items-center gap-x-2">
+                {option.Icon}
+                {option.label}
+              </div>
+              {option.count !== undefined && (
+                <span
+                  className={`text-xs ${
                     option.active
-                      ? "bg-primary/10 text-primary font-medium"
-                      : "text-foreground/80 hover:bg-foreground/5"
+                      ? "text-primary/70 font-bold"
+                      : "text-foreground/40 font-medium"
                   }`}
                 >
-                  <div className="flex items-center gap-x-2">
-                    {option.Icon}
-                    {option.label}
-                  </div>
-                  {option.count !== undefined && (
-                    <span
-                      className={`text-xs ${
-                        option.active
-                          ? "text-primary/70 font-bold"
-                          : "text-foreground/40 font-medium"
-                      }`}
-                    >
-                      {option.count}
-                    </span>
-                  )}
-                </motion.button>
-              ))
-            ) : (
-              <div className="px-4 py-2 text-foreground/50 text-xs">No options</div>
-            )}
-          </motion.div>
+                  {option.count}
+                </span>
+              )}
+            </button>
+          ))
+        ) : (
+          <div className="px-4 py-2 text-foreground/50 text-xs">No options</div>
         )}
-      </AnimatePresence>
+      </div>
     </div>
   );
 };
