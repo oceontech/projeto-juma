@@ -712,7 +712,7 @@ export function HeroJornada() {
 
         {/* z-40 — Subtítulo + CTA (repouso) */}
         <div data-rest className="absolute inset-x-0 -top-8 lg:top-25 z-40">
-          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] flex lg:justify-end justify-start pt-[22rem] md:pt-[24rem] lg:pt-[10.5rem] !px-8 lg:!px-md">
+          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] flex lg:justify-end justify-start pt-[22rem] md:pt-[24rem] lg:pt-[6rem] min-[1600px]:pt-[10.5rem] !px-8 lg:!px-md">
               <div
                 ref={supportRef}
                 className={`lg:w-1/3 flex flex-col lg:gap-md rounded-2xl bg-transparent backdrop-blur-[2px] md:bg-transparent md:backdrop-blur-none items-start lg:items-end text-left lg:text-right`}
