@@ -17,12 +17,13 @@ const STATS: Array<{
   prefix: string
   value: number | null
   rangeStr?: string
+  rangeTargets?: [number, number]
   decimals: number
   initial: string
 }> = [
   { key: 'cana',  prefix: '+', value: 6.87, decimals: 2, initial: '+6,87' },
   { key: 'milho', prefix: '+', value: 13.4, decimals: 1, initial: '+13,4' },
-  { key: 'soja',  prefix: '',  value: null,  rangeStr: '+10 a +14', decimals: 0, initial: '+10 a +14' },
+  { key: 'soja',  prefix: '',  value: null,  rangeStr: '+10 a +14', rangeTargets: [10, 14], decimals: 0, initial: '+10 a +14' },
   { key: 'cafe',  prefix: '',  value: 74,    decimals: 0, initial: '74' },
 ]
 
@@ -40,7 +41,7 @@ export function ProofStrip() {
       cards.forEach((card, i) => {
         // numWrap: o container overflow-hidden do número (funciona p/ range e count-up)
         const numWrap = card.querySelector<HTMLElement>('[data-num-wrap]')
-        const numEl   = card.querySelector<HTMLElement>('[data-count]')
+        const numEl   = card.querySelector<HTMLElement>('[data-animate-number]')
         const barEl   = card.querySelector<HTMLElement>('[data-bar]')
         const metaEl  = card.querySelector<HTMLElement>('[data-meta]')
 
@@ -71,24 +72,41 @@ export function ProofStrip() {
               })
             }
 
-            // Count-up: apenas nos cards com valor numérico real
+            // Count-up: animação para números reais ou intervalos (range)
             if (numEl) {
-              const target = parseFloat(numEl.dataset.count || '0')
+              const isRange = numEl.dataset.isRange === 'true'
               const decs   = parseInt(numEl.dataset.decimals || '0')
               const pfx    = numEl.dataset.prefix || ''
-              const obj    = { v: 0 }
-              gsap.to(obj, {
-                v: target,
-                duration: 2.2,
-                delay: delay + 0.15,
-                ease: 'power2.out',
-                onUpdate: () => {
-                  const n = obj.v
-                  numEl.textContent = pfx + (decs > 0
-                    ? n.toFixed(decs).replace('.', ',')
-                    : Math.round(n).toString())
-                },
-              })
+
+              if (isRange) {
+                const targets = (numEl.dataset.rangeTargets || '0,0').split(',').map(Number)
+                const obj = { v1: 0, v2: 0 }
+                gsap.to(obj, {
+                  v1: targets[0],
+                  v2: targets[1],
+                  duration: 2.2,
+                  delay: delay + 0.15,
+                  ease: 'power2.out',
+                  onUpdate: () => {
+                    numEl.textContent = `+${Math.round(obj.v1)} a +${Math.round(obj.v2)}`
+                  },
+                })
+              } else {
+                const target = parseFloat(numEl.dataset.count || '0')
+                const obj    = { v: 0 }
+                gsap.to(obj, {
+                  v: target,
+                  duration: 2.2,
+                  delay: delay + 0.15,
+                  ease: 'power2.out',
+                  onUpdate: () => {
+                    const n = obj.v
+                    numEl.textContent = pfx + (decs > 0
+                      ? n.toFixed(decs).replace('.', ',')
+                      : Math.round(n).toString())
+                  },
+                })
+              }
             }
 
             // Linha acento: cresce da esquerda
@@ -159,7 +177,7 @@ export function ProofStrip() {
 
         {/* Grid 2×2 mobile / 4 colunas desktop */}
         <div className="grid grid-cols-2 gap-x-md gap-y-3xl py-3xl lg:grid-cols-4 lg:gap-x-0 lg:py-5xl">
-          {STATS.map(({ key, value, rangeStr, prefix, initial, decimals }, i) => {
+          {STATS.map(({ key, value, rangeStr, rangeTargets, prefix, initial, decimals }, i) => {
             const isRange = value === null
             return (
               <div
@@ -170,11 +188,14 @@ export function ProofStrip() {
                 {/* NÚMERO — protagonista visual */}
                 <div data-num-wrap className="overflow-hidden">
                   <span
+                    data-animate-number
                     data-count={!isRange ? String(value!) : undefined}
+                    data-range-targets={isRange ? rangeTargets?.join(',') : undefined}
+                    data-is-range={String(isRange)}
                     data-decimals={!isRange ? String(decimals) : undefined}
                     data-prefix={!isRange ? prefix : undefined}
-                    className="block font-black leading-[0.88] tracking-tight text-white"
-                    style={{ fontSize: 'clamp(3.25rem, 8.5vw, 5rem)' }}
+                    className="block font-black leading-[0.88] tracking-tight text-white whitespace-nowrap"
+                    style={{ fontSize: 'clamp(2rem, 8vw, 4rem)' }}
                   >
                     {isRange ? rangeStr : initial}
                   </span>
