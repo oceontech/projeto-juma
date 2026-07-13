@@ -173,11 +173,11 @@ function getRoleProps(role: Role, isMobile: boolean): RoleProps {
         return {
           left: '50%',
           xPercent: -50,
-          x: '-12vw',
+          x: '-30vw',
           yPercent: 0,
-          scale: 0.42,
-          filter: 'blur(4px)',
-          opacity: 0.65,
+          scale: 0.34,
+          filter: 'blur(6px)',
+          opacity: 0.35,
           zIndex: 10,
           transformOrigin: 'center center',
         }
@@ -185,11 +185,11 @@ function getRoleProps(role: Role, isMobile: boolean): RoleProps {
         return {
           left: '50%',
           xPercent: -50,
-          x: '12vw',
+          x: '30vw',
           yPercent: 0,
-          scale: 0.42,
-          filter: 'blur(4px)',
-          opacity: 0.65,
+          scale: 0.34,
+          filter: 'blur(6px)',
+          opacity: 0.35,
           zIndex: 10,
           transformOrigin: 'center center',
         }

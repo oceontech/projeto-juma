@@ -98,7 +98,8 @@ export function HomeTestimonials() {
             </h2>
             <span data-gline aria-hidden className="mt-8 block h-[3px] w-12 rounded-full bg-[#004B26]" />
           </div>
-          <p className="max-w-[38ch] text-[17px] leading-[1.6]" style={{ color: '#3d4d35' }}>
+          {/* pr no desktop: afasta o texto dos traços fixos do SectionNav */}
+          <p className="max-w-[38ch] text-[17px] leading-[1.6] lg:pr-10" style={{ color: '#3d4d35' }}>
             {t('desc')}
           </p>
         </div>

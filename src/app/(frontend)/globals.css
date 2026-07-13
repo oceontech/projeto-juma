@@ -97,7 +97,9 @@
        Em reduced-motion o Lenis não monta e o browser usa scroll nativo. */
     /* Reserva o espaço da scrollbar mesmo com overflow:hidden (evita layout shift na jornada) */
     scrollbar-width: none;
-    overflow-x: hidden;
+    /* clip em vez de hidden: além de cortar o estouro visual, impede scroll
+       horizontal programático (focus/tab em elemento fora da viewport). */
+    overflow-x: clip;
     /* overflow-x:hidden sozinho não impede o rubber-band horizontal do touch em
        iOS/Android quando algum elemento estoura a largura da viewport — isso
        "arrasta" a página inteira para o lado e deixa uma barra vazia. Como
@@ -921,8 +923,8 @@ html.lenis body { height: auto; }
 
   .pcs-theater-bottle {
     bottom: auto;
-    top: 36vh;
-    height: 52vh;
+    top: 33vh;
+    height: 48vh; /* termina antes da faixa dos stats — sem sobreposição */
     transform-origin: center center;
   }
   /* bottle-wrap preenche o theater-bottle (52vh) */
@@ -991,6 +993,11 @@ html.lenis body { height: auto; }
     text-align: center;
     gap: 0.45rem;
     padding: 0.5rem 0.25rem;
+    /* chip translúcido: mantém o número legível mesmo sobre o frasco */
+    background: rgba(4, 12, 30, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 14px;
   }
   .pcs-stat-icon {
     width: 40px;
