@@ -102,15 +102,27 @@ export function Globe({ markers, focus, className = '', onDragChange }: GlobePro
         markers: markers.map((m) => ({ location: m.location, size: m.size ?? 0.05, color: m.color })),
       })
 
-      const tick = () => {
-        // sem interação, o offset decai (~1s) e o globo volta ao enquadramento
-        if (!pointerStart.current) {
+      // Balanço idle: oscilação senoidal mínima (~1,5°) em torno do repouso,
+      // lenta o bastante para o pin não se afastar do card. Cross-fade com o
+      // drag: a amplitude vai a zero enquanto o usuário segura o globo.
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      let idleWeight = 1
+
+      const tick = (now: number) => {
+        if (pointerStart.current) {
+          idleWeight = Math.max(0, idleWeight - 0.06)
+        } else {
+          // sem interação, o offset decai (~1s) e o globo volta ao enquadramento
           rest.current.phi *= 0.94
           rest.current.theta *= 0.94
+          idleWeight = Math.min(1, idleWeight + 0.02)
         }
+        const t = now / 1000
+        const idlePhi = reduced ? 0 : Math.sin(t * 0.32) * 0.026 * idleWeight
+        const idleTheta = reduced ? 0 : Math.sin(t * 0.21 + 1.3) * 0.009 * idleWeight
         globe?.update({
-          phi: homePhi + rest.current.phi + drag.current.phi,
-          theta: homeTheta + rest.current.theta + drag.current.theta,
+          phi: homePhi + rest.current.phi + drag.current.phi + idlePhi,
+          theta: homeTheta + rest.current.theta + drag.current.theta + idleTheta,
         })
         rafId = requestAnimationFrame(tick)
       }
