@@ -106,7 +106,11 @@
     "a3StatUnit": "sc/ha",
     "a3StatLabel": "Sacas a mais por hectare na soja, em ensaios de campo.",
     "a3StatSource": "Fonte: ensaios DETEC (Taquarivaí/SP) e Terras Gerais (Lavras/MG).",
-    "newBottleCaption": "O Aminosan de hoje."
+    "newBottleCaption": "O Aminosan de hoje.",
+    "lineEyebrow": "Linha completa",
+    "lineTitle": "Produto certo para cada fase da lavoura.",
+    "lineTitleHi": "lavoura.",
+    "lineBody": "Do plantio ao enchimento, a Juma organiza nutrição, fisiologia, correção e tecnologia de aplicação em uma linha feita para acompanhar o manejo no campo."
   },
   "ourStory": {
     "eyebrow": "NOSSA HISTÓRIA",

@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 
 import { Link, usePathname } from '@/i18n/navigation'
 import { navLinks, jobsUrl } from '@/config/site'
+import { useLenis } from '@/features/animation/SmoothScroll'
 import { Container } from './Container'
 import { LanguageSwitcher } from './LanguageSwitcher'
 
@@ -30,8 +31,12 @@ export function Navbar() {
   const t = useTranslations('nav')
   const tc = useTranslations('common')
   const pathname = usePathname()
+  const lenis = useLenis()
   const [open, setOpen] = useState(false)
   const [hidden, setHidden] = useState(false)
+  // Tema da navbar conforme o fundo da seção sob ela (claro = texto escuro, escuro = texto branco)
+  const [theme, setTheme] = useState<'light' | 'dark'>('light')
+  const dark = theme === 'dark'
 
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href)
@@ -40,6 +45,42 @@ export function Navbar() {
   useEffect(() => {
     setHidden(false)
     setOpen(false)
+  }, [pathname])
+
+  // Detecção automática de fundo escuro: seções marcadas com data-nav-theme="dark"
+  // trocam os textos/logo da navbar para branco quando passam sob ela.
+  useEffect(() => {
+    let ticking = false
+    const probeY = 40 // faixa vertical aproximada da navbar
+
+    const update = () => {
+      ticking = false
+      const darkSections = document.querySelectorAll<HTMLElement>('[data-nav-theme="dark"]')
+      let isDark = false
+      darkSections.forEach((el) => {
+        const r = el.getBoundingClientRect()
+        if (r.top <= probeY && r.bottom > probeY) isDark = true
+      })
+      setTheme(isDark ? 'dark' : 'light')
+    }
+
+    const onScroll = () => {
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(update)
+    }
+
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('wheel', onScroll, { passive: true })
+    window.addEventListener('touchmove', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('wheel', onScroll)
+      window.removeEventListener('touchmove', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
   }, [pathname])
 
   // Esconde ao rolar para baixo, reaparece ao rolar para cima (imersão) SOMENTE NO DESKTOP.
@@ -54,7 +95,7 @@ export function Navbar() {
         setHidden(false)
         return
       }
-      
+
       const isLocked = document.documentElement.style.overflow === 'hidden'
       if (direction === 'down' && (currentY > 50 || isLocked)) {
         setHidden(true)
@@ -113,9 +154,30 @@ export function Navbar() {
     }
   }, [])
 
+  // Clique na logo volta para a hero (topo). Em outras rotas, o Link navega para "/".
+  const handleLogoClick = (e: React.MouseEvent) => {
+    if (pathname !== '/') return
+    e.preventDefault()
+    setOpen(false)
+    if (lenis) lenis.scrollTo(0, { duration: 1.1, force: true })
+    else window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // ── Classes por tema ────────────────────────────────────────────
+  const pillTheme = dark
+    ? 'border-white/15 bg-gradient-to-r from-white/[0.12] to-white/[0.05] border-t-white/25'
+    : 'border-white/20 bg-gradient-to-r from-white/30 to-white/[0.12] border-t-white/40'
+
+  const linkClass = (active: boolean) =>
+    `whitespace-nowrap text-[11px] xl:text-xs uppercase tracking-wide transition-all duration-200 hover:scale-110 ${
+      active
+        ? `text-heading ${dark ? 'text-white' : 'text-primary'}`
+        : `text-body-regular ${dark ? 'text-white/75 hover:text-white' : 'text-foreground/70 hover:text-primary'}`
+    }`
+
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 pt-md transition-transform duration-300 bg-gradient-to-b from-black/[.20] to-transparent ${
+      className={`fixed inset-x-0 top-0 z-50 pt-3 transition-transform duration-300 bg-gradient-to-b from-black/[.20] to-transparent ${
         hidden && !open ? '-translate-y-[150%]' : 'translate-y-0'
       }`}
     >
@@ -123,21 +185,22 @@ export function Navbar() {
       <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
         <div className="flex items-stretch justify-end xl:justify-start gap-sm mx-auto w-full max-w-[1344px] min-[1600px]:max-w-[1600px] min-[2000px]:max-w-[1920px]">
           {/* Pílula principal — flex-1 para ocupar toda a largura disponível */}
-          <div id="main-nav-pill" className="xl:flex-1 rounded-full border border-white/20 bg-gradient-to-r from-white/40 to-white/20 backdrop-blur-xl border-t border-t-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06),_0_0_0_1px_rgba(0,0,0,0.08),_inset_0_1px_2px_rgba(255,255,255,0.5)] origin-center overflow-hidden" style={{ willChange: 'width, opacity' }}>
-              <div className="flex justify-center xl:justify-between items-center xl:gap-xl mx-auto w-full p-1.5 xl:p-sm">
-                {/* Logo Desktop (dentro da pílula) */}
+          <div id="main-nav-pill" className={`xl:flex-1 rounded-full border backdrop-blur-xl border-t shadow-[0_8px_32px_rgba(0,0,0,0.06),_0_0_0_1px_rgba(0,0,0,0.08),_inset_0_1px_2px_rgba(255,255,255,0.5)] origin-center overflow-hidden transition-colors duration-500 ${pillTheme}`} style={{ willChange: 'width, opacity' }}>
+              <div className="flex justify-center xl:justify-between items-center xl:gap-xl mx-auto w-full p-1.5 xl:px-sm xl:py-1.5">
+                {/* Logo Desktop (dentro da pílula) — clique volta para a hero */}
                 <Link
                   href="/"
+                  onClick={handleLogoClick}
                   aria-label="Juma Agro — início"
-                  className="hidden xl:block shrink-0 overflow-hidden relative ml-3"
+                  className="hidden xl:block shrink-0 overflow-hidden relative ml-3 transition-transform duration-300 hover:scale-[1.04]"
                 >
                   <Image
-                    src="/brand/logo-juma-agro.png"
+                    src={dark ? '/brand/logo-juma-agro-branca.png' : '/brand/logo-juma-agro.png'}
                     alt="Juma Agro"
                     width={160}
                     height={81}
                     priority
-                    className="h-[46px] w-auto object-cover object-top shrink-0"
+                    className="h-[40px] w-auto object-cover object-top shrink-0"
                   />
                 </Link>
 
@@ -149,11 +212,7 @@ export function Navbar() {
                         <Link
                           href={link.href}
                           aria-current={isActive(link.href) ? 'page' : undefined}
-                          className={
-                            isActive(link.href)
-                              ? 'text-heading whitespace-nowrap text-[11px] xl:text-xs uppercase tracking-wide text-primary'
-                              : 'text-body-regular whitespace-nowrap text-[11px] xl:text-xs uppercase tracking-wide text-foreground/70 transition-colors hover:text-primary'
-                          }
+                          className={`inline-block ${linkClass(isActive(link.href))}`}
                         >
                           {t(link.key)}
                         </Link>
@@ -164,7 +223,7 @@ export function Navbar() {
                         href={jobsUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-xs text-body-regular whitespace-nowrap text-[11px] xl:text-xs uppercase tracking-wide text-foreground/70 transition-colors hover:text-primary"
+                        className={`inline-flex items-center gap-xs ${linkClass(false)}`}
                       >
                         {t('jobs')}
                         <ArrowUpRight className="h-2.5 w-2.5 xl:h-3 xl:w-3" />
@@ -177,7 +236,7 @@ export function Navbar() {
                 <Link
                   id="nav-cta-btn"
                   href="/contato"
-                  className="whitespace-nowrap rounded-full btn-metallic-blue px-md py-[10px] text-body-regular text-[10px] xl:text-[11px] uppercase tracking-wider items-center justify-center gap-1.5 hidden xl:inline-flex shrink-0"
+                  className="whitespace-nowrap rounded-full btn-metallic-blue px-md py-[8px] text-body-regular text-[10px] xl:text-[11px] uppercase tracking-wider items-center justify-center gap-1.5 hidden xl:inline-flex shrink-0 transition-transform duration-200 hover:scale-[1.03] active:scale-95"
                 >
                   <span>{tc('contactCta')}</span>
                   <ArrowRight className="h-3.5 w-3.5 shrink-0" />
@@ -190,7 +249,9 @@ export function Navbar() {
                   aria-expanded={open}
                   aria-controls="mobile-menu"
                   aria-label={open ? tc('closeMenu') : tc('openMenu')}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-primary transition-colors hover:bg-primary/5 xl:hidden"
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors xl:hidden ${
+                    dark ? 'text-white hover:bg-white/10' : 'text-primary hover:bg-primary/5'
+                  }`}
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden width="22" height="22">
                     {open ? <path d="M6 6 18 18M18 6 6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
@@ -202,8 +263,8 @@ export function Navbar() {
           {/* Col 3: Seletor de idioma — expand via GSAP após a pílula principal */}
           <div className="hidden xl:flex items-stretch justify-end gap-sm shrink-0">
             {/* Pílula de Idioma */}
-            <div id="nav-lang-pill" className="flex items-center justify-center rounded-full border border-white/20 bg-gradient-to-r from-white/40 to-white/20 px-md backdrop-blur-xl border-t border-t-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06),_0_0_0_1px_rgba(0,0,0,0.08),_inset_0_1px_2px_rgba(255,255,255,0.5)]">
-              <LanguageSwitcher className="shrink-0" align="right" />
+            <div id="nav-lang-pill" className={`flex items-center justify-center rounded-full border px-md backdrop-blur-xl border-t shadow-[0_8px_32px_rgba(0,0,0,0.06),_0_0_0_1px_rgba(0,0,0,0.08),_inset_0_1px_2px_rgba(255,255,255,0.5)] transition-colors duration-500 ${pillTheme}`}>
+              <LanguageSwitcher className="shrink-0" align="right" theme={theme} />
             </div>
           </div>
         </div>

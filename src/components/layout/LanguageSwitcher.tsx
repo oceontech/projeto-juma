@@ -106,9 +106,11 @@ function FlagChip({ Flag, className = '' }: { Flag: FlagComp; className?: string
 export function LanguageSwitcher({
   className = '',
   align = 'right',
+  theme = 'light',
 }: {
   className?: string
   align?: 'left' | 'right'
+  theme?: 'light' | 'dark'
 }) {
   const locale = useLocale()
   const pathname = usePathname()
@@ -186,7 +188,9 @@ export function LanguageSwitcher({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={`${t('languageSwitcher')}: ${current.label}`}
-        className="group/trigger flex items-center gap-1.5 py-1 text-foreground/80 transition-colors hover:text-primary"
+        className={`group/trigger flex items-center gap-1.5 py-1 transition-colors ${
+          theme === 'dark' ? 'text-white/80 hover:text-white' : 'text-foreground/80 hover:text-primary'
+        }`}
       >
         <FlagChip
           Flag={current.Flag}

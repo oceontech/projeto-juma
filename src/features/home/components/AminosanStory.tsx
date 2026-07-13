@@ -38,6 +38,47 @@ export function AminosanStory() {
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
+    const timeouts: number[] = []
+    const rafs: number[] = []
+
+    const refresh = () => ScrollTrigger.refresh()
+    const scheduleRefresh = () => {
+      rafs.push(window.requestAnimationFrame(() => {
+        refresh()
+        rafs.push(window.requestAnimationFrame(refresh))
+      }))
+    }
+
+    scheduleRefresh()
+    timeouts.push(window.setTimeout(scheduleRefresh, 250))
+    timeouts.push(window.setTimeout(scheduleRefresh, 900))
+    document.fonts?.ready.then(scheduleRefresh).catch(() => {})
+
+    const media = Array.from(document.querySelectorAll<HTMLImageElement | HTMLVideoElement>('#sec-origem img, #sec-origem video'))
+    media.forEach((el) => {
+      el.addEventListener('load', scheduleRefresh)
+      el.addEventListener('loadedmetadata', scheduleRefresh)
+      el.addEventListener('loadeddata', scheduleRefresh)
+    })
+
+    window.addEventListener('load', scheduleRefresh)
+    window.addEventListener('pageshow', scheduleRefresh)
+    window.addEventListener('resize', scheduleRefresh)
+
+    return () => {
+      window.removeEventListener('load', scheduleRefresh)
+      window.removeEventListener('pageshow', scheduleRefresh)
+      window.removeEventListener('resize', scheduleRefresh)
+      media.forEach((el) => {
+        el.removeEventListener('load', scheduleRefresh)
+        el.removeEventListener('loadedmetadata', scheduleRefresh)
+        el.removeEventListener('loadeddata', scheduleRefresh)
+      })
+      timeouts.forEach(window.clearTimeout)
+      rafs.forEach(window.cancelAnimationFrame)
+    }
+  }, [])
+  useEffect(() => {
     const update = () => {
       setIsMobile(window.innerWidth < 1024)
     }
@@ -267,6 +308,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
   const oldCalloutRef   = useRef<HTMLDivElement>(null)
   const newCalloutRef   = useRef<HTMLDivElement>(null)
   const leftPanelRef    = useRef<HTMLDivElement>(null)
+  const linePanelRef    = useRef<HTMLDivElement>(null)
+  const lineBodyRef     = useRef<HTMLParagraphElement>(null)
   const counterRef      = useRef<HTMLSpanElement>(null)
   const brandMarkRef    = useRef<HTMLDivElement>(null)
   const counterPrefix   = t('a3StatPrefix')
@@ -324,6 +367,10 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const newCalloutLine = newCalloutRef.current?.querySelector<HTMLElement>('[data-line]') ?? null
       const newCalloutLabel = newCalloutRef.current?.querySelector<HTMLElement>('[data-label]') ?? null
       const newCalloutDot = newCalloutRef.current?.querySelector<HTMLElement>('[data-dot]') ?? null
+      const lineTitleEl = linePanelRef.current?.querySelector<HTMLElement>('[data-line-title]') ?? null
+      const lineTitleSplit = lineTitleEl ? new SplitText(lineTitleEl, { type: 'chars,lines' }) : null
+      const lineTitleChars = lineTitleSplit?.chars ?? (lineTitleEl ? [lineTitleEl] : [])
+      const lineItems = stageTrigger ? gsap.utils.toArray<HTMLElement>('[data-line-copy]', stageTrigger) : []
 
       gsap.set(leftPanelRef.current, { autoAlpha: 1 }) // O painel em si fica visível, os filhos animam
       gsap.set(a3Eyebrow, { autoAlpha: 0, y: -20, filter: 'blur(10px)' })
@@ -334,10 +381,14 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       gsap.set(newCalloutLine, { scaleX: 0 })
       gsap.set(newCalloutDot, { scale: 0, autoAlpha: 0 })
       gsap.set(newCalloutLabel, { autoAlpha: 0, x: 12 })
+      gsap.set([linePanelRef.current, lineBodyRef.current], { autoAlpha: 0, y: 24, filter: 'blur(10px)' })
+      gsap.set(lineTitleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)' })
+      gsap.set(lineItems, { autoAlpha: 0, y: 18, filter: 'blur(10px)' })
       if (counterRef.current) counterRef.current.innerText = `${counterPrefix}10`
 
       // ── Helpers de animação
       let currentTl: gsap.core.Timeline | null = null
+      let lineTl: gsap.core.Timeline | null = null
 
       const lockScroll = (on: boolean) => {
         if (on) {
@@ -471,20 +522,42 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         currentTl?.kill()
         const tl = currentTl = gsap.timeline({ delay })
 
-        tl.to(newCalloutLabel, { x: 12, autoAlpha: 0, duration: 0.24, ease: 'power2.in' }, 0)
-        tl.to(newCalloutDot, { scale: 0, autoAlpha: 0, duration: 0.2, ease: 'power2.in' }, 0.08)
-        tl.to(newCalloutLine, { scaleX: 0, duration: 0.28, ease: 'power2.in' }, 0.1)
-        tl.to(a3Stat, { y: 20, autoAlpha: 0, filter: 'blur(10px)', duration: 0.3, ease: 'power2.in' }, 0.1)
-        tl.to(a3Line, { scaleX: 0, duration: 0.3, ease: 'power2.in' }, 0.15)
-        tl.to(a3Body, { autoAlpha: 0, filter: 'blur(10px)', duration: 0.3, ease: 'power2.in' }, 0.2)
-        tl.to(a3Title, { y: 30, autoAlpha: 0, duration: 0.3, ease: 'power2.in' }, 0.25)
-        tl.to(a3Eyebrow, { y: -20, autoAlpha: 0, filter: 'blur(10px)', duration: 0.3, ease: 'power2.in' }, 0.3)
+        tl.to(newCalloutLabel, { x: 12, autoAlpha: 0, duration: 0.14, ease: 'power2.in' }, 0)
+        tl.to(newCalloutDot, { scale: 0, autoAlpha: 0, duration: 0.12, ease: 'power2.in' }, 0.03)
+        tl.to(newCalloutLine, { scaleX: 0, duration: 0.14, ease: 'power2.in' }, 0.04)
+        tl.to(a3Stat, { y: 20, autoAlpha: 0, filter: 'blur(10px)', duration: 0.16, ease: 'power2.in' }, 0.04)
+        tl.to(a3Line, { scaleX: 0, duration: 0.14, ease: 'power2.in' }, 0.07)
+        tl.to(a3Body, { autoAlpha: 0, filter: 'blur(10px)', duration: 0.16, ease: 'power2.in' }, 0.08)
+        tl.to(a3Title, { y: 30, autoAlpha: 0, duration: 0.16, ease: 'power2.in' }, 0.1)
+        tl.to(a3Eyebrow, { y: -20, autoAlpha: 0, filter: 'blur(10px)', duration: 0.16, ease: 'power2.in' }, 0.12)
 
         tl.set({}, {
           onComplete: () => {
             if (counterRef.current) counterRef.current.innerText = `${counterPrefix}10`
           }
         })
+      }
+
+      const showLineUI = (delay = 0) => {
+        lineTl?.kill()
+        gsap.killTweensOf([linePanelRef.current, lineBodyRef.current, ...lineItems, ...lineTitleChars])
+        const tl = lineTl = gsap.timeline({ delay })
+
+        tl.to(linePanelRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.38, ease: 'power2.out' }, 0)
+        tl.to(lineItems, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.38, stagger: 0.05, ease: 'power2.out' }, 0.04)
+        tl.to(lineTitleChars, { x: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.5, stagger: STAGGER.char, ease: 'power2.out' }, 0.08)
+        tl.to(lineBodyRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.4, ease: 'power2.out' }, 0.18)
+      }
+
+      const hideLineUI = (delay = 0) => {
+        lineTl?.kill()
+        gsap.killTweensOf([linePanelRef.current, lineBodyRef.current, ...lineItems, ...lineTitleChars])
+        const tl = lineTl = gsap.timeline({ delay })
+
+        tl.to(lineBodyRef.current, { y: 16, autoAlpha: 0, filter: 'blur(8px)', duration: 0.2, ease: 'power2.in' }, 0)
+        tl.to(lineItems, { y: -12, autoAlpha: 0, filter: 'blur(8px)', duration: 0.22, stagger: 0.03, ease: 'power2.in' }, 0)
+        tl.to(lineTitleChars, { x: 16, autoAlpha: 0, filter: 'blur(8px)', duration: 0.22, stagger: 0.002, ease: 'power2.in' }, 0.02)
+        tl.to(linePanelRef.current, { y: 20, autoAlpha: 0, filter: 'blur(10px)', duration: 0.2, ease: 'power2.in' }, 0.08)
       }
 
       /* ── Máquina de direção: cada segmento tem dois clipes, playback SEMPRE
@@ -510,6 +583,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         gsap.killTweensOf(allVideos)
         gsap.set(allVideos, { autoAlpha: 0, zIndex: 0 })
         gsap.set([newImg, lineImg, trioImg], { autoAlpha: 0 })
+        gsap.set([linePanelRef.current, lineBodyRef.current], { autoAlpha: 0, y: 24, filter: 'blur(10px)' })
+        gsap.set(lineTitleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)' })
+        gsap.set(lineItems, { autoAlpha: 0, y: 18, filter: 'blur(10px)' })
         gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: 1, yPercent: 0, filter: 'blur(0px)' })
         gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
         allVideos.forEach((v) => { try { v.currentTime = 0 } catch(e) {} })
@@ -532,6 +608,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         gsap.set([morphRev, lineFwd, lineRev, catFwd, catRev], { autoAlpha: 0, zIndex: 0 })
         gsap.set(newImg, { autoAlpha: 1 })
         gsap.set([lineImg, trioImg], { autoAlpha: 0 })
+        gsap.set([linePanelRef.current, lineBodyRef.current], { autoAlpha: 0, y: 24, filter: 'blur(10px)' })
+        gsap.set(lineTitleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)' })
+        gsap.set(lineItems, { autoAlpha: 0, y: 18, filter: 'blur(10px)' })
         gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
         gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
         ;[morphRev, lineFwd, lineRev].forEach((v) => { try { v.currentTime = 0 } catch(e) {} })
@@ -545,16 +624,40 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         gsap.set([newImg, trioImg], { autoAlpha: 0 })
         gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
         gsap.set(brandMarkRef.current, { autoAlpha: 0, y: -18, filter: 'blur(8px)' })
+        gsap.set([a3Eyebrow, a3Title, a3Body, a3Stat, newCalloutLabel], { autoAlpha: 0 })
+        gsap.set([a3Line, newCalloutLine], { scaleX: 0 })
+        gsap.set(newCalloutDot, { scale: 0, autoAlpha: 0 })
+        showLineUI(0)
         ;[lineRev, catFwd, catRev].forEach((v) => { try { v.currentTime = 0 } catch(e) {} })
       }
 
-      /* Fim da cadeia: trio do catálogo em cena, scroll liberado + handoff */
+      /* Fim da cadeia: fixa o ultimo frame para atravessar o corte ate o catalogo. */
       const restExit = () => {
-        gsap.set(catFwd, { autoAlpha: 1, zIndex: 1 })
-        gsap.set([morphFwd, morphRev, lineFwd, lineRev, catRev], { autoAlpha: 0, zIndex: 0 })
-        gsap.set(trioImg, { autoAlpha: 1 })
-        gsap.set([newImg, lineImg], { autoAlpha: 0 })
+        gsap.killTweensOf([oldImg, newImg, lineImg, trioImg])
+        gsap.set(allVideos, { autoAlpha: 0, zIndex: 0 })
+        gsap.set([oldImg, newImg, lineImg], { autoAlpha: 0 })
+        // Geometria IDÊNTICA ao still do catálogo (.pcs-stage: width:100%,
+        // height:100svh, object-cover). Usar 100vw aqui incluiria a barra de
+        // rolagem (~17px no Windows) e o object-cover renderizaria em escala/
+        // centro diferentes — no corte, as duas camadas do trio ficavam
+        // desregistradas (fantasma + salto). 100% casa com o ICB sem a barra.
+        gsap.set(trioImg, {
+          autoAlpha: 1,
+          display: 'block',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 'auto',
+          bottom: 'auto',
+          width: '100%',
+          height: '100svh',
+          zIndex: 80,
+          pointerEvents: 'none',
+        })
         gsap.set(brandMarkRef.current, { autoAlpha: 0 })
+        gsap.set([linePanelRef.current, lineBodyRef.current], { autoAlpha: 0 })
+        gsap.set(lineTitleChars, { autoAlpha: 0 })
+        gsap.set(lineItems, { autoAlpha: 0 })
         try { catRev.currentTime = 0 } catch(e) {}
       }
 
@@ -569,12 +672,18 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         // stage = início do pin do catálogo). O corte é imperceptível porque os
         // dois lados mostram o mesmo trio; a cor e os textos brotam já no
         // catálogo. O still full-frame fica fora de tela após o salto.
-        window.dispatchEvent(new CustomEvent('aminosan:handoff-forward'))
         const targetY = Math.round(window.scrollY + stageTrigger.getBoundingClientRect().bottom)
+        window.dispatchEvent(new CustomEvent('aminosan:prepare-handoff-forward'))
         release()
-        requestAnimationFrame(() => {
-          lenisRef.current?.scrollTo(targetY, { immediate: true, force: true } as any)
+        lenisRef.current?.scrollTo(targetY, { immediate: true, force: true } as any)
+        window.scrollTo(0, targetY)
+        gsap.set(trioImg, {
+          autoAlpha: 0,
+          clearProps: 'display,position,top,right,bottom,left,width,height,zIndex,pointerEvents',
         })
+        gsap.set(newImg, { clearProps: 'display' })
+        window.dispatchEvent(new CustomEvent('aminosan:handoff-forward'))
+        window.dispatchEvent(new CustomEvent('aminosan:video-handoff-end'))
       }
 
       const stopPlayback = () => {
@@ -584,6 +693,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         if (phase === 'act3') {
           restAct3()
         } else if (phase === 'line') {
+          window.dispatchEvent(new CustomEvent('aminosan:video-handoff-end'))
           restLine()
         } else if (phase === 'exit') {
           restExit()
@@ -603,6 +713,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         if (video.currentTime >= safeDur(video) - margin) {
           video.pause()
           phase = direction === 'forward' ? seg.fore : seg.back
+          cooldownRef.current = performance.now() + 320
           stopPlayback()
           return
         }
@@ -687,8 +798,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
             })
             handoffTl.to(oldImg, { autoAlpha: 0, scale: 0.992, filter: 'blur(4px)', duration: 0.24, ease: 'power1.inOut', overwrite: 'auto' }, 0)
 
-            gsap.to(brandMarkRef.current, { y: -18, autoAlpha: 0, filter: 'blur(8px)', duration: fwdDur * 0.22, ease: 'power1.inOut', overwrite: 'auto' })
-            gsap.to(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: fwdDur * 0.22, delay: fwdDur * 0.42, ease: 'power1.inOut', overwrite: 'auto' })
+            gsap.killTweensOf(brandMarkRef.current)
+            gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
             gsap.to(titleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)', duration: fwdDur * 0.4, stagger: STAGGER.char, ease: 'power1.inOut', overwrite: 'auto' })
             gsap.to(act1Items, { y: 20, autoAlpha: 0, filter: 'blur(10px)', duration: fwdDur * 0.4, stagger: 0.05, ease: 'power1.inOut', overwrite: 'auto' })
             gsap.to(calloutLabel, { x: 12, autoAlpha: 0, duration: fwdDur * 0.24, ease: 'power1.inOut', overwrite: 'auto' })
@@ -704,7 +815,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
             hideAct3UI(0)
 
-            gsap.set(brandMarkRef.current, { y: -18, autoAlpha: 0, filter: 'blur(8px)' })
+            gsap.killTweensOf(brandMarkRef.current)
+            gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
             gsap.set(titleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)' })
             gsap.set(act1Items, { y: 20, autoAlpha: 0, filter: 'blur(10px)' })
             gsap.set(calloutLine, { scaleX: 0 })
@@ -713,7 +825,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
             gsap.set(scrimRef.current, { autoAlpha: 0 })
 
             gsap.to(scrimRef.current, { autoAlpha: 1, duration: fwdDur * 0.28, delay: fwdDur * 0.48, ease: 'power1.inOut', overwrite: 'auto' })
-            gsap.to(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: fwdDur * 0.24, delay: fwdDur * 0.54, ease: 'power1.inOut', overwrite: 'auto' })
+
             gsap.to(titleChars, { x: 0, autoAlpha: 1, filter: 'blur(0px)', duration: fwdDur * 0.28, delay: fwdDur * 0.56, stagger: STAGGER.char, ease: 'power1.inOut', overwrite: 'auto' })
             gsap.to(act1Items, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: fwdDur * 0.28, delay: fwdDur * 0.6, stagger: 0.08, ease: 'power1.inOut', overwrite: 'auto' })
             gsap.to(calloutLine, { scaleX: 1, duration: fwdDur * 0.18, delay: fwdDur * 0.66, ease: 'power1.inOut', overwrite: 'auto' })
@@ -728,8 +840,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       /* ── Segmento line: act3 ⇄ linha completa (vídeo 2) ──────────────
        * O primeiro frame do clipe é idêntico ao still do frasco novo, e o
        * último à linha completa — os fades curtos só mascaram desvio de
-       * codificação de 1px. A UI do Ato 3 permanece visível na fase line
-       * (mesmo comportamento da montagem CSS que este vídeo substitui). */
+       * codificação de 1px. A linha completa tem copy própria para não repetir
+       * o argumento do frasco atual. */
       const startLine = (dir: Dir) => {
         engage('line', dir, (video) => {
           gsap.set([morphFwd, morphRev, catFwd, catRev], { autoAlpha: 0, zIndex: 0 })
@@ -737,12 +849,16 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           gsap.set(trioImg, { autoAlpha: 0 })
 
           if (dir === 'forward') {
-            gsap.to(newImg, { autoAlpha: 0, duration: 0.18, ease: 'power1.out', overwrite: true })
-            gsap.to(lineImg, { autoAlpha: 0, duration: 0.18, ease: 'power1.out', overwrite: true })
+            gsap.killTweensOf([oldImg, newImg, lineImg, trioImg])
+            gsap.set([oldImg, newImg, lineImg, trioImg], { autoAlpha: 0 })
             gsap.to(brandMarkRef.current, { y: -18, autoAlpha: 0, filter: 'blur(8px)', duration: 0.32, ease: 'power2.out', overwrite: true })
+            hideAct3UI(0)
+            showLineUI(safeDur(SEGMENTS.line.fwd) * 0.18)
           } else {
             gsap.to(lineImg, { autoAlpha: 0, duration: 0.18, ease: 'power1.out', overwrite: true })
             gsap.set(newImg, { autoAlpha: 0 })
+            hideLineUI(0)
+            showAct3UI(safeDur(SEGMENTS.line.rev) * 0.52)
             gsap.to(brandMarkRef.current, {
               y: 0, autoAlpha: 1, filter: 'blur(0px)',
               duration: 0.4, delay: safeDur(SEGMENTS.line.rev) * 0.55,
@@ -759,18 +875,18 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
        * transição). No sentido forward a UI do Ato 3 sai de cena — estamos
        * deixando a seção; no backward ela volta junto com a linha. */
       const startCat = (dir: Dir) => {
+        window.dispatchEvent(new CustomEvent('aminosan:video-handoff-start'))
         engage('cat', dir, (video) => {
           gsap.set([morphFwd, morphRev, lineFwd, lineRev], { autoAlpha: 0, zIndex: 0 })
-          gsap.set([oldImg, newImg], { autoAlpha: 0 })
+          gsap.killTweensOf([oldImg, newImg, lineImg, trioImg])
+          gsap.set([oldImg, newImg, lineImg, trioImg], { autoAlpha: 0 })
 
           if (dir === 'forward') {
-            gsap.to(lineImg, { autoAlpha: 0, duration: 0.18, ease: 'power1.out', overwrite: true })
-            gsap.to(trioImg, { autoAlpha: 0, duration: 0.18, ease: 'power1.out', overwrite: true })
-            hideAct3UI(0)
+            hideLineUI(0)
           } else {
             gsap.to(trioImg, { autoAlpha: 0, duration: 0.18, ease: 'power1.out', overwrite: true })
             gsap.set(lineImg, { autoAlpha: 0 })
-            showAct3UI(safeDur(SEGMENTS.cat.rev) * 0.45)
+            showLineUI(safeDur(SEGMENTS.cat.rev) * 0.45)
           }
 
           video.play().catch(() => {})
@@ -897,6 +1013,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         if (!isLocked && !lockIfStageIsActive()) return
         if (e.deltaY < 0 && phase === 'act1' && !direction) { release(); return }
         e.preventDefault()
+        if (Math.abs(e.deltaY) < 18) return
         if (e.deltaY > 0) handleForward()
         else if (e.deltaY < 0) handleBackward()
       }
@@ -976,6 +1093,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         lenisRef.current?.start()
 
         // Limpeza dos event listeners globais
+        window.dispatchEvent(new CustomEvent('aminosan:video-handoff-end'))
         window.removeEventListener('aminosan:handoff-backward', onHandoffBackward)
         window.removeEventListener('wheel',      onWheel)
         window.removeEventListener('keydown',    onKey)
@@ -1050,7 +1168,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         {/* z-10 — still do trio do catálogo (fim da transição) */}
         <Image
           ref={trioImgRef}
-          src="/produtos/aminosan-trio.png"
+          src="/produtos/aminosan-catalogo.png"
           alt=""
           aria-hidden
           fill sizes="100vw"
@@ -1086,7 +1204,20 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         <BottleCallout refEl={oldCalloutRef} eyebrow={t('eyebrow')}>
           {t('oldBottleCaption')}
         </BottleCallout>
-
+        {/* UI da linha completa - aparece so depois que o frasco vira portfolio. */}
+        <Container className="pointer-events-none absolute inset-x-0 top-[10vh] z-30 flex justify-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
+          <div ref={linePanelRef} className="max-w-[92vw] text-center md:max-w-[68rem] xl:max-w-[74rem]">
+            <span data-line-copy className="text-eyebrow mb-sm block text-[10px] uppercase tracking-[0.18em] text-primary xl:text-xs">
+              {t('lineEyebrow')}
+            </span>
+            <BicolorTitle data-line-title title={t('lineTitle')} titleHi={t('lineTitleHi')} className="text-[clamp(1.75rem,5vw,4rem)] md:text-[clamp(2.15rem,3.45vw,4.15rem)]" />
+          </div>
+        </Container>
+        <Container className="pointer-events-none absolute inset-x-0 bottom-[4vh] z-30 flex justify-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
+          <p ref={lineBodyRef} className="text-subtitle mx-auto max-w-[50rem] text-center text-sm text-foreground/75 md:text-base xl:text-lg">
+            {t('lineBody')}
+          </p>
+        </Container>
         {/* UI do Ato 3 — mesmo desenho do Ato 1: coluna de texto à esquerda, frasco em cena.
             No mobile o bloco de prova (número + handoff + CTA) desce para o rodapé da tela,
             deixando o frasco visível no meio. */}
@@ -1149,9 +1280,9 @@ function AminosanBrandMark({ refEl }: { refEl: RefObject<HTMLDivElement | null> 
     <div
       ref={refEl}
       aria-label="Aminosan registrado"
-      className="pointer-events-none absolute left-1/2 top-[9svh] z-30 -translate-x-1/2 text-center max-md:top-[7svh]"
+      className="pointer-events-none absolute left-1/2 top-[12svh] z-30 -translate-x-1/2 text-center max-md:top-[9svh]"
     >
-      <span className="font-black uppercase leading-none tracking-[0.02em] text-foreground text-[clamp(1.65rem,2.35vw,3rem)]">
+      <span className="font-black uppercase leading-none tracking-[0.02em] text-foreground text-[clamp(1.45rem,2.08vw,2.65rem)]">
         AMINOSAN<sup className="ml-1 align-super text-[0.36em] leading-none">&reg;</sup>
       </span>
     </div>

@@ -106,7 +106,11 @@
     "a3StatUnit": "bags/ha",
     "a3StatLabel": "Extra bags per hectare in soybeans, in field trials.",
     "a3StatSource": "Source: DETEC (Taquarivaí, SP) and Terras Gerais (Lavras, MG) field trials.",
-    "newBottleCaption": "Today's Aminosan."
+    "newBottleCaption": "Today's Aminosan.",
+    "lineEyebrow": "Complete line",
+    "lineTitle": "The right product for every crop stage.",
+    "lineTitleHi": "crop stage.",
+    "lineBody": "From planting to grain fill, Juma organizes nutrition, physiology, correction and spray technology in one line built to support field management."
   },
   "ourStory": {
     "eyebrow": "OUR STORY",
