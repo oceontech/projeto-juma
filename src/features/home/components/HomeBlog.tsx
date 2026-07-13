@@ -3,6 +3,7 @@
 import { BookOpen } from 'lucide-react'
 
 import { useRef } from 'react'
+import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
@@ -17,6 +18,7 @@ const ARTICLES = [
     readTime: '6 min de leitura',
     title: 'Como reduzir o estresse da lavoura na seca',
     bg: 'linear-gradient(135deg, #2d4a1a 0%, #4a7a2a 100%)',
+    image: '/materias/capa-destaque.png',
   },
   {
     category: 'Nutrição',
@@ -24,6 +26,7 @@ const ARTICLES = [
     readTime: '8 min de leitura',
     title: 'Nutrição na fase certa: o que muda na produtividade da soja',
     bg: 'linear-gradient(135deg, #3a5c20 0%, #5a8a30 100%)',
+    image: '/materias/nutricao-fase-certa.png',
   },
   {
     category: 'Pecuária',
@@ -31,6 +34,7 @@ const ARTICLES = [
     readTime: '5 min de leitura',
     title: 'Manejo de pastagem: recuperação e ganho de peso',
     bg: 'linear-gradient(135deg, #1a3a12 0%, #2d6020 100%)',
+    image: '/materias/manejo-pastagem.png',
   },
 ]
 
@@ -127,9 +131,16 @@ export function HomeBlog() {
               className="rounded-[24px] overflow-hidden flex flex-col"
               style={{ backgroundColor: '#F2F6F2', border: '1px solid rgba(0,0,0,.06)' }}
             >
-              {/* Capa */}
-              <div className="relative h-[200px] overflow-hidden">
+              {/* Capa: gradiente por baixo enquanto a foto carrega */}
+              <div className="relative h-[200px] overflow-hidden group">
                 <div className="w-full h-full" style={{ background: a.bg }} />
+                <Image
+                  src={a.image}
+                  alt={t(`articles.${i}.title`)}
+                  fill
+                  sizes="(min-width: 768px) 33vw, 100vw"
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                />
                 <span
                   className="absolute top-4 left-4 text-[11px] font-bold tracking-[0.10em] uppercase rounded-full px-3 py-1.5"
                   style={{ backgroundColor: 'rgba(0,0,0,.5)', color: '#fff', backdropFilter: 'blur(8px)' }}

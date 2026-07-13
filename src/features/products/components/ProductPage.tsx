@@ -585,23 +585,25 @@ export function ProductPage({ slug }: { slug: string }) {
               title={tPage.rich("galleryTitle", { name: nameShort, br: () => <br /> })}
               lede={tPage("galleryLede")}
             />
+            {/* Banco de imagens (Unsplash) até chegarem as fotos do acervo da Juma */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-[60vh] md:h-[80vh]">
-              <div data-animate-content className="col-span-2 row-span-2 bg-black/5 rounded-[18px] overflow-hidden relative group">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="absolute inset-0 flex items-center justify-center text-black/20 font-bold" style={{ fontFamily: 'var(--font-montserrat)' }}>Foto 1</div>
-              </div>
-              <div data-animate-content className="bg-black/5 rounded-[18px] overflow-hidden relative group">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="absolute inset-0 flex items-center justify-center text-black/20 font-bold" style={{ fontFamily: 'var(--font-montserrat)' }}>Foto 2</div>
-              </div>
-              <div data-animate-content className="bg-black/5 rounded-[18px] overflow-hidden relative group">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="absolute inset-0 flex items-center justify-center text-black/20 font-bold" style={{ fontFamily: 'var(--font-montserrat)' }}>Foto 3</div>
-              </div>
-              <div data-animate-content className="col-span-2 bg-black/5 rounded-[18px] overflow-hidden relative group">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="absolute inset-0 flex items-center justify-center text-black/20 font-bold" style={{ fontFamily: 'var(--font-montserrat)' }}>Foto 4</div>
-              </div>
+              {[
+                { src: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=1400&auto=format&fit=crop', span: 'col-span-2 row-span-2', sizes: '(min-width: 768px) 50vw, 100vw' },
+                { src: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?q=80&w=800&auto=format&fit=crop', span: '', sizes: '(min-width: 768px) 25vw, 50vw' },
+                { src: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=800&auto=format&fit=crop', span: '', sizes: '(min-width: 768px) 25vw, 50vw' },
+                { src: 'https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=1200&auto=format&fit=crop', span: 'col-span-2', sizes: '(min-width: 768px) 50vw, 100vw' },
+              ].map((photo, i) => (
+                <div key={i} data-animate-content className={`${photo.span} bg-black/5 rounded-[18px] overflow-hidden relative group`}>
+                  <Image
+                    src={photo.src}
+                    alt={`${nameShort} — aplicação no campo`}
+                    fill
+                    sizes={photo.sizes}
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+              ))}
             </div>
           </Container>
         </section>

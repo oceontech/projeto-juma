@@ -545,23 +545,25 @@ export function AboutPage() {
             </div>
           </div>
 
+          {/* Foto grande: acervo da família; demais do banco de imagens até chegar o acervo completo */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-[60vh] md:h-[80vh]">
-            <div data-gal-img className="col-span-2 row-span-2 bg-foreground/5 rounded-3xl overflow-hidden relative group">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="absolute inset-0 flex items-center justify-center text-foreground/20 font-montserrat font-bold">Foto 1</div>
-            </div>
-            <div data-gal-img className="bg-foreground/5 rounded-3xl overflow-hidden relative group">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="absolute inset-0 flex items-center justify-center text-foreground/20 font-montserrat font-bold">Foto 2</div>
-            </div>
-            <div data-gal-img className="bg-foreground/5 rounded-3xl overflow-hidden relative group">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="absolute inset-0 flex items-center justify-center text-foreground/20 font-montserrat font-bold">Foto 3</div>
-            </div>
-            <div data-gal-img className="col-span-2 bg-foreground/5 rounded-3xl overflow-hidden relative group">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="absolute inset-0 flex items-center justify-center text-foreground/20 font-montserrat font-bold">Foto 4</div>
-            </div>
+            {[
+              { src: '/heritage/fundador-e-filhos.png', span: 'col-span-2 row-span-2', sizes: '(min-width: 768px) 50vw, 100vw' },
+              { src: 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?q=80&w=800&auto=format&fit=crop', span: '', sizes: '(min-width: 768px) 25vw, 50vw' },
+              { src: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?q=80&w=800&auto=format&fit=crop', span: '', sizes: '(min-width: 768px) 25vw, 50vw' },
+              { src: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1200&auto=format&fit=crop', span: 'col-span-2', sizes: '(min-width: 768px) 50vw, 100vw' },
+            ].map((photo, i) => (
+              <div key={i} data-gal-img className={`${photo.span} bg-foreground/5 rounded-3xl overflow-hidden relative group`}>
+                <Image
+                  src={photo.src}
+                  alt={t('galleryTitle')}
+                  fill
+                  sizes={photo.sizes}
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+            ))}
           </div>
         </div>
 
