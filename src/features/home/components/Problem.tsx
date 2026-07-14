@@ -1,7 +1,5 @@
 'use client'
 
-import { AlertTriangle } from 'lucide-react'
-
 import { useRef } from 'react'
 import { useTranslations } from 'next-intl'
 
@@ -69,7 +67,7 @@ export function Problem() {
         // Anima a linha dinamicamente no final do scrub
         const line = pin.querySelector<HTMLElement>('[data-gline]')
         if (line) {
-          gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
+          gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'center' })
           tl.to(line, { scaleX: 1, opacity: 1, duration: step * 2 }, (words.length - 1) * step)
         }
 
@@ -103,24 +101,16 @@ export function Problem() {
         ref={pinRef}
         className="flex min-h-[88vh] flex-col justify-center py-3xl lg:py-5xl"
       >
-        <Container className="max-w-[72rem] min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
-          {/* Decoração topo */}
-          <div className="mb-8">
-            <span className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 mb-6 border border-primary/20 bg-primary/5 text-primary">
-              <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
-              {t('kicker')}
-            </span>
-          </div>
-
+        <Container className="max-w-[72rem] min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] flex flex-col items-center text-left">
           {/* Título — as palavras iluminam no desktop */}
           <h2
             ref={titleRef}
             className="font-black leading-[1.06] tracking-tight text-foreground uppercase"
-            style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
+            style={{ fontSize: 'clamp(2.7rem, 6vw, 5.6rem)' }}
           >
             {t('titleSentence')}
           </h2>
-          <span data-gline aria-hidden className="mt-8 block h-[3px] w-12 rounded-full bg-primary" />
+          <span data-gline aria-hidden className="mt-8 block h-[4px] w-16 rounded-full bg-primary" />
         </Container>
       </div>
 
