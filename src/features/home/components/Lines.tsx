@@ -159,19 +159,14 @@ export function Lines() {
                 ? 'sm:col-span-2 lg:col-span-3' 
                 : 'lg:col-span-3'
 
-            // Mobile intercalado (cima / baixo)
-            const isMobileImageTop = i % 2 === 0
-
-            const mobileMask = isMobileImageTop 
-              ? 'max-sm:[mask-image:linear-gradient(to_bottom,black_40%,transparent)] max-sm:[-webkit-mask-image:linear-gradient(to_bottom,black_40%,transparent)]'
-              : 'max-sm:[mask-image:linear-gradient(to_top,black_40%,transparent)] max-sm:[-webkit-mask-image:linear-gradient(to_top,black_40%,transparent)]'
-
+            // Mobile: imagem sempre embaixo e texto em cima
+            const mobileMask = 'max-sm:[mask-image:linear-gradient(to_top,black_40%,transparent)] max-sm:[-webkit-mask-image:linear-gradient(to_top,black_40%,transparent)]'
             const desktopMask = 'sm:[mask-image:linear-gradient(to_right,transparent_0%,black_30%)] sm:[-webkit-mask-image:linear-gradient(to_right,transparent_0%,black_30%)]'
 
-            const mobileImagePos = isMobileImageTop ? 'top-0 h-[65%] w-full' : 'bottom-0 h-[65%] w-full'
+            const mobileImagePos = 'bottom-0 h-[65%] w-full'
             const desktopImagePos = 'sm:top-0 sm:right-0 sm:h-full sm:w-[55%] md:w-[50%]'
             
-            const alignClass = isMobileImageTop ? 'mt-auto sm:mt-0' : 'mb-auto sm:mb-0'
+            const alignClass = 'mb-auto sm:mb-0'
 
             return (
               <Link
