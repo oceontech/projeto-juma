@@ -344,14 +344,14 @@ export function ContactPage() {
       </div>
 
       {/* CTA Final */}
-      <div ref={ctaRef} className="rounded-3xl bg-primary text-white p-12 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden">
+      <div ref={ctaRef} className="rounded-3xl bg-primary text-white p-5 lg:p-12 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
         <div className="relative z-10 max-w-[64rem]">
           <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-white mb-4">
             <span className="h-1.5 w-1.5 rounded-full bg-white" />
             {t('ctaEyebrow')}
           </span>
-          <h2 className="font-montserrat text-3xl md:text-4xl font-black uppercase text-white tracking-tight mb-4 leading-[0.95]">
+          <h2 className="font-montserrat text-2xl md:text-4xl font-black uppercase text-white tracking-tight mb-4 leading-[0.95]">
             {t('ctaTitleLine1')}<br />
             <em className="text-highlight text-white">{t('ctaTitleHighlight')}</em> {t('ctaTitleLine2')}
           </h2>
