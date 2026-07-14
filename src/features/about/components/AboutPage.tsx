@@ -509,25 +509,7 @@ export function AboutPage() {
           </div>
         </div>
 
-        {/* Destaque / Propósito */}
-        <div ref={highlightRef} className="mb-32">
-          <div className="bg-[#004C26] rounded-[2rem] p-10 md:p-20 text-center relative overflow-hidden shadow-2xl">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-white/5 rounded-full blur-[100px] pointer-events-none" />
-            <div className="relative z-10">
-              <span data-hl-eyebrow className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-white/70 mb-8">
-                <span className="h-1.5 w-1.5 rounded-full bg-white/70" />
-                {t('purposeEyebrow')}
-              </span>
-              <h2 data-hl-title className="font-montserrat text-4xl md:text-7xl lg:text-[100px] font-black uppercase tracking-tighter mb-8 leading-[0.95] text-white">
-                {t('purposeTitleStart')} <em className="text-highlight text-yellow-400">{t('purposeTitleHighlight')}</em><br />
-                {t('purposeTitleEnd')}
-              </h2>
-              <p data-hl-intro className="text-white/85 text-lg md:text-xl max-w-[64rem] mx-auto leading-relaxed">
-                {t('purposeBody')}
-              </p>
-            </div>
-          </div>
-        </div>
+        
 
         {/* Presença internacional (globo com sede BR + filial EUA) */}
         <div className="mb-32">
@@ -572,6 +554,26 @@ export function AboutPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Destaque / Propósito */}
+        <div ref={highlightRef} className="mb-32">
+          <div className="bg-[#004C26] rounded-[2rem] p-10 md:p-20 text-center relative overflow-hidden shadow-2xl">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-white/5 rounded-full blur-[100px] pointer-events-none" />
+            <div className="relative z-10">
+              <span data-hl-eyebrow className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-white/70 mb-8">
+                <span className="h-1.5 w-1.5 rounded-full bg-white/70" />
+                {t('purposeEyebrow')}
+              </span>
+              <h2 data-hl-title className="font-montserrat text-4xl md:text-7xl lg:text-[100px] font-black uppercase tracking-tighter mb-8 leading-[0.95] text-white">
+                {t('purposeTitleStart')} <em className="text-highlight text-yellow-400">{t('purposeTitleHighlight')}</em><br />
+                {t('purposeTitleEnd')}
+              </h2>
+              <p data-hl-intro className="text-white/85 text-lg md:text-xl max-w-[64rem] mx-auto leading-relaxed">
+                {t('purposeBody')}
+              </p>
+            </div>
           </div>
         </div>
 
