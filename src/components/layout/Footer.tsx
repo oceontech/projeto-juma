@@ -31,7 +31,7 @@ export function Footer() {
               alt="Juma Agro"
               width={160}
               height={81}
-              className="h-16 w-auto object-contain"
+              className="h-16 w-auto object-contain object-left md:object-center"
             />
             <p className="text-heading max-w-[18rem] text-lg leading-snug text-white">
               {tf('tagline')}
