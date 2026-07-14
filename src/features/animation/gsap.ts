@@ -17,6 +17,7 @@ import { useGSAP } from '@gsap/react'
 // `registerPlugin` é idempotente; rodar no topo do módulo basta. Só no cliente.
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger, SplitText, Observer, useGSAP)
+  ScrollTrigger.config({ ignoreMobileResize: true })
 }
 
 export { gsap, ScrollTrigger, SplitText, Observer, useGSAP }

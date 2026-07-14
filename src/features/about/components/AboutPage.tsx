@@ -91,6 +91,7 @@ export function AboutPage() {
         const line = history.querySelector('[data-hist-line]')
         const nodes = gsap.utils.toArray<HTMLElement>('[data-hist-node]', history)
         const cards = gsap.utils.toArray<HTMLElement>('[data-hist-card]', history)
+        const pinElement = history.querySelector('[data-hist-pin]')
 
         if (histEyebrow) gsap.set(histEyebrow, { y: 15, opacity: 0 })
         if (histTitle) gsap.set(histTitle, { opacity: 0 })
@@ -114,13 +115,15 @@ export function AboutPage() {
           }
         })
 
-        if (track && line && cards.length) {
+        if (track && line && cards.length && pinElement) {
           const scrubTl = gsap.timeline({
             scrollTrigger: {
               trigger: history,
               start: 'top top',
               end: 'bottom bottom',
-              scrub: 1,
+              scrub: true,
+              pin: pinElement,
+              pinSpacing: false,
               invalidateOnRefresh: true,
             }
           })
@@ -129,7 +132,9 @@ export function AboutPage() {
           scrubTl.to(track, {
             x: () => -(track.scrollWidth - window.innerWidth),
             ease: 'none',
-            duration: 1
+            duration: 1,
+            force3D: true,
+            autoRound: false
           }, 0)
 
           // Calculate and insert card blur animations and icon updates
@@ -149,15 +154,11 @@ export function AboutPage() {
               return Math.max(0, Math.min(1, p))
             })
             
-            const p_min = p_values[0] || 0
-            const p_max = p_values[p_values.length - 1] || 1
-            const p_range = p_max - p_min || 1
-
             let prevP = 0
 
             cards.forEach((card, i) => {
               const p = p_values[i]
-              const nodeP = (p - p_min) / p_range
+              const nodeP = i / (cards.length - 1)
               
               // Set node position on fixed bar
               if (nodes[i]) {
@@ -180,7 +181,8 @@ export function AboutPage() {
                 filter: 'blur(0px)',
                 y: 0,
                 duration: 0.1,
-                ease: 'power2.out'
+                ease: 'power2.out',
+                force3D: true
               }, p)
 
               // Light up node
@@ -362,7 +364,7 @@ export function AboutPage() {
 
       {/* Linha do Tempo */}
       <div ref={historyRef} className="mb-8 relative h-[400vh]">
-        <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden bg-background">
+        <div data-hist-pin className="h-screen w-full flex flex-col justify-center overflow-hidden bg-background">
           
           {/* INTRO TEXT (FIXED ABOVE PROGRESS BAR) */}
           <div className="absolute top-[2%] left-0 w-full z-30 flex justify-center px-4 pointer-events-none">
@@ -415,7 +417,7 @@ export function AboutPage() {
           </div>
 
           {/* SCROLLING TRACK */}
-          <div data-hist-track className="flex flex-col justify-start pt-[42vh] md:pt-[48vh] h-full w-max pb-8 md:pb-16">
+          <div data-hist-track className="flex flex-col justify-start pt-[42vh] md:pt-[48vh] h-full w-max pb-8 md:pb-16 will-change-transform [transform:translateZ(0)]">
               <div className="flex gap-16 md:gap-32 px-[5vw] md:px-[10vw] w-max relative z-10 items-start">
                 {/* Cards */}
                 {TIMELINE_KEYS.map((key, i) => (
