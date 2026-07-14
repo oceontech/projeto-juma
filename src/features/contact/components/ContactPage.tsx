@@ -363,7 +363,7 @@ export function ContactPage() {
           <Link
             href="https://wa.me/5519999648186"
             target="_blank"
-            className="inline-flex items-center gap-3 bg-yellow-400 text-primary px-8 py-4 rounded-full font-bold uppercase tracking-wider text-sm transition-transform hover:scale-105 shadow-xl hover:shadow-yellow-400/20"
+            className="inline-flex items-center gap-3 bg-white text-primary px-8 py-4 rounded-full font-bold uppercase tracking-wider text-sm transition-transform hover:scale-105 shadow-xl hover:shadow-yellow-400/20"
           >
             {t('ctaButton')}
             <WhatsAppIcon className="h-4 w-4" />
