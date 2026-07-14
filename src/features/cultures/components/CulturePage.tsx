@@ -10,6 +10,7 @@ import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Leaf, Target, AlertTriangle, ListChecks, Package, Rocket, Calculator as CalculatorIcon } from 'lucide-react'
 import { HomeCtaFinal } from '@/features/home/components/HomeCtaFinal'
 import { useTranslations } from 'next-intl'
+import { DropdownMenu } from '@/components/ui/dropdown-menu'
 
 const WHATSAPP = 'https://wa.me/5519999648186'
 
@@ -296,20 +297,18 @@ function Calculator({ culture }: { culture: CultureData }) {
           <label className="text-[12px] text-[#5A5A57] font-semibold uppercase tracking-[0.05em]">
             Produto Juma
           </label>
-          <div className="relative">
-            <select
-              value={produto}
-              onChange={(e) => setProduto(e.target.value)}
-              className="w-full h-[50px] px-4 rounded-[12px] border border-black/10 bg-white text-[16px] text-[#1A1A1A] font-[inherit] outline-none appearance-none focus:border-[#004B26] transition-colors pr-10"
-            >
-              {culture.calcProducts.map((p) => (
-                <option key={p.id} value={p.id}>{p.label}</option>
-              ))}
-            </select>
-            <svg className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none w-3 h-3 text-[#5A5A57]" viewBox="0 0 12 12" fill="none" aria-hidden>
-              <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
+          <DropdownMenu
+            className="w-full"
+            triggerClassName="w-full h-[50px] px-4 rounded-[12px] border border-black/10 bg-white text-[16px] text-[#1A1A1A] font-medium"
+            menuClassName="w-full"
+            options={culture.calcProducts.map((p) => ({
+              label: p.label,
+              active: produto === p.id,
+              onClick: () => setProduto(p.id)
+            }))}
+          >
+            {culture.calcProducts.find(p => p.id === produto)?.label || 'Selecione...'}
+          </DropdownMenu>
         </div>
 
         <div className="grid grid-cols-2 gap-3.5 mb-[18px]">

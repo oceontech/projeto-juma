@@ -3,6 +3,7 @@
 import { Calculator } from 'lucide-react'
 
 import { useState, useMemo, useRef } from 'react'
+import { DropdownMenu } from '@/components/ui/dropdown-menu'
 import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
@@ -173,16 +174,18 @@ export function HomeCalculator() {
                 <label className="text-[13px] font-semibold tracking-[0.05em] uppercase" style={{ color: '#3d4d35' }}>
                   {t('form.culture')}
                 </label>
-                <select
-                  value={cultura}
-                  onChange={(e) => setCultura(e.target.value)}
-                  className="w-full rounded-[12px] px-4 py-3 text-[15px] font-medium outline-none appearance-none"
-                  style={{ backgroundColor: '#F2F6F2', border: '1.5px solid #DDE6C8', color: '#0F1A0A' }}
+                <DropdownMenu
+                  className="w-full"
+                  triggerClassName="w-full py-3 text-[15px] font-medium"
+                  menuClassName="w-full"
+                  options={CULTURES.map((c) => ({
+                    label: t(`cultures.${c.id}` as any),
+                    active: cultura === c.id,
+                    onClick: () => setCultura(c.id)
+                  }))}
                 >
-                  {CULTURES.map((c) => (
-                    <option key={c.id} value={c.id}>{t(`cultures.${c.id}` as any)}</option>
-                  ))}
-                </select>
+                  {t(`cultures.${cultura}` as any)}
+                </DropdownMenu>
               </div>
 
               {/* Produto */}
@@ -190,16 +193,18 @@ export function HomeCalculator() {
                 <label className="text-[13px] font-semibold tracking-[0.05em] uppercase" style={{ color: '#3d4d35' }}>
                   {t('form.product')}
                 </label>
-                <select
-                  value={produtoId}
-                  onChange={(e) => setProdutoId(e.target.value)}
-                  className="w-full rounded-[12px] px-4 py-3 text-[15px] font-medium outline-none appearance-none"
-                  style={{ backgroundColor: '#F2F6F2', border: '1.5px solid #DDE6C8', color: '#0F1A0A' }}
+                <DropdownMenu
+                  className="w-full"
+                  triggerClassName="w-full py-3 text-[15px] font-medium"
+                  menuClassName="w-full"
+                  options={PRODUCTS.map((p) => ({
+                    label: p.label,
+                    active: produtoId === p.id,
+                    onClick: () => setProdutoId(p.id)
+                  }))}
                 >
-                  {PRODUCTS.map((p) => (
-                    <option key={p.id} value={p.id}>{p.label}</option>
-                  ))}
-                </select>
+                  {PRODUCTS.find(p => p.id === produtoId)?.label || 'Select'}
+                </DropdownMenu>
               </div>
             </div>
 
@@ -213,8 +218,7 @@ export function HomeCalculator() {
                   type="text"
                   value={areaDisplay}
                   onChange={handleAreaChange}
-                  className="w-full rounded-[12px] px-4 py-3 text-[15px] font-medium outline-none"
-                  style={{ backgroundColor: '#F2F6F2', border: '1.5px solid #DDE6C8', color: '#0F1A0A' }}
+                  className="w-full rounded-[12px] px-4 py-3 text-[15px] font-medium outline-none bg-white border border-black/10 focus:border-[#004B26] transition-colors text-[#0F1A0A]"
                 />
               </div>
 
@@ -227,8 +231,7 @@ export function HomeCalculator() {
                   type="text"
                   value={precoDisplay}
                   onChange={handlePrecoChange}
-                  className="w-full rounded-[12px] px-4 py-3 text-[15px] font-medium outline-none"
-                  style={{ backgroundColor: '#F2F6F2', border: '1.5px solid #DDE6C8', color: '#0F1A0A' }}
+                  className="w-full rounded-[12px] px-4 py-3 text-[15px] font-medium outline-none bg-white border border-black/10 focus:border-[#004B26] transition-colors text-[#0F1A0A]"
                 />
               </div>
             </div>

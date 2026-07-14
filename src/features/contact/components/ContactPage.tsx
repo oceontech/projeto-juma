@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
+import { DropdownMenu } from '@/components/ui/dropdown-menu'
 import { useTranslations } from 'next-intl'
 import { gsap, SplitText, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
@@ -61,6 +62,21 @@ function PinIcon(props: React.SVGProps<SVGSVGElement>) {
 
 export function ContactPage() {
   const t = useTranslations('contactPage')
+  const [cultura, setCultura] = useState('Soja')
+  const [produto, setProduto] = useState(t('productDefault'))
+  const [wpp, setWpp] = useState('')
+
+  const handleWppChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, '')
+    if (value.length > 11) value = value.slice(0, 11)
+    
+    let formatted = value
+    if (value.length > 2) formatted = `(${value.slice(0, 2)}) ${value.slice(2)}`
+    if (value.length > 3) formatted = `(${value.slice(0, 2)}) ${value.slice(2, 3)} ${value.slice(3)}`
+    if (value.length > 7) formatted = `(${value.slice(0, 2)}) ${value.slice(2, 3)} ${value.slice(3, 7)}-${value.slice(7)}`
+    
+    setWpp(formatted)
+  }
   const reduced = useReducedMotion()
   const containerRef = useRef<HTMLDivElement>(null)
   const eyebrowRef = useRef<HTMLSpanElement>(null)
@@ -173,7 +189,7 @@ export function ContactPage() {
 
               <div className="space-y-2">
                 <label htmlFor="wpp" className="text-sm font-bold text-foreground/80">{t('labelWhatsApp')}</label>
-                <input id="wpp" name="wpp" type="tel" required placeholder="(19) 9 9999-9999" className="w-full bg-foreground/5 border-transparent rounded-xl px-4 py-3 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" />
+                <input id="wpp" name="wpp" type="tel" value={wpp} onChange={handleWppChange} required placeholder="(19) 9 9999-9999" className="w-full bg-foreground/5 border-transparent rounded-xl px-4 py-3 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" />
               </div>
 
               <div className="space-y-2">
@@ -183,19 +199,21 @@ export function ContactPage() {
 
               <div className="space-y-2">
                 <label htmlFor="cultura" className="text-sm font-bold text-foreground/80">{t('labelCulture')}</label>
-                <select id="cultura" name="cultura" className="w-full bg-foreground/5 border-transparent rounded-xl px-4 py-3 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none cursor-pointer">
-                  <option>Soja</option>
-                  <option>Milho</option>
-                  <option>Café</option>
-                  <option>Cana-de-açúcar</option>
-                  <option>Algodão</option>
-                  <option>Feijão</option>
-                  <option>Citros</option>
-                  <option>Tomate</option>
-                  <option>Batata</option>
-                  <option>Pastagem</option>
-                  <option>Outra</option>
-                </select>
+                <DropdownMenu
+                  className="w-full"
+                  triggerClassName="w-full bg-foreground/5 border-transparent rounded-xl px-4 py-3 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer font-normal text-left"
+                  menuClassName="w-full max-h-[300px] overflow-y-auto"
+                  options={[
+                    'Soja', 'Milho', 'Café', 'Cana-de-açúcar', 'Algodão', 
+                    'Feijão', 'Citros', 'Tomate', 'Batata', 'Pastagem', 'Outra'
+                  ].map(c => ({
+                    label: c,
+                    active: cultura === c,
+                    onClick: () => setCultura(c)
+                  }))}
+                >
+                  <span className="text-foreground">{cultura}</span>
+                </DropdownMenu>
               </div>
 
               <div className="space-y-2">
@@ -205,22 +223,23 @@ export function ContactPage() {
 
               <div className="md:col-span-2 space-y-2">
                 <label htmlFor="produto" className="text-sm font-bold text-foreground/80">{t('labelProduct')}</label>
-                <select id="produto" name="produto" className="w-full bg-foreground/5 border-transparent rounded-xl px-4 py-3 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none cursor-pointer">
-                  <option>{t('productDefault')}</option>
-                  <option>Aminosan®</option>
-                  <option>Acorda Ultra</option>
-                  <option>Acorda Cana</option>
-                  <option>Fitofert</option>
-                  <option>Linha Revigo</option>
-                  <option>RevigoPhos Amino</option>
-                  <option>Revigo Cobre Ultra</option>
-                  <option>Kmep Ultra</option>
-                  <option>Linha Redutan</option>
-                  <option>Supermix</option>
-                  <option>Revigo + Milho</option>
-                  <option>Revigo + Pasto</option>
-                  <option>Aduban</option>
-                </select>
+                <DropdownMenu
+                  className="w-full"
+                  triggerClassName="w-full bg-foreground/5 border-transparent rounded-xl px-4 py-3 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer font-normal text-left"
+                  menuClassName="w-full max-h-[300px] overflow-y-auto"
+                  options={[
+                    t('productDefault'), 'Aminosan®', 'Acorda Ultra', 'Acorda Cana', 
+                    'Fitofert', 'Linha Revigo', 'RevigoPhos Amino', 'Revigo Cobre Ultra', 
+                    'Kmep Ultra', 'Linha Redutan', 'Supermix', 'Revigo + Milho', 
+                    'Revigo + Pasto', 'Aduban'
+                  ].map(p => ({
+                    label: p,
+                    active: produto === p,
+                    onClick: () => setProduto(p)
+                  }))}
+                >
+                  <span className="text-foreground">{produto}</span>
+                </DropdownMenu>
               </div>
 
               <div className="md:col-span-2 space-y-2">

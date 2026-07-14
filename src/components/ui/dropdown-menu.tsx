@@ -21,9 +21,12 @@ export type DropdownOption = {
 export type DropdownMenuProps = {
   options: DropdownOption[];
   children: React.ReactNode;
+  className?: string;
+  triggerClassName?: string;
+  menuClassName?: string;
 };
 
-const DropdownMenu = ({ options, children }: DropdownMenuProps) => {
+const DropdownMenu = ({ options, children, className, triggerClassName, menuClassName }: DropdownMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -51,13 +54,13 @@ const DropdownMenu = ({ options, children }: DropdownMenuProps) => {
   }, [isOpen]);
 
   return (
-    <div className="relative" ref={containerRef}>
+    <div className={`relative ${className || ''}`} ref={containerRef}>
       <button
         type="button"
         onClick={toggleDropdown}
         aria-haspopup="menu"
         aria-expanded={isOpen}
-        className="px-4 py-2 flex items-center justify-between gap-2 bg-background hover:bg-foreground/5 shadow-sm border border-foreground/20 rounded-xl backdrop-blur-sm transition-all"
+        className={`px-4 py-2 flex items-center justify-between gap-2 bg-background hover:bg-foreground/5 shadow-sm border border-foreground/20 rounded-xl backdrop-blur-sm transition-all ${triggerClassName || ''}`}
       >
         {children ?? "Menu"}
         <span
@@ -71,7 +74,7 @@ const DropdownMenu = ({ options, children }: DropdownMenuProps) => {
       <div
         role="menu"
         aria-hidden={!isOpen}
-        className="absolute z-50 w-64 mt-2 p-1 bg-background border border-foreground/10 rounded-xl shadow-lg backdrop-blur-sm flex flex-col gap-1 overflow-hidden"
+        className={`absolute z-50 mt-2 p-1 bg-background border border-foreground/10 rounded-xl shadow-lg backdrop-blur-sm flex flex-col gap-1 overflow-hidden ${menuClassName || 'w-64'}`}
         style={{
           transition:
             "opacity 0.3s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease",
