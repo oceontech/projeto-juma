@@ -268,7 +268,7 @@ function Calculator({ culture }: { culture: CultureData }) {
   const fmt = useCallback((n: number) => new Intl.NumberFormat('pt-BR').format(n), [])
 
   const areaDisplay = validArea.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-  const precoDisplay = 'R$ ' + validPreco.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const precoDisplay = tPage('calcCurrency') + ' ' + validPreco.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   const produtividadeDisplay = validProdutividade.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
   const handleAreaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -295,7 +295,7 @@ function Calculator({ culture }: { culture: CultureData }) {
       <div className="p-[clamp(28px,3vw,48px)]">
         <div className="flex flex-col gap-2 mb-[18px]">
           <label className="text-[12px] text-[#5A5A57] font-semibold uppercase tracking-[0.05em]">
-            Produto Juma
+            {tPage('calcProductLabel')}
           </label>
           <DropdownMenu
             className="w-full"
@@ -307,14 +307,14 @@ function Calculator({ culture }: { culture: CultureData }) {
               onClick: () => setProduto(p.id)
             }))}
           >
-            {culture.calcProducts.find(p => p.id === produto)?.label || 'Selecione...'}
+            {culture.calcProducts.find(p => p.id === produto)?.label || tPage('calcSelect')}
           </DropdownMenu>
         </div>
 
         <div className="grid grid-cols-2 gap-3.5 mb-[18px]">
           <div className="flex flex-col gap-2">
             <label className="text-[12px] text-[#5A5A57] font-semibold uppercase tracking-[0.05em]">
-              Área (ha)
+              {tPage('calcAreaLabel')}
             </label>
             <input
               type="text"
@@ -325,7 +325,7 @@ function Calculator({ culture }: { culture: CultureData }) {
           </div>
           <div className="flex flex-col gap-2">
             <label className="text-[12px] text-[#5A5A57] font-semibold uppercase tracking-[0.05em]">
-              Preço da saca (R$)
+              {tPage('calcPriceLabel')}
             </label>
             <input
               type="text"
@@ -338,7 +338,7 @@ function Calculator({ culture }: { culture: CultureData }) {
 
         <div className="flex flex-col gap-2 mb-3">
           <label className="text-[12px] text-[#5A5A57] font-semibold uppercase tracking-[0.05em]">
-            Produtividade atual (sc/ha)
+            {tPage('calcYieldLabel')}
           </label>
           <input
             type="text"
@@ -348,7 +348,7 @@ function Calculator({ culture }: { culture: CultureData }) {
           />
         </div>
         <p className="text-[12px] text-[#7C7C78] leading-[1.4] m-0">
-          Estimativa para lavoura em produção. Para programa sob medida, fale com um técnico Juma.
+          {tPage('calcFormLede')}
         </p>
       </div>
 
@@ -368,14 +368,14 @@ function Calculator({ culture }: { culture: CultureData }) {
         />
         <div className="relative">
           <div className="text-[12px] font-semibold uppercase tracking-[0.16em] text-white/60 mb-3">
-            Sacas extras estimadas
+            {tPage('calcExtraBags')}
           </div>
           <div
             className="text-[#F0E27A] leading-[1.0] font-[740] tracking-[-0.035em]"
             style={{ fontSize: 'clamp(48px,5.2vw,84px)', fontFeatureSettings: '"tnum"' }}
           >
             {fmt(sacasExtras)}
-            <small className="text-[0.4em] font-semibold text-white/55 ml-2">sc</small>
+            <small className="text-[0.4em] font-semibold text-white/55 ml-2">{tPage('calcBagsUnit')}</small>
           </div>
           <div className="text-[15px] text-white/78 mt-2">
             {tPage.rich('calcGainAverage', { gain: selectedProduct.gainPerHa, strong: (chunks) => <strong className="text-white">{chunks}</strong> })}
@@ -384,21 +384,21 @@ function Calculator({ culture }: { culture: CultureData }) {
           <hr className="border-none border-t border-white/[0.18] my-7" />
 
           <div className="text-[12px] font-semibold uppercase tracking-[0.16em] text-white/60 mb-3">
-            Receita extra estimada
+            {tPage('calcExtraRev')}
           </div>
           <div
             className="text-white leading-[1.0] font-[740] tracking-[-0.035em]"
             style={{ fontSize: 'clamp(32px,3.6vw,56px)', fontFeatureSettings: '"tnum"' }}
           >
-            R$ {fmt(receitaExtra)}
+            {tPage('calcCurrency')} {fmt(receitaExtra)}
           </div>
           <div className="text-[15px] text-white/78 mt-2">
-            Com base no preço médio da saca informado.
+            {tPage('calcBasePrice')}
           </div>
         </div>
 
         <div className="relative text-[12px] text-white/50 mt-8 pt-6 border-t border-white/[0.12]">
-          Estimativa baseada em dados médios de campo. Resultados reais variam conforme cultivar, manejo, solo e clima.
+          {tPage('calcDisclaimer')}
         </div>
       </div>
     </div>

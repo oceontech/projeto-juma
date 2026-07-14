@@ -842,6 +842,9 @@
     "calcGainAverage": "Average gain of <strong>+{gain} bags/ha</strong> · projected for your informed area.",
     "calcExtraRev": "Estimated extra revenue",
     "calcBasePrice": "Based on the reported average bag price.",
+    "calcSelect": "Select...",
+    "calcBagsUnit": "bags",
+    "calcCurrency": "$",
     "calcDisclaimer": "Estimate based on average field data. Actual results vary by cultivar, management, soil, and climate."
   },
   "cultureData": {

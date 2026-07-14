@@ -842,6 +842,9 @@
     "calcGainAverage": "Ganho médio de <strong>+{gain} sc/ha</strong> · projetado para sua área informada.",
     "calcExtraRev": "Receita extra estimada",
     "calcBasePrice": "Com base no preço médio da saca informado.",
+    "calcSelect": "Selecione...",
+    "calcBagsUnit": "sc",
+    "calcCurrency": "R$",
     "calcDisclaimer": "Estimativa baseada em dados médios de campo. Resultados reais variam conforme cultivar, manejo, solo e clima."
   },
   "cultureData": {
