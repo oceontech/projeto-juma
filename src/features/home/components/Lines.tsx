@@ -46,9 +46,9 @@ export function Lines() {
 
       const tlHead = gsap.timeline({
         scrollTrigger: {
-          trigger: ref.current,
-          start: 'top 85%',
-          end: 'bottom 15%',
+          trigger: titleRef.current?.parentElement || ref.current,
+          start: 'top 75%',
+          end: 'bottom 30%',
           toggleActions: 'play reverse play reverse',
         },
       })
@@ -73,21 +73,26 @@ export function Lines() {
         mm.add('(min-width: 640px)', () => {
           gsap.set(cards, { opacity: 0, filter: 'blur(12px)' })
 
-          const tlCards = gsap.timeline({
-            scrollTrigger: {
-              trigger: cards[0].parentElement || ref.current,
-              start: 'top 85%',
-              end: 'bottom 15%',
-              toggleActions: 'play reverse play reverse',
-            }
-          })
+          // Para Desktop, usar triggers individuais mas agrupar a entrada com batching seria ideal.
+          // Como temos cards, vamos usar ScrollTrigger individual para que saiam visíveis na tela.
+          // Isso resolve o problema de saírem muito tarde quando o grid todo já passou da tela.
+          cards.forEach((card, index) => {
+            gsap.set(card, { opacity: 0, filter: 'blur(12px)' })
 
-          tlCards.to(cards, {
-            opacity: 1,
-            filter: 'blur(0px)',
-            duration: 1.4,
-            stagger: 0.3,
-            ease: 'power3.out'
+            gsap.to(card, {
+              scrollTrigger: {
+                trigger: card,
+                start: 'top 75%',
+                end: 'bottom 30%',
+                toggleActions: 'play reverse play reverse',
+              },
+              opacity: 1,
+              filter: 'blur(0px)',
+              duration: 0.8,
+              // Mantém um pequeno delay simulando o stagger inicial baseado na posição do card
+              delay: (index % 3) * 0.15,
+              ease: 'power3.out'
+            })
           })
         })
 
@@ -99,13 +104,13 @@ export function Lines() {
             gsap.to(card, {
               scrollTrigger: {
                 trigger: card,
-                start: 'top 85%',
-                end: 'bottom 15%',
+                start: 'top 80%',
+                end: 'bottom 30%',
                 toggleActions: 'play reverse play reverse',
               },
               opacity: 1,
               filter: 'blur(0px)',
-              duration: 1.4,
+              duration: 0.8,
               ease: 'power3.out'
             })
           })
