@@ -204,10 +204,10 @@ export function CulturesGrid() {
             <span className="h-1.5 w-1.5 rounded-full bg-primary" />
             {t('eyebrow')}
           </span>
-          <h1 ref={titleRef} className="font-montserrat text-4xl md:text-5xl lg:text-6xl font-black uppercase text-foreground tracking-tight mb-6 max-w-[42rem] leading-tight">
+          <h1 ref={titleRef} className="font-montserrat text-4xl md:text-5xl lg:text-6xl font-black uppercase text-foreground tracking-tight mb-6 max-w-[64rem] leading-[0.95]">
             {t('titleStart')} <em className="text-highlight text-primary">{t('titleHighlight')}</em>
           </h1>
-          <p ref={introRef} className="text-lg md:text-xl text-foreground/70 max-w-[48rem] leading-relaxed">
+          <p ref={introRef} className="text-lg md:text-xl text-foreground/70 max-w-[64rem] leading-relaxed">
             {t('intro')}
           </p>
         </div>
@@ -252,8 +252,8 @@ export function CulturesGrid() {
               {t('howEyebrow')}
             </span>
           </div>
-          <div className="md:w-2/3 max-w-[42rem]">
-            <h2 data-how-title className="font-montserrat uppercase text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-tight">
+          <div className="md:w-2/3 max-w-[64rem]">
+            <h2 data-how-title className="font-montserrat uppercase text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-[0.95]">
               {t('howTitle')}
             </h2>
             <p data-how-intro className="text-lg text-foreground/70 leading-relaxed">
@@ -274,7 +274,7 @@ export function CulturesGrid() {
               <div className="absolute inset-0 bg-black/15 pointer-events-none" />
               <div className={`relative z-10 w-full h-full p-6 flex flex-col ${item.align} pointer-events-none`}>
                 <div className="bg-black/30 backdrop-blur-md border border-white/20 p-6 rounded-2xl flex flex-col max-w-[95%]">
-                  <h3 className="text-subtitle text-[19px] font-bold text-white mb-2 drop-shadow-md leading-tight">
+                  <h3 className="text-subtitle text-[19px] font-bold text-white mb-2 drop-shadow-md leading-[0.95]">
                     {t(`steps.${item.key}.title`)}
                   </h3>
                   <p className="text-white/95 leading-relaxed text-[14.5px] drop-shadow-sm font-medium">
@@ -290,12 +290,12 @@ export function CulturesGrid() {
       {/* CTA Final */}
       <div ref={ctaRef} className="rounded-3xl bg-primary text-white p-12 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-        <div className="relative z-10 max-w-[36rem]">
+        <div className="relative z-10 max-w-[64rem]">
           <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-white mb-4">
             <span className="h-1.5 w-1.5 rounded-full bg-white" />
             {t('ctaEyebrow')}
           </span>
-          <h2 className="font-montserrat text-3xl md:text-4xl font-black uppercase text-white tracking-tight mb-4 leading-tight">
+          <h2 className="font-montserrat text-3xl md:text-4xl font-black uppercase text-white tracking-tight mb-4 leading-[0.95]">
             {t('ctaTitleStart')} <em className="text-highlight text-white">{t('ctaTitleHighlight')}</em>
           </h2>
           <p className="text-white text-lg">

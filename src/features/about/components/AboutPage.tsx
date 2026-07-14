@@ -350,10 +350,10 @@ export function AboutPage() {
             <span className="h-1.5 w-1.5 rounded-full bg-primary" />
             {t('eyebrow')}
           </span>
-          <h1 ref={titleRef} className="font-montserrat text-4xl md:text-5xl lg:text-6xl font-black uppercase text-foreground tracking-tight mb-6 max-w-[48rem] leading-tight">
+          <h1 ref={titleRef} className="font-montserrat text-4xl md:text-5xl lg:text-6xl font-black uppercase text-foreground tracking-tight mb-6 max-w-[64rem] leading-[0.95]">
             {t('titleStart')} <em className="text-highlight text-primary">{t('titleHighlight')}</em>
           </h1>
-          <p ref={introRef} className="text-lg md:text-xl text-foreground/70 max-w-[48rem] leading-relaxed">
+          <p ref={introRef} className="text-lg md:text-xl text-foreground/70 max-w-[64rem] leading-relaxed">
             {t('intro')}
           </p>
         </div>
@@ -371,7 +371,7 @@ export function AboutPage() {
                 <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                 {t('historyEyebrow')}
               </span>
-              <h2 data-hist-title className="font-montserrat uppercase text-3xl md:text-4xl lg:text-5xl font-black text-foreground tracking-tight mb-3 md:mb-4 leading-tight mx-auto">
+              <h2 data-hist-title className="font-montserrat uppercase text-3xl md:text-4xl lg:text-5xl font-black text-foreground tracking-tight mb-3 md:mb-4 leading-[0.95] mx-auto">
                 {t('historyTitle')}
               </h2>
               <p data-hist-intro className="text-sm md:text-base lg:text-lg text-foreground/70 leading-relaxed mx-auto max-w-[600px]">
@@ -436,7 +436,7 @@ export function AboutPage() {
                         <span className="w-8 md:w-10 h-1 bg-primary rounded-full"></span>
                         {TIMELINE_YEARS[i]}
                       </div>
-                      <h3 className="font-montserrat uppercase text-xl md:text-2xl lg:text-3xl font-bold text-foreground mb-3 md:mb-4 leading-tight drop-shadow-sm">
+                      <h3 className="font-montserrat uppercase text-xl md:text-2xl lg:text-3xl font-bold text-foreground mb-3 md:mb-4 leading-[0.95] drop-shadow-sm">
                         {t(`timeline.${key}.title`)}
                       </h3>
                       <p className="text-foreground/80 text-sm md:text-base lg:text-lg leading-relaxed drop-shadow-sm font-medium">
@@ -460,8 +460,8 @@ export function AboutPage() {
                 {t('valuesEyebrow')}
               </span>
             </div>
-            <div className="md:w-2/3 max-w-[42rem]">
-              <h2 data-val-title className="font-montserrat uppercase text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-tight">
+            <div className="md:w-2/3 max-w-[64rem]">
+              <h2 data-val-title className="font-montserrat uppercase text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-[0.95]">
                 {t('valuesTitle')}
               </h2>
               <p data-val-intro className="text-lg text-foreground/70 leading-relaxed">
@@ -520,7 +520,7 @@ export function AboutPage() {
                 {t('purposeTitleStart')} <em className="text-highlight text-yellow-400">{t('purposeTitleHighlight')}</em><br />
                 {t('purposeTitleEnd')}
               </h2>
-              <p data-hl-intro className="text-white/85 text-lg md:text-xl max-w-[42rem] mx-auto leading-relaxed">
+              <p data-hl-intro className="text-white/85 text-lg md:text-xl max-w-[64rem] mx-auto leading-relaxed">
                 {t('purposeBody')}
               </p>
             </div>
@@ -541,8 +541,8 @@ export function AboutPage() {
                 {t('galleryEyebrow')}
               </span>
             </div>
-            <div className="md:w-2/3 max-w-[42rem]">
-              <h2 data-gal-title className="font-montserrat text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-tight">
+            <div className="md:w-2/3 max-w-[64rem]">
+              <h2 data-gal-title className="font-montserrat text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-[0.95]">
                 {t('galleryTitle')}
               </h2>
               <p data-gal-intro className="text-lg text-foreground/70 leading-relaxed">
@@ -576,12 +576,12 @@ export function AboutPage() {
         {/* CTA Final */}
         <div ref={ctaRef} className="rounded-3xl bg-primary text-white p-8 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-          <div className="relative z-10 max-w-[36rem]">
+          <div className="relative z-10 max-w-[64rem]">
             <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-white mb-4">
               <span className="h-1.5 w-1.5 rounded-full bg-white" />
               {t('ctaEyebrow')}
             </span>
-            <h2 className="font-montserrat text-3xl md:text-4xl font-black uppercase text-white tracking-tight mb-4 leading-tight">
+            <h2 className="font-montserrat text-3xl md:text-4xl font-black uppercase text-white tracking-tight mb-4 leading-[0.95]">
               {t('ctaTitleStart')} <em className="text-highlight text-white">{t('ctaTitleHighlight')}</em>
             </h2>
             <p className="text-white text-lg">
