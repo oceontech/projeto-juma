@@ -90,8 +90,8 @@ export function AboutPage() {
         const histTitle = history.querySelector('[data-hist-title]')
         const histIntro = history.querySelector('[data-hist-intro]')
         
-        const histSplit = histTitle ? new SplitText(histTitle as HTMLElement, { type: 'chars,lines' }) : null
-        const histChars = histSplit?.chars ?? []
+        const histSplit = histTitle ? new SplitText(histTitle as HTMLElement, { type: 'words' }) : null
+        const histWords = histSplit?.words ?? []
         
         const track = history.querySelector('[data-hist-track]')
         const line = history.querySelector('[data-hist-line]')
@@ -101,11 +101,11 @@ export function AboutPage() {
 
         if (histEyebrow) gsap.set(histEyebrow, { y: 15, opacity: 0 })
         if (histTitle) gsap.set(histTitle, { opacity: 0 })
-        if (histChars.length) gsap.set(histChars, { x: 20, opacity: 0, filter: 'blur(10px)' })
+        if (histWords.length) gsap.set(histWords, { y: 20, opacity: 0, filter: 'blur(10px)' })
         if (histIntro) gsap.set(histIntro, { y: 20, opacity: 0 })
         
         // Initial state for cards
-        gsap.set(cards, { opacity: 0, filter: 'blur(10px)', y: 20 })
+        gsap.set(cards, { opacity: 0, filter: 'blur(10px)', y: 30, scale: 0.95 })
 
         // Intro animation for the timeline section
         ScrollTrigger.create({
@@ -116,7 +116,7 @@ export function AboutPage() {
             const tlHist = gsap.timeline({ defaults: { ease: EASE.reveal } })
             if (histEyebrow) tlHist.to(histEyebrow, { y: 0, opacity: 1, duration: 0.5 })
             if (histTitle) tlHist.set(histTitle, { opacity: 1 }, 0.1)
-            if (histChars.length) tlHist.to(histChars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, 0.1)
+            if (histWords.length) tlHist.to(histWords, { y: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.word }, 0.1)
             if (histIntro) tlHist.to(histIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.4)
           }
         })
@@ -181,13 +181,14 @@ export function AboutPage() {
               }
               prevP = p
 
-              // Blur in card
+              // Blur in and scale card
               scrubTl.to(card, {
                 opacity: 1,
                 filter: 'blur(0px)',
                 y: 0,
-                duration: 0.1,
-                ease: 'power2.out',
+                scale: 1,
+                duration: 0.15,
+                ease: 'power3.out',
                 force3D: true
               }, p)
 
