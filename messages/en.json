@@ -479,16 +479,32 @@
     "valuesIntro": "Principles that have held Juma steady for four decades — and continue to guide us.",
     "values": {
       "v1": {
-        "title": "Alongside the grower",
-        "desc": "Agronomic team in the field, across every region. Decisions made where results happen."
+        "title": "Partnership",
+        "desc": "Agronomic team in the field, across all regions. Decisions made where results happen."
       },
       "v2": {
-        "title": "Applied knowledge",
-        "desc": "Continuous research and real trials with partner growers — science translated into results."
+        "title": "Quality",
+        "desc": "Lot-by-lot control inside our own labs. Continuous research and real trials with partner growers."
       },
       "v3": {
-        "title": "Responsibility",
-        "desc": "Productivity through responsible management, efficient formulations and respect for soil and water."
+        "title": "Ethics",
+        "desc": "Productivity through responsible management, efficient formulations, and respect for soil and water."
+      },
+      "v4": {
+        "title": "Honesty",
+        "desc": "When we publish a number, we publish the source of the trial. Transparency is a house rule."
+      },
+      "v5": {
+        "title": "Commitment",
+        "desc": "Nearly four decades of field experience built into products. Committed to making crops reach their maximum yield."
+      },
+      "v6": {
+        "title": "Efficiency",
+        "desc": "Science translated into results in the sprayer. Physiology and nutrition to unlock the plant's true potential."
+      },
+      "v7": {
+        "title": "Optimism",
+        "desc": "We believe in the potential of the land and the grower. Developing solutions today to feed the world tomorrow."
       }
     },
     "purposeEyebrow": "Purpose",
@@ -503,7 +519,11 @@
     "ctaTitleStart": "Let's grow",
     "ctaTitleHighlight": "together?",
     "ctaBody": "40 years of experience ready to work for your next season.",
-    "ctaButton": "Talk on WhatsApp"
+    "ctaButton": "Talk on WhatsApp",
+    "missionEyebrow": "Mission",
+    "missionTitle": "Commitment to tomorrow.",
+    "missionBadge": "Technology & respect",
+    "missionText": "To be an honest, socially, and financially sound company, continuously innovating, creating, and diversifying technologies in support of agriculture and livestock, without ever compromising our moral and cultural values, contributing to a sustainable growth of the Planet."
   },
   "articlesPage": {
     "eyebrow": "From the field to you",

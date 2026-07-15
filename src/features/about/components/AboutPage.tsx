@@ -9,7 +9,7 @@ import { gsap, SplitText, ScrollTrigger, useGSAP } from '@/features/animation/gs
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
-import { Leaf, Tractor, Sun, TreePine, Sprout, LucideIcon } from 'lucide-react'
+import { Leaf, Tractor, Sun, TreePine, Sprout, ClipboardEdit, LucideIcon } from 'lucide-react'
 import { GlobalPresence } from '@/features/home/components/GlobalPresence'
 
 function ArrowTopRightIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -29,12 +29,16 @@ const TIMELINE_ICONS: Record<typeof TIMELINE_KEYS[number], LucideIcon> = {
   y2015: Leaf,
   y2024: TreePine
 }
-const VALUE_KEYS = ['v1', 'v2', 'v3'] as const
+const VALUE_KEYS = ['v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7'] as const
 
 const VALUES_CONTENT: Record<typeof VALUE_KEYS[number], { image: string }> = {
   v1: { image: '/assets/about/ao-lado-produtor.webp' },
   v2: { image: '/assets/about/conhecimento-aplicado.webp' },
-  v3: { image: '/assets/about/responsabilidade.webp' }
+  v3: { image: '/assets/about/responsabilidade.webp' },
+  v4: { image: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=800&auto=format&fit=crop' },
+  v5: { image: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=800&auto=format&fit=crop' },
+  v6: { image: 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?q=80&w=800&auto=format&fit=crop' },
+  v7: { image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=800&auto=format&fit=crop' }
 }
 
 export function AboutPage() {
@@ -47,6 +51,7 @@ export function AboutPage() {
 
   const historyRef = useRef<HTMLDivElement>(null)
   const valuesRef = useRef<HTMLDivElement>(null)
+  const missionRef = useRef<HTMLDivElement>(null)
   const highlightRef = useRef<HTMLDivElement>(null)
   const galleryRef = useRef<HTMLDivElement>(null)
   const ctaRef = useRef<HTMLDivElement>(null)
@@ -60,6 +65,7 @@ export function AboutPage() {
       const intro = introRef.current
       const history = historyRef.current
       const values = valuesRef.current
+      const mission = missionRef.current
       const highlight = highlightRef.current
       const gallery = galleryRef.current
       const cta = ctaRef.current
@@ -327,6 +333,31 @@ export function AboutPage() {
         })
       }
 
+      if (mission) {
+        const mEyebrow = mission.querySelector('[data-mis-eyebrow]')
+        const mTitle = mission.querySelector('[data-mis-title]')
+        const mDesc = mission.querySelector('[data-mis-desc]')
+        const mVisual = mission.querySelector('[data-mis-visual]')
+
+        if (mEyebrow) gsap.set(mEyebrow, { y: 15, opacity: 0 })
+        if (mTitle) gsap.set(mTitle, { y: 20, opacity: 0 })
+        if (mDesc) gsap.set(mDesc, { y: 20, opacity: 0 })
+        if (mVisual) gsap.set(mVisual, { scale: 0.95, opacity: 0 })
+
+        ScrollTrigger.create({
+          trigger: mission,
+          start: 'top 80%',
+          once: true,
+          onEnter: () => {
+            const tlMis = gsap.timeline({ defaults: { ease: EASE.reveal } })
+            if (mEyebrow) tlMis.to(mEyebrow, { y: 0, opacity: 1, duration: 0.5 })
+            if (mTitle) tlMis.to(mTitle, { y: 0, opacity: 1, duration: 0.7 }, 0.1)
+            if (mDesc) tlMis.to(mDesc, { y: 0, opacity: 1, duration: DUR.sub }, 0.2)
+            if (mVisual) tlMis.to(mVisual, { scale: 1, opacity: 1, duration: 0.8 }, 0.25)
+          }
+        })
+      }
+
       if (cta) {
         ScrollTrigger.create({
           trigger: cta,
@@ -454,8 +485,8 @@ export function AboutPage() {
 
       <Container>
         {/* Valores */}
-        <div ref={valuesRef} className="mb-32">
-          <div className="flex flex-col gap-12 mb-16">
+        <div ref={valuesRef} className="mb-24 lg:mb-32">
+          <div className="flex flex-col gap-4 mb-8">
             <div className="md:w-1/3 shrink-0">
               <span data-val-eyebrow className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary" />
@@ -463,27 +494,56 @@ export function AboutPage() {
               </span>
             </div>
             <div className="md:w-2/3 max-w-[64rem]">
-              <h2 data-val-title className="font-montserrat uppercase text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-[0.95]">
+              <h2 data-val-title className="font-montserrat uppercase text-2xl md:text-4xl font-black text-foreground tracking-tight mb-2 leading-[0.95]">
                 {t('valuesTitle')}
               </h2>
-              <p data-val-intro className="text-lg text-foreground/70 leading-relaxed">
+              <p data-val-intro className="text-sm md:text-base text-foreground/70 leading-relaxed">
                 {t('valuesIntro')}
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:grid-rows-[minmax(150px,1fr)_minmax(170px,1fr)_minmax(170px,1fr)_minmax(150px,1fr)_minmax(130px,1fr)]">
             {VALUE_KEYS.map((key, i) => {
               const { image } = VALUES_CONTENT[key]
+
+              // Mosaic 7 Layout grid positions on desktop:
+              // i = 0 (v1): Top-left large (2 cols, 2 rows)
+              // i = 1 (v2): Top-right top small (1 col, 1 row)
+              // i = 2 (v3): Top-right bottom vertical (1 col, 1 row)
+              // i = 3 (v4): Bottom-left top vertical (1 col, 1 row)
+              // i = 4 (v5): Bottom-left bottom small (1 col, 1 row)
+              // i = 5 (v6): Bottom-right large (2 cols, 2 rows)
+              // i = 6 (v7): Footer (3 cols, 1 row)
+              const positionClass = 
+                i === 0 ? 'lg:col-start-1 lg:col-end-3 lg:row-start-1 lg:row-end-3' :
+                i === 1 ? 'lg:col-start-3 lg:col-end-4 lg:row-start-1 lg:row-end-2' :
+                i === 2 ? 'lg:col-start-3 lg:col-end-4 lg:row-start-2 lg:row-end-3' :
+                i === 3 ? 'lg:col-start-1 lg:col-end-2 lg:row-start-3 lg:row-end-4' :
+                i === 4 ? 'lg:col-start-1 lg:col-end-2 lg:row-start-4 lg:row-end-5' :
+                i === 5 ? 'lg:col-start-2 lg:col-end-4 lg:row-start-3 lg:row-end-5' :
+                'sm:col-span-2 lg:col-start-1 lg:col-end-4 lg:row-start-5 lg:row-end-6'
+
+              // Vertical layout on all screens: Text on top, image on the bottom
+              const maskClass = '[mask-image:linear-gradient(to_top,black_45%,transparent)] [-webkit-mask-image:linear-gradient(to_top,black_45%,transparent)]'
+              
+              const isLarge = i === 0 || i === 5
+              const imagePosClass = isLarge 
+                ? 'bottom-0 left-0 w-full h-[45%] sm:h-[50%] lg:h-[72%]'
+                : 'bottom-0 left-0 w-full h-[45%] sm:h-[42%] lg:h-[40%]'
+              
+              const cardMinHeight = i === 6 
+                ? 'min-h-[220px] sm:min-h-[140px] lg:min-h-0'
+                : 'min-h-[220px] sm:min-h-[240px] lg:min-h-0'
 
               return (
                 <div 
                   key={key} 
                   data-val-card 
-                  className="group relative flex flex-col min-h-[420px] overflow-hidden rounded-3xl border border-foreground/10 bg-white transition-shadow hover:shadow-lg"
+                  className={`group relative flex flex-col overflow-hidden rounded-xl border border-foreground/8 bg-white transition-shadow hover:shadow-lg ${cardMinHeight} ${positionClass}`}
                 >
-                  {/* Imagem de Fundo (Máscara idêntica a Lines.tsx) */}
-                  <div className="absolute pointer-events-none z-0 overflow-hidden bottom-0 w-full h-[65%] [mask-image:linear-gradient(to_top,black_40%,transparent)] [-webkit-mask-image:linear-gradient(to_top,black_40%,transparent)]">
+                  {/* Imagem de Fundo */}
+                  <div className={`absolute pointer-events-none z-0 overflow-hidden ${imagePosClass} ${maskClass}`}>
                     <div className="w-full h-full relative">
                       <Image 
                         src={image} 
@@ -495,17 +555,58 @@ export function AboutPage() {
                   </div>
 
                   {/* Conteúdo */}
-                  <div className="relative z-10 flex flex-col gap-4 p-8 lg:p-10 w-full mb-auto h-full">
-                    <h3 className="font-montserrat uppercase text-2xl font-black leading-[1.05] tracking-tight text-foreground">
+                  <div className="relative z-10 flex flex-col gap-0.5 lg:gap-1 p-3.5 lg:p-4 w-full mb-auto">
+                    <h3 className="font-black uppercase leading-[1.1] tracking-tight text-foreground text-sm sm:text-base lg:text-base">
                       {t(`values.${key}.title`)}
                     </h3>
-                    <p className="text-foreground/70 text-sm text-subtitle not-first-of-type:leading-relaxed max-w-[90%]">
+                    <p className="text-subtitle m-0 text-xs sm:text-[13px] lg:text-sm leading-normal sm:leading-relaxed text-foreground/55 max-w-[95%]">
                       {t(`values.${key}.desc`)}
                     </p>
                   </div>
                 </div>
               )
             })}
+          </div>
+        </div>
+
+        {/* Missão */}
+        <div ref={missionRef} className="mb-24 lg:mb-32">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            {/* Visual Panel */}
+            <div data-mis-visual className="order-2 lg:order-1 lg:col-span-5 relative h-[300px] sm:h-[400px] lg:h-[450px] rounded-[2rem] overflow-hidden group shadow-xl">
+              <Image 
+                src="https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=800&auto=format&fit=crop"
+                alt={t('missionTitle')}
+                fill
+                className="object-cover object-center group-hover:scale-105 transition-transform duration-[1.2s] ease-out"
+                sizes="(min-width: 1024px) 40vw, 100vw"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#004C26]/40 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute bottom-6 left-6 bg-white/95 backdrop-blur-sm px-6 py-3 rounded-full shadow-lg flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-[#004C26] flex items-center justify-center text-white">
+                  <ClipboardEdit className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold font-montserrat text-foreground tracking-wider uppercase">
+                  {t('missionBadge')}
+                </span>
+              </div>
+            </div>
+
+            {/* Text Content */}
+            <div className="order-1 lg:order-2 lg:col-span-7 flex flex-col justify-center">
+              <span data-mis-eyebrow className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary mb-4">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                {t('missionEyebrow')}
+              </span>
+              <h2 data-mis-title className="font-montserrat uppercase text-3xl md:text-4xl lg:text-5xl font-black text-foreground tracking-tight mb-6 leading-[0.95]">
+                {t('missionTitle')}
+              </h2>
+              <div data-mis-desc className="relative border-l-4 border-primary pl-6 py-2">
+                <p className="text-base sm:text-lg md:text-xl text-foreground/85 leading-relaxed font-medium">
+                  {t('missionText')}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 

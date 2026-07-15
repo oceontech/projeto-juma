@@ -479,16 +479,32 @@
     "valuesIntro": "Princípios que seguram a Juma há quatro décadas — e seguem nos guiando.",
     "values": {
       "v1": {
-        "title": "Ao lado do produtor",
+        "title": "Parceria",
         "desc": "Time agronômico no campo, em todas as regiões. Decisão tomada onde o resultado acontece."
       },
       "v2": {
-        "title": "Conhecimento aplicado",
-        "desc": "Pesquisa contínua e ensaios reais com produtores parceiros — ciência traduzida em resultado."
+        "title": "Qualidade",
+        "desc": "Controle de qualidade lote a lote, dentro de casa. Pesquisa contínua e ensaios reais com produtores parceiros."
       },
       "v3": {
-        "title": "Responsabilidade",
+        "title": "Ética",
         "desc": "Produtividade com manejo responsável, formulações eficientes e respeito ao solo e à água."
+      },
+      "v4": {
+        "title": "Honestidade",
+        "desc": "Quando publicamos um número, publicamos a fonte do ensaio. Transparência como regra da casa."
+      },
+      "v5": {
+        "title": "Comprometimento",
+        "desc": "Quase quatro décadas de campo acumuladas em produto. Nosso compromisso é fazer com que cada fase da lavoura renda o seu máximo."
+      },
+      "v6": {
+        "title": "Eficiência",
+        "desc": "Ciência traduzida em resultado no pulverizador. Fisiologia e nutrição para extrair o real potencial da planta."
+      },
+      "v7": {
+        "title": "Otimismo",
+        "desc": "Acreditamos no potencial da terra e do produtor. Desenvolvemos soluções hoje para alimentar o mundo de amanhã."
       }
     },
     "purposeEyebrow": "Propósito",
@@ -503,7 +519,11 @@
     "ctaTitleStart": "Vamos plantar",
     "ctaTitleHighlight": "juntos?",
     "ctaBody": "40 anos de experiência prontos pra trabalhar pela próxima safra da sua fazenda.",
-    "ctaButton": "Falar no WhatsApp"
+    "ctaButton": "Falar no WhatsApp",
+    "missionEyebrow": "Missão",
+    "missionTitle": "Compromisso com o amanhã.",
+    "missionBadge": "Tecnologia e respeito",
+    "missionText": "Ser uma empresa honesta, social e financeiramente saudável, sempre inovando, criando e diversificando tecnologias em prol da agricultura e pecuária, sem jamais ferir nossos valores morais e culturais, contribuindo para um crescimento sustentável do Planeta."
   },
   "articlesPage": {
     "eyebrow": "Do campo para você",
