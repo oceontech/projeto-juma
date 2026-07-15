@@ -537,6 +537,18 @@
     "ctaBody": "Every week a new article, real field cases and tips from our agronomic team — no spam.",
     "ctaButton": "Subscribe on WhatsApp"
   },
+  "articleDetailPage": {
+    "backButton": "Back to articles",
+    "readingTime": "READ",
+    "relatedTitle": "Read also",
+    "relatedSubtitle": "Selected content on nutrition and crop management.",
+    "author": "Juma Agro Technical Team",
+    "publishedAt": "Published on",
+    "ctaTitleStart": "Talk to our",
+    "ctaTitleHighlight": "specialists.",
+    "ctaBody": "Questions about the right management for your crop? Our agronomic team is ready to help.",
+    "ctaButton": "Talk on WhatsApp"
+  },
   "contactPage": {
     "eyebrow": "Contact",
     "titleStart": "Let's talk about",

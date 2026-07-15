@@ -537,6 +537,18 @@
     "ctaBody": "Toda semana uma matéria nova, casos reais de campo e dicas do time agronômico — sem spam.",
     "ctaButton": "Assinar no WhatsApp"
   },
+  "articleDetailPage": {
+    "backButton": "Voltar para matérias",
+    "readingTime": "DE LEITURA",
+    "relatedTitle": "Leia também",
+    "relatedSubtitle": "Conteúdos selecionados sobre nutrição e manejo para sua lavoura.",
+    "author": "Equipe Técnica Juma Agro",
+    "publishedAt": "Publicado em",
+    "ctaTitleStart": "Fale com nossos",
+    "ctaTitleHighlight": "especialistas.",
+    "ctaBody": "Dúvidas sobre o manejo correto para sua lavoura? Nosso time agronômico está pronto para ajudar.",
+    "ctaButton": "Falar no WhatsApp"
+  },
   "contactPage": {
     "eyebrow": "Contato",
     "titleStart": "Vamos conversar sobre",

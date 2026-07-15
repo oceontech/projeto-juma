@@ -13,6 +13,7 @@ import { useTranslations } from 'next-intl'
 
 const ARTICLES = [
   {
+    slug: 'como-reduzir-o-estresse',
     category: 'Manejo',
     date: '15 ABR 2026',
     readTime: '6 min de leitura',
@@ -21,6 +22,7 @@ const ARTICLES = [
     image: '/materias/capa-destaque.png',
   },
   {
+    slug: 'nutricao-fase-certa',
     category: 'Nutrição',
     date: '02 ABR 2026',
     readTime: '8 min de leitura',
@@ -29,6 +31,7 @@ const ARTICLES = [
     image: '/materias/nutricao-fase-certa.png',
   },
   {
+    slug: 'manejo-pastagem',
     category: 'Pecuária',
     date: '18 MAR 2026',
     readTime: '5 min de leitura',
@@ -125,14 +128,15 @@ export function HomeBlog() {
         {/* Cards */}
         <div className="grid md:grid-cols-3 gap-5">
           {ARTICLES.map((a, i) => (
-            <article
+            <Link
               key={i}
+              href={`/materias/${a.slug}`}
               data-blog-card
-              className="rounded-[24px] overflow-hidden flex flex-col"
+              className="rounded-[24px] overflow-hidden flex flex-col group hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               style={{ backgroundColor: '#F2F6F2', border: '1px solid rgba(0,0,0,.06)' }}
             >
               {/* Capa: gradiente por baixo enquanto a foto carrega */}
-              <div className="relative h-[200px] overflow-hidden group">
+              <div className="relative h-[200px] overflow-hidden">
                 <div className="w-full h-full" style={{ background: a.bg }} />
                 <Image
                   src={a.image}
@@ -154,21 +158,20 @@ export function HomeBlog() {
                 <span className="text-[11px] font-semibold tracking-[0.08em] uppercase" style={{ color: '#7a8f6e' }}>
                   {t(`articles.${i}.date`)} · {t(`articles.${i}.readTime`)}
                 </span>
-                <h3 className="text-[18px] text-subtitle font-bold leading-[1.35] tracking-[-0.01em] flex-1" style={{ color: '#0F1A0A' }}>
+                <h3 className="text-[18px] text-subtitle font-bold leading-[1.35] tracking-[-0.01em] flex-1 group-hover:text-primary transition-colors duration-300" style={{ color: '#0F1A0A' }}>
                   {t(`articles.${i}.title`)}
                 </h3>
-                <Link
-                  href="/materias"
-                  className="inline-flex items-center gap-2 text-[14px] font-semibold"
+                <span
+                  className="inline-flex items-center gap-2 text-[14px] font-semibold transition-transform duration-300 group-hover:translate-x-1"
                   style={{ color: '#004B26' }}
                 >
                   {t('readArticle')}
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                     <path d="M5 12h14M13 6l6 6-6 6" />
                   </svg>
-                </Link>
+                </span>
               </div>
-            </article>
+            </Link>
           ))}
         </div>
 

@@ -537,6 +537,18 @@
     "ctaBody": "Cada semana un artículo nuevo, casos reales de campo y consejos del equipo agronómico — sin spam.",
     "ctaButton": "Suscribirse por WhatsApp"
   },
+  "articleDetailPage": {
+    "backButton": "Volver a las materias",
+    "readingTime": "DE LECTURA",
+    "relatedTitle": "Lea también",
+    "relatedSubtitle": "Contenidos seleccionados sobre nutrición y manejo para su cultivo.",
+    "author": "Equipo Técnico Juma Agro",
+    "publishedAt": "Publicado el",
+    "ctaTitleStart": "Hable con nuestros",
+    "ctaTitleHighlight": "especialistas.",
+    "ctaBody": "¿Dudas sobre el manejo correcto para su cultivo? Nuestro equipo agronómico está listo para ayudar.",
+    "ctaButton": "Hablar por WhatsApp"
+  },
   "contactPage": {
     "eyebrow": "Contacto",
     "titleStart": "Hablemos sobre",
