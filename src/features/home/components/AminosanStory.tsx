@@ -229,7 +229,7 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
           />
           <video
             ref={videoRef}
-            muted playsInline preload="auto"
+            muted playsInline preload="metadata"
             poster="/heritage/desktop/morph-aminosan-1-antigo.png"
             aria-label={t('videoAlt')}
             className="absolute inset-0 h-full w-full object-cover object-bottom opacity-0 z-0"
@@ -1113,26 +1113,26 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
             Cada segmento tem um clipe forward e um reverso gravado. */}
         <video
           ref={morphFwdRef}
-          muted playsInline preload="auto"
+          muted playsInline preload="metadata"
           poster="/heritage/desktop/morph-aminosan-1-antigo.png"
           aria-label={t('videoAlt')}
           className={STAGE_VIDEO_CLASS}
         >
           <source src="/heritage/desktop/morph-aminosan.mp4" type="video/mp4" />
         </video>
-        <video ref={morphRevRef} muted playsInline preload="auto" aria-hidden="true" className={STAGE_VIDEO_CLASS}>
+        <video ref={morphRevRef} muted playsInline preload="metadata" aria-hidden="true" className={STAGE_VIDEO_CLASS}>
           <source src="/heritage/desktop/morph-aminosan-reverse.mp4" type="video/mp4" />
         </video>
-        <video ref={lineFwdRef} muted playsInline preload="auto" aria-hidden="true" className={STAGE_VIDEO_CLASS}>
+        <video ref={lineFwdRef} muted playsInline preload="metadata" aria-hidden="true" className={STAGE_VIDEO_CLASS}>
           <source src="/heritage/desktop/line-aminosan.mp4" type="video/mp4" />
         </video>
-        <video ref={lineRevRef} muted playsInline preload="auto" aria-hidden="true" className={STAGE_VIDEO_CLASS}>
+        <video ref={lineRevRef} muted playsInline preload="metadata" aria-hidden="true" className={STAGE_VIDEO_CLASS}>
           <source src="/heritage/desktop/line-aminosan-reverse.mp4" type="video/mp4" />
         </video>
-        <video ref={catFwdRef} muted playsInline preload="auto" aria-hidden="true" className={STAGE_VIDEO_CLASS}>
+        <video ref={catFwdRef} muted playsInline preload="metadata" aria-hidden="true" className={STAGE_VIDEO_CLASS}>
           <source src="/heritage/desktop/line-to-catalog.mp4" type="video/mp4" />
         </video>
-        <video ref={catRevRef} muted playsInline preload="auto" aria-hidden="true" className={STAGE_VIDEO_CLASS}>
+        <video ref={catRevRef} muted playsInline preload="metadata" aria-hidden="true" className={STAGE_VIDEO_CLASS}>
           <source src="/heritage/desktop/line-to-catalog-reverse.mp4" type="video/mp4" />
         </video>
 

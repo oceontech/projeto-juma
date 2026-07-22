@@ -1,22 +1,26 @@
 import { setRequestLocale } from 'next-intl/server'
+import dynamic from 'next/dynamic'
 
 import { HeroJornada }      from '@/features/home/components/HeroJornada'
 import { HomeMarquee }      from '@/features/home/components/HomeMarquee'
 import { OurStory }         from '@/features/home/components/OurStory'
 import { AminosanStory }         from '@/features/home/components/AminosanStory'
 import { HomeProductShowcase }   from '@/features/home/components/HomeProductShowcase'
-import { HomeCultures }          from '@/features/home/components/HomeCultures'
-import { ProofStrip }       from '@/features/home/components/ProofStrip'
-import { Problem }          from '@/features/home/components/Problem'
-import { Solution }         from '@/features/home/components/Solution'
-import { Lines }            from '@/features/home/components/Lines'
-import { HomeCalculator }   from '@/features/home/components/HomeCalculator'
-import { HomeExperience }   from '@/features/home/components/HomeExperience'
-import { GlobalPresence }   from '@/features/home/components/GlobalPresence'
-import { HomeTestimonials } from '@/features/home/components/HomeTestimonials'
-import { HomeBlog }         from '@/features/home/components/HomeBlog'
-import { HomeCtaFinal }     from '@/features/home/components/HomeCtaFinal'
 import { SectionNav }        from '@/features/home/components/SectionNav'
+
+// Seções abaixo da dobra do "filme contínuo": code-split em chunks separados
+// (continuam com SSR normal — só tiram peso do bundle inicial de hidratação).
+const HomeCultures    = dynamic(() => import('@/features/home/components/HomeCultures').then(m => m.HomeCultures))
+const ProofStrip      = dynamic(() => import('@/features/home/components/ProofStrip').then(m => m.ProofStrip))
+const Problem         = dynamic(() => import('@/features/home/components/Problem').then(m => m.Problem))
+const Solution        = dynamic(() => import('@/features/home/components/Solution').then(m => m.Solution))
+const Lines           = dynamic(() => import('@/features/home/components/Lines').then(m => m.Lines))
+const HomeCalculator  = dynamic(() => import('@/features/home/components/HomeCalculator').then(m => m.HomeCalculator))
+const HomeExperience  = dynamic(() => import('@/features/home/components/HomeExperience').then(m => m.HomeExperience))
+const GlobalPresence  = dynamic(() => import('@/features/home/components/GlobalPresence').then(m => m.GlobalPresence))
+const HomeTestimonials = dynamic(() => import('@/features/home/components/HomeTestimonials').then(m => m.HomeTestimonials))
+const HomeBlog        = dynamic(() => import('@/features/home/components/HomeBlog').then(m => m.HomeBlog))
+const HomeCtaFinal    = dynamic(() => import('@/features/home/components/HomeCtaFinal').then(m => m.HomeCtaFinal))
 
 export default async function HomePage(props: {
   params: Promise<{ locale: string }>

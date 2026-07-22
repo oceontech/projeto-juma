@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import dynamic from 'next/dynamic'
 import { Globe2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
@@ -8,8 +9,11 @@ import { gsap, ScrollTrigger, SplitText, useGSAP } from '@/features/animation/gs
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
-import { Globe } from '@/components/ui/Globe'
 import { FlagBR, FlagUS, type FlagComp } from '@/components/icons/flags'
+
+// O globo (cobe/WebGL) só existe abaixo da dobra e não tem conteúdo de SEO —
+// carrega em chunk separado, fora do bundle inicial da home.
+const Globe = dynamic(() => import('@/components/ui/Globe').then((m) => m.Globe), { ssr: false })
 
 /**
  * Presença internacional: sede no Brasil (Mogi Guaçu · SP) e filial nos EUA

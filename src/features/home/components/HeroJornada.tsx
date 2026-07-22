@@ -64,9 +64,24 @@ export function HeroJornada() {
 
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    // Os dois <video> (desktop/mobile) ficam sempre no DOM (um escondido via CSS,
+    // que decide o layout antes do JS rodar). Sem isto os dois iniciam o download
+    // com preload="auto" ao mesmo tempo — aqui só o vídeo do viewport atual é
+    // promovido a preload="auto", o outro fica parado em "none".
+    const loadActiveVideo = (mobile: boolean) => {
+      const active = root.current?.querySelector<HTMLVideoElement>(
+        `video[data-hero-video="${mobile ? 'mobile' : 'desktop'}"]`,
+      )
+      if (active && active.preload !== 'auto') {
+        active.preload = 'auto'
+        active.load()
+      }
+    }
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024)
+      const mobile = window.innerWidth < 1024
+      setIsMobile(mobile)
       setEnhanced(!reduced)
+      loadActiveVideo(mobile)
     }
     checkMobile()
     window.addEventListener('resize', checkMobile)
@@ -615,7 +630,8 @@ export function HeroJornada() {
         {/* z-0 — Vídeo desktop */}
         <video
           ref={isMobile ? null : videoRef}
-          muted playsInline preload="auto"
+          data-hero-video="desktop"
+          muted playsInline preload="none"
           poster="/hero/desktop/journey-poster.jpg"
           aria-label={tj('videoAlt')}
           className="absolute inset-0 z-0 h-full w-full object-cover hidden lg:block"
@@ -626,7 +642,8 @@ export function HeroJornada() {
         {/* z-[1] — Vídeo mobile (com multiply para revelar o selo por trás do branco) */}
         <video
           ref={isMobile ? videoRef : null}
-          muted playsInline preload="auto"
+          data-hero-video="mobile"
+          muted playsInline preload="none"
           poster="/hero/mobile/journey-poster.jpg"
           aria-label={tj('videoAlt')}
           className="absolute inset-0 z-[1] h-full w-full object-cover max-lg:object-bottom block lg:hidden mix-blend-multiply"

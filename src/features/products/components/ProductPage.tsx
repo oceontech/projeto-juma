@@ -356,7 +356,7 @@ export function ProductPage({ slug }: { slug: string }) {
                   alt={`Imagem do produto ${product.name}`}
                   width={1000}
                   height={1500}
-                  quality={100}
+                  quality={85}
                   className="object-contain w-full h-full max-w-[90%] max-h-[90%] drop-shadow-2xl"
                   priority
                 />

@@ -1,25 +1,81 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { gsap } from '@/features/animation/gsap'
 
 export function Preloader() {
+  const pathname = usePathname()
   const overlayRef = useRef<HTMLDivElement>(null)
   const dotsRef = useRef<(SVGCircleElement | null)[]>([])
-  const [hidden, setHidden] = useState(false)
+  const [visible, setVisible] = useState(true)
+  const [cycle, setCycle] = useState(0)
+  const prevPathnameRef = useRef(pathname)
+  const showingRef = useRef(true)
 
+  // Traz o overlay de volta (mesmo já tendo sumido na carga inicial) — usado
+  // tanto no clique de um link interno quanto na troca de pathname detectada
+  // abaixo, para que a troca de página tenha a mesma abertura/fechamento do
+  // carregamento inicial (experiência coerente entre as duas).
+  const showOverlay = () => {
+    if (showingRef.current) return
+    showingRef.current = true
+    setVisible(true)
+    setCycle((c) => c + 1)
+  }
+
+  // Início da navegação: clique num link interno (mesma origem, sem
+  // modificadores, sem target=_blank, sem download, sem âncora só de #hash).
   useEffect(() => {
-    // Revela o body — chamado tanto no caminho normal quanto no reduced-motion.
+    const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0) return
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+      const anchor = (e.target as HTMLElement | null)?.closest('a')
+      if (!anchor) return
+      if (anchor.target && anchor.target !== '_self') return
+      if (anchor.hasAttribute('download')) return
+      const href = anchor.getAttribute('href')
+      if (!href || href.startsWith('#')) return
+      let url: URL
+      try {
+        url = new URL(href, window.location.href)
+      } catch {
+        return
+      }
+      if (url.origin !== window.location.origin) return
+      if (url.pathname === window.location.pathname && url.search === window.location.search) return
+      showOverlay()
+    }
+    document.addEventListener('click', onClick)
+    return () => document.removeEventListener('click', onClick)
+  }, [])
+
+  // Fim da navegação (fallback): o pathname mudou — cobre navegação que não
+  // passa por um clique de link, como o seletor de idioma (router.replace).
+  useEffect(() => {
+    if (prevPathnameRef.current === pathname) return
+    prevPathnameRef.current = pathname
+    showOverlay()
+  }, [pathname])
+
+  // Roda a animação de entrada + agenda a dispensa — replicado a cada "cycle"
+  // (carga inicial e cada troca de página subsequente).
+  useEffect(() => {
+    if (!visible) return
+
     const revealBody = () => {
       document.body.style.visibility = 'visible'
+    }
+    const finish = () => {
+      showingRef.current = false
+      setVisible(false)
     }
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       revealBody()
-      const hide = () => setHidden(true)
-      if (document.readyState === 'complete') hide()
-      else window.addEventListener('load', hide, { once: true })
-      return
+      if (document.readyState === 'complete') finish()
+      else window.addEventListener('load', finish, { once: true })
+      return () => window.removeEventListener('load', finish)
     }
 
     const dots = dotsRef.current.filter((d): d is SVGCircleElement => d !== null)
@@ -53,27 +109,29 @@ export function Preloader() {
         opacity: 0,
         duration: 0.4,
         ease: 'power2.out',
-        onComplete: () => setHidden(true),
+        onComplete: finish,
       })
     }
 
-    let timer: ReturnType<typeof setTimeout>
-    const handleLoad = () => { timer = setTimeout(dismiss, 300) }
+    // Dispensa assim que as fontes carregarem (evita FOUC) — não espera o
+    // evento 'load' da janela, que só dispara depois de TODO recurso da
+    // página terminar (inclusive vídeos e imagens fora da viewport inicial),
+    // o que prendia a página inteira invisível por vários segundos.
+    let cancelled = false
+    const fontsReady = document.fonts?.ready ?? Promise.resolve()
+    const minShow = new Promise<void>((resolve) => setTimeout(resolve, 500))
 
-    if (document.readyState === 'complete') {
-      handleLoad()
-    } else {
-      window.addEventListener('load', handleLoad, { once: true })
-    }
+    Promise.all([fontsReady, minShow]).then(() => {
+      if (!cancelled) dismiss()
+    })
 
     return () => {
-      clearTimeout(timer)
-      window.removeEventListener('load', handleLoad)
+      cancelled = true
       ctx.revert()
     }
-  }, [])
+  }, [cycle, visible])
 
-  if (hidden) return null
+  if (!visible) return null
 
   return (
     <div
