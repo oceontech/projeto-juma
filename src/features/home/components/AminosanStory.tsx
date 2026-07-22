@@ -410,19 +410,20 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
               })
             }
           }
+          const isTouch = typeof window !== 'undefined' && (window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0)
           const sw = window.innerWidth - document.documentElement.clientWidth
-          if (sw > 0 && !isMobile) {
+          if (sw > 0 && !isMobile && !isTouch) {
             document.body.style.paddingRight = `${sw}px`
           }
           if (!isMobile) {
-            document.documentElement.style.overflow = 'hidden'
-            document.body.style.overflow = 'hidden'
+            document.documentElement.style.overflowY = 'hidden'
+            document.body.style.overflowY = 'hidden'
           }
         } else {
           document.body.style.paddingRight = ''
           if (!isMobile) {
-            document.documentElement.style.overflow = ''
-            document.body.style.overflow = ''
+            document.documentElement.style.overflowY = ''
+            document.body.style.overflowY = ''
           }
           lenisRef.current?.start()
           requestAnimationFrame(() => ScrollTrigger.refresh())

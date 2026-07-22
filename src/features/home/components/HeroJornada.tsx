@@ -182,19 +182,20 @@ export function HeroJornada() {
           // Para o Lenis para ele não competir com o scrub manual do vídeo
           lenisRef.current?.stop()
           // Compensa a largura da scrollbar para evitar layout shift ao ocultar overflow
+          const isTouch = typeof window !== 'undefined' && (window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0)
           const sw = window.innerWidth - document.documentElement.clientWidth
-          if (sw > 0 && !isMobile) {
+          if (sw > 0 && !isMobile && !isTouch) {
             document.body.style.paddingRight = `${sw}px`
           }
           if (!isMobile) {
-            document.documentElement.style.overflow = 'hidden'
-            document.body.style.overflow = 'hidden'
+            document.documentElement.style.overflowY = 'hidden'
+            document.body.style.overflowY = 'hidden'
           }
         } else {
           document.body.style.paddingRight = ''
           if (!isMobile) {
-            document.documentElement.style.overflow = ''
-            document.body.style.overflow = ''
+            document.documentElement.style.overflowY = ''
+            document.body.style.overflowY = ''
           }
           // Retoma o smooth scroll global ao liberar a jornada
           lenisRef.current?.start()
@@ -550,7 +551,7 @@ export function HeroJornada() {
     return (
       <section ref={root} className="sticky top-0 z-0 bg-white">
         {/* Logo Mobile no topo da Hero (estática) */}
-        <div className="absolute top-6 left-8 z-50 lg:hidden">
+        <div className="absolute top-6 left-lg z-50 lg:hidden">
           <Image
             src="/brand/logo-juma-agro.png"
             alt="Juma Agro"
@@ -561,7 +562,7 @@ export function HeroJornada() {
           />
         </div>
 
-        <Container className="grid grid-cols-1 items-start gap-xl pb-2xl pt-[12rem] lg:pt-[7.5rem] lg:grid-cols-12 min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] !px-8 lg:!px-md">
+        <Container className="grid grid-cols-1 items-start gap-xl pb-2xl pt-[12rem] lg:pt-[7.5rem] lg:grid-cols-12 min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] !px-lg lg:!px-[4rem] xl:!px-[6rem]">
           <div className="lg:col-span-7 text-left">
             <Headline t={t} className="w-full" />
           </div>
@@ -608,8 +609,8 @@ export function HeroJornada() {
 
   // ── Versão animada ────────────────────────────────────────────────
   return (
-    <section ref={root} className="sticky top-0 z-0 bg-white">
-      <div className="relative h-[100svh] w-full overflow-hidden">
+    <section ref={root} className="sticky top-0 z-0 bg-white overflow-x-hidden">
+      <div className="relative h-[100svh] min-h-[100dvh] w-full overflow-hidden">
 
         {/* z-0 — Vídeo desktop */}
         <video
@@ -628,7 +629,7 @@ export function HeroJornada() {
           muted playsInline preload="auto"
           poster="/hero/mobile/journey-poster.jpg"
           aria-label={tj('videoAlt')}
-          className="absolute inset-0 z-[1] h-full w-full object-cover block lg:hidden mix-blend-multiply"
+          className="absolute inset-0 z-[1] h-full w-full object-cover max-lg:object-bottom block lg:hidden mix-blend-multiply"
         >
           <source src="/hero/mobile/journey.mp4" type="video/mp4" />
         </video>
@@ -636,7 +637,7 @@ export function HeroJornada() {
         {/* z-10 — Headline: sobe DE TRÁS das montanhas na entrada */}
         <div data-rest className="absolute inset-x-0 top-0 z-10 w-full">
           {/* Logo Mobile no topo da Hero (desaparece no scroll) */}
-          <div className="absolute top-6 left-8 z-50 lg:hidden">
+          <div className="absolute top-6 left-lg z-50 lg:hidden">
             <Image
               src="/brand/logo-juma-agro.png"
               alt="Juma Agro"
@@ -647,7 +648,7 @@ export function HeroJornada() {
             />
           </div>
 
-          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pt-[10rem] lg:pt-[10rem] !px-8 lg:!px-md">
+          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pt-[10rem] lg:pt-[10rem] !px-lg lg:!px-[4rem] xl:!px-[6rem]">
             <div className="relative max-w-[60rem] min-[1600px]:max-w-[76rem] min-[2000px]:max-w-[92rem]">
 
               {/* Glow radial suave atrás do título */}
@@ -676,7 +677,7 @@ export function HeroJornada() {
           <Image
             src={isMobile ? '/hero/mobile/frame-1-campo.png' : '/hero/desktop/frame-1-campo.png'}
             alt="" aria-hidden fill priority sizes="100vw"
-            className="object-cover object-center"
+            className="object-cover max-lg:object-bottom object-center"
           />
         </div>
 
@@ -685,7 +686,7 @@ export function HeroJornada() {
         </div>
 
         {/* z-30 — Folhas: 2 camadas com timing diferente criam profundidade de canópia */}
-        <div ref={leafContainerRef} className="pointer-events-none absolute inset-0 z-30">
+        <div ref={leafContainerRef} className="pointer-events-none absolute inset-0 z-30 overflow-hidden">
           {/* Camada traseira: mais lenta, semi-transparente, deslocada ligeiramente mais abaixo */}
           <div
             className="leaf-sway-2 absolute"
@@ -713,7 +714,7 @@ export function HeroJornada() {
         {/* z-40 — Subtítulo + CTA (repouso) */}
         <div data-rest className="absolute inset-x-0 -top-8 lg:top-25 z-40">
           {/* pr extra no desktop: os traços do SectionNav ficam colados na borda direita */}
-          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] flex lg:justify-end justify-start pt-[22rem] md:pt-[24rem] lg:pt-[6rem] min-[1600px]:pt-[10.5rem] !px-8 lg:!px-md lg:!pr-14 min-[1600px]:!pr-md">
+          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] flex lg:justify-end justify-start pt-[22rem] md:pt-[24rem] lg:pt-[6rem] min-[1600px]:pt-[10.5rem] !px-8 lg:!px-[4rem] xl:!px-[6rem] lg:!pr-14 min-[1600px]:!pr-md">
               <div
                 ref={supportRef}
                 className={`lg:w-1/3 flex flex-col lg:gap-md rounded-2xl bg-transparent backdrop-blur-[2px] md:bg-transparent md:backdrop-blur-none items-start lg:items-end text-left lg:text-right`}

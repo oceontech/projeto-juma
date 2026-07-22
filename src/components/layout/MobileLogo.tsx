@@ -16,7 +16,7 @@ export function MobileLogo() {
     <Link
       href="/"
       aria-label="Juma Agro — início"
-      className="absolute top-6 left-5 z-[45] xl:hidden pointer-events-auto"
+      className="absolute top-6 left-lg z-[45] xl:hidden pointer-events-auto"
     >
       <Image
         src="/brand/logo-juma-agro.png"
