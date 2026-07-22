@@ -264,13 +264,12 @@ export function HeroJornada() {
         const video = videoRef.current
         if (!video) { stopPlayback(); return }
         if (!playingRef.current) return
-        const elapsed = (now - lastTimeRef.current) / 1000
-        lastTimeRef.current = now
-        const current = video.currentTime
-        const target  = targetRef.current
+        const target = targetRef.current
         if (target === null) return
 
         if (directionRef.current === 'forward') {
+          lastTimeRef.current = now
+          const current = video.currentTime
           if (video.paused) void video.play().catch(() => {})
           updateActivePhase(current)
           updateLeavesParallax(current)
@@ -278,6 +277,21 @@ export function HeroJornada() {
           if (current >= limit) { video.pause(); stopPlayback(); return }
         } else if (directionRef.current === 'backward') {
           if (!video.paused) video.pause()
+          // Não empilha um novo seek em cima de um ainda em andamento — em
+          // decodificadores mais lentos (mobile) isso enfileira buscas que o
+          // decoder não consegue acompanhar, e o vídeo "engasga" e depois pula
+          // direto pro alvo (o mesmo efeito documentado no scrub manual que a
+          // AminosanStory evita de propósito). Só avança quando o seek anterior
+          // terminou — o "relógio" (lastTimeRef) só corre enquanto avançamos de
+          // verdade, então a velocidade média do rewind não muda, só a
+          // granularidade dos passos num aparelho mais lento.
+          if (video.seeking) {
+            animationFrameRef.current = requestAnimationFrame(tick)
+            return
+          }
+          const elapsed = (now - lastTimeRef.current) / 1000
+          lastTimeRef.current = now
+          const current = video.currentTime
           const nextTime = Math.max(0, current - elapsed)
           try { video.currentTime = nextTime } catch {}
           updateActivePhase(nextTime)
