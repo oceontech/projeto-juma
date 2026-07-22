@@ -9,6 +9,7 @@ import { DUR, EASE, FADE_Y, STAGGER } from '@/features/animation/motion'
 import { useLenis } from '@/features/animation/SmoothScroll'
 import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
+import { FlipFadeText } from '@/components/ui/flip-fade-text'
 
 /**
  * Seção 1 = HERO + JORNADA numa coisa só, fixa, em camadas (doc 05/03, ADR-019 final).
@@ -1060,61 +1061,6 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitl
         defaults: { ease: EASE.reveal },
         onComplete: () => {
           onRevealComplete?.(true)
-          
-          if (titleHiOptions && titleHiOptions.length > 1 && titleRef.current) {
-            split?.revert()
-            const activeHiEl = titleRef.current.querySelector('.text-highlight') as HTMLSpanElement;
-            if (!activeHiEl) return;
-
-            // Converte a tag do destaque para grid para que as palavras fiquem sobrepostas
-            activeHiEl.className = "text-highlight text-primary inline-grid min-w-max";
-            activeHiEl.innerText = "";
-            
-            const spans = titleHiOptions.map((opt, i) => {
-               const s = document.createElement('span');
-               s.innerText = opt;
-               s.className = "col-start-1 row-start-1 leading-[1.05]";
-               s.style.opacity = i === 0 ? "1" : "0";
-               s.style.filter = i === 0 ? "blur(0px)" : "blur(8px)";
-               s.style.transform = i === 0 ? "translateY(0)" : "translateY(20px)";
-               activeHiEl.appendChild(s);
-               return s;
-            });
-
-            rotatorTl = gsap.timeline({ repeat: -1 })
-            
-            for (let i = 0; i < spans.length; i++) {
-               const currentEl = spans[i];
-               const nextEl = spans[(i + 1) % spans.length];
-
-               // label dinâmico para garantir que o crossfade ocorra ao mesmo tempo
-               const label = `step${i}`;
-               
-               // Adiciona um tempo menor de "respiro" (timeline parada) ANTES deste passo
-               rotatorTl.addLabel(label, "+=1.5")
-               
-               rotatorTl.to(currentEl, {
-                  y: -20,
-                  opacity: 0,
-                  filter: 'blur(8px)',
-                  duration: 0.5,
-                  ease: 'power2.inOut'
-               }, label)
-               
-               rotatorTl.fromTo(nextEl, {
-                  y: 20,
-                  opacity: 0,
-                  filter: 'blur(8px)'
-               }, {
-                  y: 0,
-                  opacity: 1,
-                  filter: 'blur(0px)',
-                  duration: 0.5,
-                  ease: 'power2.out',
-                  immediateRender: false
-               }, label)
-            }
-          }
         }
       })
       if (kickerEl) tl.fromTo(kickerEl, { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0)
@@ -1124,7 +1070,6 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitl
 
       return () => { 
         tl.kill(); 
-        rotatorTl?.kill();
         split?.revert(); 
         onRevealComplete?.(false);
       }
@@ -1147,9 +1092,13 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitl
           <span className="text-eyebrow text-primary text-[11px] uppercase tracking-widest">{kicker}</span>
         </span>
 
-        <h2 ref={titleRef} className="font-black uppercase leading-[1.05] tracking-tight text-[clamp(2rem,5vw,4.25rem)]">
-          <span className="text-foreground">{lead}</span>
-          {titleHi && <> <span ref={hiRef} className="text-highlight text-primary inline-block">{titleHi}</span></>}
+        <h2 className="font-black uppercase leading-[1.05] tracking-tight text-[clamp(2rem,5vw,4.25rem)] flex flex-wrap items-center justify-center gap-x-[1ch]">
+          <span ref={titleRef} className="text-foreground">{lead}</span>
+          {titleHiOptions && titleHiOptions.length > 1 ? (
+             <FlipFadeText key={String(show)} words={titleHiOptions} interval={2500} letterDuration={0.3} staggerDelay={0.04} />
+          ) : (
+             titleHi && <span ref={hiRef} className="text-highlight text-primary">{titleHi}</span>
+          )}
         </h2>
 
         <span data-gline aria-hidden className="mx-auto mt-lg block h-[3px] w-12 rounded-full bg-primary" />
