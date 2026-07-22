@@ -592,7 +592,7 @@ export function HeroJornada() {
           />
         </div>
 
-        <Container className="grid grid-cols-1 items-start gap-xl pb-2xl pt-[12rem] lg:pt-[7.5rem] lg:grid-cols-12 min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] !px-lg lg:!px-[4rem] xl:!px-[6rem]">
+        <Container className="grid grid-cols-1 items-start gap-xl pb-2xl pt-[9rem] lg:pt-[7.5rem] lg:grid-cols-12 min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] !px-lg lg:!px-[4rem] xl:!px-[6rem]">
           <div className="lg:col-span-7 text-left">
             <Headline t={t} className="w-full" />
           </div>
@@ -680,7 +680,7 @@ export function HeroJornada() {
             />
           </div>
 
-          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pt-[10rem] lg:pt-[10rem] !px-lg lg:!px-[4rem] xl:!px-[6rem]">
+          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pt-[7rem] md:pt-[8rem] lg:pt-[10rem] !px-lg lg:!px-[4rem] xl:!px-[6rem]">
             <div className="relative max-w-[60rem] min-[1600px]:max-w-[76rem] min-[2000px]:max-w-[92rem]">
 
               {/* Glow radial suave atrás do título */}
@@ -691,7 +691,7 @@ export function HeroJornada() {
                 style={{ background: 'radial-gradient(ellipse 75% 55% at 38% 52%, rgba(0,76,38,0.12), transparent 70%)' }}
               />
 
-              <h1 ref={titleWrapRef} className="hero-title-shimmer relative font-black uppercase leading-[0.92] tracking-tight text-[clamp(2.8rem,8vw,5rem)] min-[1600px]:text-[7.5rem] min-[2000px]:text-[9rem] text-left">
+              <h1 ref={titleWrapRef} className="hero-title-shimmer relative font-black uppercase leading-[0.92] tracking-tight text-[clamp(2.2rem,7vw,5rem)] md:text-[clamp(2.8rem,8vw,5rem)] min-[1600px]:text-[7.5rem] min-[2000px]:text-[9rem] text-left">
                 <span className="block text-foreground">{t('headlineLine1')}</span>
                 <span className="block text-foreground">{t('headlineLine2')}</span>
                 <span className="block">
@@ -746,7 +746,7 @@ export function HeroJornada() {
         {/* z-40 — Subtítulo + CTA (repouso) */}
         <div data-rest className="absolute inset-x-0 -top-8 lg:top-25 z-40">
           {/* pr extra no desktop: os traços do SectionNav ficam colados na borda direita */}
-          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] flex lg:justify-end justify-start pt-[22rem] md:pt-[24rem] lg:pt-[6rem] min-[1600px]:pt-[10.5rem] !px-8 lg:!px-[4rem] xl:!px-[6rem] lg:!pr-14 min-[1600px]:!pr-md">
+          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] flex lg:justify-end justify-start pt-[16rem] md:pt-[20rem] lg:pt-[6rem] min-[1600px]:pt-[10.5rem] !px-8 lg:!px-[4rem] xl:!px-[6rem] lg:!pr-14 min-[1600px]:!pr-md">
               <div
                 ref={supportRef}
                 className={`lg:w-1/3 flex flex-col lg:gap-md rounded-2xl bg-transparent backdrop-blur-[2px] md:bg-transparent md:backdrop-blur-none items-start lg:items-end text-left lg:text-right`}
@@ -826,7 +826,7 @@ type TFn = ReturnType<typeof useTranslations>
 
 function Headline({ t, className = '' }: { t: TFn; className?: string }) {
   return (
-    <h1 className={`text-[clamp(2.75rem,8vw,5rem)] min-[1600px]:text-[7.5rem] min-[2000px]:text-[9rem] font-black uppercase leading-[0.92] tracking-tight ${className}`}>
+    <h1 className={`text-[clamp(2.2rem,7vw,5rem)] md:text-[clamp(2.75rem,8vw,5rem)] min-[1600px]:text-[7.5rem] min-[2000px]:text-[9rem] font-black uppercase leading-[0.92] tracking-tight ${className}`}>
       <span className="block text-foreground">{t('headlineLine1')}</span>
       <span className="block text-foreground">{t('headlineLine2')}</span>
       <span className="block">
