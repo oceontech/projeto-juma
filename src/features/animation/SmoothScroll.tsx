@@ -36,6 +36,13 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    // Celular/tablet (ponteiro grosso, sem hover): usa o scroll nativo direto.
+    // O Lenis some com o listener extra de 'scroll' -> ScrollTrigger.update em
+    // cada evento nativo de touch — um custo a mais que só se paga no desktop,
+    // onde o Lenis existe pra suavizar a roda do mouse (o toque já rola nativo
+    // por conta própria). O ScrollTrigger continua funcionando: sem proxy, ele
+    // escuta o 'scroll' nativo sozinho (mesmo caminho do reduced-motion acima).
+    if (window.matchMedia('(pointer: coarse)').matches) return
 
     // Previne que o navegador tente restaurar o scroll em recarregamentos (F5)
     // forçando a volta para o topo e evitando quebra das animações do GSAP.

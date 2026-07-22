@@ -102,7 +102,7 @@ export function OurStory() {
       // ── Estado inicial ──────────────────────────────────────────────
       gsap.set(photo, { y: 24, opacity: 0 })
       gsap.set(title, { opacity: 0 })
-      gsap.set(titleChars, { x: 20, opacity: 0, filter: 'blur(10px)' })
+      gsap.set(titleChars, { x: 20, opacity: 0, ...(isDesktop && { filter: 'blur(10px)' }) })
       gsap.set(body, { y: 12, opacity: 0 })
       gsap.set(cta, { y: 12, opacity: 0 })
       gsap.set(stats, { y: 10, opacity: 0 })
@@ -123,7 +123,13 @@ export function OurStory() {
       entry.set(title, { opacity: 1 }, 0.15)
       entry.to(
         titleChars,
-        { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char },
+        {
+          x: 0,
+          opacity: 1,
+          ...(isDesktop && { filter: 'blur(0px)' }),
+          duration: DUR.title,
+          stagger: STAGGER.char,
+        },
         0.15,
       )
       entry.to(body, { y: 0, opacity: 1, duration: 0.5 }, 0.35)
@@ -133,7 +139,7 @@ export function OurStory() {
       // ── Saída: fade simples, sem y para evitar "giro" pesado ────────
       const exit = gsap.timeline({ paused: true, defaults: { ease: 'power2.in' } })
       exit.to([title, body, cta, stats], { opacity: 0, duration: 0.25 }, 0)
-      exit.set(titleChars, { x: 20, opacity: 0, filter: 'blur(10px)' }, 0.25)
+      exit.set(titleChars, { x: 20, opacity: 0, ...(isDesktop && { filter: 'blur(10px)' }) }, 0.25)
       if (isDesktop) exit.to(labels, { opacity: 0, duration: 0.2 }, 0)
       exit.to(photo, { y: -10, opacity: 0, duration: 0.3 }, 0.05)
 
