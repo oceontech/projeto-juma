@@ -389,16 +389,34 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       // ── Helpers de animação
       let currentTl: gsap.core.Timeline | null = null
       let lineTl: gsap.core.Timeline | null = null
+      let lockedScrollY = 0
 
       const lockScroll = (on: boolean) => {
         if (on) {
           lenisRef.current?.stop()
-          // Alinha a seção exatamente ao topo da viewport: sem isto a trava
-          // engata com o scroll alguns px além/aquém do 'top top' e sobra uma
-          // faixa da seção vizinha visível durante toda a animação.
           const stage = stageRef.current
-          if (stage) {
-            const targetY = Math.round(window.scrollY + stage.getBoundingClientRect().top)
+          const targetY = stage ? Math.round(window.scrollY + stage.getBoundingClientRect().top) : window.scrollY
+
+          if (isMobile) {
+            // overflow:hidden sozinho não seguraria a trava aqui: um fling já
+            // lançado (dedo já solto da tela) continua por inércia do próprio
+            // compositor, sem nunca disparar 'touchmove' — não sobra nada pro
+            // preventDefault interceptar, e o scroll nativo atravessa a seção
+            // inteira antes do estado 'isLocked' ter qualquer efeito. A trava
+            // real no mobile é a mesma técnica clássica de scroll-lock: tirar
+            // o body do fluxo de scroll com position:fixed, o que cancela a
+            // inércia na hora (o deslocamento em 'top' preserva a posição
+            // visual e já alinha a seção ao topo da viewport, sem tween).
+            lockedScrollY = targetY
+            document.body.style.position = 'fixed'
+            document.body.style.top = `-${targetY}px`
+            document.body.style.left = '0'
+            document.body.style.right = '0'
+            document.body.style.width = '100%'
+          } else {
+            // Alinha a seção exatamente ao topo da viewport: sem isto a trava
+            // engata com o scroll alguns px além/aquém do 'top top' e sobra uma
+            // faixa da seção vizinha visível durante toda a animação.
             if (Math.abs(window.scrollY - targetY) > 1) {
               const proxy = { y: window.scrollY }
               gsap.to(proxy, {
@@ -409,19 +427,24 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
                 onUpdate: () => window.scrollTo(0, proxy.y),
               })
             }
-          }
-          const isTouch = typeof window !== 'undefined' && (window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0)
-          const sw = window.innerWidth - document.documentElement.clientWidth
-          if (sw > 0 && !isMobile && !isTouch) {
-            document.body.style.paddingRight = `${sw}px`
-          }
-          if (!isMobile) {
+            const isTouch = typeof window !== 'undefined' && (window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0)
+            const sw = window.innerWidth - document.documentElement.clientWidth
+            if (sw > 0 && !isTouch) {
+              document.body.style.paddingRight = `${sw}px`
+            }
             document.documentElement.style.overflowY = 'hidden'
             document.body.style.overflowY = 'hidden'
           }
         } else {
-          document.body.style.paddingRight = ''
-          if (!isMobile) {
+          if (isMobile) {
+            document.body.style.position = ''
+            document.body.style.top = ''
+            document.body.style.left = ''
+            document.body.style.right = ''
+            document.body.style.width = ''
+            window.scrollTo(0, lockedScrollY)
+          } else {
+            document.body.style.paddingRight = ''
             document.documentElement.style.overflowY = ''
             document.body.style.overflowY = ''
           }
@@ -673,7 +696,12 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         // stage = início do pin do catálogo). O corte é imperceptível porque os
         // dois lados mostram o mesmo trio; a cor e os textos brotam já no
         // catálogo. O still full-frame fica fora de tela após o salto.
-        const targetY = Math.round(window.scrollY + stageTrigger.getBoundingClientRect().bottom)
+        // No mobile o body está congelado via position:fixed (ver lockScroll):
+        // window.scrollY relata 0 nesse estado, não a posição visual real —
+        // usar isso aqui subtrairia a rolagem já feita até a seção e o salto
+        // pousaria acima do catálogo em vez de exatamente no início dele.
+        const currentScrollY = isMobile ? lockedScrollY : window.scrollY
+        const targetY = Math.round(currentScrollY + stageTrigger.getBoundingClientRect().bottom)
         window.dispatchEvent(new CustomEvent('aminosan:prepare-handoff-forward'))
         release()
         lenisRef.current?.scrollTo(targetY, { immediate: true, force: true } as any)
@@ -905,6 +933,20 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       // igual ao autoRewind do HeroJornada, mas usando o cruzamento de posição do
       // ScrollTrigger (já comprovado confiável na entrada) em vez de recalcular a
       // posição "à mão" num listener de scroll separado.
+      // Tolerância da checagem de proximidade: no mobile não existe Lenis (ver
+      // SmoothScroll.tsx — pointer:coarse usa scroll nativo puro), então um flick
+      // comum já move várias centenas de px entre duas amostras de scroll. Uma
+      // margem fixa pequena (150px, suficiente pro passo curto do Lenis no
+      // desktop) faz o onEnter dessincronizar do 'top top' real nesse caso: quando
+      // o callback roda, rect.top já passou da margem, a trava nunca engata e o
+      // scroll nativo atravessa a seção inteira de uma vez. Por isso a margem só
+      // cresce no mobile — no desktop o passo curto do Lenis não precisa dela, e
+      // alargar geral faria cruzamentos "fantasma" de longe (ex: um
+      // ScrollTrigger.refresh() disparado com o usuário rolado pra bem longe
+      // desta seção) passarem como "perto", destravando o scroll cedo demais.
+      const nearStageTop = (rect: DOMRect | null | undefined) =>
+        !!rect && Math.abs(rect.top) <= (isMobile ? Math.max(window.innerHeight * 0.9, 150) : 150)
+
       // onEnter: entrando pela primeira vez (rest em act1) → só trava, o próprio
       // gesto de scroll seguinte é que inicia o forward (via handleForward).
       // onEnterBack: voltando de baixo → trava E já dispara o rebobinar do
@@ -915,7 +957,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         onEnter: () => {
           playIntro(false)
           const rect = stageRef.current?.getBoundingClientRect()
-          if (rect && Math.abs(rect.top) > 150) {
+          if (!nearStageTop(rect)) {
             if (isLocked) release()
             return
           }
@@ -930,7 +972,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         onEnterBack: () => {
           if (phase === 'act1') playIntro(false)
           const rect = stageRef.current?.getBoundingClientRect()
-          if (rect && Math.abs(rect.top) > 150) {
+          if (!nearStageTop(rect)) {
             if (isLocked) release()
             return
           }
@@ -955,7 +997,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         // dispara e a seção fica presa na fase avançada pra sempre.
         onLeaveBack: () => {
           const rect = stageRef.current?.getBoundingClientRect()
-          if (rect && Math.abs(rect.top) > 150) {
+          if (!nearStageTop(rect)) {
             if (isLocked) release()
             return
           }
@@ -1039,12 +1081,10 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       }
       const onTouchMove = (e: TouchEvent) => {
         if (!isLocked) return
-        if ((e.target as HTMLElement).closest('.allow-scroll')) return
         e.preventDefault()
       }
       const onTouchEnd = (e: TouchEvent) => {
         if (!isLocked) return
-        if ((e.target as HTMLElement).closest('.allow-scroll')) return
         const endY = e.changedTouches[0] ? e.changedTouches[0].clientY : touchY
         const dy   = touchY - endY
         if (dy > 30) {
@@ -1222,7 +1262,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         {/* UI do Ato 3 — mesmo desenho do Ato 1: coluna de texto à esquerda, frasco em cena.
             No mobile o bloco de prova (número + handoff + CTA) desce para o rodapé da tela,
             deixando o frasco visível no meio. */}
-        <Container className="allow-scroll touch-pan-y relative lg:absolute lg:inset-0 z-30 flex min-h-[100svh] lg:min-h-0 h-auto lg:h-full items-stretch md:items-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pointer-events-none pt-[8vh] md:pt-0 pb-[8vh] md:pb-0">
+        <Container className="relative lg:absolute lg:inset-0 z-30 flex min-h-[100svh] lg:min-h-0 h-auto lg:h-full items-stretch md:items-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pointer-events-none pt-[8vh] md:pt-0 pb-[8vh] md:pb-0">
           <div ref={leftPanelRef} className="pointer-events-auto flex w-full flex-1 md:flex-none md:w-auto max-w-full md:max-w-[24rem] xl:max-w-[28rem] flex-col items-start">
             <span data-a3-tag className="text-eyebrow mb-sm md:mb-md text-[10px] xl:text-xs uppercase tracking-[0.18em] text-primary">
               {t('a3Eyebrow')}
