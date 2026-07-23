@@ -154,7 +154,8 @@ type RoleProps = {
   height?: string
 }
 
-function getRoleProps(role: Role, isMobile: boolean): RoleProps {
+function getRoleProps(role: Role, isMobile: boolean, index: number): RoleProps {
+  const mod = isMobile && index === 0 ? 0.65 : 1
   if (isMobile) {
     switch (role) {
       case 'center':
@@ -163,7 +164,7 @@ function getRoleProps(role: Role, isMobile: boolean): RoleProps {
           xPercent: -50,
           x: 0,
           yPercent: 0,
-          scale: 1,
+          scale: 1 * mod,
           filter: 'blur(0px)',
           opacity: 1,
           zIndex: 20,
@@ -175,7 +176,7 @@ function getRoleProps(role: Role, isMobile: boolean): RoleProps {
           xPercent: -50,
           x: '-30vw',
           yPercent: 0,
-          scale: 0.34,
+          scale: 0.34 * mod,
           filter: 'blur(6px)',
           opacity: 0.35,
           zIndex: 10,
@@ -187,7 +188,7 @@ function getRoleProps(role: Role, isMobile: boolean): RoleProps {
           xPercent: -50,
           x: '30vw',
           yPercent: 0,
-          scale: 0.34,
+          scale: 0.34 * mod,
           filter: 'blur(6px)',
           opacity: 0.35,
           zIndex: 10,
@@ -199,7 +200,7 @@ function getRoleProps(role: Role, isMobile: boolean): RoleProps {
           xPercent: -50,
           x: 0,
           yPercent: 0,
-          scale: 0.28,
+          scale: 0.28 * mod,
           filter: 'blur(8px)',
           opacity: 0,
           zIndex: 1,
@@ -214,7 +215,7 @@ function getRoleProps(role: Role, isMobile: boolean): RoleProps {
         xPercent: -50,
         x: 0,
         yPercent: 0,
-        scale: 1,
+        scale: 1 * mod,
         filter: 'blur(0px)',
         opacity: 1,
         zIndex: 20,
@@ -225,7 +226,7 @@ function getRoleProps(role: Role, isMobile: boolean): RoleProps {
         xPercent: -50,
         x: 0,
         yPercent: -22,
-        scale: 0.62,
+        scale: 0.62 * mod,
         filter: 'blur(5px)',
         opacity: 0.6,
         zIndex: 10,
@@ -255,8 +256,8 @@ function getRoleProps(role: Role, isMobile: boolean): RoleProps {
   }
 }
 
-function getVisibleRoleProps(role: Role, isMobile: boolean): RoleProps {
-  const props = getRoleProps(role, isMobile)
+function getVisibleRoleProps(role: Role, isMobile: boolean, index: number): RoleProps {
+  const props = getRoleProps(role, isMobile, index)
   return {
     bottom: '8vh',
     width: 'auto',
@@ -269,9 +270,14 @@ function getVisibleRoleProps(role: Role, isMobile: boolean): RoleProps {
 
 function getCatalogBottleProps(index: number, active: number, isMobile: boolean): RoleProps {
   const role = getRole(index, active)
-  const props = getVisibleRoleProps(role, isMobile)
+  const props = getVisibleRoleProps(role, isMobile, index)
   if (index === 0 && role === 'center') {
-    return { ...getFullFrameBottleProps(), scale: 0.85, y: -37, zIndex: 20 }
+    return { 
+      ...getFullFrameBottleProps(), 
+      scale: isMobile ? 1.6 : 0.85, 
+      y: isMobile ? -200 : -37, 
+      zIndex: 20 
+    }
   }
   if (index === 0 && role === 'left') {
     return {
@@ -439,11 +445,12 @@ export function HomeProductShowcase() {
         if (!wrap || !img) return
 
         if (fullFrame) {
+          const isMobileNow = window.innerWidth < 1024
           gsap.set(wrap, { width: '100%', height: '100%', overflow: 'visible' })
           gsap.set(img, {
             width: '100%',
             height: '100%',
-            objectFit: 'cover',
+            objectFit: isMobileNow ? 'contain' : 'cover',
             objectPosition: '50% 50%',
           })
           return
@@ -864,15 +871,22 @@ export function HomeProductShowcase() {
             })
             transitionTl = tl
             gsap.set(bottles[0], { ...catalogCenter, autoAlpha: 0, opacity: 0 })
-            tl.set(
-              handoffStillRef.current,
-              { autoAlpha: 1, scale: 1, y: 0, zIndex: 30, filter: 'blur(0px)' },
-              0,
-            )
+            gsap.set(handoffStillRef.current, {
+              autoAlpha: 1,
+              opacity: 1,
+              scale: isMobile ? 1.45 : 1,
+              top: isMobile ? '22svh' : 0,
+              height: isMobile ? '60svh' : '100%',
+              y: 0,
+              zIndex: 30,
+              filter: 'blur(0px)',
+            })
             tl.to(
               handoffStillRef.current,
               {
                 scale: catalogCenter.scale,
+                top: 0,
+                height: '100%',
                 y: catalogCenter.y ?? 0,
                 duration: 0.58,
                 ease: 'power2.out',
@@ -982,7 +996,16 @@ export function HomeProductShowcase() {
 
             tl.set(
               handoffStillRef.current,
-              { ...catalogCenter, autoAlpha: 1, opacity: 1, zIndex: 30, filter: 'blur(0px)' },
+              {
+                autoAlpha: 1,
+                opacity: 1,
+                zIndex: 30,
+                filter: 'blur(0px)',
+                scale: catalogCenter.scale,
+                top: 0,
+                height: '100%',
+                y: catalogCenter.y ?? 0,
+              },
               0,
             )
             tl.set(bottles[0], { autoAlpha: 0, opacity: 0 }, 0)
@@ -1012,7 +1035,14 @@ export function HomeProductShowcase() {
             })
             tl.to(
               handoffStillRef.current,
-              { scale: 1, y: 0, duration: 0.58, ease: 'power2.inOut' },
+              {
+                scale: isMobile ? 1.45 : 1,
+                top: isMobile ? '22svh' : 0,
+                height: isMobile ? '60svh' : '100%',
+                y: 0,
+                duration: 0.58,
+                ease: 'power2.inOut',
+              },
               0,
             )
           }
@@ -1272,7 +1302,7 @@ export function HomeProductShowcase() {
             alt=""
             aria-hidden="true"
             draggable={false}
-            className="pointer-events-none absolute inset-0 z-[3] h-full w-full object-cover opacity-0"
+            className="pointer-events-none absolute inset-0 z-[3] h-full w-full object-cover max-lg:top-[22svh] max-lg:h-[60svh] max-lg:object-contain opacity-0"
           />
 
           {/* Teatro de frascos — todos os produtos posicionados, GSAP anima */}

@@ -28,9 +28,9 @@ type TFn = ReturnType<typeof useTranslations>
 
 /* Vídeos e stills compartilhados por desktop e mobile */
 const STAGE_VIDEO_CLASS =
-  'absolute inset-0 z-0 h-full w-full object-cover opacity-0 max-lg:top-[20svh] max-lg:h-[80svh] max-lg:object-contain'
+  'absolute inset-0 z-0 h-full w-full object-cover opacity-0 max-lg:top-[22svh] max-lg:h-[60svh] max-lg:object-contain'
 const STAGE_IMAGE_CLASS =
-  'absolute z-10 pointer-events-none object-cover md:!object-cover lg:!inset-0 max-lg:!top-[20svh] max-lg:!h-[80svh] max-lg:!object-contain'
+  'absolute z-10 pointer-events-none object-cover md:!object-cover lg:!inset-0 max-lg:!top-[22svh] max-lg:!h-[60svh] max-lg:!object-contain'
 
 export function AminosanStory() {
   const t = useTranslations('aminosanStory')
@@ -700,8 +700,13 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         // window.scrollY relata 0 nesse estado, não a posição visual real —
         // usar isso aqui subtrairia a rolagem já feita até a seção e o salto
         // pousaria acima do catálogo em vez de exatamente no início dele.
+        // Alvo = fim do wrapper (= topo do catálogo). Com a pista de scroll, o
+        // fim do stage fica no MEIO do wrapper; usar o bottom do stage pousaria
+        // na pista branca, não no catálogo. O bottom do wrapper `root` cai
+        // exatamente no início do #sec-produtos.
         const currentScrollY = isMobile ? lockedScrollY : window.scrollY
-        const targetY = Math.round(currentScrollY + stageTrigger.getBoundingClientRect().bottom)
+        const runwayEl = root.current ?? stageTrigger
+        const targetY = Math.round(currentScrollY + runwayEl.getBoundingClientRect().bottom)
         window.dispatchEvent(new CustomEvent('aminosan:prepare-handoff-forward'))
         release()
         lenisRef.current?.scrollTo(targetY, { immediate: true, force: true } as any)
@@ -739,7 +744,24 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         const seg = SEGMENTS[activeSeg]
         const video = direction === 'forward' ? seg.fwd : seg.rev
         const margin = direction === 'forward' ? 0.1 : 0.18
+
+        if (activeSeg === 'line') {
+          if (isMobile) {
+            const progress = video.currentTime / safeDur(video)
+            const easeProgress = gsap.parseEase('power1.inOut')(progress)
+            const currentScale = direction === 'forward' 
+              ? 2.8 - (1.35 * easeProgress)
+              : 1.45 + (1.35 * easeProgress)
+            gsap.set(video, { scale: currentScale })
+          } else {
+            gsap.set(video, { clearProps: 'scale' })
+          }
+        }
+
         if (video.currentTime >= safeDur(video) - margin) {
+          if (isMobile && activeSeg === 'line') {
+            gsap.set(video, { scale: direction === 'forward' ? 1.45 : 2.8 })
+          }
           video.pause()
           phase = direction === 'forward' ? seg.fore : seg.back
           cooldownRef.current = performance.now() + 320
@@ -877,6 +899,17 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           gsap.set(oldImg, { autoAlpha: 0 })
           gsap.set(trioImg, { autoAlpha: 0 })
 
+          if (isMobile) {
+            const progress = video.currentTime / safeDur(video)
+            const easeProgress = gsap.parseEase('power1.inOut')(progress)
+            const currentScale = dir === 'forward' 
+              ? 2.8 - (1.35 * easeProgress)
+              : 1.45 + (1.35 * easeProgress)
+            gsap.set(video, { scale: currentScale })
+          } else {
+            gsap.set(video, { clearProps: 'scale' })
+          }
+
           if (dir === 'forward') {
             gsap.killTweensOf([oldImg, newImg, lineImg, trioImg])
             gsap.set([oldImg, newImg, lineImg, trioImg], { autoAlpha: 0 })
@@ -947,6 +980,29 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const nearStageTop = (rect: DOMRect | null | undefined) =>
         !!rect && Math.abs(rect.top) <= (isMobile ? Math.max(window.innerHeight * 0.9, 150) : 150)
 
+      // Trava robusta à INTENSIDADE do scroll (o bug do "pulei direto pro
+      // catálogo"). Causa-raiz: o stage tinha exatamente 1 viewport de altura e o
+      // catálogo colado logo abaixo — zero pista de scroll. Num fling forte o
+      // onEnter dispara já com o 'top top' ultrapassado por centenas de px, a
+      // proximidade exata do stage falha e o scroll nativo/Lenis atravessa a
+      // seção inteira até o catálogo (o HeroJornada nunca sofre disso por ser
+      // sticky no topo; o catálogo, por ter um pin com espaçador).
+      //
+      // Correção: um espaçador ("pista de pouso") no fim do wrapper `root`
+      // (ver JSX) dá à seção espaço de scroll REAL. O overshoot de um fling cai
+      // nessa pista (branca), não no catálogo, e a trava passa a depender apenas
+      // de estarmos DENTRO da pista — condição geométrica estável do wrapper, que
+      // independe da velocidade. Ao travar, o lockScroll reposiciona o stage no
+      // topo (o alvo já é o topo do wrapper, pois o stage é seu primeiro filho).
+      const insideRunway = () => {
+        const rr = root.current?.getBoundingClientRect()
+        if (!rr) return false
+        const vh = window.innerHeight
+        // topo do wrapper já cruzou o topo da viewport E ainda resta ao menos
+        // ~1 viewport de pista abaixo (o catálogo só começa no fim do wrapper).
+        return rr.top <= 1 && rr.bottom > vh * 0.85
+      }
+
       // onEnter: entrando pela primeira vez (rest em act1) → só trava, o próprio
       // gesto de scroll seguinte é que inicia o forward (via handleForward).
       // onEnterBack: voltando de baixo → trava E já dispara o rebobinar do
@@ -956,8 +1012,10 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         start: 'top top',
         onEnter: () => {
           playIntro(false)
-          const rect = stageRef.current?.getBoundingClientRect()
-          if (!nearStageTop(rect)) {
+          // Enquanto estivermos dentro da pista (imune à velocidade do fling),
+          // trava e reposiciona no topo; fora dela, é cruzamento-fantasma de um
+          // refresh com o usuário longe — ignora.
+          if (!insideRunway()) {
             if (isLocked) release()
             return
           }
@@ -967,7 +1025,15 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           }
         },
         onLeave: () => {
-          if (isLocked) release()
+          if (!isLocked) return
+          // Num fling forte o ScrollTrigger cruza o 'top top' e o fim do stage no
+          // MESMO tick: o onEnter acima acabou de travar em act1 e este onLeave
+          // viria logo atrás soltando tudo — o scroll então atravessaria a seção
+          // inteira até o catálogo. Enquanto a sequência ainda está em act1
+          // (nenhuma transição começou), a trava recém-engatada vale; só soltamos
+          // nas fases já avançadas, onde onLeave é a segurança real de escape.
+          if (phase === 'act1' && !direction) return
+          release()
         },
         onEnterBack: () => {
           if (phase === 'act1') playIntro(false)
@@ -1156,11 +1222,11 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           muted playsInline preload="metadata"
           poster="/heritage/desktop/morph-aminosan-1-antigo.png"
           aria-label={t('videoAlt')}
-          className={STAGE_VIDEO_CLASS}
+          className={`${STAGE_VIDEO_CLASS} max-lg:scale-[2.8]`}
         >
           <source src="/heritage/desktop/morph-aminosan.mp4" type="video/mp4" />
         </video>
-        <video ref={morphRevRef} muted playsInline preload="metadata" aria-hidden="true" className={STAGE_VIDEO_CLASS}>
+        <video ref={morphRevRef} muted playsInline preload="metadata" aria-hidden="true" className={`${STAGE_VIDEO_CLASS} max-lg:scale-[2.8]`}>
           <source src="/heritage/desktop/morph-aminosan-reverse.mp4" type="video/mp4" />
         </video>
         <video ref={lineFwdRef} muted playsInline preload="metadata" aria-hidden="true" className={STAGE_VIDEO_CLASS}>
@@ -1169,10 +1235,10 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         <video ref={lineRevRef} muted playsInline preload="metadata" aria-hidden="true" className={STAGE_VIDEO_CLASS}>
           <source src="/heritage/desktop/line-aminosan-reverse.mp4" type="video/mp4" />
         </video>
-        <video ref={catFwdRef} muted playsInline preload="metadata" aria-hidden="true" className={STAGE_VIDEO_CLASS}>
+        <video ref={catFwdRef} muted playsInline preload="metadata" aria-hidden="true" className={`${STAGE_VIDEO_CLASS} max-lg:scale-[1.45]`}>
           <source src="/heritage/desktop/line-to-catalog.mp4" type="video/mp4" />
         </video>
-        <video ref={catRevRef} muted playsInline preload="metadata" aria-hidden="true" className={STAGE_VIDEO_CLASS}>
+        <video ref={catRevRef} muted playsInline preload="metadata" aria-hidden="true" className={`${STAGE_VIDEO_CLASS} max-lg:scale-[1.45]`}>
           <source src="/heritage/desktop/line-to-catalog-reverse.mp4" type="video/mp4" />
         </video>
 
@@ -1182,7 +1248,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           src="/heritage/desktop/morph-aminosan-1-antigo.png"
           alt={t('oldBottleAlt')}
           fill sizes="100vw"
-          className={STAGE_IMAGE_CLASS}
+          className={`${STAGE_IMAGE_CLASS} max-lg:!scale-[2.8]`}
           priority
         />
 
@@ -1192,7 +1258,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           src="/heritage/desktop/morph-aminosan-2-novo.png"
           alt={t('newBottleAlt')}
           fill sizes="100vw"
-          className={`${STAGE_IMAGE_CLASS} opacity-0`}
+          className={`${STAGE_IMAGE_CLASS} opacity-0 max-lg:!scale-[2.8]`}
           priority
         />
 
@@ -1203,7 +1269,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           alt=""
           aria-hidden
           fill sizes="100vw"
-          className={`${STAGE_IMAGE_CLASS} opacity-0`}
+          className={`${STAGE_IMAGE_CLASS} opacity-0 max-lg:!scale-[1.45]`}
         />
 
         {/* z-10 — still do trio do catálogo (fim da transição) */}
@@ -1213,7 +1279,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           alt=""
           aria-hidden
           fill sizes="100vw"
-          className={`${STAGE_IMAGE_CLASS} opacity-0`}
+          className={`${STAGE_IMAGE_CLASS} opacity-0 max-lg:!scale-[1.45]`}
         />
 
         <AminosanBrandMark refEl={brandMarkRef} />
@@ -1282,10 +1348,19 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           </div>
         </Container>
 
-        <BottleCallout refEl={newCalloutRef} eyebrow={t('a3Eyebrow')}>
+        <BottleCallout refEl={newCalloutRef} eyebrow={t('a3Eyebrow')} className="max-md:!top-[25vh] max-md:!bottom-auto">
           {t('newBottleCaption')}
         </BottleCallout>
       </section>
+
+      {/* Pista de pouso: espaço de scroll REAL depois do stage, para que o
+          overshoot de um scroll intenso caia aqui (área branca) em vez de já
+          revelar o catálogo — dando à trava tempo/geometria estável para engatar
+          e reposicionar a seção no topo (ver insideRunway/finishExit). O usuário
+          nunca descansa nesta faixa: o fim do filme salta direto para o catálogo
+          e a volta salta para o topo do stage. Mesma ideia do sticky do
+          HeroJornada e do pin do catálogo, que já são 100% estáveis. */}
+      <div aria-hidden className="pointer-events-none w-full h-[100svh]" />
     </div>
   )
 }
@@ -1321,7 +1396,7 @@ function AminosanBrandMark({ refEl }: { refEl: RefObject<HTMLDivElement | null> 
     <div
       ref={refEl}
       aria-label="Aminosan registrado"
-      className="pointer-events-none absolute left-1/2 top-[12svh] z-30 -translate-x-1/2 text-center max-md:top-[9svh]"
+      className="pointer-events-none absolute left-1/2 top-[12svh] z-30 -translate-x-1/2 text-center max-md:top-[4svh]"
     >
       <span className="font-black uppercase leading-none tracking-[0.02em] text-foreground text-[clamp(1.45rem,2.08vw,2.65rem)]">
         AMINOSAN<sup className="ml-1 align-super text-[0.36em] leading-none">&reg;</sup>
@@ -1334,16 +1409,18 @@ function AminosanBrandMark({ refEl }: { refEl: RefObject<HTMLDivElement | null> 
 function BottleCallout({
   refEl,
   eyebrow,
+  className = '',
   children,
 }: {
   refEl: RefObject<HTMLDivElement | null>
   eyebrow: string
+  className?: string
   children: ReactNode
 }) {
   return (
     <div
       ref={refEl}
-      className="aminosan-bottle-callout pointer-events-none absolute right-[4%] bottom-[18vh] md:right-auto md:left-[63.5%] md:bottom-auto md:top-[56%] md:-translate-y-1/2 xl:left-[64%] z-30 flex items-center gap-3"
+      className={`aminosan-bottle-callout pointer-events-none absolute z-30 flex items-center gap-3 ${className}`}
     >
       <span data-line aria-hidden className="aminosan-bottle-callout__line" style={{ transformOrigin: 'left' }} />
       <span data-dot aria-hidden className="aminosan-bottle-callout__dot" />

@@ -925,10 +925,13 @@ html.lenis body { height: auto; }
     bottom: auto;
     top: 33vh;
     height: 48vh; /* termina antes da faixa dos stats — sem sobreposição */
+    width: 100%;
+    max-width: 100vw;
     transform-origin: center center;
   }
   /* bottle-wrap preenche o theater-bottle (52vh) */
-  .pcs-bottle-wrap    { height: 100%; }
+  .pcs-bottle-wrap    { height: 100%; width: 100%; }
+  .pcs-bottle         { max-width: 100%; }
 
   .pcs-product {
     display: flex;
