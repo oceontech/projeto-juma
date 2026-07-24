@@ -391,8 +391,8 @@
     "eyebrow": "Juma Experience",
     "titleStart": "Experience Juma",
     "titleHighlight": "up close.",
-    "intro": "An immersion program to see in practice how our solutions are born and work in the field. Side by side with researchers, agronomists and partner growers — from the lab to the harvest.",
-    "btnParticipate": "I want to join",
+    "intro": "An exclusive immersion program for Juma clients, designed to see in practice how our solutions work in the field. Side by side with our agronomic team — from the lab to the harvest. Become a client and secure your access.",
+    "btnParticipate": "I want to become a client",
     "btnProgram": "See program",
     "programEyebrow": "What it is",
     "programTitle": "Three days inside the Juma operation.",
@@ -438,12 +438,12 @@
     "galleryEyebrow": "What it looks like",
     "galleryTitle": "The program in photos.",
     "galleryIntro": "Images from recent editions — research lab, field trials and grower exchange.",
-    "ctaEyebrow": "Open enrolments",
-    "ctaTitleStart": "I want to",
-    "ctaTitleHighlight": "participate",
-    "ctaTitleEnd": "in the next group.",
-    "ctaBody": "Next groups in July and September · limited spots. Get in touch to reserve yours.",
-    "ctaButton": "Reserve on WhatsApp"
+    "ctaEyebrow": "Exclusive access",
+    "ctaTitleStart": "Live the",
+    "ctaTitleHighlight": "Juma",
+    "ctaTitleEnd": "experience.",
+    "ctaBody": "Juma Experience is an immersion program exclusive to our clients. Become a Juma partner and secure your access to the next groups.",
+    "ctaButton": "Become a client"
   },
   "aboutPage": {
     "eyebrow": "About Juma",
@@ -765,8 +765,8 @@
     "kicker": "Juma Experience",
     "titlePart1": "Experience Juma ",
     "titleHighlight": "up close.",
-    "desc": "An immersion program to see in practice how our solutions are born and work in the field — from research to harvest, side by side with our agronomic team.",
-    "cta": "I want to participate"
+    "desc": "An exclusive experience for Juma clients. See in practice how our solutions are born and work in the field — from research to harvest. Become a partner and secure your access.",
+    "cta": "I want to become a client"
   },
   "globalPresence": {
     "eyebrow": "International presence",

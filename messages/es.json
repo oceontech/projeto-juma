@@ -391,8 +391,8 @@
     "eyebrow": "Juma Experience",
     "titleStart": "Viva la Juma",
     "titleHighlight": "de cerca.",
-    "intro": "Un programa de inmersión para conocer en la práctica cómo nacen y funcionan nuestras soluciones en el campo. Junto a investigadores, agrónomos y productores socios — del laboratorio a la cosecha.",
-    "btnParticipate": "Quiero participar",
+    "intro": "Un programa de inmersión exclusivo para clientes de Juma, diseñado para conocer en la práctica cómo funcionan nuestras soluciones en el campo. Junto a nuestro equipo agronómico — del laboratorio a la cosecha. Conviértase en cliente y asegure su acceso.",
+    "btnParticipate": "Quiero ser cliente",
     "btnProgram": "Ver programa",
     "programEyebrow": "Qué es",
     "programTitle": "Tres días dentro de la operación Juma.",
@@ -438,12 +438,12 @@
     "galleryEyebrow": "Cómo es por aquí",
     "galleryTitle": "El programa en fotos.",
     "galleryIntro": "Imágenes de las últimas ediciones — sala de investigación, ensayos en campo e intercambio entre productores.",
-    "ctaEyebrow": "Inscripciones abiertas",
-    "ctaTitleStart": "Quiero",
-    "ctaTitleHighlight": "participar",
-    "ctaTitleEnd": "en el próximo grupo.",
-    "ctaBody": "Próximos grupos en julio y septiembre · cupos limitados. Contáctenos para reservar el suyo.",
-    "ctaButton": "Reservar por WhatsApp"
+    "ctaEyebrow": "Acceso exclusivo",
+    "ctaTitleStart": "Vive la",
+    "ctaTitleHighlight": "experiencia",
+    "ctaTitleEnd": "Juma.",
+    "ctaBody": "Juma Experience es un programa de inmersión exclusivo para nuestros clientes. Conviértase en socio de Juma y asegure su acceso a los próximos grupos.",
+    "ctaButton": "Quiero ser cliente"
   },
   "aboutPage": {
     "eyebrow": "Acerca de Juma",
@@ -765,8 +765,8 @@
     "kicker": "Juma Experience",
     "titlePart1": "Vive Juma ",
     "titleHighlight": "de cerca.",
-    "desc": "Un programa de inmersión para conocer en la práctica cómo nacen y funcionan nuestras soluciones en el campo, desde la investigación hasta la cosecha, codo a codo con nuestro equipo agronómico.",
-    "cta": "Quiero participar"
+    "desc": "Una experiencia exclusiva para clientes de Juma. Conozca en la práctica cómo nacen y funcionan nuestras soluciones en el campo, desde la investigación hasta la cosecha. Conviértase en socio y asegure su acceso.",
+    "cta": "Quiero ser cliente"
   },
   "globalPresence": {
     "eyebrow": "Presencia internacional",
