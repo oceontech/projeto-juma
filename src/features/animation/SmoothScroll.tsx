@@ -36,6 +36,14 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    // Previne que o navegador tente restaurar o scroll em recarregamentos (F5)
+    // forçando a volta para o topo e evitando quebra das animações do GSAP.
+    // Aplicado para desktop e mobile, antes do retorno antecipado.
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual'
+    }
+    window.scrollTo(0, 0)
+
     // Celular/tablet (ponteiro grosso, sem hover) ou telas menores que 1024px: usa o scroll nativo direto.
     // O Lenis some com o listener extra de 'scroll' -> ScrollTrigger.update em
     // cada evento nativo de touch — um custo a mais que só se paga no desktop,
@@ -48,13 +56,6 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     ) {
       return
     }
-
-    // Previne que o navegador tente restaurar o scroll em recarregamentos (F5)
-    // forçando a volta para o topo e evitando quebra das animações do GSAP.
-    if ('scrollRestoration' in history) {
-      history.scrollRestoration = 'manual'
-    }
-    window.scrollTo(0, 0)
 
     const instance = new Lenis({ lerp: 0.1, smoothWheel: true })
     lenisRef.current = instance
