@@ -90,12 +90,6 @@ export function Navbar() {
     let ticking = false
 
     const handleScrollDirection = (direction: 'up' | 'down', currentY: number) => {
-      // Aplica a funcionalidade apenas para telas grandes (desktop >= 1280px)
-      if (window.matchMedia('(max-width: 1279px)').matches || window.innerWidth < 1280) {
-        setHidden(false)
-        return
-      }
-
       const isLocked = document.documentElement.style.overflow === 'hidden'
       if (direction === 'down' && (currentY > 50 || isLocked)) {
         setHidden(true)
@@ -178,7 +172,7 @@ export function Navbar() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-[999] isolate transform-gpu will-change-transform pt-4 sm:pt-4 lg:pt-3 transition-transform duration-300 bg-gradient-to-b from-black/[.20] to-transparent ${
-        hidden && !open ? 'xl:-translate-y-[150%]' : ''
+        hidden && !open ? '-translate-y-[150%]' : ''
       }`}
     >
       {/* 1344px em notebooks, 1600px em telas ≥1600px, 1920px em monitores grandes (≥2000px) */}
