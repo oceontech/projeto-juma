@@ -108,6 +108,7 @@
        inteiro em vez do viewport), a correção fica em overscroll-behavior-x,
        que bloqueia o gesto sem alterar o modelo de overflow. */
     overscroll-behavior-x: none;
+    min-height: 100dvh;
   }
 
   /* Remove scrollbar completamente — WebKit/Blink */
@@ -120,6 +121,7 @@
     line-height: 1.6;
     color: var(--color-foreground);
     background-color: var(--color-background);
+    min-height: 100dvh;
   }
 
   /* ── Títulos (Montserrat Black 900) ───────────────────────── */
@@ -442,8 +444,8 @@ html.lenis body { height: auto; }
   position: relative;
   width: 100%;
   height: 100vh;
-  height: 100svh;
-  min-height: 100vh;
+  height: 100dvh;
+  min-height: 100dvh;
   /* Fundo sólido de segurança — evita flash branco antes do .pcs-bg renderizar */
   background: var(--pcs-mid, #0a2a22);
   /* Shared color vars (atualizadas via JS) — bg + podium herdam */
@@ -517,16 +519,16 @@ html.lenis body { height: auto; }
   position: relative;
   z-index: 10;
   height: 100vh;
-  height: 100svh;
-  min-height: 100vh;
+  height: 100dvh;
+  min-height: 100dvh;
   overflow: hidden;
 }
 .pcs-stage {
   position: relative;
   width: 100%;
   height: 100vh;
-  height: 100svh;
-  min-height: 100vh;
+  height: 100dvh;
+  min-height: 100dvh;
 }
 
 /* Bottle theater — shared overlay for all product images */

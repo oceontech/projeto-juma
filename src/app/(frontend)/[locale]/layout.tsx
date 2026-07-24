@@ -73,7 +73,7 @@ export default async function LocaleLayout(props: {
 
   return (
     <html lang={locale} className={`${montserrat.variable} ${spaceGrotesk.variable}`}>
-      <body suppressHydrationWarning className="flex min-h-screen flex-col" style={{ visibility: 'hidden' }}>
+      <body suppressHydrationWarning className="flex min-h-[100dvh] flex-col" style={{ visibility: 'hidden' }}>
         <Preloader />
         <NextIntlClientProvider messages={messages}>
           <SmoothScroll>

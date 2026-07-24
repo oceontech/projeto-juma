@@ -673,7 +673,7 @@ export function HeroJornada() {
   // ── Versão animada ────────────────────────────────────────────────
   return (
     <section ref={root} className="bg-white overflow-x-hidden">
-      <div className="relative h-[100svh] w-full overflow-hidden">
+      <div className="relative h-[100dvh] w-full overflow-hidden">
 
         {/* z-0 — Vídeo desktop */}
         <video

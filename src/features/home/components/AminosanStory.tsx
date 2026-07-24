@@ -28,9 +28,9 @@ type TFn = ReturnType<typeof useTranslations>
 
 /* Vídeos e stills compartilhados por desktop e mobile */
 const STAGE_VIDEO_CLASS =
-  'absolute inset-0 z-0 h-full w-full object-cover opacity-0 max-lg:top-[22svh] max-lg:h-[60svh] max-lg:object-contain'
+  'absolute inset-0 z-0 h-full w-full object-cover opacity-0 max-lg:top-[22dvh] max-lg:h-[60dvh] max-lg:object-contain'
 const STAGE_IMAGE_CLASS =
-  'absolute z-10 pointer-events-none object-cover md:!object-cover lg:!inset-0 max-lg:!top-[22svh] max-lg:!h-[60svh] max-lg:!object-contain'
+  'absolute z-10 pointer-events-none object-cover md:!object-cover lg:!inset-0 max-lg:!top-[22dvh] max-lg:!h-[60dvh] max-lg:!object-contain'
 
 export function AminosanStory() {
   const t = useTranslations('aminosanStory')
@@ -215,9 +215,9 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
     <section ref={stageRef} className="relative w-full h-[250vh] bg-white">
 
       {/* Fundo Fixo (Sticky) - Vídeo e Imagem */}
-      <div className="sticky top-0 w-full h-[100svh] overflow-hidden bg-white flex flex-col">
+      <div className="sticky top-0 w-full h-[100dvh] overflow-hidden bg-white flex flex-col">
         {/* Spacer invisível para empurrar a garrafa para baixo do texto */}
-        <div className="shrink-0 h-[45svh] w-full pointer-events-none" aria-hidden />
+        <div className="shrink-0 h-[45dvh] w-full pointer-events-none" aria-hidden />
         <div className="relative flex-1 w-full mt-auto">
           <Image
             ref={oldImgRef}
@@ -240,7 +240,7 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
       </div>
 
       {/* Texto 1 (Frame Inicial) - Posicionado no topo do scroll */}
-      <div className="absolute top-0 left-0 w-full h-[100svh] pointer-events-none">
+      <div className="absolute top-0 left-0 w-full h-[100dvh] pointer-events-none">
         <Container className="relative z-10 flex flex-col items-center justify-start px-md pt-[15vh] pb-4 text-center pointer-events-auto">
           <div ref={textCardRef} className="flex flex-col items-center gap-3">
             <span className="text-eyebrow text-[10px] uppercase tracking-[0.18em] text-primary">{t('eyebrow')}</span>
@@ -253,7 +253,7 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
       </div>
 
       {/* Texto 2 (Frame Final) - Posicionado ao final do super-container */}
-      <div ref={calloutSectionRef} className="absolute top-[150vh] left-0 w-full min-h-[100svh] bg-white z-20 pointer-events-auto flex flex-col justify-end">
+      <div ref={calloutSectionRef} className="absolute top-[150vh] left-0 w-full min-h-[100dvh] bg-white z-20 pointer-events-auto flex flex-col justify-end">
         <div className="relative h-[70vh] w-full overflow-hidden sm:h-[75vh]">
           <Image
             src="/heritage/desktop/morph-aminosan-2-novo.png"
@@ -409,15 +409,19 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           }
           const isTouch = typeof window !== 'undefined' && (window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0)
           const sw = window.innerWidth - document.documentElement.clientWidth
-          if (sw > 0 && !isTouch) {
+          if (sw > 0 && !isTouch && !isMobile) {
             document.body.style.paddingRight = `${sw}px`
           }
-          document.documentElement.style.overflowY = 'hidden'
-          document.body.style.overflowY = 'hidden'
+          if (!isMobile) {
+            document.documentElement.style.overflowY = 'hidden'
+            document.body.style.overflowY = 'hidden'
+          }
         } else {
           document.body.style.paddingRight = ''
-          document.documentElement.style.overflowY = ''
-          document.body.style.overflowY = ''
+          if (!isMobile) {
+            document.documentElement.style.overflowY = ''
+            document.body.style.overflowY = ''
+          }
           if (exitOffset !== 0) {
             window.scrollTo(0, Math.max(0, lockedScrollY + exitOffset))
           }
@@ -640,7 +644,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           right: 'auto',
           bottom: 'auto',
           width: '100%',
-          height: '100svh',
+          height: '100dvh',
           zIndex: 80,
           pointerEvents: 'none',
         })
@@ -1132,7 +1136,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
   return (
     <div ref={root} className="relative w-full bg-white">
-      <section ref={stageRef} className="relative z-10 h-auto lg:h-[100svh] min-h-[100svh] lg:min-h-0 w-full overflow-visible lg:overflow-hidden bg-white">
+      <section ref={stageRef} className="relative z-10 h-auto lg:h-[100dvh] min-h-[100dvh] lg:min-h-0 w-full overflow-visible lg:overflow-hidden bg-white">
         {/* Vídeos da cadeia — desktop e mobile compartilham os mesmos clipes.
             Cada segmento tem um clipe forward e um reverso gravado. */}
         <video
@@ -1246,7 +1250,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         {/* UI do Ato 3 — mesmo desenho do Ato 1: coluna de texto à esquerda, frasco em cena.
             No mobile o bloco de prova (número + handoff + CTA) desce para o rodapé da tela,
             deixando o frasco visível no meio. */}
-        <Container className="relative lg:absolute lg:inset-0 z-30 flex min-h-[100svh] lg:min-h-0 h-auto lg:h-full items-stretch md:items-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pointer-events-none pt-[8vh] md:pt-0 pb-[8vh] md:pb-0">
+        <Container className="relative lg:absolute lg:inset-0 z-30 flex min-h-[100dvh] lg:min-h-0 h-auto lg:h-full items-stretch md:items-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pointer-events-none pt-[8vh] md:pt-0 pb-[8vh] md:pb-0">
           <div ref={leftPanelRef} className="pointer-events-auto flex w-full flex-1 md:flex-none md:w-auto max-w-full md:max-w-[24rem] xl:max-w-[28rem] flex-col items-start">
             <span data-a3-tag className="text-eyebrow mb-sm md:mb-md text-[10px] xl:text-xs uppercase tracking-[0.18em] text-primary">
               {t('a3Eyebrow')}
@@ -1271,14 +1275,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         </BottleCallout>
       </section>
 
-      {/* Pista de pouso: espaço de scroll REAL depois do stage, para que o
-          overshoot de um scroll intenso caia aqui (área branca) em vez de já
-          revelar o catálogo — dando à trava tempo/geometria estável para engatar
-          e reposicionar a seção no topo (ver insideRunway/finishExit). O usuário
-          nunca descansa nesta faixa: o fim do filme salta direto para o catálogo
-          e a volta salta para o topo do stage. Mesma ideia do sticky do
-          HeroJornada e do pin do catálogo, que já são 100% estáveis. */}
-      <div aria-hidden className="pointer-events-none w-full h-[100svh]" />
+      {/* Pista de pouso */}
+      <div aria-hidden className="pointer-events-none w-full h-[100dvh]" />
     </div>
   )
 }
@@ -1314,7 +1312,7 @@ function AminosanBrandMark({ refEl }: { refEl: RefObject<HTMLDivElement | null> 
     <div
       ref={refEl}
       aria-label="Aminosan registrado"
-      className="pointer-events-none absolute left-1/2 top-[12svh] z-30 -translate-x-1/2 text-center max-md:top-[4svh]"
+      className="pointer-events-none absolute left-1/2 top-[12dvh] z-30 -translate-x-1/2 text-center max-md:top-[4dvh]"
     >
       <span className="font-black uppercase leading-none tracking-[0.02em] text-foreground text-[clamp(1.45rem,2.08vw,2.65rem)]">
         AMINOSAN<sup className="ml-1 align-super text-[0.36em] leading-none">&reg;</sup>

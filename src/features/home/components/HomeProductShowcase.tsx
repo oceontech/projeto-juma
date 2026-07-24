@@ -331,7 +331,7 @@ function getFullFrameBottleProps(): RoleProps {
     yPercent: 0,
     bottom: '0vh',
     width: '100%',
-    height: '100svh',
+    height: '100dvh',
     scale: 1,
     filter: 'blur(0px)',
     autoAlpha: 1,
@@ -875,8 +875,8 @@ export function HomeProductShowcase() {
               autoAlpha: 1,
               opacity: 1,
               scale: isMobile ? 1.45 : 1,
-              top: isMobile ? '22svh' : 0,
-              height: isMobile ? '60svh' : '100%',
+              top: isMobile ? '22dvh' : 0,
+              height: isMobile ? '60dvh' : '100%',
               y: 0,
               zIndex: 30,
               filter: 'blur(0px)',
@@ -1037,8 +1037,8 @@ export function HomeProductShowcase() {
               handoffStillRef.current,
               {
                 scale: isMobile ? 1.45 : 1,
-                top: isMobile ? '22svh' : 0,
-                height: isMobile ? '60svh' : '100%',
+                top: isMobile ? '22dvh' : 0,
+                height: isMobile ? '60dvh' : '100%',
                 y: 0,
                 duration: 0.58,
                 ease: 'power2.inOut',
@@ -1302,7 +1302,7 @@ export function HomeProductShowcase() {
             alt=""
             aria-hidden="true"
             draggable={false}
-            className="pointer-events-none absolute inset-0 z-[3] h-full w-full object-cover max-lg:top-[22svh] max-lg:h-[60svh] max-lg:object-contain opacity-0"
+            className="pointer-events-none absolute inset-0 z-[3] h-full w-full object-cover max-lg:top-[22dvh] max-lg:h-[60dvh] max-lg:object-contain opacity-0"
           />
 
           {/* Teatro de frascos — todos os produtos posicionados, GSAP anima */}

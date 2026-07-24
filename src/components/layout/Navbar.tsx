@@ -177,8 +177,8 @@ export function Navbar() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-[999] isolate pt-4 sm:pt-4 lg:pt-3 transition-transform duration-300 bg-gradient-to-b from-black/[.20] to-transparent ${
-        hidden && !open ? 'xl:-translate-y-[150%] xl:transform-gpu' : ''
+      className={`fixed inset-x-0 top-0 z-[999] isolate transform-gpu will-change-transform pt-4 sm:pt-4 lg:pt-3 transition-transform duration-300 bg-gradient-to-b from-black/[.20] to-transparent ${
+        hidden && !open ? 'xl:-translate-y-[150%]' : ''
       }`}
     >
       {/* 1344px em notebooks, 1600px em telas ≥1600px, 1920px em monitores grandes (≥2000px) */}

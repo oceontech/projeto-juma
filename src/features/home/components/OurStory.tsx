@@ -262,7 +262,7 @@ export function OurStory() {
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(0, 0, 0, 0.1)',
         }}
       >
-        <Container className="grid min-h-screen grid-cols-1 items-center gap-2xl py-xl lg:py-2xl xl:py-3xl lg:grid-cols-2 lg:gap-xl xl:gap-4xl">
+        <Container className="grid min-h-[100dvh] grid-cols-1 items-center gap-2xl py-xl lg:py-2xl xl:py-3xl lg:grid-cols-2 lg:gap-xl xl:gap-4xl">
           {/* ── Coluna esquerda: família ──────────────────────────────── */}
           <div
             ref={photoRef}
