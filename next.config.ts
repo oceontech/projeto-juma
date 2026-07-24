@@ -19,6 +19,9 @@ const nextConfig: NextConfig = {
         pathname: '/brand/**',
       },
       {
+        pathname: '/desata/**',
+      },
+      {
         pathname: '/hero/**',
       },
       {

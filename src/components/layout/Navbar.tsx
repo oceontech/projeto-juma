@@ -171,7 +171,7 @@ export function Navbar() {
     : 'border-white/20 bg-gradient-to-r from-white/30 to-white/[0.12] border-t-white/40'
 
   const linkClass = (active: boolean) =>
-    `whitespace-nowrap text-[11px] xl:text-xs uppercase tracking-wide transition-all duration-200 hover:scale-110 ${
+    `whitespace-nowrap text-[10px] xl:text-[11px] uppercase tracking-wide transition-all duration-200 hover:scale-110 ${
       active
         ? `text-heading ${dark ? 'text-white' : 'text-primary'}`
         : `text-body-regular ${dark ? 'text-white/75 hover:text-white' : 'text-foreground/70 hover:text-primary'}`
@@ -188,7 +188,7 @@ export function Navbar() {
         <div className="flex items-stretch justify-end xl:justify-start gap-sm mx-auto w-full max-w-[1344px] min-[1600px]:max-w-[1600px] min-[2000px]:max-w-[1920px]">
           {/* Pílula principal — flex-1 para ocupar toda a largura disponível */}
           <div id="main-nav-pill" className={`xl:flex-1 rounded-full border backdrop-blur-xl border-t shadow-[0_8px_32px_rgba(0,0,0,0.06),_0_0_0_1px_rgba(0,0,0,0.08),_inset_0_1px_2px_rgba(255,255,255,0.5)] origin-center overflow-hidden transition-colors duration-500 ${pillTheme}`}>
-              <div className="flex justify-center xl:justify-between items-center xl:gap-xl mx-auto w-full p-1.5 xl:px-sm xl:py-1.5">
+              <div className="flex justify-center xl:justify-between items-center xl:gap-lg mx-auto w-full p-1.5 xl:px-sm xl:py-1.5">
                 {/* Logo Desktop (dentro da pílula) — clique volta para a hero */}
                 <Link
                   href="/"
@@ -208,7 +208,7 @@ export function Navbar() {
 
                 {/* Navegação desktop */}
                 <nav id="nav-desktop-links" aria-label="Principal" className="hidden xl:block shrink-0">
-                  <ul className="flex items-center gap-md xl:gap-lg min-[1300px]:gap-xl">
+                  <ul className="flex items-center gap-sm xl:gap-md min-[1300px]:gap-lg">
                     {navLinks.map((link) => (
                       <li key={link.key}>
                         <Link
