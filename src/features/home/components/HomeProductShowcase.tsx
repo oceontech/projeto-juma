@@ -1094,6 +1094,10 @@ export function HomeProductShowcase() {
             const vh = window.innerHeight
 
             if (pinTrigger.isActive) {
+              // No mobile, a fronteira com a Cultures (último produto) fica de
+              // fora do "cola no alvo": senão, ao subir vindo da Cultures, o
+              // settle briga com o dedo e puxa a página de volta pra baixo.
+              if (isMobile && currentIndexRef.current === COUNT - 1) return
               const target = indexToY(currentIndexRef.current)
               if (Math.abs(scroll - target) > 4) scrollToY(target, 0.55)
               return
@@ -1108,7 +1112,10 @@ export function HomeProductShowcase() {
               return
             }
             // Zona de saída (próxima seção espiando por baixo do catálogo)
+            // No mobile o controle dessa transição fica só com o usuário —
+            // sem completar o movimento sozinho.
             if (scroll > pinTrigger.end && scroll < pinTrigger.end + vh) {
+              if (isMobile) return
               scrollToY(lastDir > 0 ? pinTrigger.end + vh : pinTrigger.end, 0.7)
             }
           }
@@ -1192,6 +1199,13 @@ export function HomeProductShowcase() {
                 if (e.cancelable) e.preventDefault()
                 runHandoffOut()
               }
+              touchStartY = e.touches[0].clientY
+              return
+            }
+            // No mobile, saindo do último produto pra frente, não força o
+            // salto de uma viewport inteira (skip): deixa o próprio arrasto
+            // do dedo levar o scroll pra Cultures, sem preventDefault.
+            if (isMobile && delta > 0 && currentIndexRef.current === COUNT - 1) {
               touchStartY = e.touches[0].clientY
               return
             }
