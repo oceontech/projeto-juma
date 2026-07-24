@@ -165,53 +165,47 @@ export function OurStory() {
         },
       })
 
-      // ── Container Scroll 3D Effect (só desktop) ──────────────────────
-      // rotateX + backdrop-blur juntos forçam o Safari a re-amostrar o blur a
-      // cada frame de scroll (o Lenis roda o scroll dentro do próprio rAF, então
-      // um frame caro aqui trava a rolagem em si, não só a animação). No
-      // celular isso lia como o scroll "grudando"/pulando sozinho — efeito não
-      // vale o custo lá, então roda só a partir do breakpoint lg.
+      // ── Container Scroll 3D Effect ──────────────────────
       let tiltTriggers: ScrollTrigger[] = []
-      if (isDesktop) {
-        const startScale = 1.05
+      
+      const startScale = 1.05
 
-        const enterTilt = gsap.fromTo(
-          card,
-          { rotateX: 20, scale: startScale },
-          {
-            rotateX: 0,
-            scale: 1,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: section,
-              start: 'top bottom',
-              end: 'top 10%',
-              scrub: 0.5,
-            },
+      const enterTilt = gsap.fromTo(
+        card,
+        { rotateX: 20, scale: startScale },
+        {
+          rotateX: 0,
+          scale: 1,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top bottom',
+            end: 'top 10%',
+            scrub: 0.5,
           },
-        )
+        },
+      )
 
-        const leaveTilt = gsap.fromTo(
-          card,
-          { rotateX: 0, scale: 1 },
-          {
-            rotateX: -20,
-            scale: startScale,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: section,
-              start: 'bottom 90%',
-              end: 'bottom top',
-              scrub: 0.5,
-            },
+      const leaveTilt = gsap.fromTo(
+        card,
+        { rotateX: 0, scale: 1 },
+        {
+          rotateX: -20,
+          scale: startScale,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: section,
+            start: 'bottom 90%',
+            end: 'bottom top',
+            scrub: 0.5,
           },
-        )
+        },
+      )
 
-        tiltTriggers = [
-          enterTilt.scrollTrigger as ScrollTrigger,
-          leaveTilt.scrollTrigger as ScrollTrigger,
-        ]
-      }
+      tiltTriggers = [
+        enterTilt.scrollTrigger as ScrollTrigger,
+        leaveTilt.scrollTrigger as ScrollTrigger,
+      ]
 
       return () => {
         trigger.kill()
@@ -228,7 +222,7 @@ export function OurStory() {
     <div
       ref={sectionRef}
       className="w-full relative z-10 py-10 md:py-20"
-      style={isDesktop ? { perspective: '1000px' } : undefined}
+      style={{ perspective: '1000px' }}
     >
       {/* ── Fundo branco com bordas superior e inferior esfumaçadas (blur) ── */}
       <div className="pointer-events-none absolute inset-0 -z-10 flex flex-col">
@@ -254,9 +248,7 @@ export function OurStory() {
 
       <section
         ref={cardRef}
-        className={`relative overflow-hidden rounded-[2.5rem] w-[95%] max-w-[100rem] min-[2000px]:max-w-[120rem] mx-auto border border-black/[0.06] bg-gradient-to-br from-black/[0.01] to-black/[0.04] lg:backdrop-blur-xl isolate ${
-          isDesktop ? 'transform-gpu' : ''
-        }`}
+        className="relative overflow-hidden rounded-[2.5rem] w-[95%] max-w-[100rem] min-[2000px]:max-w-[120rem] mx-auto border border-black/[0.06] bg-gradient-to-br from-black/[0.01] to-black/[0.04] lg:backdrop-blur-xl isolate transform-gpu"
         style={{
           transformOrigin: 'top center',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(0, 0, 0, 0.1)',
