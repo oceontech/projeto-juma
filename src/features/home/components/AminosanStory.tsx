@@ -397,16 +397,10 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           const targetY = stage ? Math.round(window.scrollY + stage.getBoundingClientRect().top) : window.scrollY
           lockedScrollY = targetY
 
-          if (Math.abs(window.scrollY - targetY) > 1) {
-            const proxy = { y: window.scrollY }
-            gsap.to(proxy, {
-              y: targetY,
-              duration: isMobile ? 0.15 : 0.35,
-              ease: 'power2.out',
-              overwrite: true,
-              onUpdate: () => window.scrollTo(0, proxy.y),
-            })
-          }
+          // A tela será travada exatamente onde o usuário está, sem animar o scroll para o targetY,
+          // evitando o movimento involuntário para cima que exibia o menu.
+          // (Removido o gsap.to(proxy) que forçava o scroll para targetY)
+
           const isTouch = typeof window !== 'undefined' && (window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0)
           const sw = window.innerWidth - document.documentElement.clientWidth
           if (sw > 0 && !isTouch && !isMobile) {
