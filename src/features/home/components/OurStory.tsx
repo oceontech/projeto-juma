@@ -228,13 +228,13 @@ export function OurStory() {
     <div
       ref={sectionRef}
       className="w-full relative z-10 py-10 md:py-20"
-      style={{ perspective: isDesktop ? '1000px' : 'none' }}
+      style={isDesktop ? { perspective: '1000px' } : undefined}
     >
       {/* ── Fundo branco com bordas superior e inferior esfumaçadas (blur) ── */}
       <div className="pointer-events-none absolute inset-0 -z-10 flex flex-col">
         {/* Topo esfumaçado */}
         <div
-          className="h-[6rem] w-full shrink-0 bg-gradient-to-b from-white/0 to-white lg:backdrop-blur-md"
+          className="h-[6rem] w-full shrink-0 bg-white lg:bg-transparent lg:bg-gradient-to-b lg:from-white/0 lg:to-white lg:backdrop-blur-md"
           style={isDesktop ? {
             WebkitMaskImage: 'linear-gradient(to bottom, transparent, black)',
             maskImage: 'linear-gradient(to bottom, transparent, black)',
@@ -254,7 +254,9 @@ export function OurStory() {
 
       <section
         ref={cardRef}
-        className="relative overflow-hidden rounded-[2.5rem] w-[95%] max-w-[100rem] min-[2000px]:max-w-[120rem] mx-auto border border-black/[0.06] bg-gradient-to-br from-black/[0.01] to-black/[0.04] lg:backdrop-blur-xl"
+        className={`relative overflow-hidden rounded-[2.5rem] w-[95%] max-w-[100rem] min-[2000px]:max-w-[120rem] mx-auto border border-black/[0.06] bg-gradient-to-br from-black/[0.01] to-black/[0.04] lg:backdrop-blur-xl isolate ${
+          isDesktop ? 'transform-gpu' : ''
+        }`}
         style={{
           transformOrigin: 'top center',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(0, 0, 0, 0.1)',
@@ -265,10 +267,6 @@ export function OurStory() {
           <div
             ref={photoRef}
             className="relative mx-auto aspect-[1402/974] w-full max-w-[40rem]"
-            style={{
-              WebkitMaskImage: 'linear-gradient(to top, transparent 0%, black 34%)',
-              maskImage: 'linear-gradient(to top, transparent 0%, black 34%)',
-            }}
           >
             {/* Watermark gigante atrás da foto */}
             <div

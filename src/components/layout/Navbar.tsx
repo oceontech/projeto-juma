@@ -90,8 +90,8 @@ export function Navbar() {
     let ticking = false
 
     const handleScrollDirection = (direction: 'up' | 'down', currentY: number) => {
-      // Aplica a funcionalidade apenas para telas grandes (desktop)
-      if (window.innerWidth < 1280) {
+      // Aplica a funcionalidade apenas para telas grandes (desktop >= 1280px)
+      if (window.matchMedia('(max-width: 1279px)').matches || window.innerWidth < 1280) {
         setHidden(false)
         return
       }
@@ -177,15 +177,15 @@ export function Navbar() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 pt-3 transition-transform duration-300 bg-gradient-to-b from-black/[.20] to-transparent ${
-        hidden && !open ? '-translate-y-[150%]' : 'translate-y-0'
+      className={`fixed inset-x-0 top-0 z-[999] isolate pt-4 sm:pt-4 lg:pt-3 transition-transform duration-300 bg-gradient-to-b from-black/[.20] to-transparent ${
+        hidden && !open ? 'xl:-translate-y-[150%] xl:transform-gpu' : ''
       }`}
     >
       {/* 1344px em notebooks, 1600px em telas ≥1600px, 1920px em monitores grandes (≥2000px) */}
       <Container className="!px-lg xl:!px-[6rem] min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
         <div className="flex items-stretch justify-end xl:justify-start gap-sm mx-auto w-full max-w-[1344px] min-[1600px]:max-w-[1600px] min-[2000px]:max-w-[1920px]">
           {/* Pílula principal — flex-1 para ocupar toda a largura disponível */}
-          <div id="main-nav-pill" className={`xl:flex-1 rounded-full border backdrop-blur-xl border-t shadow-[0_8px_32px_rgba(0,0,0,0.06),_0_0_0_1px_rgba(0,0,0,0.08),_inset_0_1px_2px_rgba(255,255,255,0.5)] origin-center overflow-hidden transition-colors duration-500 ${pillTheme}`} style={{ willChange: 'width, opacity' }}>
+          <div id="main-nav-pill" className={`xl:flex-1 rounded-full border backdrop-blur-xl border-t shadow-[0_8px_32px_rgba(0,0,0,0.06),_0_0_0_1px_rgba(0,0,0,0.08),_inset_0_1px_2px_rgba(255,255,255,0.5)] origin-center overflow-hidden transition-colors duration-500 ${pillTheme}`}>
               <div className="flex justify-center xl:justify-between items-center xl:gap-xl mx-auto w-full p-1.5 xl:px-sm xl:py-1.5">
                 {/* Logo Desktop (dentro da pílula) — clique volta para a hero */}
                 <Link

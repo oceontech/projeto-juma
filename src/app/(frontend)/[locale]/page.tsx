@@ -32,11 +32,11 @@ export default async function HomePage(props: {
     <>
       <SectionNav />
 
-      <div id="sec-inicio" className="relative">
+      <div id="sec-inicio" className="scroll-mt-24">
         <HeroJornada />
-        <div id="sec-historia" className="scroll-mt-24">
-          <OurStory />
-        </div>
+      </div>
+      <div id="sec-historia" className="scroll-mt-24">
+        <OurStory />
       </div>
       <div id="sec-origem" className="scroll-mt-24">
         <AminosanStory />
