@@ -390,63 +390,36 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       let currentTl: gsap.core.Timeline | null = null
       let lineTl: gsap.core.Timeline | null = null
       let lockedScrollY = 0
-
-      const lockScroll = (on: boolean) => {
+      const lockScroll = (on: boolean, exitOffset = 0) => {
         if (on) {
           lenisRef.current?.stop()
           const stage = stageRef.current
           const targetY = stage ? Math.round(window.scrollY + stage.getBoundingClientRect().top) : window.scrollY
+          lockedScrollY = targetY
 
-          if (isMobile) {
-            // overflow:hidden sozinho não seguraria a trava aqui: um fling já
-            // lançado (dedo já solto da tela) continua por inércia do próprio
-            // compositor, sem nunca disparar 'touchmove' — não sobra nada pro
-            // preventDefault interceptar, e o scroll nativo atravessa a seção
-            // inteira antes do estado 'isLocked' ter qualquer efeito. A trava
-            // real no mobile é a mesma técnica clássica de scroll-lock: tirar
-            // o body do fluxo de scroll com position:fixed, o que cancela a
-            // inércia na hora (o deslocamento em 'top' preserva a posição
-            // visual e já alinha a seção ao topo da viewport, sem tween).
-            lockedScrollY = targetY
-            document.body.style.position = 'fixed'
-            document.body.style.top = `-${targetY}px`
-            document.body.style.left = '0'
-            document.body.style.right = '0'
-            document.body.style.width = '100%'
-          } else {
-            // Alinha a seção exatamente ao topo da viewport: sem isto a trava
-            // engata com o scroll alguns px além/aquém do 'top top' e sobra uma
-            // faixa da seção vizinha visível durante toda a animação.
-            if (Math.abs(window.scrollY - targetY) > 1) {
-              const proxy = { y: window.scrollY }
-              gsap.to(proxy, {
-                y: targetY,
-                duration: 0.35,
-                ease: 'power2.out',
-                overwrite: true,
-                onUpdate: () => window.scrollTo(0, proxy.y),
-              })
-            }
-            const isTouch = typeof window !== 'undefined' && (window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0)
-            const sw = window.innerWidth - document.documentElement.clientWidth
-            if (sw > 0 && !isTouch) {
-              document.body.style.paddingRight = `${sw}px`
-            }
-            document.documentElement.style.overflowY = 'hidden'
-            document.body.style.overflowY = 'hidden'
+          if (Math.abs(window.scrollY - targetY) > 1) {
+            const proxy = { y: window.scrollY }
+            gsap.to(proxy, {
+              y: targetY,
+              duration: isMobile ? 0.15 : 0.35,
+              ease: 'power2.out',
+              overwrite: true,
+              onUpdate: () => window.scrollTo(0, proxy.y),
+            })
           }
+          const isTouch = typeof window !== 'undefined' && (window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0)
+          const sw = window.innerWidth - document.documentElement.clientWidth
+          if (sw > 0 && !isTouch) {
+            document.body.style.paddingRight = `${sw}px`
+          }
+          document.documentElement.style.overflowY = 'hidden'
+          document.body.style.overflowY = 'hidden'
         } else {
-          if (isMobile) {
-            document.body.style.position = ''
-            document.body.style.top = ''
-            document.body.style.left = ''
-            document.body.style.right = ''
-            document.body.style.width = ''
-            window.scrollTo(0, lockedScrollY)
-          } else {
-            document.body.style.paddingRight = ''
-            document.documentElement.style.overflowY = ''
-            document.body.style.overflowY = ''
+          document.body.style.paddingRight = ''
+          document.documentElement.style.overflowY = ''
+          document.body.style.overflowY = ''
+          if (exitOffset !== 0) {
+            window.scrollTo(0, Math.max(0, lockedScrollY + exitOffset))
           }
           lenisRef.current?.start()
           requestAnimationFrame(() => ScrollTrigger.refresh())
@@ -584,18 +557,19 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         tl.to(linePanelRef.current, { y: 20, autoAlpha: 0, filter: 'blur(10px)', duration: 0.2, ease: 'power2.in' }, 0.08)
       }
 
-      /* ── Máquina de direção: cada segmento tem dois clipes, playback SEMPRE
-       * nativo (play()) nos dois sentidos — o "reverso" é um clipe gravado/
-       * codificado ao contrário, tocado pra frente normalmente. Os clipes não
-       * têm keyframes densos o bastante para um scrub manual de currentTime
-       * (como o HeroJornada faz) ficar fluido; tentar isso aqui causa engasgo
-       * porque cada seek força decodificar do último keyframe em diante.
-       * O estado (fase/direção) responde instantaneamente a cada gesto de
-       * scroll, sem esperar a transição anterior terminar. */
-      const release = () => {
+      const release = (exitOffset = 0) => {
         isLocked = false
-        lockScroll(false)
+        lockScroll(false, exitOffset)
       }
+
+      const isExitingUpRef = { current: false }
+      const releaseUp = () => {
+        isExitingUpRef.current = true
+        isLocked = false
+        lockScroll(false, -120)
+      }
+
+      const EXIT_UP_NUDGE = 32
 
       const syncVideos = (source: HTMLVideoElement, target: HTMLVideoElement) => {
         const progress = source.currentTime / safeDur(source)
@@ -626,7 +600,6 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         }
       }
 
-      /* Repouso no Ato 3: still do frasco novo por cima, morph parado no fim */
       const restAct3 = () => {
         gsap.set(morphFwd, { autoAlpha: 1, zIndex: 1 })
         gsap.set([morphRev, lineFwd, lineRev, catFwd, catRev], { autoAlpha: 0, zIndex: 0 })
@@ -640,7 +613,6 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         ;[morphRev, lineFwd, lineRev].forEach((v) => { try { v.currentTime = 0 } catch(e) {} })
       }
 
-      /* Repouso na linha completa: still da linha por cima */
       const restLine = () => {
         gsap.set(lineFwd, { autoAlpha: 1, zIndex: 1 })
         gsap.set([morphFwd, morphRev, lineRev, catFwd, catRev], { autoAlpha: 0, zIndex: 0 })
@@ -655,16 +627,10 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         ;[lineRev, catFwd, catRev].forEach((v) => { try { v.currentTime = 0 } catch(e) {} })
       }
 
-      /* Fim da cadeia: fixa o ultimo frame para atravessar o corte ate o catalogo. */
       const restExit = () => {
         gsap.killTweensOf([oldImg, newImg, lineImg, trioImg])
         gsap.set(allVideos, { autoAlpha: 0, zIndex: 0 })
         gsap.set([oldImg, newImg, lineImg], { autoAlpha: 0 })
-        // Geometria IDÊNTICA ao still do catálogo (.pcs-stage: width:100%,
-        // height:100svh, object-cover). Usar 100vw aqui incluiria a barra de
-        // rolagem (~17px no Windows) e o object-cover renderizaria em escala/
-        // centro diferentes — no corte, as duas camadas do trio ficavam
-        // desregistradas (fantasma + salto). 100% casa com o ICB sem a barra.
         gsap.set(trioImg, {
           autoAlpha: 1,
           display: 'block',
@@ -685,26 +651,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         try { catRev.currentTime = 0 } catch(e) {}
       }
 
-      /* O vídeo da transição termina já "dentro" do catálogo: libera o scroll,
-       * rola até o pin do HomeProductShowcase e avisa o catálogo para fazer a
-       * entrada (fundo branco→cor + textos). O still do trio some durante a
-       * rolagem para não duplicar com o trio do próprio catálogo. */
       const finishExit = () => {
-        // O vídeo já termina no primeiro produto do catálogo (trio Aminosan) —
-        // sem rolagem visível. Avisa o catálogo para se montar (fundo branco +
-        // trio no lugar), depois salta INSTANTANEAMENTE uma viewport (fim do
-        // stage = início do pin do catálogo). O corte é imperceptível porque os
-        // dois lados mostram o mesmo trio; a cor e os textos brotam já no
-        // catálogo. O still full-frame fica fora de tela após o salto.
-        // No mobile o body está congelado via position:fixed (ver lockScroll):
-        // window.scrollY relata 0 nesse estado, não a posição visual real —
-        // usar isso aqui subtrairia a rolagem já feita até a seção e o salto
-        // pousaria acima do catálogo em vez de exatamente no início dele.
-        // Alvo = fim do wrapper (= topo do catálogo). Com a pista de scroll, o
-        // fim do stage fica no MEIO do wrapper; usar o bottom do stage pousaria
-        // na pista branca, não no catálogo. O bottom do wrapper `root` cai
-        // exatamente no início do #sec-produtos.
-        const currentScrollY = isMobile ? lockedScrollY : window.scrollY
+        const currentScrollY = window.scrollY
         const runwayEl = root.current ?? stageTrigger
         const targetY = Math.round(currentScrollY + runwayEl.getBoundingClientRect().bottom)
         window.dispatchEvent(new CustomEvent('aminosan:prepare-handoff-forward'))
@@ -772,13 +720,6 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       }
       const beginTick = () => { animFrame = requestAnimationFrame(tick) }
 
-      // Os clipes não têm keyframes densos (ver comentário da máquina acima):
-      // um seek de currentTime força o browser a decodificar do último keyframe
-      // em diante, o que não é instantâneo. Revelar o vídeo (crossfade + play) e
-      // chamar tick() ANTES desse seek terminar mostra, por um instante, o frame
-      // de ANTES do seek — visto como um "piscar" no frame final ou inicial
-      // errado. Esperar o 'seeked' antes de revelar é o mesmo princípio do
-      // HeroJornada: só avança/mostra o vídeo quando ele já está no ponto certo.
       const revealWhenReady = (video: HTMLVideoElement, needsSeek: boolean, reveal: () => void) => {
         if (!needsSeek) { reveal(); return }
         let done = false
@@ -789,17 +730,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           reveal()
         }
         video.addEventListener('seeked', finish)
-        setTimeout(finish, 200) // salvaguarda: nunca trava esperando um 'seeked' que não chega
+        setTimeout(finish, 200)
       }
 
-      /* Prepara a mecânica comum de um segmento (sync de reversão no meio do
-       * caminho + revelação segura) e devolve os papéis dos clipes. Só
-       * sincroniza a partir do outro clipe se estávamos ATIVAMENTE tocando ele
-       * (reversão no meio do caminho). Num início "frio" a partir do repouso, o
-       * clipe alvo já está em 0 (os rest* garantem isso) — sincronizar de novo
-       * leria o currentTime "intocado" do outro clipe (do priming) como se
-       * fosse progresso real e pularia o clipe alvo direto pro final, fazendo a
-       * transição inteira sumir. */
       const engage = (name: SegName, dir: Dir, reveal: (video: HTMLVideoElement, fwdDur: number) => void) => {
         if (animFrame) cancelAnimationFrame(animFrame)
         const seg = SEGMENTS[name]
@@ -815,8 +748,6 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         }
         const fwdDur = safeDur(seg.fwd)
         revealWhenReady(video, needsSync, () => {
-          // Se uma reversão mais nova assumiu enquanto esperávamos o seek, esta
-          // chamada é obsoleta — aplicar o reveal aqui pisaria no estado atual.
           if (direction !== dir || activeSeg !== name) return
           gsap.set(video, { zIndex: 9, autoAlpha: 1 })
           gsap.set(other, { zIndex: 0, autoAlpha: 0 })
@@ -824,7 +755,6 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         })
       }
 
-      /* ── Segmento morph: act1 ⇄ act3 ─────────────────────────────── */
       const startMorph = (dir: Dir) => {
         if (dir === 'forward') {
           introTl.progress(1)
@@ -888,11 +818,6 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         })
       }
 
-      /* ── Segmento line: act3 ⇄ linha completa (vídeo 2) ──────────────
-       * O primeiro frame do clipe é idêntico ao still do frasco novo, e o
-       * último à linha completa — os fades curtos só mascaram desvio de
-       * codificação de 1px. A linha completa tem copy própria para não repetir
-       * o argumento do frasco atual. */
       const startLine = (dir: Dir) => {
         engage('line', dir, (video) => {
           gsap.set([morphFwd, morphRev, catFwd, catRev], { autoAlpha: 0, zIndex: 0 })
@@ -933,9 +858,6 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         })
       }
 
-      /* ── Segmento cat: linha completa ⇄ trio do catálogo (vídeo da
-       * transição). No sentido forward a UI do Ato 3 sai de cena — estamos
-       * deixando a seção; no backward ela volta junto com a linha. */
       const startCat = (dir: Dir) => {
         window.dispatchEvent(new CustomEvent('aminosan:video-handoff-start'))
         engage('cat', dir, (video) => {
@@ -962,59 +884,24 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         else startCat(dir)
       }
 
-      // Um único ScrollTrigger no mesmo ponto ('top top') cobre os dois sentidos —
-      // igual ao autoRewind do HeroJornada, mas usando o cruzamento de posição do
-      // ScrollTrigger (já comprovado confiável na entrada) em vez de recalcular a
-      // posição "à mão" num listener de scroll separado.
-      // Tolerância da checagem de proximidade: no mobile não existe Lenis (ver
-      // SmoothScroll.tsx — pointer:coarse usa scroll nativo puro), então um flick
-      // comum já move várias centenas de px entre duas amostras de scroll. Uma
-      // margem fixa pequena (150px, suficiente pro passo curto do Lenis no
-      // desktop) faz o onEnter dessincronizar do 'top top' real nesse caso: quando
-      // o callback roda, rect.top já passou da margem, a trava nunca engata e o
-      // scroll nativo atravessa a seção inteira de uma vez. Por isso a margem só
-      // cresce no mobile — no desktop o passo curto do Lenis não precisa dela, e
-      // alargar geral faria cruzamentos "fantasma" de longe (ex: um
-      // ScrollTrigger.refresh() disparado com o usuário rolado pra bem longe
-      // desta seção) passarem como "perto", destravando o scroll cedo demais.
       const nearStageTop = (rect: DOMRect | null | undefined) =>
-        !!rect && Math.abs(rect.top) <= (isMobile ? Math.max(window.innerHeight * 0.9, 150) : 150)
+        !!rect && Math.abs(rect.top) <= 150
 
-      // Trava robusta à INTENSIDADE do scroll (o bug do "pulei direto pro
-      // catálogo"). Causa-raiz: o stage tinha exatamente 1 viewport de altura e o
-      // catálogo colado logo abaixo — zero pista de scroll. Num fling forte o
-      // onEnter dispara já com o 'top top' ultrapassado por centenas de px, a
-      // proximidade exata do stage falha e o scroll nativo/Lenis atravessa a
-      // seção inteira até o catálogo (o HeroJornada nunca sofre disso por ser
-      // sticky no topo; o catálogo, por ter um pin com espaçador).
-      //
-      // Correção: um espaçador ("pista de pouso") no fim do wrapper `root`
-      // (ver JSX) dá à seção espaço de scroll REAL. O overshoot de um fling cai
-      // nessa pista (branca), não no catálogo, e a trava passa a depender apenas
-      // de estarmos DENTRO da pista — condição geométrica estável do wrapper, que
-      // independe da velocidade. Ao travar, o lockScroll reposiciona o stage no
-      // topo (o alvo já é o topo do wrapper, pois o stage é seu primeiro filho).
       const insideRunway = () => {
         const rr = root.current?.getBoundingClientRect()
         if (!rr) return false
         const vh = window.innerHeight
-        // topo do wrapper já cruzou o topo da viewport E ainda resta ao menos
-        // ~1 viewport de pista abaixo (o catálogo só começa no fim do wrapper).
         return rr.top <= 1 && rr.bottom > vh * 0.85
       }
 
-      // onEnter: entrando pela primeira vez (rest em act1) → só trava, o próprio
-      // gesto de scroll seguinte é que inicia o forward (via handleForward).
-      // onEnterBack: voltando de baixo → trava E já dispara o rebobinar do
-      // segmento correspondente à fase em que a seção ficou, sem esperar gesto.
       let stTop = ScrollTrigger.create({
         trigger: stageRef.current,
         start: 'top top',
         onEnter: () => {
           playIntro(false)
-          // Enquanto estivermos dentro da pista (imune à velocidade do fling),
-          // trava e reposiciona no topo; fora dela, é cruzamento-fantasma de um
-          // refresh com o usuário longe — ignora.
+          if (isExitingUpRef.current && stageRef.current && stageRef.current.getBoundingClientRect().top > 0) {
+            return
+          }
           if (!insideRunway()) {
             if (isLocked) release()
             return
@@ -1026,12 +913,6 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         },
         onLeave: () => {
           if (!isLocked) return
-          // Num fling forte o ScrollTrigger cruza o 'top top' e o fim do stage no
-          // MESMO tick: o onEnter acima acabou de travar em act1 e este onLeave
-          // viria logo atrás soltando tudo — o scroll então atravessaria a seção
-          // inteira até o catálogo. Enquanto a sequência ainda está em act1
-          // (nenhuma transição começou), a trava recém-engatada vale; só soltamos
-          // nas fases já avançadas, onde onLeave é a segurança real de escape.
           if (phase === 'act1' && !direction) return
           release()
         },
@@ -1056,11 +937,6 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
             startCat('backward')
           }
         },
-        // onLeaveBack: o release() em act3/line solta o scroll bem no início do
-        // estágio (ele ficou travado ali a transição inteira); se o usuário
-        // reverte antes de rolar a tela inteira pra baixo, ele sai por CIMA sem
-        // nunca cruzar a borda de baixo — sem isto o onEnterBack acima nunca
-        // dispara e a seção fica presa na fase avançada pra sempre.
         onLeaveBack: () => {
           const rect = stageRef.current?.getBoundingClientRect()
           if (!nearStageTop(rect)) {
@@ -1110,7 +986,14 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         const stage = stageRef.current
         if (!stage) return false
         const rect = stage.getBoundingClientRect()
-        const active = rect.top <= 48 && rect.bottom >= window.innerHeight * 0.5
+        if (isExitingUpRef.current) {
+          if (rect.top <= 0) {
+            isExitingUpRef.current = false
+          } else {
+            return false
+          }
+        }
+        const active = rect.top <= 10 && rect.bottom >= window.innerHeight * 0.5
         if (!active) return false
         playIntro(false)
         isLocked = true
@@ -1119,8 +1002,16 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       }
 
       const onWheel = (e: WheelEvent) => {
+        if (isExitingUpRef.current) {
+          const rect = stageRef.current?.getBoundingClientRect()
+          if (rect && rect.top <= 0) {
+            isExitingUpRef.current = false
+          } else {
+            return
+          }
+        }
         if (!isLocked && !lockIfStageIsActive()) return
-        if (e.deltaY < 0 && phase === 'act1' && !direction) { release(); return }
+        if (e.deltaY < 0 && phase === 'act1' && !direction) { releaseUp(); return }
         e.preventDefault()
         if (Math.abs(e.deltaY) < 18) return
         if (e.deltaY > 0) handleForward()
@@ -1130,11 +1021,16 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const downKeys = ['ArrowDown', 'PageDown', ' ', 'Spacebar']
       const upKeys   = ['ArrowUp', 'PageUp']
       const onKey = (e: KeyboardEvent) => {
+        if (isExitingUpRef.current) {
+          const rect = stageRef.current?.getBoundingClientRect()
+          if (rect && rect.top <= 0) isExitingUpRef.current = false
+          else return
+        }
         if (!isLocked) return
         const down = downKeys.includes(e.key)
         const up   = upKeys.includes(e.key)
         if (!down && !up) return
-        if (up && phase === 'act1' && !direction) { release(); return }
+        if (up && phase === 'act1' && !direction) { releaseUp(); return }
         e.preventDefault()
         if (down) handleForward()
         else if (up) handleBackward()
@@ -1142,21 +1038,26 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       let touchY = 0
       const onTouchStart = (e: TouchEvent) => {
-        if (!isLocked) return
         touchY = e.touches[0].clientY
       }
       const onTouchMove = (e: TouchEvent) => {
+        if (isExitingUpRef.current) return
         if (!isLocked) return
         e.preventDefault()
       }
       const onTouchEnd = (e: TouchEvent) => {
+        if (isExitingUpRef.current) {
+          const rect = stageRef.current?.getBoundingClientRect()
+          if (rect && rect.top <= 0) isExitingUpRef.current = false
+          else return
+        }
         if (!isLocked) return
         const endY = e.changedTouches[0] ? e.changedTouches[0].clientY : touchY
         const dy   = touchY - endY
         if (dy > 30) {
           handleForward()
         } else if (dy < -30) {
-          if (phase === 'act1' && !direction) { release(); return }
+          if (phase === 'act1' && !direction) { releaseUp(); return }
           handleBackward()
         }
       }
@@ -1174,6 +1075,22 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       }
       window.addEventListener('aminosan:handoff-backward', onHandoffBackward)
 
+      // IntersectionObserver para pausar vídeos e cancelar animações quando a seção não estiver visível
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) {
+              allVideos.forEach((v) => { try { v.pause() } catch(e) {} })
+              if (animFrame) cancelAnimationFrame(animFrame)
+              direction = null
+              activeSeg = null
+            }
+          })
+        },
+        { threshold: 0.05 },
+      )
+      if (root.current) observer.observe(root.current)
+
       window.addEventListener('wheel',      onWheel,     { passive: false })
       window.addEventListener('keydown',    onKey)
       window.addEventListener('touchstart', onTouchStart, { passive: true })
@@ -1190,6 +1107,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       })
 
       return () => {
+        observer.disconnect()
         stIntro?.kill()
         stIntroExit?.kill()
         introTl.kill()

@@ -228,27 +228,27 @@ export function OurStory() {
     <div
       ref={sectionRef}
       className="w-full relative z-10 py-10 md:py-20"
-      style={{ perspective: '1000px' }}
+      style={{ perspective: isDesktop ? '1000px' : 'none' }}
     >
       {/* ── Fundo branco com bordas superior e inferior esfumaçadas (blur) ── */}
       <div className="pointer-events-none absolute inset-0 -z-10 flex flex-col">
         {/* Topo esfumaçado */}
         <div
-          className="h-[6rem] w-full shrink-0 bg-gradient-to-b from-white/0 to-white backdrop-blur-md"
-          style={{
+          className="h-[6rem] w-full shrink-0 bg-gradient-to-b from-white/0 to-white lg:backdrop-blur-md"
+          style={isDesktop ? {
             WebkitMaskImage: 'linear-gradient(to bottom, transparent, black)',
             maskImage: 'linear-gradient(to bottom, transparent, black)',
-          }}
+          } : undefined}
         />
         {/* Meio sólido */}
         <div className="flex-1 w-full bg-white" />
         {/* Base esfumaçada */}
         <div
-          className="h-[6rem] w-full shrink-0 bg-gradient-to-t from-white/0 to-white backdrop-blur-md"
-          style={{
+          className="h-[6rem] w-full shrink-0 bg-gradient-to-t from-white/0 to-white lg:backdrop-blur-md"
+          style={isDesktop ? {
             WebkitMaskImage: 'linear-gradient(to top, transparent, black)',
             maskImage: 'linear-gradient(to top, transparent, black)',
-          }}
+          } : undefined}
         />
       </div>
 

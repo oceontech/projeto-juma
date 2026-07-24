@@ -271,11 +271,17 @@ export function HeroJornada() {
         if (directionRef.current === 'forward') {
           lastTimeRef.current = now
           const current = video.currentTime
-          if (video.paused) void video.play().catch(() => {})
+          const limit = target >= video.duration - 0.1 ? video.duration - 0.05 : target - 0.02
+          if (current >= limit || video.ended) {
+            try { video.pause() } catch {}
+            stopPlayback()
+            return
+          }
+          if (video.paused && !video.ended) {
+            void video.play().catch(() => {})
+          }
           updateActivePhase(current)
           updateLeavesParallax(current)
-          const limit = target >= video.duration - 0.1 ? video.duration - 0.05 : target - 0.02
-          if (current >= limit) { video.pause(); stopPlayback(); return }
         } else if (directionRef.current === 'backward') {
           if (!video.paused) video.pause()
           // Não empilha um novo seek em cima de um ainda em andamento — em
@@ -333,6 +339,7 @@ export function HeroJornada() {
         const target = targetRef.current ?? (video ? video.currentTime : 0)
         targetRef.current = null
         if (video) {
+          try { video.pause() } catch {}
           try { video.currentTime = target } catch {}
           updateActivePhase(target)
           updateLeavesParallax(target)
@@ -347,18 +354,6 @@ export function HeroJornada() {
           fadeRest(true)
           autoRewindRef.current = false
           return
-        }
-        // Reversão automática (voltou pro topo): encadeia o próximo passo pra
-        // trás sozinha, sem esperar mais um gesto de scroll do usuário.
-        if (autoRewindRef.current) {
-          const targets  = getTargets()
-          const prevStep = stepRef.current - 1
-          if (prevStep >= 0) {
-            stepRef.current = prevStep
-            startPlayback('backward', targets[prevStep])
-          } else {
-            autoRewindRef.current = false
-          }
         }
       }
 
@@ -376,8 +371,12 @@ export function HeroJornada() {
       }
 
       const release = () => {
+        const video = videoRef.current
+        if (video) { try { video.pause() } catch {} }
+        if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
         phaseRef.current  = 'done'
         playingRef.current = false
+        directionRef.current = null
         targetRef.current  = null
         setIsPaused(true)
         lockScroll(false)
@@ -430,7 +429,16 @@ export function HeroJornada() {
         const video = videoRef.current
         if (!video) return
         const ph = phaseRef.current
-        if (ph === 'done') return
+        if (ph === 'done') {
+          if (e.deltaY < 0 && window.scrollY <= 10) {
+            e.preventDefault()
+            phaseRef.current = 'animating'
+            stepRef.current  = targetsLength
+            lockScroll(true)
+            handleBackward()
+          }
+          return
+        }
         if (ph === 'rest' && e.deltaY <= 0) return
         if (ph === 'animating' && e.deltaY > 0 && atLastPause()) { 
           release(); return 
@@ -444,10 +452,19 @@ export function HeroJornada() {
         const video = videoRef.current
         if (!video) return
         const ph   = phaseRef.current
-        if (ph === 'done') return
         const down = downKeys.includes(e.key)
         const up   = upKeys.includes(e.key)
         if (!down && !up) return
+        if (ph === 'done') {
+          if (up && window.scrollY <= 10) {
+            e.preventDefault()
+            phaseRef.current = 'animating'
+            stepRef.current  = targetsLength
+            lockScroll(true)
+            handleBackward()
+          }
+          return
+        }
         if (ph === 'rest' && !down) return
         if (ph === 'animating' && down && atLastPause()) { 
           release(); return 
@@ -472,9 +489,17 @@ export function HeroJornada() {
         const video = videoRef.current
         if (!video) return
         const ph  = phaseRef.current
-        if (ph === 'done') return
         const endY = e.changedTouches[0] ? e.changedTouches[0].clientY : touchY
         const dy   = touchY - endY
+        if (ph === 'done') {
+          if (dy < -30 && window.scrollY <= 10) {
+            phaseRef.current = 'animating'
+            stepRef.current  = targetsLength
+            lockScroll(true)
+            handleBackward()
+          }
+          return
+        }
         if (ph === 'rest') { if (dy > 30) startJourney() }
         else if (ph === 'animating') {
           if (dy > 30) handleForward()
@@ -488,22 +513,11 @@ export function HeroJornada() {
         
         if (phaseRef.current === 'done') {
           if (window.scrollY > 10) {
-            hasLeftTopRef.current = true;
+            hasLeftTopRef.current = true
           } else if (window.scrollY <= 2 && hasLeftTopRef.current) {
-            hasLeftTopRef.current = false;
-            // Reset imediato antes de qualquer wheel event
-            phaseRef.current = 'animating'
-            stepRef.current  = 3
-            lockScroll(true)
-            setCap(4)
-            setIsPaused(true)
+            hasLeftTopRef.current = false
             const targets = getTargets()
             try { video.currentTime = targets[targets.length - 1] } catch {}
-            // Voltar ao topo é intenção clara de ir pra home: a gota reaparece
-            // (continuidade visual), mas a reversão segue sozinha até o rest.
-            autoRewindRef.current = true
-            stepRef.current = 2
-            startPlayback('backward', targets[2])
           }
         }
       }
@@ -551,6 +565,24 @@ export function HeroJornada() {
       const onNavComplete = () => { if (phaseRef.current !== 'done') skipToDone() }
       const onNavReset    = () => { if (phaseRef.current !== 'rest') resetToStart() }
 
+      // Pause video and stop rAF when section is scrolled out of view
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) {
+              const video = videoRef.current
+              if (video) { try { video.pause() } catch {} }
+              if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
+              playingRef.current = false
+              directionRef.current = null
+              setIsPaused(true)
+            }
+          })
+        },
+        { threshold: 0.05 },
+      )
+      if (root.current) observer.observe(root.current)
+
       window.addEventListener('wheel',      onWheel,     { passive: false })
       window.addEventListener('keydown',    onKey)
       window.addEventListener('touchstart', onTouchStart, { passive: true })
@@ -561,6 +593,7 @@ export function HeroJornada() {
       window.addEventListener('herojornada:reset',    onNavReset)
 
       return () => {
+        observer.disconnect()
         if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
         lockScroll(false)
         window.removeEventListener('wheel',      onWheel)
