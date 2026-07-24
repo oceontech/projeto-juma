@@ -155,7 +155,7 @@ type RoleProps = {
 }
 
 function getRoleProps(role: Role, isMobile: boolean, index: number): RoleProps {
-  const mod = isMobile && index === 0 ? 0.65 : 1
+  const mod = isMobile && index === 0 ? 1.9 : 1
   if (isMobile) {
     switch (role) {
       case 'center':
@@ -271,11 +271,16 @@ function getVisibleRoleProps(role: Role, isMobile: boolean, index: number): Role
 function getCatalogBottleProps(index: number, active: number, isMobile: boolean): RoleProps {
   const role = getRole(index, active)
   const props = getVisibleRoleProps(role, isMobile, index)
+  
+  if (isMobile) {
+    return props
+  }
+
   if (index === 0 && role === 'center') {
     return { 
       ...getFullFrameBottleProps(), 
-      scale: isMobile ? 1.6 : 0.85, 
-      y: isMobile ? -200 : -37, 
+      scale: 0.85, 
+      y: -37, 
       zIndex: 20 
     }
   }
@@ -329,7 +334,8 @@ function getFullFrameBottleProps(): RoleProps {
     xPercent: -50,
     x: 0,
     yPercent: 0,
-    bottom: '0vh',
+    top: '0vh',
+    bottom: 'auto',
     width: '100%',
     height: '100dvh',
     scale: 1,
@@ -340,9 +346,6 @@ function getFullFrameBottleProps(): RoleProps {
     transformOrigin: 'center center',
   }
 }
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   Componente principal
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 export function HomeProductShowcase() {
   const t = useTranslations('homeProductShowcase')
@@ -750,6 +753,7 @@ export function HomeProductShowcase() {
             pinSpacing: true,
             anticipatePin: 1,
             onEnter: () => {
+              window.dispatchEvent(new CustomEvent('nav:hide'))
               // Rede de segurança: qualquer entrada por cima cancela um
               // "saindo pra cima" que tenha ficado pendente.
               leavingUp = false
@@ -757,7 +761,13 @@ export function HomeProductShowcase() {
               if (!handingOff) restoreVisual()
             },
             onEnterBack: () => {
+              window.dispatchEvent(new CustomEvent('nav:hide'))
               if (currentIndexRef.current !== COUNT - 1) applyIndex(COUNT - 1)
+            },
+            onToggle: (self) => {
+              if (self.isActive) {
+                window.dispatchEvent(new CustomEvent('nav:hide'))
+              }
             },
           })
 
@@ -805,6 +815,7 @@ export function HomeProductShowcase() {
 
           skipRef.current = () => {
             hideHint()
+            window.dispatchEvent(new CustomEvent('nav:show'))
             scrollToY(pinTrigger.end + window.innerHeight, 1.1)
           }
 
@@ -885,8 +896,8 @@ export function HomeProductShowcase() {
               handoffStillRef.current,
               {
                 scale: catalogCenter.scale,
-                top: 0,
-                height: '100%',
+                top: isMobile ? '33vh' : 0,
+                height: isMobile ? '68vh' : '100%',
                 y: catalogCenter.y ?? 0,
                 duration: 0.58,
                 ease: 'power2.out',
@@ -951,6 +962,7 @@ export function HomeProductShowcase() {
           const runHandoffOut = () => {
             if (leavingUp) return
             hideHint()
+            window.dispatchEvent(new CustomEvent('nav:show'))
             transitionTl?.kill()
             clearTimeout(idleTimer)
             lenisRef.current?.stop()

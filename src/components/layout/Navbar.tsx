@@ -126,25 +126,33 @@ export function Navbar() {
       touchY = e.touches[0].clientY
     }
     const onTouchEnd = (e: TouchEvent) => {
+      if (e.defaultPrevented) return
       const endY = e.changedTouches[0]?.clientY || touchY
       const diff = touchY - endY
-      if (diff > 20) {
+      if (diff > 40) {
         handleScrollDirection('down', window.scrollY)
-      } else if (diff < -20) {
+      } else if (diff < -40) {
         handleScrollDirection('up', window.scrollY)
       }
     }
+
+    const handleNavHide = () => setHidden(true)
+    const handleNavShow = () => setHidden(false)
 
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('wheel', onWheel, { passive: true })
     window.addEventListener('touchstart', onTouchStart, { passive: true })
     window.addEventListener('touchend', onTouchEnd, { passive: true })
+    window.addEventListener('nav:hide', handleNavHide)
+    window.addEventListener('nav:show', handleNavShow)
 
     return () => {
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('wheel', onWheel)
       window.removeEventListener('touchstart', onTouchStart)
       window.removeEventListener('touchend', onTouchEnd)
+      window.removeEventListener('nav:hide', handleNavHide)
+      window.removeEventListener('nav:show', handleNavShow)
     }
   }, [])
 

@@ -447,11 +447,24 @@ html.lenis body { height: auto; }
   height: 100dvh;
   min-height: 100dvh;
   /* Fundo sólido de segurança — evita flash branco antes do .pcs-bg renderizar */
-  background: var(--pcs-mid, #0a2a22);
+  background: var(--pcs-mid, #030817);
   /* Shared color vars (atualizadas via JS) — bg + podium herdam */
-  --pcs-base: #0c3b2e;
-  --pcs-mid: #0a2a22;
-  --pcs-accent: #34d399;
+  --pcs-base: #07133a;
+  --pcs-mid: #030817;
+  --pcs-accent: #7fd0f2;
+}
+
+/* Quando o GSAP pina a seção (aplica position: fixed no root) */
+.pcs-root[style*="position: fixed"],
+.pin-spacer > .pcs-root {
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  height: 100dvh !important;
+  min-height: 100dvh !important;
 }
 
 /* Illuminated background (driven by --pcs-base / --pcs-mid / --pcs-accent) */
@@ -518,17 +531,17 @@ html.lenis body { height: auto; }
 .pcs-showcase {
   position: relative;
   z-index: 10;
-  height: 100vh;
-  height: 100dvh;
-  min-height: 100dvh;
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 100dvh !important;
   overflow: hidden;
 }
 .pcs-stage {
   position: relative;
   width: 100%;
-  height: 100vh;
-  height: 100dvh;
-  min-height: 100dvh;
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 100dvh !important;
 }
 
 /* Bottle theater — shared overlay for all product images */

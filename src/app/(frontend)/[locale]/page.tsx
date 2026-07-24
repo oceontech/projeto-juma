@@ -41,7 +41,7 @@ export default async function HomePage(props: {
       <div id="sec-origem" className="scroll-mt-24">
         <AminosanStory />
       </div>
-      <div id="sec-produtos" data-nav-theme="dark" className="scroll-mt-24">
+      <div id="sec-produtos" data-nav-theme="dark" className="bg-[#030817] scroll-mt-24">
         <HomeProductShowcase />
       </div>
       <div id="sec-culturas" className="scroll-mt-24">
