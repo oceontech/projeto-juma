@@ -155,7 +155,7 @@ type RoleProps = {
 }
 
 function getRoleProps(role: Role, isMobile: boolean, index: number): RoleProps {
-  const mod = isMobile && index === 0 ? 1.9 : 1
+  const mod = isMobile && index === 0 ? 2.7 : 1
   if (isMobile) {
     switch (role) {
       case 'center':
@@ -291,7 +291,7 @@ function getCatalogBottleProps(index: number, active: number, isMobile: boolean)
       width: '46vw',
       height: '68vh',
       y: 20,
-      yPercent: -14,
+      yPercent: 10,
       scale: 0.9,
       opacity: 0.55,
       autoAlpha: 0.55,
@@ -305,7 +305,7 @@ function getCatalogBottleProps(index: number, active: number, isMobile: boolean)
       width: '46vw',
       height: '68vh',
       y: 20,
-      yPercent: -14,
+      yPercent: 10,
       scale: 0.9,
       opacity: 0.55,
       autoAlpha: 0.55,
@@ -318,8 +318,8 @@ function getCatalogBottleProps(index: number, active: number, isMobile: boolean)
       width: '46vw',
       height: '68vh',
       y: 20,
-      yPercent: -14,
-      scale: 0.9,
+      yPercent: 10,
+      scale: 0.61,
       opacity: 0,
       autoAlpha: 0,
       zIndex: 1,
@@ -1353,13 +1353,13 @@ export function HomeProductShowcase() {
                     <h2 className={`pcs-panel-title pcs-panel-title-${i}`}>
                       {i === 1 ? (
                         <>
-                          <span className="pcs-title-line">Acorda</span>
+                          <span className="pcs-title-line">Acorda</span>{' '}
                           <span className="pcs-title-line">Ultra</span>
                         </>
                       ) : i === 3 ? (
                         <>
                           <span className="pcs-title-line">Revigo</span>
-                          <span className="pcs-title-line">Phos</span>
+                          <span className="pcs-title-line">Phos</span>{' '}
                           <span className="pcs-title-line">Amino</span>
                         </>
                       ) : (

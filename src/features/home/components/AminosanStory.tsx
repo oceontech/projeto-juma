@@ -1330,7 +1330,7 @@ function BottleCallout({
   return (
     <div
       ref={refEl}
-      className={`aminosan-bottle-callout pointer-events-none absolute z-30 flex items-center gap-3 ${className}`}
+      className={`aminosan-bottle-callout pointer-events-none absolute z-30 flex items-center gap-3 md:top-1/2 md:left-[65%] md:-translate-y-1/2 ${className}`}
     >
       <span data-line aria-hidden className="aminosan-bottle-callout__line" style={{ transformOrigin: 'left' }} />
       <span data-dot aria-hidden className="aminosan-bottle-callout__dot" />
