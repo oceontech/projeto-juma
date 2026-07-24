@@ -149,6 +149,7 @@ type RoleProps = {
   autoAlpha?: number
   zIndex?: number
   transformOrigin?: string
+  top?: string
   bottom?: string
   width?: string
   height?: string
@@ -380,14 +381,29 @@ export function HomeProductShowcase() {
       el.addEventListener('loadeddata', scheduleRefresh)
     })
 
+    // Só re-agenda refresh em resize de LARGURA (rotação, redimensionar janela).
+    // No mobile, mudança de ALTURA sozinha é o navegador escondendo/mostrando a
+    // barra de endereço enquanto o usuário rola — refazer o refresh nesse momento
+    // recalcula o pin (start/end/spacer) no meio do gesto e é o que produz o
+    // "salto"/barra vazia na seção pinada. `ScrollTrigger.config({ ignoreMobileResize:
+    // true })` (features/animation/gsap.ts) já existe pra evitar isso, mas o listener
+    // de resize aqui embaixo o contornava direto.
+    let lastWidth = window.innerWidth
+    const onResize = () => {
+      const w = window.innerWidth
+      if (w === lastWidth) return
+      lastWidth = w
+      scheduleRefresh()
+    }
+
     window.addEventListener('load', scheduleRefresh)
     window.addEventListener('pageshow', scheduleRefresh)
-    window.addEventListener('resize', scheduleRefresh)
+    window.addEventListener('resize', onResize)
 
     return () => {
       window.removeEventListener('load', scheduleRefresh)
       window.removeEventListener('pageshow', scheduleRefresh)
-      window.removeEventListener('resize', scheduleRefresh)
+      window.removeEventListener('resize', onResize)
       media.forEach((el) => {
         el.removeEventListener('load', scheduleRefresh)
         el.removeEventListener('loadedmetadata', scheduleRefresh)
@@ -468,8 +484,13 @@ export function HomeProductShowcase() {
         {
           isMotion: '(prefers-reduced-motion: no-preference)',
           isReduced: '(prefers-reduced-motion: reduce)',
-          isMobile: '(max-width: 639px)',
-          isDesktop: '(min-width: 640px)',
+          // 767px casa com o breakpoint real do layout mobile em globals.css
+          // (`@media (max-width: 767px) { .pcs-product, .pcs-theater-bottle... }`).
+          // Usar 639px aqui deixava telas de 640–767px (tablets, celulares em
+          // paisagem) com o CSS em layout mobile mas o posicionamento do frasco
+          // (inline style, maior especificidade) calculado como desktop.
+          isMobile: '(max-width: 767px)',
+          isDesktop: '(min-width: 768px)',
         },
         (ctx) => {
           const { isMotion, isMobile } = ctx.conditions as {

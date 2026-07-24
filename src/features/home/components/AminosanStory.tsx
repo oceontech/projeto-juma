@@ -718,17 +718,36 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       }
       const beginTick = () => { animFrame = requestAnimationFrame(tick) }
 
+      // Aguarda o seek REALMENTE terminar (poll de video.seeking a cada rAF) em vez
+      // de confiar só no evento 'seeked' + timeout curto. Em decoders mobile lentos
+      // o 'seeked' pode atrasar e um timeout de 200ms libera o reveal/play() com o
+      // seek ainda em voo — o vídeo então "pula" pro frame certo já em playback,
+      // o que aparece como "travar no enquadramento errado". Mesmo cuidado que o
+      // tick() do HeroJornada tem com `video.seeking` no scrub manual.
+      let pendingReveal = false
       const revealWhenReady = (video: HTMLVideoElement, needsSeek: boolean, reveal: () => void) => {
-        if (!needsSeek) { reveal(); return }
+        if (!needsSeek) { pendingReveal = false; reveal(); return }
         let done = false
+        let raf = 0
+        let timeout: ReturnType<typeof setTimeout>
         const finish = () => {
           if (done) return
           done = true
+          cancelAnimationFrame(raf)
+          clearTimeout(timeout)
           video.removeEventListener('seeked', finish)
+          pendingReveal = false
           reveal()
         }
+        const poll = () => {
+          if (done) return
+          if (!video.seeking) { finish(); return }
+          raf = requestAnimationFrame(poll)
+        }
         video.addEventListener('seeked', finish)
-        setTimeout(finish, 200)
+        raf = requestAnimationFrame(poll)
+        // Fallback duro pra nunca travar de vez se o decoder nunca soltar 'seeking'.
+        timeout = setTimeout(finish, 500)
       }
 
       const engage = (name: SegName, dir: Dir, reveal: (video: HTMLVideoElement, fwdDur: number) => void) => {
@@ -741,6 +760,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         const other = dir === 'forward' ? seg.rev : seg.fwd
         const needsSync = oldDir !== null && oldDir !== dir
         if (needsSync) {
+          pendingReveal = true
           syncVideos(other, video)
           other.pause()
         }
@@ -957,11 +977,15 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       const handleForward = () => {
         if (!isLocked) return
-        if (direction === 'backward' && activeSeg) {
+        // Reversão instantânea no meio do segmento (o próprio scroll pra frente
+        // vira o "cancela o rewind") — mas só se o seek do engage anterior já
+        // resolveu. Sem essa trava, gestos rápidos de vaivém empilham seeks no
+        // mesmo vídeo e o decoder mobile "engasga" num frame intermediário.
+        if (direction === 'backward' && activeSeg && !pendingReveal) {
           startSeg(activeSeg, 'forward')
           return
         }
-        if (direction || performance.now() <= cooldownRef.current) return
+        if (direction || pendingReveal || performance.now() <= cooldownRef.current) return
         if (phase === 'act1') startMorph('forward')
         else if (phase === 'act3') startLine('forward')
         else if (phase === 'line') startCat('forward')
@@ -969,11 +993,11 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       const handleBackward = () => {
         if (!isLocked) return
-        if (direction === 'forward' && activeSeg) {
+        if (direction === 'forward' && activeSeg && !pendingReveal) {
           startSeg(activeSeg, 'backward')
           return
         }
-        if (direction || performance.now() <= cooldownRef.current) return
+        if (direction || pendingReveal || performance.now() <= cooldownRef.current) return
         if (phase === 'act3') startMorph('backward')
         else if (phase === 'line') startLine('backward')
         else if (phase === 'exit') startCat('backward')
