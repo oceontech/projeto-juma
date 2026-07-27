@@ -456,7 +456,7 @@ function MobileChallengesMarquee({ challenges }: { challenges: Challenge[] }) {
   }, [])
 
   return (
-    <div ref={containerRef} className="w-screen relative left-1/2 -translate-x-1/2 overflow-hidden block lg:hidden pb-12 pt-4">
+    <div ref={containerRef} className="w-full max-w-full relative overflow-hidden block lg:hidden pb-12 pt-4">
       <div ref={trackRef} className="flex gap-4 w-max pl-6">
         {items.map((c, idx) => {
           const originalIndex = idx % challenges.length

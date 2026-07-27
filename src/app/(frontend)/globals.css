@@ -97,18 +97,11 @@
        Em reduced-motion o Lenis não monta e o browser usa scroll nativo. */
     /* Reserva o espaço da scrollbar mesmo com overflow:hidden (evita layout shift na jornada) */
     scrollbar-width: none;
-    /* clip em vez de hidden: além de cortar o estouro visual, impede scroll
-       horizontal programático (focus/tab em elemento fora da viewport). */
     overflow-x: clip;
-    /* overflow-x:hidden sozinho não impede o rubber-band horizontal do touch em
-       iOS/Android quando algum elemento estoura a largura da viewport — isso
-       "arrasta" a página inteira para o lado e deixa uma barra vazia. Como
-       overflow-y:hidden no body quebraria o position:sticky usado pela jornada
-       (vira scroll container próprio, com scrollport do tamanho do documento
-       inteiro em vez do viewport), a correção fica em overscroll-behavior-x,
-       que bloqueia o gesto sem alterar o modelo de overflow. */
     overscroll-behavior-x: none;
     min-height: 100dvh;
+    width: 100%;
+    max-width: 100%;
   }
 
   /* Remove scrollbar completamente — WebKit/Blink */
@@ -122,6 +115,10 @@
     color: var(--color-foreground);
     background-color: var(--color-background);
     min-height: 100dvh;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    position: relative;
   }
 
   /* ── Títulos (Montserrat Black 900) ───────────────────────── */
@@ -443,6 +440,8 @@ html.lenis body { height: auto; }
 .pcs-root {
   position: relative;
   width: 100%;
+  max-width: 100%;
+  overflow: hidden;
   height: 100vh;
   height: 100svh;
   min-height: 100svh;
@@ -462,6 +461,8 @@ html.lenis body { height: auto; }
   left: 0 !important;
   right: 0 !important;
   width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
   height: 100% !important;
   height: 100svh !important;
   min-height: 100svh !important;
@@ -941,7 +942,7 @@ html.lenis body { height: auto; }
     top: 33vh;
     height: 48vh; /* termina antes da faixa dos stats — sem sobreposição */
     width: 100%;
-    max-width: 100vw;
+    max-width: 100%;
     transform-origin: center center;
   }
   /* bottle-wrap preenche o theater-bottle (52vh) */

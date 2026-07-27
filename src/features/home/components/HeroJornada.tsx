@@ -197,22 +197,8 @@ export function HeroJornada() {
         if (on) {
           // Para o Lenis para ele não competir com o scrub manual do vídeo
           lenisRef.current?.stop()
-          // Compensa a largura da scrollbar para evitar layout shift ao ocultar overflow
-          const isTouch = typeof window !== 'undefined' && (window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0)
-          const sw = window.innerWidth - document.documentElement.clientWidth
-          if (sw > 0 && !isMobile && !isTouch) {
-            document.body.style.paddingRight = `${sw}px`
-          }
-          if (!isMobile) {
-            document.documentElement.style.overflowY = 'hidden'
-            document.body.style.overflowY = 'hidden'
-          }
         } else {
           document.body.style.paddingRight = ''
-          if (!isMobile) {
-            document.documentElement.style.overflowY = ''
-            document.body.style.overflowY = ''
-          }
           // Retoma o smooth scroll global ao liberar a jornada
           lenisRef.current?.start()
           requestAnimationFrame(() => ScrollTrigger.refresh())

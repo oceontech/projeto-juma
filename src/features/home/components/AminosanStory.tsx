@@ -401,21 +401,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           // evitando o movimento involuntário para cima que exibia o menu.
           // (Removido o gsap.to(proxy) que forçava o scroll para targetY)
 
-          const isTouch = typeof window !== 'undefined' && (window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0)
-          const sw = window.innerWidth - document.documentElement.clientWidth
-          if (sw > 0 && !isTouch && !isMobile) {
-            document.body.style.paddingRight = `${sw}px`
-          }
-          if (!isMobile) {
-            document.documentElement.style.overflowY = 'hidden'
-            document.body.style.overflowY = 'hidden'
-          }
+          lenisRef.current?.stop()
         } else {
           document.body.style.paddingRight = ''
-          if (!isMobile) {
-            document.documentElement.style.overflowY = ''
-            document.body.style.overflowY = ''
-          }
           if (exitOffset !== 0) {
             window.scrollTo(0, Math.max(0, lockedScrollY + exitOffset))
           }
