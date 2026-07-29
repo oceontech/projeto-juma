@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useRef } from 'react'
-import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
@@ -11,14 +10,6 @@ import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
 import { Leaf, Tractor, Sun, TreePine, Sprout, ClipboardEdit, LucideIcon } from 'lucide-react'
 import { GlobalPresence } from '@/features/home/components/GlobalPresence'
-
-function ArrowTopRightIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden {...props}>
-      <path d="M7 17 17 7M9 7h8v8" />
-    </svg>
-  )
-}
 
 const TIMELINE_KEYS = ['y1985', 'y1992', 'y2003', 'y2015', 'y2024'] as const
 const TIMELINE_YEARS = ['1985', '1992', '2003', '2015', '2024']
@@ -54,7 +45,6 @@ export function AboutPage() {
   const missionRef = useRef<HTMLDivElement>(null)
   const highlightRef = useRef<HTMLDivElement>(null)
   const galleryRef = useRef<HTMLDivElement>(null)
-  const ctaRef = useRef<HTMLDivElement>(null)
 
   useGSAP(
     () => {
@@ -68,7 +58,6 @@ export function AboutPage() {
       const mission = missionRef.current
       const highlight = highlightRef.current
       const gallery = galleryRef.current
-      const cta = ctaRef.current
 
       const split = title ? new SplitText(title, { type: 'chars,lines' }) : null
       const chars = split?.chars ?? []
@@ -77,7 +66,6 @@ export function AboutPage() {
       if (title) gsap.set(title, { opacity: 0 })
       if (chars.length) gsap.set(chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
       if (intro) gsap.set(intro, { y: 20, opacity: 0 })
-      if (cta) gsap.set(cta, { y: 24, opacity: 0 })
 
       const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
       if (eyebrow) tl.to(eyebrow, { y: 0, opacity: 1, duration: 0.5 })
@@ -359,15 +347,6 @@ export function AboutPage() {
         })
       }
 
-      if (cta) {
-        ScrollTrigger.create({
-          trigger: cta,
-          start: 'top 90%',
-          once: true,
-          onEnter: () => gsap.to(cta, { y: 0, opacity: 1, duration: 0.7, ease: EASE.reveal })
-        })
-      }
-
       return () => {
         split?.revert()
       }
@@ -516,7 +495,7 @@ export function AboutPage() {
               // i = 4 (v5): Bottom-left bottom small (1 col, 1 row)
               // i = 5 (v6): Bottom-right large (2 cols, 2 rows)
               // i = 6 (v7): Footer (3 cols, 1 row)
-              const positionClass = 
+              const positionClass =
                 i === 0 ? 'lg:col-start-1 lg:col-end-3 lg:row-start-1 lg:row-end-3' :
                 i === 1 ? 'lg:col-start-3 lg:col-end-4 lg:row-start-1 lg:row-end-2' :
                 i === 2 ? 'lg:col-start-3 lg:col-end-4 lg:row-start-2 lg:row-end-3' :
@@ -525,44 +504,49 @@ export function AboutPage() {
                 i === 5 ? 'lg:col-start-2 lg:col-end-4 lg:row-start-3 lg:row-end-5' :
                 'sm:col-span-2 lg:col-start-1 lg:col-end-4 lg:row-start-5 lg:row-end-6'
 
-              // Vertical layout on all screens: Text on top, image on the bottom
-              const maskClass = '[mask-image:linear-gradient(to_top,black_45%,transparent)] [-webkit-mask-image:linear-gradient(to_top,black_45%,transparent)]'
-              
-              const isLarge = i === 0 || i === 5
-              const imagePosClass = isLarge 
-                ? 'bottom-0 left-0 w-full h-[45%] sm:h-[50%] lg:h-[72%]'
-                : 'bottom-0 left-0 w-full h-[45%] sm:h-[42%] lg:h-[40%]'
-              
-              const cardMinHeight = i === 6 
+              const cardMinHeight = i === 6
                 ? 'min-h-[220px] sm:min-h-[140px] lg:min-h-0'
                 : 'min-h-[220px] sm:min-h-[240px] lg:min-h-0'
 
-              return (
-                <div 
-                  key={key} 
-                  data-val-card 
-                  className={`group relative flex flex-col overflow-hidden rounded-xl border border-foreground/8 bg-white transition-shadow hover:shadow-lg ${cardMinHeight} ${positionClass}`}
-                >
-                  {/* Imagem de Fundo */}
-                  <div className={`absolute pointer-events-none z-0 overflow-hidden ${imagePosClass} ${maskClass}`}>
-                    <div className="w-full h-full relative">
-                      <Image 
-                        src={image} 
-                        alt="" 
-                        fill 
-                        className="object-cover object-center group-hover:scale-105 transition-transform duration-700" 
-                      />
-                    </div>
-                  </div>
+              // Imagem sempre em tela cheia. No mobile (cards empilhados, abaixo de sm)
+              // o painel fica sempre centralizado e padronizado; a variação de posição
+              // por card só entra a partir de sm, quando o mosaico deixa de empilhar.
+              const panelAlignSm =
+                i === 0 ? 'sm:justify-end sm:items-start' :   // hero grande: painel embaixo à esquerda
+                i === 1 ? 'sm:justify-start sm:items-start' : // top-left
+                i === 2 ? 'sm:justify-end sm:items-end' :     // bottom-right
+                i === 3 ? 'sm:justify-start sm:items-end' :   // top-right
+                i === 4 ? 'sm:justify-end sm:items-start' :   // bottom-left
+                i === 5 ? 'sm:justify-end sm:items-end' :     // hero grande: painel embaixo à direita
+                'sm:justify-center sm:items-start'            // rodapé largo: centralizado à esquerda
+              const panelAlign = `justify-center items-center ${panelAlignSm}`
 
-                  {/* Conteúdo */}
-                  <div className="relative z-10 flex flex-col gap-0.5 lg:gap-1 p-3.5 lg:p-4 w-full mb-auto">
-                    <h3 className="font-black uppercase leading-[1.1] tracking-tight text-foreground text-sm sm:text-base lg:text-base">
-                      {t(`values.${key}.title`)}
-                    </h3>
-                    <p className="text-subtitle m-0 text-xs sm:text-[13px] lg:text-sm leading-normal sm:leading-relaxed text-foreground/55 max-w-[95%]">
-                      {t(`values.${key}.desc`)}
-                    </p>
+              const isWide = i === 6
+              const panelWidthSm = isWide ? 'sm:max-w-[50%]' : i === 0 || i === 5 ? 'sm:max-w-[75%]' : 'sm:max-w-[92%]'
+              const panelWidth = `max-w-[90%] ${panelWidthSm}`
+
+              return (
+                <div
+                  key={key}
+                  data-val-card
+                  className={`group relative flex overflow-hidden rounded-xl border border-foreground/8 bg-white transition-shadow hover:shadow-lg ${cardMinHeight} ${positionClass}`}
+                >
+                  <Image
+                    src={image}
+                    alt=""
+                    fill
+                    className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-black/15 pointer-events-none" />
+                  <div className={`relative z-10 w-full h-full p-3 sm:p-4 lg:p-5 flex flex-col ${panelAlign}`}>
+                    <div className={`bg-black/30 backdrop-blur-md border border-white/20 p-3 sm:p-4 rounded-2xl flex flex-col gap-0.5 lg:gap-1 ${panelWidth}`}>
+                      <h3 className="font-black uppercase leading-[1.1] tracking-tight text-white text-sm sm:text-base lg:text-base drop-shadow-md">
+                        {t(`values.${key}.title`)}
+                      </h3>
+                      <p className="text-subtitle m-0 text-xs sm:text-[13px] lg:text-sm leading-normal sm:leading-relaxed text-white/95 drop-shadow-sm">
+                        {t(`values.${key}.desc`)}
+                      </p>
+                    </div>
                   </div>
                 </div>
               )
@@ -679,31 +663,6 @@ export function AboutPage() {
           </div>
         </div>
 
-        {/* CTA Final */}
-        <div ref={ctaRef} className="rounded-3xl bg-primary text-white p-8 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-          <div className="relative z-10 max-w-[64rem]">
-            <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-white mb-4">
-              <span className="h-1.5 w-1.5 rounded-full bg-white" />
-              {t('ctaEyebrow')}
-            </span>
-            <h2 className="font-montserrat text-3xl md:text-4xl font-black uppercase text-white tracking-tight mb-4 leading-[0.95]">
-              {t('ctaTitleStart')} <em className="text-highlight text-white">{t('ctaTitleHighlight')}</em>
-            </h2>
-            <p className="text-white text-lg">
-              {t('ctaBody')}
-            </p>
-          </div>
-          <div className="relative z-10 shrink-0">
-            <Link
-              href="/contato"
-              className="inline-flex items-center gap-3 bg-white text-primary px-8 py-4 rounded-full font-bold uppercase tracking-wider text-sm transition-transform hover:scale-105 shadow-xl hover:shadow-yellow-400/20"
-            >
-              {t('ctaButton')}
-              <ArrowTopRightIcon className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
       </Container>
     </div>
   )
