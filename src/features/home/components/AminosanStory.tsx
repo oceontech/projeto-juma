@@ -617,6 +617,22 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         }
       }
 
+      const updateVideoScale = (video: HTMLVideoElement) => {
+        if (window.innerWidth < 1024) {
+          let vScale = 2.8
+          const cur = video.currentTime
+          if (cur > targets[1] && cur < targets[2]) {
+            const p = (cur - targets[1]) / (targets[2] - targets[1])
+            vScale = 2.8 + (1.45 - 2.8) * Math.max(0, Math.min(1, p))
+          } else if (cur >= targets[2]) {
+            vScale = 1.45
+          }
+          gsap.set(video, { scale: vScale })
+        } else {
+          gsap.set(video, { scale: 1 })
+        }
+      }
+
       const updateActivePhase = (time: number) => {
         if (time < targets[1] - 0.2) phase = 'act1'
         else if (time < targets[2] - 0.2) phase = 'act3'
@@ -657,6 +673,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           if (nextTime <= target + 0.02) { stopPlayback(); return }
         }
         updateActivePhase(video.currentTime)
+        updateVideoScale(video)
         animFrame = requestAnimationFrame(tick)
       }
 
@@ -668,6 +685,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         targetTime = target
         playing = true
         lockScroll(true)
+        updateVideoScale(video)
 
         if (dir === 'forward') {
           gsap.set(video, { autoAlpha: 1, zIndex: 1 })
@@ -719,9 +737,13 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       const showStaticAct1 = (exitAfter = false) => {
         const video = videoRef.current
-        if (video) { video.pause(); try { video.currentTime = 0 } catch(e) {} }
-        gsap.killTweensOf(video)
-        gsap.set(video, { autoAlpha: 0, zIndex: 0 })
+        if (video) {
+          video.pause()
+          try { video.currentTime = 0 } catch(e) {}
+          updateVideoScale(video)
+          gsap.killTweensOf(video)
+          gsap.set(video, { autoAlpha: 0, zIndex: 0 })
+        }
         gsap.set([newImg, lineImg, trioImg], { autoAlpha: 0 })
         hideAct3All(true)
         hideLineAll(true)
@@ -743,20 +765,25 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       const restAct3 = () => {
         const video = videoRef.current
-        gsap.set(video, { autoAlpha: 1, zIndex: 1 })
+        if (video) {
+          gsap.set(video, { autoAlpha: 0, zIndex: 0 })
+          try { video.currentTime = targets[1] } catch(e) {}
+          updateVideoScale(video)
+        }
         gsap.set(newImg, { autoAlpha: 1 })
         gsap.set([lineImg, trioImg], { autoAlpha: 0 })
-        hideAct1UI(true)
-        hideLineAll(true)
         gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
         gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
         showAct3UI(0)
-        try { if (video) video.currentTime = targets[1] } catch(e) {}
       }
 
       const restLine = () => {
         const video = videoRef.current
-        gsap.set(video, { autoAlpha: 1, zIndex: 1 })
+        if (video) {
+          gsap.set(video, { autoAlpha: 0, zIndex: 0 })
+          try { video.currentTime = targets[2] } catch(e) {}
+          updateVideoScale(video)
+        }
         gsap.set(lineImg, { autoAlpha: 1 })
         gsap.set([newImg, trioImg], { autoAlpha: 0 })
         gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
@@ -764,13 +791,16 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         hideAct1UI(true)
         hideAct3All(true)
         showLineUI(0)
-        try { if (video) video.currentTime = targets[2] } catch(e) {}
       }
 
       const restExit = () => {
         const video = videoRef.current
+        if (video) {
+          gsap.set(video, { autoAlpha: 0, zIndex: 0 })
+          try { video.currentTime = targets[3] } catch(e) {}
+          updateVideoScale(video)
+        }
         gsap.killTweensOf([oldImg, newImg, lineImg, trioImg])
-        gsap.set(video, { autoAlpha: 0, zIndex: 0 })
         gsap.set([oldImg, newImg, lineImg], { autoAlpha: 0 })
         hideAct1UI(true)
         hideAct3All(true)
@@ -789,7 +819,6 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           pointerEvents: 'none',
         })
         gsap.set(brandMarkRef.current, { autoAlpha: 0 })
-        try { if (video) video.currentTime = targets[3] } catch(e) {}
       }
 
       const finishExit = () => {
