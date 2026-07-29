@@ -293,12 +293,7 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
 function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
   const root            = useRef<HTMLDivElement>(null)
   const stageRef        = useRef<HTMLElement>(null)
-  const morphFwdRef     = useRef<HTMLVideoElement>(null)
-  const morphRevRef     = useRef<HTMLVideoElement>(null)
-  const lineFwdRef      = useRef<HTMLVideoElement>(null)
-  const lineRevRef      = useRef<HTMLVideoElement>(null)
-  const catFwdRef       = useRef<HTMLVideoElement>(null)
-  const catRevRef       = useRef<HTMLVideoElement>(null)
+  const videoRef        = useRef<HTMLVideoElement>(null)
   const oldImgRef       = useRef<HTMLImageElement>(null)
   const newImgRef       = useRef<HTMLImageElement>(null)
   const lineImgRef      = useRef<HTMLImageElement>(null)
@@ -320,17 +315,12 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
   useGSAP(
     () => {
-      const morphFwd = morphFwdRef.current
-      const morphRev = morphRevRef.current
-      const lineFwd  = lineFwdRef.current
-      const lineRev  = lineRevRef.current
-      const catFwd   = catFwdRef.current
-      const catRev   = catRevRef.current
+      const video = videoRef.current
       const stageTrigger = stageRef.current
       const oldImg = oldImgRef.current
-      if (!morphFwd || !morphRev || !lineFwd || !lineRev || !catFwd || !catRev || !stageTrigger || !oldImg) return
+      if (!video || !stageTrigger || !oldImg) return
 
-      const allVideos = [morphFwd, morphRev, lineFwd, lineRev, catFwd, catRev]
+      const allVideos = [video]
       const newImg  = newImgRef.current
       const lineImg = lineImgRef.current
       const trioImg = trioImgRef.current
@@ -348,7 +338,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       // ── Estado inicial: tudo invisível
       gsap.set(allVideos,    { autoAlpha: 0, zIndex: 0 })
-      gsap.set(morphFwd,     { zIndex: 1 })
+      gsap.set(video, { zIndex: 1 })
       gsap.set([newImg, lineImg, trioImg], { autoAlpha: 0 })
       gsap.set(brandMarkRef.current, { autoAlpha: 0, y: -18, filter: 'blur(8px)' })
       gsap.set(oldImg,       { scale: 1.04, autoAlpha: 0, yPercent: 100, filter: 'blur(8px)' })
@@ -389,24 +379,17 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       // ── Helpers de animação
       let currentTl: gsap.core.Timeline | null = null
       let lineTl: gsap.core.Timeline | null = null
-      let lockedScrollY = 0
-      const lockScroll = (on: boolean, exitOffset = 0) => {
+      const lockScroll = (on: boolean) => {
         if (on) {
           lenisRef.current?.stop()
-          const stage = stageRef.current
-          const targetY = stage ? Math.round(window.scrollY + stage.getBoundingClientRect().top) : window.scrollY
-          lockedScrollY = targetY
-
-          // A tela será travada exatamente onde o usuário está, sem animar o scroll para o targetY,
-          // evitando o movimento involuntário para cima que exibia o menu.
-          // (Removido o gsap.to(proxy) que forçava o scroll para targetY)
-
-          lenisRef.current?.stop()
+          if (root.current) {
+            const rootTop = Math.round(window.scrollY + root.current.getBoundingClientRect().top)
+            if (Math.abs(window.scrollY - rootTop) > 2) {
+              window.scrollTo(0, rootTop)
+            }
+          }
         } else {
           document.body.style.paddingRight = ''
-          if (exitOffset !== 0) {
-            window.scrollTo(0, Math.max(0, lockedScrollY + exitOffset))
-          }
           lenisRef.current?.start()
           requestAnimationFrame(() => ScrollTrigger.refresh())
         }
@@ -416,26 +399,20 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       let stIntro: ScrollTrigger | null = null
       let stIntroExit: ScrollTrigger | null = null
 
-      /* Fases de repouso e segmentos de vídeo entre elas:
-       * act1 ──morph──▶ act3 ──line──▶ line ──cat──▶ exit */
       type Phase = 'act1' | 'act3' | 'line' | 'exit'
-      type SegName = 'morph' | 'line' | 'cat'
-      type Dir = 'forward' | 'backward'
-
-      const SEGMENTS: Record<SegName, { fwd: HTMLVideoElement; rev: HTMLVideoElement; back: Phase; fore: Phase }> = {
-        morph: { fwd: morphFwd, rev: morphRev, back: 'act1', fore: 'act3' },
-        line:  { fwd: lineFwd,  rev: lineRev,  back: 'act3', fore: 'line' },
-        cat:   { fwd: catFwd,   rev: catRev,   back: 'line', fore: 'exit' },
-      }
 
       let phase: Phase = 'act1'
-      let activeSeg: SegName | null = null
-      let direction: Dir | null = null
+      let direction: 'forward' | 'backward' | null = null
       let isLocked = false
-      let animFrame: number | null = null
       const cooldownRef = { current: 0 }
+      let playing = false
+      let targetTime: number | null = null
+      let step = 0
+      let lastTime = 0
+      let animFrame = 0
+      const targets = [0, 2.64, 4.07, 5.90]
 
-      const safeDur = (v: HTMLVideoElement) => (v.duration > 0 && isFinite(v.duration)) ? v.duration : 3
+      const safeDur = (v: HTMLVideoElement) => (v.duration > 0 && isFinite(v.duration)) ? v.duration : 6
 
       const introTl = gsap.timeline({ paused: true })
       introTl.to(scrimRef.current, { autoAlpha: 1, duration: 0.5, ease: 'power1.out' }, 0)
@@ -543,40 +520,170 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         tl.to(linePanelRef.current, { y: 20, autoAlpha: 0, filter: 'blur(10px)', duration: 0.2, ease: 'power2.in' }, 0.08)
       }
 
-      const release = (exitOffset = 0) => {
+      const release = () => {
         isLocked = false
-        lockScroll(false, exitOffset)
+        lockScroll(false)
       }
 
-      const isExitingUpRef = { current: false }
       const releaseUp = () => {
-        isExitingUpRef.current = true
         isLocked = false
-        lockScroll(false, -120)
+        lockScroll(false)
       }
 
-      const EXIT_UP_NUDGE = 32
+      const hideAct1UI = (immediate = false) => {
+        if (immediate) {
+          gsap.set(titleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)' })
+          gsap.set(act1Items, { y: 20, autoAlpha: 0, filter: 'blur(10px)' })
+          gsap.set(calloutLine, { scaleX: 0 })
+          gsap.set(calloutDot, { scale: 0, autoAlpha: 0 })
+          gsap.set(calloutLabel, { x: 12, autoAlpha: 0 })
+          gsap.set(scrimRef.current, { autoAlpha: 0 })
+        } else {
+          gsap.to(titleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)', duration: 0.6, stagger: STAGGER.char, ease: 'power1.inOut', overwrite: 'auto' })
+          gsap.to(act1Items, { y: 20, autoAlpha: 0, filter: 'blur(10px)', duration: 0.6, stagger: 0.05, ease: 'power1.inOut', overwrite: 'auto' })
+          gsap.to(calloutLabel, { x: 12, autoAlpha: 0, duration: 0.36, ease: 'power1.inOut', overwrite: 'auto' })
+          gsap.to(calloutDot, { scale: 0, autoAlpha: 0, duration: 0.33, ease: 'power1.inOut', overwrite: 'auto' })
+          gsap.to(calloutLine, { scaleX: 0, duration: 0.45, ease: 'power1.inOut', overwrite: 'auto' })
+          gsap.to(scrimRef.current, { autoAlpha: 0, duration: 1.2, ease: 'power1.inOut', overwrite: 'auto' })
+        }
+      }
 
-      const syncVideos = (source: HTMLVideoElement, target: HTMLVideoElement) => {
-        const progress = source.currentTime / safeDur(source)
-        try { target.currentTime = safeDur(target) - (progress * safeDur(target)) } catch(e) {}
+      const hideAct3All = (immediate = false) => {
+        if (immediate) {
+          gsap.killTweensOf([a3Eyebrow, a3Title, a3Body, a3Line, a3Stat, newCalloutLine, newCalloutDot, newCalloutLabel])
+          gsap.set([a3Eyebrow, a3Title, a3Body, a3Stat, newCalloutLabel], { autoAlpha: 0 })
+          gsap.set([a3Line, newCalloutLine], { scaleX: 0 })
+          gsap.set(newCalloutDot, { scale: 0, autoAlpha: 0 })
+        } else {
+          hideAct3UI(0)
+        }
+      }
+
+      const hideLineAll = (immediate = false) => {
+        if (immediate) {
+          gsap.killTweensOf([linePanelRef.current, lineBodyRef.current, ...lineItems, ...lineTitleChars])
+          gsap.set([linePanelRef.current, lineBodyRef.current], { autoAlpha: 0, y: 24, filter: 'blur(10px)' })
+          gsap.set(lineTitleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)' })
+          gsap.set(lineItems, { autoAlpha: 0, y: 18, filter: 'blur(10px)' })
+        } else {
+          hideLineUI(0)
+        }
+      }
+
+      const updateActivePhase = (time: number) => {
+        if (time < targets[1] - 0.2) phase = 'act1'
+        else if (time < targets[2] - 0.2) phase = 'act3'
+        else if (time < targets[3] - 0.2) phase = 'line'
+        else phase = 'exit'
+      }
+
+      const tick = (now: number) => {
+        const video = videoRef.current
+        if (!video) { stopPlayback(); return }
+        if (!playing) return
+        const target = targetTime
+        if (target === null) return
+
+        if (direction === 'forward') {
+          lastTime = now
+          const current = video.currentTime
+          const limit = target >= video.duration - 0.1 ? video.duration - 0.05 : target - 0.02
+          if (current >= limit || video.ended) {
+            try { video.pause() } catch {}
+            stopPlayback()
+            return
+          }
+          if (video.paused && !video.ended) {
+            void video.play().catch(() => {})
+          }
+        } else if (direction === 'backward') {
+          if (!video.paused) video.pause()
+          if (video.seeking) {
+            animFrame = requestAnimationFrame(tick)
+            return
+          }
+          const elapsed = (now - lastTime) / 1000
+          lastTime = now
+          const current = video.currentTime
+          const nextTime = Math.max(0, current - elapsed)
+          try { video.currentTime = nextTime } catch {}
+          if (nextTime <= target + 0.02) { stopPlayback(); return }
+        }
+        updateActivePhase(video.currentTime)
+        animFrame = requestAnimationFrame(tick)
+      }
+
+      const startPlayback = (dir: 'forward' | 'backward', target: number) => {
+        const video = videoRef.current
+        if (!video) return
+        if (animFrame) cancelAnimationFrame(animFrame)
+        direction = dir
+        targetTime = target
+        playing = true
+
+        if (dir === 'forward') {
+          gsap.set(video, { autoAlpha: 1, zIndex: 1 })
+          if (step === 1) {
+            gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: 1, yPercent: 0, filter: 'blur(0px)' })
+            gsap.to(oldImg, { autoAlpha: 0, scale: 0.992, filter: 'blur(4px)', duration: 0.24, ease: 'power1.inOut', overwrite: 'auto' })
+            hideAct1UI(false)
+            showAct3UI(0.6)
+          } else if (step === 2) {
+            gsap.killTweensOf([oldImg, newImg, lineImg, trioImg])
+            gsap.set([oldImg, newImg, lineImg, trioImg], { autoAlpha: 0 })
+            gsap.to(brandMarkRef.current, { y: -18, autoAlpha: 0, filter: 'blur(8px)', duration: 0.32, ease: 'power2.out', overwrite: true })
+            hideAct3UI(0)
+            showLineUI(0.4)
+          } else if (step === 3) {
+            gsap.to(lineImg, { autoAlpha: 0, duration: 0.24, ease: 'power1.inOut', overwrite: 'auto' })
+            hideLineUI(0)
+            window.dispatchEvent(new CustomEvent('aminosan:video-handoff-start'))
+          }
+          void video.play().catch(() => {})
+        } else {
+          gsap.set(video, { autoAlpha: 1, zIndex: 1 })
+          video.pause()
+          const duration = safeDur(video)
+          if (video.currentTime >= duration - 0.05) {
+            try { video.currentTime = duration - 0.1 } catch {}
+          }
+          
+          if (step === 0) {
+            gsap.to(newImg, { autoAlpha: 0, duration: 0.18, ease: 'power1.out', overwrite: true })
+            hideAct3UI(0)
+            gsap.set([act1Ref.current, oldCalloutRef.current], { autoAlpha: 1 })
+          } else if (step === 1) {
+            gsap.to(lineImg, { autoAlpha: 0, duration: 0.18, ease: 'power1.out', overwrite: true })
+            gsap.set(newImg, { autoAlpha: 0 })
+            hideLineUI(0)
+            showAct3UI(0.6)
+            gsap.to(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.4, delay: 0.6, ease: 'power2.out', overwrite: true })
+          } else if (step === 2) {
+            gsap.to(trioImg, { autoAlpha: 0, duration: 0.18, ease: 'power1.out', overwrite: true })
+            gsap.set(lineImg, { autoAlpha: 0 })
+            showLineUI(0.4)
+          }
+        }
+        
+        lastTime = performance.now()
+        animFrame = requestAnimationFrame(tick)
       }
 
       const showStaticAct1 = (exitAfter = false) => {
-        allVideos.forEach((v) => v.pause())
-        gsap.killTweensOf(allVideos)
-        gsap.set(allVideos, { autoAlpha: 0, zIndex: 0 })
+        const video = videoRef.current
+        if (video) { video.pause(); try { video.currentTime = 0 } catch(e) {} }
+        gsap.killTweensOf(video)
+        gsap.set(video, { autoAlpha: 0, zIndex: 0 })
         gsap.set([newImg, lineImg, trioImg], { autoAlpha: 0 })
-        gsap.set([linePanelRef.current, lineBodyRef.current], { autoAlpha: 0, y: 24, filter: 'blur(10px)' })
-        gsap.set(lineTitleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)' })
-        gsap.set(lineItems, { autoAlpha: 0, y: 18, filter: 'blur(10px)' })
+        hideAct3All(true)
+        hideLineAll(true)
         gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: 1, yPercent: 0, filter: 'blur(0px)' })
         gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
-        allVideos.forEach((v) => { try { v.currentTime = 0 } catch(e) {} })
         if (exitAfter) {
           requestAnimationFrame(() => reverseIntro())
         } else {
           introTl.timeScale(1).progress(1).pause()
+          gsap.set([act1Ref.current, scrimRef.current, oldCalloutRef.current], { autoAlpha: 1 })
           gsap.set(scrimRef.current, { autoAlpha: 1 })
           gsap.set(titleChars, { x: 0, autoAlpha: 1, filter: 'blur(0px)' })
           gsap.set(act1Items, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
@@ -587,36 +694,39 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       }
 
       const restAct3 = () => {
-        gsap.set(morphFwd, { autoAlpha: 1, zIndex: 1 })
-        gsap.set([morphRev, lineFwd, lineRev, catFwd, catRev], { autoAlpha: 0, zIndex: 0 })
+        const video = videoRef.current
+        gsap.set(video, { autoAlpha: 1, zIndex: 1 })
         gsap.set(newImg, { autoAlpha: 1 })
         gsap.set([lineImg, trioImg], { autoAlpha: 0 })
-        gsap.set([linePanelRef.current, lineBodyRef.current], { autoAlpha: 0, y: 24, filter: 'blur(10px)' })
-        gsap.set(lineTitleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)' })
-        gsap.set(lineItems, { autoAlpha: 0, y: 18, filter: 'blur(10px)' })
+        hideAct1UI(true)
+        hideLineAll(true)
         gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
         gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
-        ;[morphRev, lineFwd, lineRev].forEach((v) => { try { v.currentTime = 0 } catch(e) {} })
+        showAct3UI(0)
+        try { if (video) video.currentTime = targets[1] } catch(e) {}
       }
 
       const restLine = () => {
-        gsap.set(lineFwd, { autoAlpha: 1, zIndex: 1 })
-        gsap.set([morphFwd, morphRev, lineRev, catFwd, catRev], { autoAlpha: 0, zIndex: 0 })
+        const video = videoRef.current
+        gsap.set(video, { autoAlpha: 1, zIndex: 1 })
         gsap.set(lineImg, { autoAlpha: 1 })
         gsap.set([newImg, trioImg], { autoAlpha: 0 })
         gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
         gsap.set(brandMarkRef.current, { autoAlpha: 0, y: -18, filter: 'blur(8px)' })
-        gsap.set([a3Eyebrow, a3Title, a3Body, a3Stat, newCalloutLabel], { autoAlpha: 0 })
-        gsap.set([a3Line, newCalloutLine], { scaleX: 0 })
-        gsap.set(newCalloutDot, { scale: 0, autoAlpha: 0 })
+        hideAct1UI(true)
+        hideAct3All(true)
         showLineUI(0)
-        ;[lineRev, catFwd, catRev].forEach((v) => { try { v.currentTime = 0 } catch(e) {} })
+        try { if (video) video.currentTime = targets[2] } catch(e) {}
       }
 
       const restExit = () => {
+        const video = videoRef.current
         gsap.killTweensOf([oldImg, newImg, lineImg, trioImg])
-        gsap.set(allVideos, { autoAlpha: 0, zIndex: 0 })
+        gsap.set(video, { autoAlpha: 0, zIndex: 0 })
         gsap.set([oldImg, newImg, lineImg], { autoAlpha: 0 })
+        hideAct1UI(true)
+        hideAct3All(true)
+        hideLineAll(true)
         gsap.set(trioImg, {
           autoAlpha: 1,
           display: 'block',
@@ -631,10 +741,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           pointerEvents: 'none',
         })
         gsap.set(brandMarkRef.current, { autoAlpha: 0 })
-        gsap.set([linePanelRef.current, lineBodyRef.current], { autoAlpha: 0 })
-        gsap.set(lineTitleChars, { autoAlpha: 0 })
-        gsap.set(lineItems, { autoAlpha: 0 })
-        try { catRev.currentTime = 0 } catch(e) {}
+        try { if (video) video.currentTime = targets[3] } catch(e) {}
       }
 
       const finishExit = () => {
@@ -656,339 +763,88 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       const stopPlayback = () => {
         if (animFrame) cancelAnimationFrame(animFrame)
+        playing = false
         direction = null
-        activeSeg = null
-        if (phase === 'act3') {
+        
+        if (step === 1) {
+          phase = 'act3'
           restAct3()
-        } else if (phase === 'line') {
+        } else if (step === 2) {
+          phase = 'line'
           window.dispatchEvent(new CustomEvent('aminosan:video-handoff-end'))
           restLine()
-        } else if (phase === 'exit') {
+        } else if (step === 3) {
+          phase = 'exit'
           restExit()
           finishExit()
         } else {
+          phase = 'act1'
           const stageTop = stageTrigger.getBoundingClientRect().top
           showStaticAct1(stageTop > window.innerHeight * 0.24)
         }
-        cooldownRef.current = performance.now() + 300
-      }
-
-      const tick = () => {
-        if (!direction || !activeSeg) return
-        const seg = SEGMENTS[activeSeg]
-        const video = direction === 'forward' ? seg.fwd : seg.rev
-        const margin = direction === 'forward' ? 0.1 : 0.18
-
-        if (activeSeg === 'line') {
-          if (isMobile) {
-            const progress = video.currentTime / safeDur(video)
-            const easeProgress = gsap.parseEase('power1.inOut')(progress)
-            const currentScale = direction === 'forward' 
-              ? 2.8 - (1.35 * easeProgress)
-              : 1.45 + (1.35 * easeProgress)
-            gsap.set(video, { scale: currentScale })
-          } else {
-            gsap.set(video, { clearProps: 'scale' })
-          }
-        }
-
-        if (video.currentTime >= safeDur(video) - margin) {
-          if (isMobile && activeSeg === 'line') {
-            gsap.set(video, { scale: direction === 'forward' ? 1.45 : 2.8 })
-          }
-          video.pause()
-          phase = direction === 'forward' ? seg.fore : seg.back
-          cooldownRef.current = performance.now() + 320
-          stopPlayback()
-          return
-        }
-        animFrame = requestAnimationFrame(tick)
-      }
-      const beginTick = () => { animFrame = requestAnimationFrame(tick) }
-
-      // Aguarda o seek REALMENTE terminar (poll de video.seeking a cada rAF) em vez
-      // de confiar só no evento 'seeked' + timeout curto. Em decoders mobile lentos
-      // o 'seeked' pode atrasar e um timeout de 200ms libera o reveal/play() com o
-      // seek ainda em voo — o vídeo então "pula" pro frame certo já em playback,
-      // o que aparece como "travar no enquadramento errado". Mesmo cuidado que o
-      // tick() do HeroJornada tem com `video.seeking` no scrub manual.
-      let pendingReveal = false
-      const revealWhenReady = (video: HTMLVideoElement, needsSeek: boolean, reveal: () => void) => {
-        if (!needsSeek) { pendingReveal = false; reveal(); return }
-        let done = false
-        let raf = 0
-        let timeout: ReturnType<typeof setTimeout>
-        const finish = () => {
-          if (done) return
-          done = true
-          cancelAnimationFrame(raf)
-          clearTimeout(timeout)
-          video.removeEventListener('seeked', finish)
-          pendingReveal = false
-          reveal()
-        }
-        const poll = () => {
-          if (done) return
-          if (!video.seeking) { finish(); return }
-          raf = requestAnimationFrame(poll)
-        }
-        video.addEventListener('seeked', finish)
-        raf = requestAnimationFrame(poll)
-        // Fallback duro pra nunca travar de vez se o decoder nunca soltar 'seeking'.
-        timeout = setTimeout(finish, 500)
-      }
-
-      const engage = (name: SegName, dir: Dir, reveal: (video: HTMLVideoElement, fwdDur: number) => void) => {
-        if (animFrame) cancelAnimationFrame(animFrame)
-        const seg = SEGMENTS[name]
-        const oldDir = activeSeg === name ? direction : null
-        activeSeg = name
-        direction = dir
-        const video = dir === 'forward' ? seg.fwd : seg.rev
-        const other = dir === 'forward' ? seg.rev : seg.fwd
-        const needsSync = oldDir !== null && oldDir !== dir
-        if (needsSync) {
-          pendingReveal = true
-          syncVideos(other, video)
-          other.pause()
-        }
-        const fwdDur = safeDur(seg.fwd)
-        revealWhenReady(video, needsSync, () => {
-          if (direction !== dir || activeSeg !== name) return
-          gsap.set(video, { zIndex: 9, autoAlpha: 1 })
-          gsap.set(other, { zIndex: 0, autoAlpha: 0 })
-          reveal(video, fwdDur)
-        })
-      }
-
-      const startMorph = (dir: Dir) => {
-        if (dir === 'forward') {
-          introTl.progress(1)
-          gsap.set(oldImg, { autoAlpha: 1, scale: 1, yPercent: 0, filter: 'blur(0px)' })
-        } else {
-          gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
-        }
-
-        engage('morph', dir, (video, fwdDur) => {
-          gsap.set([lineFwd, lineRev, catFwd, catRev], { autoAlpha: 0, zIndex: 0 })
-          gsap.set([newImg, lineImg, trioImg], { autoAlpha: 0 })
-
-          if (dir === 'forward') {
-            gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: 1, yPercent: 0, filter: 'blur(0px)' })
-
-            const handoffTl = gsap.timeline({
-              onComplete: () => {
-                if (direction !== 'forward' || activeSeg !== 'morph') return
-                video.play().catch(() => {})
-                beginTick()
-              },
-            })
-            handoffTl.to(oldImg, { autoAlpha: 0, scale: 0.992, filter: 'blur(4px)', duration: 0.24, ease: 'power1.inOut', overwrite: 'auto' }, 0)
-
-            gsap.killTweensOf(brandMarkRef.current)
-            gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
-            gsap.to(titleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)', duration: fwdDur * 0.4, stagger: STAGGER.char, ease: 'power1.inOut', overwrite: 'auto' })
-            gsap.to(act1Items, { y: 20, autoAlpha: 0, filter: 'blur(10px)', duration: fwdDur * 0.4, stagger: 0.05, ease: 'power1.inOut', overwrite: 'auto' })
-            gsap.to(calloutLabel, { x: 12, autoAlpha: 0, duration: fwdDur * 0.24, ease: 'power1.inOut', overwrite: 'auto' })
-            gsap.to(calloutDot, { scale: 0, autoAlpha: 0, duration: fwdDur * 0.22, ease: 'power1.inOut', overwrite: 'auto' })
-            gsap.to(calloutLine, { scaleX: 0, duration: fwdDur * 0.3, ease: 'power1.inOut', overwrite: 'auto' })
-            gsap.to(scrimRef.current, { autoAlpha: 0, duration: fwdDur * 0.8, ease: 'power1.inOut', overwrite: 'auto' })
-
-            showAct3UI(fwdDur * 0.4)
-          } else {
-            gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
-
-            video.play().catch(() => {})
-
-            hideAct3UI(0)
-
-            gsap.killTweensOf(brandMarkRef.current)
-            gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
-            gsap.set(titleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)' })
-            gsap.set(act1Items, { y: 20, autoAlpha: 0, filter: 'blur(10px)' })
-            gsap.set(calloutLine, { scaleX: 0 })
-            gsap.set(calloutDot, { scale: 0, autoAlpha: 0 })
-            gsap.set(calloutLabel, { x: 12, autoAlpha: 0 })
-            gsap.set(scrimRef.current, { autoAlpha: 0 })
-
-            gsap.to(scrimRef.current, { autoAlpha: 1, duration: fwdDur * 0.28, delay: fwdDur * 0.48, ease: 'power1.inOut', overwrite: 'auto' })
-
-            gsap.to(titleChars, { x: 0, autoAlpha: 1, filter: 'blur(0px)', duration: fwdDur * 0.28, delay: fwdDur * 0.56, stagger: STAGGER.char, ease: 'power1.inOut', overwrite: 'auto' })
-            gsap.to(act1Items, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: fwdDur * 0.28, delay: fwdDur * 0.6, stagger: 0.08, ease: 'power1.inOut', overwrite: 'auto' })
-            gsap.to(calloutLine, { scaleX: 1, duration: fwdDur * 0.18, delay: fwdDur * 0.66, ease: 'power1.inOut', overwrite: 'auto' })
-            gsap.to(calloutDot, { scale: 1, autoAlpha: 1, duration: fwdDur * 0.16, delay: fwdDur * 0.73, ease: 'back.out(1.8)', overwrite: 'auto' })
-            gsap.to(calloutLabel, { x: 0, autoAlpha: 1, duration: fwdDur * 0.2, delay: fwdDur * 0.76, ease: 'power1.inOut', overwrite: 'auto' })
-
-            beginTick()
-          }
-        })
-      }
-
-      const startLine = (dir: Dir) => {
-        engage('line', dir, (video) => {
-          gsap.set([morphFwd, morphRev, catFwd, catRev], { autoAlpha: 0, zIndex: 0 })
-          gsap.set(oldImg, { autoAlpha: 0 })
-          gsap.set(trioImg, { autoAlpha: 0 })
-
-          if (isMobile) {
-            const progress = video.currentTime / safeDur(video)
-            const easeProgress = gsap.parseEase('power1.inOut')(progress)
-            const currentScale = dir === 'forward' 
-              ? 2.8 - (1.35 * easeProgress)
-              : 1.45 + (1.35 * easeProgress)
-            gsap.set(video, { scale: currentScale })
-          } else {
-            gsap.set(video, { clearProps: 'scale' })
-          }
-
-          if (dir === 'forward') {
-            gsap.killTweensOf([oldImg, newImg, lineImg, trioImg])
-            gsap.set([oldImg, newImg, lineImg, trioImg], { autoAlpha: 0 })
-            gsap.to(brandMarkRef.current, { y: -18, autoAlpha: 0, filter: 'blur(8px)', duration: 0.32, ease: 'power2.out', overwrite: true })
-            hideAct3UI(0)
-            showLineUI(safeDur(SEGMENTS.line.fwd) * 0.18)
-          } else {
-            gsap.to(lineImg, { autoAlpha: 0, duration: 0.18, ease: 'power1.out', overwrite: true })
-            gsap.set(newImg, { autoAlpha: 0 })
-            hideLineUI(0)
-            showAct3UI(safeDur(SEGMENTS.line.rev) * 0.52)
-            gsap.to(brandMarkRef.current, {
-              y: 0, autoAlpha: 1, filter: 'blur(0px)',
-              duration: 0.4, delay: safeDur(SEGMENTS.line.rev) * 0.55,
-              ease: 'power2.out', overwrite: true,
-            })
-          }
-
-          video.play().catch(() => {})
-          beginTick()
-        })
-      }
-
-      const startCat = (dir: Dir) => {
-        window.dispatchEvent(new CustomEvent('aminosan:video-handoff-start'))
-        engage('cat', dir, (video) => {
-          gsap.set([morphFwd, morphRev, lineFwd, lineRev], { autoAlpha: 0, zIndex: 0 })
-          gsap.killTweensOf([oldImg, newImg, lineImg, trioImg])
-          gsap.set([oldImg, newImg, lineImg, trioImg], { autoAlpha: 0 })
-
-          if (dir === 'forward') {
-            hideLineUI(0)
-          } else {
-            gsap.to(trioImg, { autoAlpha: 0, duration: 0.18, ease: 'power1.out', overwrite: true })
-            gsap.set(lineImg, { autoAlpha: 0 })
-            showLineUI(safeDur(SEGMENTS.cat.rev) * 0.45)
-          }
-
-          video.play().catch(() => {})
-          beginTick()
-        })
-      }
-
-      const startSeg = (name: SegName, dir: Dir) => {
-        if (name === 'morph') startMorph(dir)
-        else if (name === 'line') startLine(dir)
-        else startCat(dir)
-      }
-
-      const nearStageTop = (rect: DOMRect | null | undefined) =>
-        !!rect && Math.abs(rect.top) <= 150
-
-      const insideRunway = () => {
-        const rr = root.current?.getBoundingClientRect()
-        if (!rr) return false
-        const vh = window.innerHeight
-        return rr.top <= 1 && rr.bottom > vh * 0.85
+        cooldownRef.current = performance.now() + 650
       }
 
       let stTop = ScrollTrigger.create({
-        trigger: stageRef.current,
+        trigger: root.current,
         start: 'top top',
         onEnter: () => {
           playIntro(false)
-          if (isExitingUpRef.current && stageRef.current && stageRef.current.getBoundingClientRect().top > 0) {
-            return
-          }
-          if (!insideRunway()) {
-            if (isLocked) release()
-            return
-          }
-          if (phase === 'act1' && !isLocked && !direction) {
+          if (phase === 'act1' && !isLocked && !direction && !playing) {
             isLocked = true
             lockScroll(true)
           }
         },
         onLeave: () => {
-          if (!isLocked) return
-          if (phase === 'act1' && !direction) return
-          release()
+          if (isLocked) release()
         },
         onEnterBack: () => {
           if (phase === 'act1') playIntro(false)
-          const rect = stageRef.current?.getBoundingClientRect()
-          if (!nearStageTop(rect)) {
-            if (isLocked) release()
-            return
-          }
-          if (isLocked || direction) return
+          if (isLocked || direction || playing) return
           if (phase === 'act3') {
             isLocked = true
             lockScroll(true)
-            startMorph('backward')
+            step = 0
+            startPlayback('backward', targets[0])
           } else if (phase === 'line') {
             isLocked = true
             lockScroll(true)
           } else if (phase === 'exit') {
             isLocked = true
             lockScroll(true)
-            startCat('backward')
+            step = 2
+            startPlayback('backward', targets[2])
           }
         },
         onLeaveBack: () => {
-          const rect = stageRef.current?.getBoundingClientRect()
-          if (!nearStageTop(rect)) {
-            if (isLocked) release()
-            return
-          }
-          if (phase === 'line' && !isLocked && !direction) {
-            isLocked = true
-            lockScroll(true)
-            startLine('backward')
-          } else if (phase === 'act3' && !isLocked && direction !== 'backward') {
-            isLocked = true
-            lockScroll(true)
-            startMorph('backward')
-          } else if (isLocked) {
-            release()
-          }
+          if (isLocked) release()
         },
       })
 
       const handleForward = () => {
         if (!isLocked) return
-        // Reversão instantânea no meio do segmento (o próprio scroll pra frente
-        // vira o "cancela o rewind") — mas só se o seek do engage anterior já
-        // resolveu. Sem essa trava, gestos rápidos de vaivém empilham seeks no
-        // mesmo vídeo e o decoder mobile "engasga" num frame intermediário.
-        if (direction === 'backward' && activeSeg && !pendingReveal) {
-          startSeg(activeSeg, 'forward')
+        if (playing && direction === 'backward') {
+          if (step < 3) { step++; startPlayback('forward', targets[step]) }
           return
         }
-        if (direction || pendingReveal || performance.now() <= cooldownRef.current) return
-        if (phase === 'act1') startMorph('forward')
-        else if (phase === 'act3') startLine('forward')
-        else if (phase === 'line') startCat('forward')
+        if (playing || performance.now() <= cooldownRef.current) return
+        if (step < 3) {
+           step++
+           startPlayback('forward', targets[step])
+        }
       }
 
       const handleBackward = () => {
         if (!isLocked) return
-        if (direction === 'forward' && activeSeg && !pendingReveal) {
-          startSeg(activeSeg, 'backward')
+        if (playing && direction === 'forward') {
+          if (step > 0) { step--; startPlayback('backward', targets[step]) }
           return
         }
-        if (direction || pendingReveal || performance.now() <= cooldownRef.current) return
-        if (phase === 'act3') startMorph('backward')
-        else if (phase === 'line') startLine('backward')
-        else if (phase === 'exit') startCat('backward')
+        if (playing || performance.now() <= cooldownRef.current) return
+        if (step > 0) {
+           step--
+           startPlayback('backward', targets[step])
+        }
       }
 
       const lockIfStageIsActive = () => {
@@ -996,13 +852,6 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         const stage = stageRef.current
         if (!stage) return false
         const rect = stage.getBoundingClientRect()
-        if (isExitingUpRef.current) {
-          if (rect.top <= 0) {
-            isExitingUpRef.current = false
-          } else {
-            return false
-          }
-        }
         const active = rect.top <= 10 && rect.bottom >= window.innerHeight * 0.5
         if (!active) return false
         playIntro(false)
@@ -1012,16 +861,13 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       }
 
       const onWheel = (e: WheelEvent) => {
-        if (isExitingUpRef.current) {
-          const rect = stageRef.current?.getBoundingClientRect()
-          if (rect && rect.top <= 0) {
-            isExitingUpRef.current = false
-          } else {
-            return
-          }
-        }
         if (!isLocked && !lockIfStageIsActive()) return
-        if (e.deltaY < 0 && phase === 'act1' && !direction) { releaseUp(); return }
+        if (e.deltaY < 0 && phase === 'act1' && !direction) {
+          if (performance.now() > cooldownRef.current) {
+            releaseUp()
+          }
+          return
+        }
         e.preventDefault()
         if (Math.abs(e.deltaY) < 18) return
         if (e.deltaY > 0) handleForward()
@@ -1031,16 +877,16 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const downKeys = ['ArrowDown', 'PageDown', ' ', 'Spacebar']
       const upKeys   = ['ArrowUp', 'PageUp']
       const onKey = (e: KeyboardEvent) => {
-        if (isExitingUpRef.current) {
-          const rect = stageRef.current?.getBoundingClientRect()
-          if (rect && rect.top <= 0) isExitingUpRef.current = false
-          else return
-        }
         if (!isLocked) return
         const down = downKeys.includes(e.key)
         const up   = upKeys.includes(e.key)
         if (!down && !up) return
-        if (up && phase === 'act1' && !direction) { releaseUp(); return }
+        if (up && phase === 'act1' && !direction) {
+          if (performance.now() > cooldownRef.current) {
+            releaseUp()
+          }
+          return
+        }
         e.preventDefault()
         if (down) handleForward()
         else if (up) handleBackward()
@@ -1051,23 +897,22 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         touchY = e.touches[0].clientY
       }
       const onTouchMove = (e: TouchEvent) => {
-        if (isExitingUpRef.current) return
         if (!isLocked) return
         e.preventDefault()
       }
       const onTouchEnd = (e: TouchEvent) => {
-        if (isExitingUpRef.current) {
-          const rect = stageRef.current?.getBoundingClientRect()
-          if (rect && rect.top <= 0) isExitingUpRef.current = false
-          else return
-        }
         if (!isLocked) return
         const endY = e.changedTouches[0] ? e.changedTouches[0].clientY : touchY
         const dy   = touchY - endY
         if (dy > 30) {
           handleForward()
         } else if (dy < -30) {
-          if (phase === 'act1' && !direction) { releaseUp(); return }
+          if (phase === 'act1' && !direction) {
+            if (performance.now() > cooldownRef.current) {
+              releaseUp()
+            }
+            return
+          }
           handleBackward()
         }
       }
@@ -1077,11 +922,12 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       // seção continua em 'exit' com o trio still visível — travamos e tocamos
       // o clipe de transição em reverso (trio → linha), seguindo a cadeia acima.
       const onHandoffBackward = () => {
-        if (isLocked || direction || phase !== 'exit') return
+        if (isLocked || playing || phase !== 'exit') return
         restExit()
         isLocked = true
         lockScroll(true)
-        startCat('backward')
+        step = 2
+        startPlayback('backward', targets[2])
       }
       window.addEventListener('aminosan:handoff-backward', onHandoffBackward)
 
@@ -1092,8 +938,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
             if (!entry.isIntersecting) {
               allVideos.forEach((v) => { try { v.pause() } catch(e) {} })
               if (animFrame) cancelAnimationFrame(animFrame)
+              playing = false
               direction = null
-              activeSeg = null
             }
           })
         },
@@ -1113,7 +959,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       // resetaria pra 0 um vídeo que já está tocando de verdade, piscando o frame
       // inicial no meio da transição.
       allVideos.forEach((v) => {
-        v.play().then(() => { if (!direction) { v.pause(); v.currentTime = 0 } }).catch(() => {})
+        v.play().then(() => { if (!playing) { v.pause(); v.currentTime = 0 } }).catch(() => {})
       })
 
       return () => {
@@ -1142,32 +988,17 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
   return (
     <div ref={root} className="relative w-full bg-white">
-      <section ref={stageRef} className="relative z-10 h-auto lg:h-[100dvh] min-h-[100dvh] lg:min-h-0 w-full overflow-visible lg:overflow-hidden bg-white">
+      <section ref={stageRef} className="sticky top-0 z-10 h-[100dvh] w-full overflow-hidden bg-white">
         {/* Vídeos da cadeia — desktop e mobile compartilham os mesmos clipes.
             Cada segmento tem um clipe forward e um reverso gravado. */}
         <video
-          ref={morphFwdRef}
-          muted playsInline preload="metadata"
+          ref={videoRef}
+          muted playsInline preload="auto"
           poster="/heritage/desktop/morph-aminosan-1-antigo.png"
           aria-label={t('videoAlt')}
           className={`${STAGE_VIDEO_CLASS} max-lg:scale-[2.8]`}
         >
-          <source src="/heritage/desktop/morph-aminosan.mp4" type="video/mp4" />
-        </video>
-        <video ref={morphRevRef} muted playsInline preload="metadata" aria-hidden="true" className={`${STAGE_VIDEO_CLASS} max-lg:scale-[2.8]`}>
-          <source src="/heritage/desktop/morph-aminosan-reverse.mp4" type="video/mp4" />
-        </video>
-        <video ref={lineFwdRef} muted playsInline preload="metadata" aria-hidden="true" className={STAGE_VIDEO_CLASS}>
-          <source src="/heritage/desktop/line-aminosan.mp4" type="video/mp4" />
-        </video>
-        <video ref={lineRevRef} muted playsInline preload="metadata" aria-hidden="true" className={STAGE_VIDEO_CLASS}>
-          <source src="/heritage/desktop/line-aminosan-reverse.mp4" type="video/mp4" />
-        </video>
-        <video ref={catFwdRef} muted playsInline preload="metadata" aria-hidden="true" className={`${STAGE_VIDEO_CLASS} max-lg:scale-[1.45]`}>
-          <source src="/heritage/desktop/line-to-catalog.mp4" type="video/mp4" />
-        </video>
-        <video ref={catRevRef} muted playsInline preload="metadata" aria-hidden="true" className={`${STAGE_VIDEO_CLASS} max-lg:scale-[1.45]`}>
-          <source src="/heritage/desktop/line-to-catalog-reverse.mp4" type="video/mp4" />
+          <source src="/heritage/desktop/full-transition-aminosan.mp4" type="video/mp4" />
         </video>
 
         {/* z-10 — foto estática do frasco antigo */}
