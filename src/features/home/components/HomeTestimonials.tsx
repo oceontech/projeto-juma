@@ -105,8 +105,8 @@ export function HomeTestimonials() {
         </div>
 
         {/* Cards */}
-        <div 
-          className="flex justify-center gap-6 overflow-hidden h-[500px] md:h-[600px] lg:h-[700px]" 
+        <div
+          className="flex justify-center gap-6 overflow-hidden h-[500px] md:h-[600px] lg:h-[700px] px-12"
           style={{ maskImage: 'linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)', WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)' }}
         >
           <TestimonialsColumn testimonials={testimonialsData} duration={25} className="w-full md:w-1/2 lg:w-1/3" />
