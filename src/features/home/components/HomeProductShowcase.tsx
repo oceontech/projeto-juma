@@ -157,7 +157,7 @@ type RoleProps = {
 }
 
 function getRoleProps(role: Role, isMobile: boolean, index: number): RoleProps {
-  const mod = isMobile && index === 0 ? 2.7 : 1
+  const mod = 1
   if (isMobile) {
     switch (role) {
       case 'center':
@@ -275,6 +275,26 @@ function getCatalogBottleProps(index: number, active: number, isMobile: boolean)
   const props = getVisibleRoleProps(role, isMobile, index)
   
   if (isMobile) {
+    if (index === 0) {
+      if (role === 'center') {
+        return {
+          ...props,
+          scale: 2.4,
+        }
+      }
+      if (role === 'left' || role === 'right') {
+        return {
+          ...props,
+          scale: 0.34 * 2.4,
+        }
+      }
+      if (role === 'hidden') {
+        return {
+          ...props,
+          scale: 0.28 * 2.4,
+        }
+      }
+    }
     return props
   }
 
