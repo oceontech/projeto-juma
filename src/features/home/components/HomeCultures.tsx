@@ -152,6 +152,7 @@ export function HomeCultures() {
                 src={c.image}
                 alt={t(`cultures.${i}`)}
                 fill
+                sizes="(min-width: 1024px) 20vw, 50vw"
                 className="object-cover group-hover:scale-110 transition-transform duration-700"
               />
               <div

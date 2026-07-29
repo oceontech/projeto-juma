@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import type { CSSProperties } from 'react'
+import Image from 'next/image'
 import { Leaf, Atom, Sprout, ChevronDown, ArrowRight } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
@@ -1342,13 +1343,15 @@ export function HomeProductShowcase() {
 
         <div className="pcs-stage">
           {/* Still de ponte entre o vídeo branco e o catálogo. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            ref={handoffStillRef}
+          <Image
+            ref={handoffStillRef as any}
             src="/produtos/aminosan-catalogo.png"
             alt=""
             aria-hidden="true"
             draggable={false}
+            width={1200}
+            height={1500}
+            sizes="(min-width: 1024px) 50vw, 100vw"
             className="pointer-events-none absolute inset-0 z-[3] h-full w-full object-cover max-lg:top-[22dvh] max-lg:h-[60dvh] max-lg:object-contain opacity-0"
           />
 
@@ -1365,8 +1368,15 @@ export function HomeProductShowcase() {
                   }}
                 >
                   <div className="pcs-bottle-wrap">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img className="pcs-bottle" src={product.image} alt={name} draggable={false} />
+                    <Image
+                      className="pcs-bottle"
+                      src={product.image}
+                      alt={name}
+                      width={800}
+                      height={1000}
+                      sizes="(min-width: 1024px) 35vw, 80vw"
+                      draggable={false}
+                    />
                   </div>
                 </div>
               )
@@ -1383,7 +1393,7 @@ export function HomeProductShowcase() {
                 <div className="pcs-panel-text">
                   <div className="pcs-panel-main">
                     <div className="pcs-panel-brand" aria-hidden="true">
-                      <img src="/brand/logo-juma-agro-branca.png" alt="" draggable={false} />
+                      <Image src="/brand/logo-juma-agro-branca.png" alt="" width={180} height={50} draggable={false} className="h-full w-auto object-contain" />
                     </div>
                     <h2 className={`pcs-panel-title pcs-panel-title-${i}`}>
                       {i === 1 ? (
@@ -1535,11 +1545,13 @@ function ShowcaseReduced({ t }: { t: ReturnType<typeof useTranslations> }) {
                 href={product.href}
                 className="group flex flex-col gap-3 rounded-xl border border-white/10 bg-white/5 p-6 transition-colors hover:border-white/20"
               >
-                <img
+                <Image
                   src="/brand/logo-juma-agro-branca.png"
                   alt="Juma Agro"
+                  width={140}
+                  height={36}
                   draggable={false}
-                  className="h-9 w-fit object-contain"
+                  className="h-9 w-auto object-contain"
                 />
                 <h3 className="font-black text-lg uppercase text-white leading-tight">{name}</h3>
                 <p className="text-sm text-white/60 leading-relaxed m-0 flex-1">{description}</p>
