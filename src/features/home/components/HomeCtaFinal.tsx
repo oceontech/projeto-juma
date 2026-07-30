@@ -58,7 +58,7 @@ export function HomeCtaFinal() {
     <section
       ref={ref}
       id="whatsapp"
-      style={{ backgroundColor: '#004B26', paddingBlock: 'clamp(80px,8vw,120px)' }}
+      style={{ backgroundColor: '#004B26', paddingBlock: 'clamp(80px, 7.5vw, 120px)' }}
     >
       <Container>
         <div data-cta-container className="flex flex-col items-center text-center gap-8">
@@ -72,7 +72,7 @@ export function HomeCtaFinal() {
           <h2
             data-title
             className="font-black uppercase leading-[1.05] tracking-tight text-white max-w-[14ch]"
-            style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
+            style={{ fontSize: 'clamp(2.5rem, 4.5vw, 4.5rem)' }}
           >
             {t('titlePart1')} <span className="text-[#F0E27A] text-highlight inline-block">{t('titleHighlight')}</span>
           </h2>

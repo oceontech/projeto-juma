@@ -104,7 +104,7 @@ export function HomeCultures() {
   return (
     <section
       ref={ref}
-      style={{ backgroundColor: '#F2F6F2', paddingBlock: 'clamp(80px,8vw,120px)' }}
+      style={{ backgroundColor: '#F2F6F2', paddingBlock: 'clamp(80px, 7.5vw, 120px)' }}
     >
       <Container>
         {/* Cabeçalho */}
@@ -119,7 +119,7 @@ export function HomeCultures() {
             <h2
               data-title
               className="font-black uppercase leading-[1.05] tracking-tight"
-              style={{ color: '#0F1A0A', fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
+              style={{ color: '#0F1A0A', fontSize: 'clamp(2.5rem, 4.5vw, 4.5rem)' }}
             >
               {t.rich('title', {
                 br: () => <br />,

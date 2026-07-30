@@ -140,7 +140,7 @@ export function Lines() {
           <h2
             ref={titleRef}
             className="font-black uppercase leading-[1.05] tracking-tight text-foreground"
-            style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
+            style={{ fontSize: 'clamp(2.5rem, 4.5vw, 4.5rem)' }}
           >
             {t('title')}
           </h2>
@@ -199,7 +199,7 @@ export function Lines() {
                   <h3
                     data-line-title
                     className="font-black uppercase leading-[1.0] tracking-tight text-foreground"
-                    style={{ fontSize: 'clamp(1.05rem, 2vw, 1.25rem)' }}
+                    style={{ fontSize: 'clamp(1.05rem, 1.5vw, 1.25rem)' }}
                   >
                     {t(`${key}.title` as any)}
                   </h3>

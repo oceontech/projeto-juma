@@ -26,11 +26,31 @@ import { Container } from '@/components/layout/Container'
 
 type TFn = ReturnType<typeof useTranslations>
 
-/* Vídeos e stills compartilhados por desktop e mobile */
+/* Vídeos e stills compartilhados por desktop e mobile.
+   `object-contain` em TODAS as larguras (não só no mobile): os clipes e stills
+   são composições fechadas 1920×1080 com fundo branco puro, então `cover` fazia
+   o enquadramento seguir a proporção da janela — em tela larga e baixa o frasco
+   saía cortado em cima e embaixo, em tela estreita e alta ele era ampliado a
+   ponto de passar por trás do texto e da assinatura AMINOSAN. Com `contain` a
+   composição inteira sempre cabe no palco, centrada, e as tarjas que sobram são
+   brancas iguais ao fundo da seção (bg-white) — invisíveis. */
 const STAGE_VIDEO_CLASS =
-  'absolute inset-0 z-0 h-full w-full object-cover opacity-0 max-lg:top-[22dvh] max-lg:h-[60dvh] max-lg:object-contain'
+  'absolute inset-0 z-0 h-full w-full object-contain opacity-0 max-lg:top-[22dvh] max-lg:h-[60dvh]'
 const STAGE_IMAGE_CLASS =
-  'absolute z-10 pointer-events-none object-cover md:!object-cover lg:!inset-0 max-lg:!top-[22dvh] max-lg:!h-[60dvh] max-lg:!object-contain'
+  'absolute z-10 pointer-events-none object-contain lg:!inset-0 max-lg:!top-[22dvh] max-lg:!h-[60dvh]'
+
+/* Âncora vertical única das colunas de texto do Ato 1 e do Ato 3 no desktop.
+   O clamp segura a faixa entre 6rem e 22rem, então em janela baixa (600px) o
+   texto não desce demais e em monitor alto (1400px+) não sobe demais — é sempre
+   a mesma faixa da tela, e não uma fração do conteúdo.
+
+   O corte é `lg` (1024px), NÃO `md`: 1024 é onde o `isMobile`, o
+   `updateVideoScale` (escala 2.8/1.45) e as classes `max-lg:` dos stills já
+   trocam de tratamento. Enquanto o texto virava desktop em 768 e a mídia só em
+   1024, a faixa de 768 a 1023 juntava coluna de texto centralizada com o frasco
+   ampliado 2,8× — a assinatura AMINOSAN caía na tampa e a copy atravessava o
+   rótulo. Agora a seção inteira vira num número só. */
+const ACT_COLUMN_TOP = 'lg:pt-[clamp(6rem,30dvh,22rem)]'
 
 export function AminosanStory() {
   const t = useTranslations('aminosanStory')
@@ -266,7 +286,7 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
 
       {/* Texto 2 (Frame Final) - Posicionado ao final do super-container */}
       <div ref={calloutSectionRef} className="absolute top-[150vh] left-0 w-full min-h-[100dvh] bg-white z-20 pointer-events-auto flex flex-col justify-end">
-        <div className="relative h-[70vh] w-full overflow-hidden sm:h-[75vh]">
+        <div className="relative h-[70dvh] w-full overflow-hidden sm:h-[75dvh]">
           <Image
             src="/heritage/desktop/morph-aminosan-2-novo.png"
             alt={t('newBottleAlt')}
@@ -703,21 +723,66 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         gsap.set(lineItems, { autoAlpha: 1, y: 0, filter: 'blur(0px)' })
       }
 
-      const updateVideoScale = (video: HTMLVideoElement) => {
-        if (window.innerWidth < 1024) {
-          let vScale = 2.8
-          const cur = video.currentTime
-          if (cur > targets[1] && cur < targets[2]) {
-            const p = (cur - targets[1]) / (targets[2] - targets[1])
-            vScale = 2.8 + (1.45 - 2.8) * Math.max(0, Math.min(1, p))
-          } else if (cur >= targets[2]) {
-            vScale = 1.45
-          }
-          gsap.set(video, { scale: vScale })
-        } else {
-          gsap.set(video, { scale: 1 })
+      /* Zoom do palco abaixo de 1024px. A arte é uma composição 1920×1080 em
+         que o frasco ocupa ~14% da largura: numa tela de 390px ele sairia
+         minúsculo, daí a ampliação. Só que ampliar por um número fixo (era 2,8)
+         serve para tela estreita e nada mais — a 1000px de largura o mesmo 2,8
+         jogava o frasco muito além do palco, cortado em cima e embaixo, com a
+         copy atravessando o rótulo.
+         Aqui a largura final da arte é limitada pelos DOIS eixos: nunca mais que
+         2,8× a largura da tela, nunca tão grande que o frasco estoure a altura.
+         Nas telas estreitas o limite de largura ganha e o resultado é o mesmo
+         2,8 de antes; conforme a janela alarga, o limite de altura assume e o
+         zoom cai sozinho até encontrar o enquadramento do desktop em 1024px. */
+      const stageZoom = () => {
+        const W = window.innerWidth
+        const H = window.innerHeight
+        if (W >= 1024) return { bottle: 1, line: 1 }
+        // Largura que a arte assume dentro do box (w-full × 60dvh) no object-contain.
+        const fitted = 1920 * Math.min(W / 1920, (H * 0.6) / 1080)
+        if (!fitted) return { bottle: 1, line: 1 }
+        return {
+          bottle: Math.min(W * 2.8, H * 1.33) / fitted,
+          line: Math.min(W * 1.45, H) / fitted,
         }
       }
+
+      /* Os stills tiram o zoom do CSS e o vídeo do GSAP — publicar os dois
+         números como custom property é o que mantém still e vídeo do mesmo
+         tamanho na troca de um pelo outro. */
+      const applyStageZoom = () => {
+        const z = stageZoom()
+        stageTrigger.style.setProperty('--stage-zoom', String(z.bottle))
+        stageTrigger.style.setProperty('--stage-zoom-line', String(z.line))
+      }
+
+      const updateVideoScale = (video: HTMLVideoElement) => {
+        const { bottle, line } = stageZoom()
+        let vScale = bottle
+        const cur = video.currentTime
+        if (cur > targets[1] && cur < targets[2]) {
+          const p = Math.max(0, Math.min(1, (cur - targets[1]) / (targets[2] - targets[1])))
+          vScale = bottle + (line - bottle) * p
+        } else if (cur >= targets[2]) {
+          vScale = line
+        }
+        gsap.set(video, { scale: vScale })
+      }
+
+      applyStageZoom()
+      /* Só em mudança de LARGURA, mesma guarda do refresh do ScrollTrigger lá em
+         cima: no mobile a altura muda sozinha quando a barra de endereço some,
+         e recalcular o zoom nesse instante redimensionaria o frasco no meio do
+         gesto do usuário. */
+      let zoomWidth = window.innerWidth
+      const onResizeZoom = () => {
+        if (window.innerWidth === zoomWidth) return
+        zoomWidth = window.innerWidth
+        applyStageZoom()
+        const v = videoRef.current
+        if (v) updateVideoScale(v)
+      }
+      window.addEventListener('resize', onResizeZoom)
 
       const updateActivePhase = (time: number) => {
         if (time < targets[1] - 0.2) phase = 'act1'
@@ -1352,6 +1417,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         window.removeEventListener('touchmove', onTouchMove, { capture: true })
         window.removeEventListener('touchend', onTouchEnd)
         window.removeEventListener('scroll', onScroll)
+        window.removeEventListener('resize', onResizeZoom)
       }
     },
     { scope: root },
@@ -1367,7 +1433,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           muted playsInline preload="auto"
           poster="/heritage/desktop/morph-aminosan-1-antigo.png"
           aria-label={t('videoAlt')}
-          className={`${STAGE_VIDEO_CLASS} max-lg:scale-[2.8]`}
+          className={`${STAGE_VIDEO_CLASS} max-lg:scale-[var(--stage-zoom,2.8)]`}
         >
           <source src="/heritage/desktop/full-transition-aminosan.mp4" type="video/mp4" />
         </video>
@@ -1378,7 +1444,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           src="/heritage/desktop/morph-aminosan-1-antigo.png"
           alt={t('oldBottleAlt')}
           fill sizes="100vw"
-          className={`${STAGE_IMAGE_CLASS} max-lg:!scale-[2.8]`}
+          className={`${STAGE_IMAGE_CLASS} max-lg:!scale-[var(--stage-zoom,2.8)]`}
           priority
         />
 
@@ -1388,7 +1454,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           src="/heritage/desktop/morph-aminosan-2-novo.png"
           alt={t('newBottleAlt')}
           fill sizes="100vw"
-          className={`${STAGE_IMAGE_CLASS} opacity-0 max-lg:!scale-[2.8]`}
+          className={`${STAGE_IMAGE_CLASS} opacity-0 max-lg:!scale-[var(--stage-zoom,2.8)]`}
           priority
         />
 
@@ -1399,7 +1465,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           alt=""
           aria-hidden
           fill sizes="100vw"
-          className={`${STAGE_IMAGE_CLASS} opacity-0 max-lg:!scale-[1.45]`}
+          className={`${STAGE_IMAGE_CLASS} opacity-0 max-lg:!scale-[var(--stage-zoom-line,1.45)]`}
         />
 
         {/* z-10 — still do trio do catálogo (fim da transição) */}
@@ -1409,19 +1475,24 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           alt=""
           aria-hidden
           fill sizes="100vw"
-          className={`${STAGE_IMAGE_CLASS} opacity-0 max-lg:!scale-[1.45]`}
+          className={`${STAGE_IMAGE_CLASS} opacity-0 max-lg:!scale-[var(--stage-zoom-line,1.45)]`}
         />
 
         <AminosanBrandMark refEl={brandMarkRef} />
 
         {/* z-20 — scrim lateral para legibilidade do Ato 1 */}
         <div ref={scrimRef} aria-hidden
-          className="absolute inset-x-0 top-0 md:inset-y-0 md:left-0 z-20 w-full h-[60%] md:h-full md:max-w-[40rem] bg-gradient-to-b md:bg-gradient-to-r from-white/90 via-white/40 to-transparent"
+          className="absolute inset-x-0 top-0 lg:inset-y-0 lg:left-0 z-20 w-full h-[60%] lg:h-full lg:max-w-[40rem] bg-gradient-to-b lg:bg-gradient-to-r from-white/90 via-white/40 to-transparent"
         />
 
-        {/* z-30 — texto do Ato 1 */}
-        <Container className="absolute inset-0 z-30 flex h-full items-start pt-[7dvh] md:pt-0 md:items-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
-          <div ref={act1Ref} className="flex max-w-[88vw] md:max-w-[24rem] xl:max-w-[28rem] flex-col items-start bg-transparent p-0">
+        {/* z-30 — texto do Ato 1.
+            No desktop a coluna é ancorada pelo TOPO numa faixa fixa
+            (`ACT_COLUMN_TOP`), não centrada: centrar cada ato pela própria
+            altura fazia o título saltar ~10px na virada do Ato 1 para o Ato 3,
+            porque as duas colunas têm alturas de conteúdo diferentes. Com a
+            mesma âncora, os dois atos caem no mesmo pixel. */}
+        <Container className={`absolute inset-0 z-30 flex h-full items-start pt-[7dvh] ${ACT_COLUMN_TOP} min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]`}>
+          <div ref={act1Ref} className="flex max-w-[88vw] lg:max-w-[24rem] xl:max-w-[28rem] flex-col items-start bg-transparent p-0">
             <span data-a1 className="text-eyebrow mb-1 md:mb-md text-[10px] xl:text-xs uppercase tracking-[0.18em] text-primary">
               {t('eyebrow')}
             </span>
@@ -1442,7 +1513,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           {t('oldBottleCaption')}
         </BottleCallout>
         {/* UI da linha completa - aparece so depois que o frasco vira portfolio. */}
-        <Container className="pointer-events-none absolute inset-x-0 top-[10vh] z-30 flex justify-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
+        <Container className="pointer-events-none absolute inset-x-0 top-[10dvh] z-30 flex justify-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
           <div ref={linePanelRef} className="max-w-[92vw] text-center md:max-w-[68rem] xl:max-w-[74rem]">
             <span data-line-copy className="text-eyebrow mb-sm block text-[10px] uppercase tracking-[0.18em] text-primary xl:text-xs">
               {t('lineEyebrow')}
@@ -1450,7 +1521,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
             <BicolorTitle data-line-title title={t('lineTitle')} titleHi={t('lineTitleHi')} className="text-[clamp(1.75rem,5vw,4rem)] md:text-[clamp(2.15rem,3.45vw,4.15rem)]" />
           </div>
         </Container>
-        <Container className="pointer-events-none absolute inset-x-0 bottom-[4vh] z-30 flex justify-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
+        <Container className="pointer-events-none absolute inset-x-0 bottom-[4dvh] z-30 flex justify-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
           <p ref={lineBodyRef} className="text-subtitle mx-auto max-w-[50rem] text-center text-sm text-foreground/75 md:text-base xl:text-lg">
             {t('lineBody')}
           </p>
@@ -1458,11 +1529,11 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         {/* UI do Ato 3 — mesmo desenho do Ato 1: coluna de texto à esquerda, frasco em cena.
             No mobile o bloco de prova (número + handoff + CTA) desce para o rodapé da tela,
             deixando o frasco visível no meio. */}
-        <Container className="relative lg:absolute lg:inset-0 z-30 flex min-h-[100dvh] lg:min-h-0 h-auto lg:h-full items-stretch md:items-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pointer-events-none pt-[7dvh] md:pt-0 pb-[8vh] md:pb-0">
+        <Container className={`relative lg:absolute lg:inset-0 z-30 flex min-h-[100dvh] lg:min-h-0 h-auto lg:h-full items-stretch lg:items-start min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pointer-events-none pt-[7dvh] ${ACT_COLUMN_TOP} pb-[8dvh] lg:pb-0`}>
           {/* pointer-events fica desligado: no mobile este painel é `relative`
               e cobre a tela inteira por cima do Ato 1 — ligado, virava uma
               camada invisível engolindo toque e seleção do texto do Ato 1. */}
-          <div ref={leftPanelRef} className="pointer-events-none flex w-full flex-1 md:flex-none md:w-auto max-w-full md:max-w-[24rem] xl:max-w-[28rem] flex-col items-start">
+          <div ref={leftPanelRef} className="pointer-events-none flex w-full flex-1 lg:flex-none lg:w-auto max-w-full lg:max-w-[24rem] xl:max-w-[28rem] flex-col items-start">
             <span data-a3-tag className="text-eyebrow mb-1 md:mb-md text-[10px] xl:text-xs uppercase tracking-[0.18em] text-primary">
               {t('a3Eyebrow')}
             </span>
@@ -1470,7 +1541,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
             <p data-a3-body className="text-subtitle mt-1.5 md:mt-md max-w-[22rem] md:max-w-none text-xs md:text-sm xl:text-base text-foreground/80 leading-snug md:leading-normal">
               {t('a3Body')}
             </p>
-            <div className="mt-auto md:mt-0 flex flex-col items-start">
+            <div className="mt-auto lg:mt-0 flex flex-col items-start">
               <div data-a3-line className="my-2 md:my-lg h-px w-10 md:w-12 bg-primary/40" style={{ transformOrigin: 'left' }} />
               <div data-a3-stat className="flex flex-col gap-0.5">
                 <span className="text-highlight text-xl md:text-3xl xl:text-4xl text-primary"><span ref={counterRef}>{t('a3StatPrefix')}10</span> {t('a3StatUnit')}</span>
@@ -1481,7 +1552,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           </div>
         </Container>
 
-        <BottleCallout refEl={newCalloutRef} eyebrow={t('a3Eyebrow')} className="max-md:!top-[26dvh] max-md:!bottom-auto">
+        <BottleCallout refEl={newCalloutRef} eyebrow={t('a3Eyebrow')} className="max-lg:!top-[26dvh] max-lg:!bottom-auto">
           {t('newBottleCaption')}
         </BottleCallout>
       </section>
@@ -1520,7 +1591,7 @@ function AminosanBrandMark({ refEl }: { refEl: RefObject<HTMLDivElement | null> 
     <div
       ref={refEl}
       aria-label="Aminosan registrado"
-      className="pointer-events-none absolute left-1/2 top-[12dvh] z-30 -translate-x-1/2 text-center max-md:top-[4dvh]"
+      className="pointer-events-none absolute left-1/2 top-[12dvh] z-30 -translate-x-1/2 text-center max-lg:top-[4dvh]"
     >
       <span className="font-black uppercase leading-none tracking-[0.02em] text-foreground text-[clamp(1.45rem,2.08vw,2.65rem)]">
         AMINOSAN<sup className="ml-1 align-super text-[0.36em] leading-none">&reg;</sup>
@@ -1544,7 +1615,7 @@ function BottleCallout({
   return (
     <div
       ref={refEl}
-      className={`aminosan-bottle-callout pointer-events-none absolute z-30 flex items-center gap-3 md:top-1/2 md:left-[65%] md:-translate-y-1/2 ${className}`}
+      className={`aminosan-bottle-callout pointer-events-none absolute z-30 flex items-center gap-3 lg:top-1/2 lg:left-[65%] lg:-translate-y-1/2 ${className}`}
     >
       <span data-line aria-hidden className="aminosan-bottle-callout__line" style={{ transformOrigin: 'left' }} />
       <span data-dot aria-hidden className="aminosan-bottle-callout__dot" />

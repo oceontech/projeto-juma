@@ -99,7 +99,7 @@ export function HomeBlog() {
   return (
     <section
       ref={ref}
-      style={{ backgroundColor: '#fff', paddingBlock: 'clamp(80px,8vw,120px)' }}
+      style={{ backgroundColor: '#fff', paddingBlock: 'clamp(80px, 7.5vw, 120px)' }}
     >
       <Container>
         {/* Cabeçalho */}
@@ -114,7 +114,7 @@ export function HomeBlog() {
             <h2
               data-title
               className="font-black uppercase leading-[1.05] tracking-tight"
-              style={{ color: '#0F1A0A', fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
+              style={{ color: '#0F1A0A', fontSize: 'clamp(2.5rem, 4.5vw, 4.5rem)' }}
             >
               <span dangerouslySetInnerHTML={{ __html: t('titlePart1') }} /><span className="text-[#004B26] text-highlight inline-block">{t('titleHighlight')}</span>
             </h2>

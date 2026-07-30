@@ -710,7 +710,7 @@ export function HeroJornada() {
                 style={{ background: 'radial-gradient(ellipse 75% 55% at 38% 52%, rgba(0,76,38,0.12), transparent 70%)' }}
               />
 
-              <h1 ref={titleWrapRef} className="hero-title-shimmer relative font-black uppercase leading-[0.92] tracking-tight text-[clamp(2.2rem,7vw,5rem)] md:text-[clamp(2.8rem,8vw,5rem)] min-[1600px]:text-[7.5rem] min-[2000px]:text-[9rem] text-left">
+              <h1 ref={titleWrapRef} className="hero-title-shimmer relative font-black uppercase leading-[0.92] tracking-tight text-[clamp(2.2rem, 6.5vw, 5rem)] md:text-[clamp(2.8rem, 7.5vw, 5rem)] min-[1600px]:text-[7.5rem] min-[2000px]:text-[9rem] text-left">
                 <span className="block text-foreground">{t('headlineLine1')}</span>
                 <span className="block text-foreground">{t('headlineLine2')}</span>
                 <span className="block">
@@ -845,7 +845,7 @@ type TFn = ReturnType<typeof useTranslations>
 
 function Headline({ t, className = '' }: { t: TFn; className?: string }) {
   return (
-    <h1 className={`text-[clamp(2.2rem,7vw,5rem)] md:text-[clamp(2.75rem,8vw,5rem)] min-[1600px]:text-[7.5rem] min-[2000px]:text-[9rem] font-black uppercase leading-[0.92] tracking-tight ${className}`}>
+    <h1 className={`text-[clamp(2.2rem, 6.5vw, 5rem)] md:text-[clamp(2.75rem, 7.5vw, 5rem)] min-[1600px]:text-[7.5rem] min-[2000px]:text-[9rem] font-black uppercase leading-[0.92] tracking-tight ${className}`}>
       <span className="block text-foreground">{t('headlineLine1')}</span>
       <span className="block text-foreground">{t('headlineLine2')}</span>
       <span className="block">
@@ -933,7 +933,7 @@ function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, alig
             <LeafGlyph className="h-3 w-3 text-primary" />
             <span className="text-eyebrow text-primary uppercase tracking-widest text-[10px]">{kicker}</span>
           </span>
-          <h2 data-pt-m className="font-black uppercase leading-[0.88] tracking-tight text-[clamp(2rem,9vw,3rem)] mb-3">
+          <h2 data-pt-m className="font-black uppercase leading-[0.88] tracking-tight text-[clamp(2rem, 8.5vw, 3rem)] mb-3">
             <span className="text-foreground">{lead}</span>
             {titleHi && <span className="block italic font-semibold text-primary">{titleHi}</span>}
           </h2>
@@ -971,7 +971,7 @@ function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, alig
             <span className="text-eyebrow text-primary text-[9px] xl:text-[11px] uppercase tracking-widest">{kicker}</span>
           </span>
 
-          <h2 data-pt className="font-black uppercase leading-[0.92] tracking-tight text-[clamp(1.75rem,3.2vw,3.75rem)] mb-sm">
+          <h2 data-pt className="font-black uppercase leading-[0.92] tracking-tight text-[clamp(1.75rem, 2.7vw, 3.75rem)] mb-sm">
             <span className="text-foreground">{lead}</span>
             {titleHi && <> <span className="text-highlight text-primary">{titleHi}</span></>}
           </h2>
@@ -1101,7 +1101,7 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitl
   return (
     <div
       ref={containerRef}
-      className={`absolute inset-0 flex flex-col items-center justify-center text-center px-[clamp(1.5rem,5vw,5rem)] transition-opacity duration-700 ease-out ${
+      className={`absolute inset-0 flex flex-col items-center justify-center text-center px-[clamp(1.5rem, 4.5vw, 5rem)] transition-opacity duration-700 ease-out ${
         show ? 'opacity-100 pointer-events-auto bg-white' : 'opacity-0 pointer-events-none'
       }`}
     >
@@ -1111,7 +1111,7 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitl
           <span className="text-eyebrow text-primary text-[11px] uppercase tracking-widest">{kicker}</span>
         </span>
 
-        <h2 className="font-black uppercase leading-[1.05] tracking-tight text-[clamp(2rem,5vw,4.25rem)] flex flex-wrap items-center justify-center gap-x-[1ch]">
+        <h2 className="font-black uppercase leading-[1.05] tracking-tight text-[clamp(2rem, 4.5vw, 4.25rem)] flex flex-wrap items-center justify-center gap-x-[1ch]">
           <span ref={titleRef} className="text-foreground">{lead}</span>
           {titleHiOptions && titleHiOptions.length > 1 ? (
              <FlipFadeText key={String(show)} words={titleHiOptions} interval={2500} letterDuration={0.3} staggerDelay={0.04} />
@@ -1191,7 +1191,7 @@ function OrbitalCards({ items, mobile = false }: { items: PhaseItem[], mobile?: 
 function PhaseText({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div className="text-left py-md border-b border-foreground/5 last:border-0">
-      <h2 className="text-balance text-[clamp(1.75rem,4vw,2.5rem)] font-black leading-tight tracking-tight text-foreground uppercase">{title}</h2>
+      <h2 className="text-balance text-[clamp(1.75rem, 3.5vw, 2.5rem)] font-black leading-tight tracking-tight text-foreground uppercase">{title}</h2>
       <p className="text-subtitle text-balance mt-sm text-foreground/75 sm:text-lg">{subtitle}</p>
     </div>
   )

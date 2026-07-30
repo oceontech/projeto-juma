@@ -265,7 +265,7 @@ export function OurStory() {
               ref={watermarkRef}
               aria-hidden
               className="pointer-events-none absolute inset-x-[-10%] bottom-0 z-0 select-none text-center font-black uppercase leading-none text-foreground/[0.05]"
-              style={{ fontSize: 'clamp(3.5rem, 13vw, 8rem)' }}
+              style={{ fontSize: 'clamp(3.5rem, 12.5vw, 8rem)' }}
             >
               JUMA AGRO
             </div>
@@ -307,7 +307,7 @@ export function OurStory() {
 
             <h2
               ref={titleRef}
-              className="font-black uppercase leading-[0.98] tracking-tight text-[clamp(2rem,3.8vw,3.25rem)] xl:text-[clamp(2.25rem,4.6vw,4rem)]"
+              className="font-black uppercase leading-[0.98] tracking-tight text-[clamp(2rem, 3.3vw, 3.25rem)] xl:text-[clamp(2.25rem, 4.1vw, 4rem)]"
             >
               <span className="block text-foreground">{t('titleDark')}</span>
               <span className="text-highlight block text-primary">{t('titleGreen')}</span>
