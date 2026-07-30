@@ -669,6 +669,15 @@ export function HomeProductShowcase() {
           let handingOff = false
           let leavingUp = false
           let aminosanVideoHandoff = false
+          /* outroHolding: a saída para cima está no ar (fade branco de ~0,6s
+             antes do salto para o Aminosan). No mobile não existe Lenis para
+             segurar o scroll, então é a inércia do flick que continua correndo
+             por cima da timeline — e era ela que levava a página para dentro da
+             seção de cima antes da hora, fazendo o IntersectionObserver de lá
+             rebobinar a cena para o ato 1. Enquanto a flag está ligada o gesto
+             é cancelado e um rAF prende o scroll no topo do pin. */
+          let outroHolding = false
+          let outroRaf = 0
 
           /* Estado visual pleno do produto atual — usado quando a seção é
              alcançada sem o handoff (âncora do menu, reload no meio da página)
@@ -980,10 +989,20 @@ export function HomeProductShowcase() {
              (o reverso do vídeo roda sobre branco na seção acima) e o scroll
              sobe até o stage do Aminosan — o ScrollTrigger de lá assume,
              trava o scroll e toca o clipe reverso trioâ†’linha. */
+          const stopOutroHold = () => {
+            outroHolding = false
+            if (outroRaf) cancelAnimationFrame(outroRaf)
+            outroRaf = 0
+          }
+
           const runHandoffOut = () => {
             if (leavingUp) return
             hideHint()
             window.dispatchEvent(new CustomEvent('nav:show'))
+            // Avisa a seção de cima ANTES de qualquer movimento: enquanto a
+            // saída não completa, ela não pode rebobinar a cena se voltar a
+            // aparecer na tela (inércia do flick no mobile).
+            window.dispatchEvent(new CustomEvent('aminosan:prepare-handoff-backward'))
             transitionTl?.kill()
             clearTimeout(idleTimer)
             lenisRef.current?.stop()
@@ -991,6 +1010,18 @@ export function HomeProductShowcase() {
             window.scrollTo(0, pinTrigger.start)
             ScrollTrigger.update()
             leavingUp = true
+            // Prende o scroll no topo do pin durante todo o fade de saída.
+            // Sem isso a inércia do gesto (mobile) continua subindo e a página
+            // entra na seção de cima com a cadeia de vídeos ainda parada.
+            outroHolding = true
+            const holdOutro = () => {
+              if (!outroHolding) return
+              if (Math.abs(window.scrollY - pinTrigger.start) > 1) {
+                window.scrollTo(0, pinTrigger.start)
+              }
+              outroRaf = requestAnimationFrame(holdOutro)
+            }
+            outroRaf = requestAnimationFrame(holdOutro)
             const p0 = parts(products[0])
             // Simétrico à entrada: o próprio frasco do catálogo volta ao
             // tamanho e à posição do trio no frame final do vídeo (mesma
@@ -1004,6 +1035,9 @@ export function HomeProductShowcase() {
               onComplete: () => {
                 // Cancela qualquer assentamento pendente antes do salto.
                 clearTimeout(idleTimer)
+                // Solta o scroll um instante antes de saltar — daqui pra frente
+                // quem manda na posição é a seção Aminosan.
+                stopOutroHold()
                 // Alvo = topo REAL da seção Aminosan (não o pinStart estimado),
                 // para o stage cair exatamente no topo da viewport.
                 const amino = document.getElementById('sec-origem')
@@ -1141,7 +1175,7 @@ export function HomeProductShowcase() {
           }
 
           const onWheelStep = (e: WheelEvent) => {
-            if (aminosanVideoHandoff) {
+            if (aminosanVideoHandoff || outroHolding) {
               if (e.cancelable) e.preventDefault()
               return
             }
@@ -1170,14 +1204,14 @@ export function HomeProductShowcase() {
           }
 
           const onTouchMoveStep = (e: TouchEvent) => {
-            if (aminosanVideoHandoff) {
+            if (aminosanVideoHandoff || outroHolding) {
               if (e.cancelable) e.preventDefault()
               return
             }
             if (e.touches.length === 0) return
             const delta = touchStartY - e.touches[0].clientY
-            if (Math.abs(delta) < 18) return
             if (!pinTrigger.isActive) {
+              if (Math.abs(delta) < 18) return
               const scroll = window.scrollY
               const isCatalogPeeking =
                 scroll < pinTrigger.start && scroll > pinTrigger.start - window.innerHeight
@@ -1196,12 +1230,29 @@ export function HomeProductShowcase() {
             }
             // No mobile, saindo do último produto pra frente, não força o
             // salto de uma viewport inteira (skip): deixa o próprio arrasto
-            // do dedo levar o scroll pra Cultures, sem preventDefault.
-            if (isMobile && delta > 0 && currentIndexRef.current === COUNT - 1) {
+            // do dedo levar o scroll pra Cultures, sem preventDefault. Aqui o
+            // sentido precisa estar declarado antes de decidir, então este é o
+            // único caso que ainda espera os 18px.
+            const atLastMobile = isMobile && currentIndexRef.current === COUNT - 1
+            if (atLastMobile) {
+              if (Math.abs(delta) < 18) return
+              if (delta > 0) {
+                touchStartY = e.touches[0].clientY
+                return
+              }
+              if (e.cancelable) e.preventDefault()
+              stepCatalog(-1)
               touchStartY = e.touches[0].clientY
               return
             }
+            // Pin ativo: cancela o gesto já no PRIMEIRO touchmove. Esperar os
+            // 18px de limiar para só então dar preventDefault deixava o browser
+            // começar a rolagem nativa nos primeiros pixels — e uma vez começada
+            // ela não é mais cancelável, então um flick forte atravessava o pin
+            // inteiro (era o salto do catálogo direto pro início do Aminosan,
+            // sem passar pelos vídeos de transição).
             if (e.cancelable) e.preventDefault()
+            if (Math.abs(delta) < 18) return
             stepCatalog(delta > 0 ? 1 : -1)
             touchStartY = e.touches[0].clientY
           }
@@ -1282,6 +1333,7 @@ export function HomeProductShowcase() {
             if (onPointerMove) window.removeEventListener('pointermove', onPointerMove)
             settleTimers.forEach(window.clearTimeout)
             clearTimeout(idleTimer)
+            stopOutroHold()
             transitionTl?.kill()
             pinTrigger.kill()
             goToIndexRef.current = null

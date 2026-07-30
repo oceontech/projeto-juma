@@ -435,6 +435,27 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
          lá embaixo. */
       let wasOutside = false
 
+      /* O catálogo avisa que começou a sair para cima (fade branco) muito antes
+         de o salto de volta acontecer. Nesse intervalo a seção pode reaparecer
+         na tela — por inércia do gesto no mobile — e o IntersectionObserver
+         lá embaixo leria isso como "voltou à seção", rebobinando a cena para o
+         ato 1. Aí o reverso não teria mais o que reverter (a volta exige a fase
+         'exit') e o usuário caía no começo da seção sem ver os vídeos. */
+      let handoffBackPending = false
+      let handoffBackTimer: ReturnType<typeof setTimeout> | undefined
+      const clearHandoffBack = () => {
+        handoffBackPending = false
+        clearTimeout(handoffBackTimer)
+      }
+      const onPrepareHandoffBackward = () => {
+        handoffBackPending = true
+        clearTimeout(handoffBackTimer)
+        // Rede de segurança: se a saída do catálogo morrer no meio (troca de
+        // aba, refresh do ScrollTrigger), a guarda não fica presa para sempre.
+        handoffBackTimer = setTimeout(clearHandoffBack, 2500)
+      }
+      window.addEventListener('aminosan:prepare-handoff-backward', onPrepareHandoffBackward)
+
       /* Posição de scroll de cada fase dentro do pin. O pin dá o trilho; quem
          escolhe o ponto exato do trilho é a máquina de fases, nunca a força do
          gesto — é isso que faz a seção parar sempre no mesmo pixel. */
@@ -1046,7 +1067,15 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       // para cá. Reposiciona o scroll na fase 'exit' antes de rodar o reverso,
       // senão a fase e o pin ficam apontando para pontos diferentes da cadeia.
       const onHandoffBackward = () => {
-        if (playing || phase !== 'exit') return
+        clearHandoffBack()
+        if (playing) return
+        /* O catálogo só sai para cima a partir do produto 0, que é exatamente a
+           ponta 'exit' desta cadeia. Se a fase tiver derivado no caminho (um
+           rebobinar do observer, um reload no meio da página), força o repouso
+           'exit' em vez de desistir: desistir era o que deixava o usuário no
+           início da seção sem passar pelos vídeos. */
+        phase = 'exit'
+        wasOutside = false
         restExit()
         snapToPhase()
         step = 2
@@ -1073,7 +1102,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
                internos — então este callback só dispara em ida e volta de
                verdade. Se um clipe já está tocando, quem manda é ele (é o caso
                da volta vinda do catálogo, que entra tocando o reverso). */
-            if (wasOutside && !playing && phase !== 'act1') {
+            if (wasOutside && !playing && !handoffBackPending && phase !== 'act1') {
               step = 0
               phase = 'act1'
               showStaticAct1(false)
@@ -1106,6 +1135,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
         // Limpeza dos event listeners globais
         window.dispatchEvent(new CustomEvent('aminosan:video-handoff-end'))
+        clearHandoffBack()
+        window.removeEventListener('aminosan:prepare-handoff-backward', onPrepareHandoffBackward)
         window.removeEventListener('aminosan:handoff-backward', onHandoffBackward)
         window.removeEventListener('wheel', onWheel, { capture: true })
         window.removeEventListener('keydown', onKey)
