@@ -1079,6 +1079,11 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         restExit()
         snapToPhase()
         step = 2
+        /* Simétrico ao passo 3 da ida: enquanto o clipe reverso roda, quem manda
+           na posição da página é esta seção. O aviso desliga o `settle` do
+           catálogo — sem ele, qualquer assentamento de lá puxava a página de
+           volta no meio do vídeo. `stopPlayback` (step 2) dispara o `-end`. */
+        window.dispatchEvent(new CustomEvent('aminosan:video-handoff-start'))
         startPlayback('backward', targets[2])
       }
       window.addEventListener('aminosan:handoff-backward', onHandoffBackward)

@@ -792,14 +792,40 @@ export function HomeProductShowcase() {
           }
           window.addEventListener('aminosan:video-handoff-start', onAminosanVideoHandoffStart)
           window.addEventListener('aminosan:video-handoff-end', onAminosanVideoHandoffEnd)
+          /* O `isActive` e os callbacks do pin descrevem o que o ScrollTrigger
+             ACHA da posição — e ele erra quando o scroll salta (handoff, âncora,
+             refresh no meio de um salto). Antes de reagir como "entrei na
+             seção", confere a posição real: fora da faixa do pin, o catálogo não
+             mexe em estado nem em scroll.
+             A caixa existe porque o onEnter pode disparar durante o próprio
+             `ScrollTrigger.create` (página aberta já dentro da seção), quando a
+             const `pinTrigger` ainda não foi atribuída. */
+          const pinBox: { current: ScrollTrigger | null } = { current: null }
+          const insidePin = () => {
+            const t = pinBox.current
+            if (!t) return false
+            const y = window.scrollY
+            return y >= t.start - 1 && y <= t.end + 1
+          }
+
           const pinTrigger = ScrollTrigger.create({
             trigger: root,
             start: 'top top',
             end: `+=${(COUNT - 1) * 100}%`,
             pin: true,
             pinSpacing: true,
-            anticipatePin: 1,
+            /* SEM `anticipatePin`. Ele adianta o pin com base na VELOCIDADE do
+               scroll, e a saída para cima move a página em dois saltos
+               programáticos gigantes (catálogo → topo do Aminosan → repouso da
+               fase 'exit'). Essa velocidade fabricada fazia o ScrollTrigger
+               ativar o pin ~1 viewport ANTES do start: o .pcs-root virava
+               `position: fixed` cobrindo a tela inteira no meio da seção de
+               cima (a "tela toda azul"), e o onEnter disparava em looping —
+               zerando `leavingUp` e devolvendo a página ao catálogo. A seção
+               nunca é alcançada em rolagem livre (a entrada é sempre o handoff
+               ou o gesto cancelado do pin), então não há flicker a evitar. */
             onEnter: () => {
+              if (!insidePin()) return
               window.dispatchEvent(new CustomEvent('nav:hide'))
               // Rede de segurança: qualquer entrada por cima cancela um
               // "saindo pra cima" que tenha ficado pendente.
@@ -808,15 +834,17 @@ export function HomeProductShowcase() {
               if (!handingOff) restoreVisual()
             },
             onEnterBack: () => {
+              if (!insidePin()) return
               window.dispatchEvent(new CustomEvent('nav:hide'))
               if (currentIndexRef.current !== COUNT - 1) applyIndex(COUNT - 1)
             },
             onToggle: (self) => {
-              if (self.isActive) {
+              if (self.isActive && insidePin()) {
                 window.dispatchEvent(new CustomEvent('nav:hide'))
               }
             },
           })
+          pinBox.current = pinTrigger
 
           /* ── Navegação programática (dots, teclado, pular) ──────── */
 
@@ -1132,7 +1160,10 @@ export function HomeProductShowcase() {
             const scroll = window.scrollY
             const vh = window.innerHeight
 
-            if (pinTrigger.isActive) {
+            // `isActive` sozinho não basta: ele pode estar ligado com a página
+            // longe da seção (ver `insidePin`). Assentar nesse estado era o que
+            // arrastava o usuário de volta pro catálogo no meio do vídeo reverso.
+            if (pinTrigger.isActive && insidePin()) {
               // No mobile, a fronteira com a Cultures (último produto) fica de
               // fora do "cola no alvo": senão, ao subir vindo da Cultures, o
               // settle briga com o dedo e puxa a página de volta pra baixo.
