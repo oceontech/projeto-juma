@@ -969,7 +969,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         introTl.kill()
         stTop.kill()
         titleSplit?.revert()
+        lineTitleSplit?.revert()
         currentTl?.kill()
+        lineTl?.kill()
         if (animFrame) cancelAnimationFrame(animFrame)
         lenisRef.current?.start()
 

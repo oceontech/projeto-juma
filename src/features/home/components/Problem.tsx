@@ -72,9 +72,10 @@ export function Problem() {
         }
 
         // Corpo: revela após o pin liberar (trigger proprio)
+        let bodyTrigger: ScrollTrigger | null = null
         if (body) {
           gsap.set(body, { y: 28, opacity: 0, filter: 'blur(8px)' })
-          ScrollTrigger.create({
+          bodyTrigger = ScrollTrigger.create({
             trigger: body,
             start: 'top 85%',
             end: 'bottom 15%',
@@ -85,7 +86,12 @@ export function Problem() {
           })
         }
 
-        return () => split.revert()
+        return () => {
+          tl.scrollTrigger?.kill(true)
+          tl.kill()
+          bodyTrigger?.kill()
+          split.revert()
+        }
       }
     },
     { scope: sectionRef, dependencies: [reduced] },

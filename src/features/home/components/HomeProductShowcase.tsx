@@ -436,6 +436,15 @@ export function HomeProductShowcase() {
 
   useGSAP(
     () => {
+      // `reduced` (state) ainda é `false` no primeiro layout effect — o
+      // useReducedMotion só resolve no passive effect seguinte. Ler a media
+      // query direto aqui evita montar o pin para quem pediu menos movimento:
+      // o pin insere um `.pin-spacer` entre #sec-produtos e .pcs-root, e no
+      // render seguinte o componente troca a árvore por <ShowcaseReduced />.
+      // Sem esta guarda o React tenta remover .pcs-root do pai antigo e quebra
+      // com NotFoundError ('removeChild' / node is not a child of this node).
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
       const root = rootRef.current
       const container = containerRef.current
       if (!root || !container) return
@@ -979,7 +988,7 @@ export function HomeProductShowcase() {
           /* Saída para cima a partir do produto 0: o fundo volta a branco
              (o reverso do vídeo roda sobre branco na seção acima) e o scroll
              sobe até o stage do Aminosan — o ScrollTrigger de lá assume,
-             trava o scroll e toca o clipe reverso trioâ†’linha. */
+             trava o scroll e toca o clipe reverso trio→linha. */
           const runHandoffOut = () => {
             if (leavingUp) return
             hideHint()
@@ -1291,7 +1300,7 @@ export function HomeProductShowcase() {
             settleTimers.forEach(window.clearTimeout)
             clearTimeout(idleTimer)
             transitionTl?.kill()
-            pinTrigger.kill()
+            pinTrigger.kill(true)
             goToIndexRef.current = null
             skipRef.current = null
           }
@@ -1555,7 +1564,7 @@ function ShowcaseReduced({ t }: { t: ReturnType<typeof useTranslations> }) {
                   ))}
                 </div>
                 <span className="text-xs font-semibold" style={{ color: product.accent }}>
-                  {t('hintReduced')} â†’
+                  {t('hintReduced')} →
                 </span>
               </Link>
             )
