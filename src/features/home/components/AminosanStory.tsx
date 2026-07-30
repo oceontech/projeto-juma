@@ -1181,19 +1181,19 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         />
 
         {/* z-30 — texto do Ato 1 */}
-        <Container className="absolute inset-0 z-30 flex h-full items-start pt-[10vh] md:pt-0 md:items-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
+        <Container className="absolute inset-0 z-30 flex h-full items-start pt-[7dvh] md:pt-0 md:items-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
           <div ref={act1Ref} className="flex max-w-[88vw] md:max-w-[24rem] xl:max-w-[28rem] flex-col items-start bg-transparent p-0">
-            <span data-a1 className="text-eyebrow mb-sm md:mb-md text-[10px] xl:text-xs uppercase tracking-[0.18em] text-primary">
+            <span data-a1 className="text-eyebrow mb-1 md:mb-md text-[10px] xl:text-xs uppercase tracking-[0.18em] text-primary">
               {t('eyebrow')}
             </span>
             <div>
-              <BicolorTitle data-a1-title title={t('title')} titleHi={t('titleHi')} className="text-[clamp(1.75rem,7vw,3.75rem)] md:text-[clamp(1.75rem,3.2vw,3.75rem)]" />
+              <BicolorTitle data-a1-title title={t('title')} titleHi={t('titleHi')} className="text-[clamp(1.35rem,5.5vw,2.25rem)] md:text-[clamp(1.75rem,3.2vw,3.75rem)]" />
             </div>
-            <div data-a1 className="mt-sm md:mt-md xl:mt-lg max-w-[22rem] md:max-w-none">
-              <p className="text-subtitle text-sm xl:text-base text-foreground/80">{t('body1')}</p>
-              <p className="text-subtitle mt-1 md:mt-sm text-sm xl:text-base text-foreground/80">{t('body2')}</p>
+            <div data-a1 className="mt-1.5 md:mt-md xl:mt-lg max-w-[22rem] md:max-w-none">
+              <p className="text-subtitle text-xs md:text-sm xl:text-base text-foreground/80 leading-snug md:leading-normal">{t('body1')}</p>
+              <p className="text-subtitle mt-1 text-xs md:text-sm xl:text-base text-foreground/80 leading-snug md:leading-normal">{t('body2')}</p>
             </div>
-            <span data-a1 className="text-eyebrow mt-xl md:mt-xl xl:mt-2xl text-sm xl:text-[11px] uppercase tracking-[0.16em] text-foreground/45">
+            <span data-a1 className="text-eyebrow mt-2 md:mt-xl xl:mt-2xl text-[10px] md:text-sm xl:text-[11px] uppercase tracking-[0.16em] text-foreground/45">
               {t('footerTag')}
             </span>
           </div>
@@ -1219,30 +1219,30 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         {/* UI do Ato 3 — mesmo desenho do Ato 1: coluna de texto à esquerda, frasco em cena.
             No mobile o bloco de prova (número + handoff + CTA) desce para o rodapé da tela,
             deixando o frasco visível no meio. */}
-        <Container className="relative lg:absolute lg:inset-0 z-30 flex min-h-[100dvh] lg:min-h-0 h-auto lg:h-full items-stretch md:items-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pointer-events-none pt-[8vh] md:pt-0 pb-[8vh] md:pb-0">
+        <Container className="relative lg:absolute lg:inset-0 z-30 flex min-h-[100dvh] lg:min-h-0 h-auto lg:h-full items-stretch md:items-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pointer-events-none pt-[7dvh] md:pt-0 pb-[8vh] md:pb-0">
           {/* pointer-events fica desligado: no mobile este painel é `relative`
               e cobre a tela inteira por cima do Ato 1 — ligado, virava uma
               camada invisível engolindo toque e seleção do texto do Ato 1. */}
           <div ref={leftPanelRef} className="pointer-events-none flex w-full flex-1 md:flex-none md:w-auto max-w-full md:max-w-[24rem] xl:max-w-[28rem] flex-col items-start">
-            <span data-a3-tag className="text-eyebrow mb-sm md:mb-md text-[10px] xl:text-xs uppercase tracking-[0.18em] text-primary">
+            <span data-a3-tag className="text-eyebrow mb-1 md:mb-md text-[10px] xl:text-xs uppercase tracking-[0.18em] text-primary">
               {t('a3Eyebrow')}
             </span>
-            <BicolorTitle data-a3-title title={t('a3Title')} titleHi={t('a3TitleHi')} className="text-[clamp(1.75rem,7vw,3.75rem)] md:text-[clamp(1.75rem,3.2vw,3.75rem)]" />
-            <p data-a3-body className="text-subtitle mt-sm md:mt-md max-w-[22rem] md:max-w-none text-sm xl:text-base text-foreground/80">
+            <BicolorTitle data-a3-title title={t('a3Title')} titleHi={t('a3TitleHi')} className="text-[clamp(1.35rem,5.5vw,2.25rem)] md:text-[clamp(1.75rem,3.2vw,3.75rem)]" />
+            <p data-a3-body className="text-subtitle mt-1.5 md:mt-md max-w-[22rem] md:max-w-none text-xs md:text-sm xl:text-base text-foreground/80 leading-snug md:leading-normal">
               {t('a3Body')}
             </p>
             <div className="mt-auto md:mt-0 flex flex-col items-start">
-              <div data-a3-line className="my-md md:my-lg h-px w-10 md:w-12 bg-primary/40" style={{ transformOrigin: 'left' }} />
-              <div data-a3-stat className="flex flex-col gap-1">
-                <span className="text-highlight text-2xl md:text-3xl xl:text-4xl text-primary"><span ref={counterRef}>{t('a3StatPrefix')}10</span> {t('a3StatUnit')}</span>
-                <span className="text-subtitle text-sm text-foreground/80">{t('a3StatLabel')}</span>
-                <span className="text-[11px] text-foreground/50">{t('a3StatSource')}</span>
+              <div data-a3-line className="my-2 md:my-lg h-px w-10 md:w-12 bg-primary/40" style={{ transformOrigin: 'left' }} />
+              <div data-a3-stat className="flex flex-col gap-0.5">
+                <span className="text-highlight text-xl md:text-3xl xl:text-4xl text-primary"><span ref={counterRef}>{t('a3StatPrefix')}10</span> {t('a3StatUnit')}</span>
+                <span className="text-subtitle text-xs md:text-sm text-foreground/80">{t('a3StatLabel')}</span>
+                <span className="text-[10px] md:text-[11px] text-foreground/50">{t('a3StatSource')}</span>
               </div>
             </div>
           </div>
         </Container>
 
-        <BottleCallout refEl={newCalloutRef} eyebrow={t('a3Eyebrow')} className="max-md:!top-[25vh] max-md:!bottom-auto">
+        <BottleCallout refEl={newCalloutRef} eyebrow={t('a3Eyebrow')} className="max-md:!top-[26dvh] max-md:!bottom-auto">
           {t('newBottleCaption')}
         </BottleCallout>
       </section>

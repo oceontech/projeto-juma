@@ -1158,11 +1158,11 @@ html.lenis body { height: auto; }
 @media (max-width: 767px) {
   .aminosan-bottle-callout {
     right: 1.25rem;
-    bottom: 14vh;
-    gap: 0.65rem;
+    bottom: 8vh;
+    gap: 0.5rem;
   }
   .aminosan-bottle-callout__line {
-    width: 3rem;
+    width: 2.5rem;
   }
   .aminosan-bottle-callout__card {
     width: min(9rem, 42vw);
