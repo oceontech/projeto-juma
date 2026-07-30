@@ -276,7 +276,6 @@ export function OurStory() {
               fill
               sizes="(min-width: 1024px) 40rem, 90vw"
               className="relative z-10 object-contain object-bottom"
-              priority
             />
 
             {/* Rótulos + linhas conectoras (só desktop) */}

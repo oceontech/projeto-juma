@@ -184,6 +184,7 @@ export function Lines() {
                       src={image} 
                       alt="" 
                       fill 
+                      sizes="(min-width: 1024px) 33vw, 100vw"
                       className="object-cover object-center sm:object-right group-hover:scale-105 transition-transform duration-700" 
                     />
                   </div>

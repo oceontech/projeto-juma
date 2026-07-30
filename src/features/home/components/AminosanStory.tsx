@@ -61,14 +61,26 @@ export function AminosanStory() {
       el.addEventListener('loadeddata', scheduleRefresh)
     })
 
+    // Só re-agenda refresh em resize de LARGURA (rotação, redimensionar janela).
+    // No mobile, mudança de ALTURA sozinha é o navegador escondendo/mostrando a
+    // barra de endereço enquanto o usuário rola — refazer o refresh nesse
+    // momento recalcula start/end/spacer do pin no meio do gesto e produz o
+    // salto. Mesma guarda que o HomeProductShowcase já usa.
+    let lastWidth = window.innerWidth
+    const onResize = () => {
+      if (window.innerWidth === lastWidth) return
+      lastWidth = window.innerWidth
+      scheduleRefresh()
+    }
+
     window.addEventListener('load', scheduleRefresh)
     window.addEventListener('pageshow', scheduleRefresh)
-    window.addEventListener('resize', scheduleRefresh)
+    window.addEventListener('resize', onResize)
 
     return () => {
       window.removeEventListener('load', scheduleRefresh)
       window.removeEventListener('pageshow', scheduleRefresh)
-      window.removeEventListener('resize', scheduleRefresh)
+      window.removeEventListener('resize', onResize)
       media.forEach((el) => {
         el.removeEventListener('load', scheduleRefresh)
         el.removeEventListener('loadedmetadata', scheduleRefresh)
@@ -287,7 +299,10 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
  * Cada transição é um par de clipes (forward + reverso gravado) tocado com
  * play() nativo — os clipes não têm keyframes densos o bastante para scrub
  * manual de currentTime ficar fluido (ver comentário do syncVideos).
- * Durante cada transição o scroll é travado; depois é liberado.
+ * Durante cada transição o scroll é travado; depois é liberado. O gesto
+ * contrário no meio de uma transição não é engolido: vira o clipe no frame em
+ * que ele está e o leva de volta à outra ponta do mesmo segmento (a tela segue
+ * travada durante o reverso) — mesmo contrato do HeroJornada.
  */
 
 function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
@@ -336,18 +351,18 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         : null
       const titleChars = titleSplit?.chars ?? (titleEl ? [titleEl] : [])
 
-      // ── Estado inicial: tudo invisível
+      // ── Estado inicial: Ato 1 visível por padrão (sem tela branca)
       gsap.set(allVideos,    { autoAlpha: 0, zIndex: 0 })
       gsap.set(video, { zIndex: 1 })
       gsap.set([newImg, lineImg, trioImg], { autoAlpha: 0 })
-      gsap.set(brandMarkRef.current, { autoAlpha: 0, y: -18, filter: 'blur(8px)' })
-      gsap.set(oldImg,       { scale: 1.04, autoAlpha: 0, yPercent: 100, filter: 'blur(8px)' })
-      gsap.set(scrimRef.current, { autoAlpha: 0 })
-      gsap.set(titleChars,   { x: 20, autoAlpha: 0, filter: 'blur(10px)' })
-      gsap.set(act1Items,    { y: 20, autoAlpha: 0, filter: 'blur(10px)' })
-      gsap.set(calloutLine,  { scaleX: 0 })
-      gsap.set(calloutDot, { scale: 0, autoAlpha: 0 })
-      gsap.set(calloutLabel, { autoAlpha: 0, x: 12 })
+      gsap.set(brandMarkRef.current, { autoAlpha: 1, y: 0, filter: 'blur(0px)' })
+      gsap.set(oldImg,       { zIndex: 10, scale: 1, autoAlpha: 1, yPercent: 0, filter: 'blur(0px)' })
+      gsap.set(scrimRef.current, { autoAlpha: 1 })
+      gsap.set(titleChars,   { x: 0, autoAlpha: 1, filter: 'blur(0px)' })
+      gsap.set(act1Items,    { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
+      gsap.set(calloutLine,  { scaleX: 1, transformOrigin: 'left' })
+      gsap.set(calloutDot,   { scale: 1, autoAlpha: 1 })
+      gsap.set(calloutLabel, { autoAlpha: 1, x: 0 })
 
       const a3Eyebrow = leftPanelRef.current?.querySelector<HTMLElement>('[data-a3-tag]') ?? null
       const a3Title = leftPanelRef.current?.querySelector<HTMLElement>('[data-a3-title]') ?? null
@@ -380,19 +395,12 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       let currentTl: gsap.core.Timeline | null = null
       let lineTl: gsap.core.Timeline | null = null
       const lockScroll = (on: boolean) => {
-        if (on) {
-          lenisRef.current?.stop()
-          if (root.current) {
-            const rootTop = Math.round(window.scrollY + root.current.getBoundingClientRect().top)
-            if (Math.abs(window.scrollY - rootTop) > 2) {
-              window.scrollTo(0, rootTop)
-            }
-          }
-        } else {
-          document.body.style.paddingRight = ''
-          lenisRef.current?.start()
-          requestAnimationFrame(() => ScrollTrigger.refresh())
-        }
+        // Desktop: o Lenis tem inércia própria e continuaria correndo por cima
+        // do clipe. No mobile ele nem existe (SmoothScroll não instancia em
+        // pointer:coarse / <1024px) — lá quem trava é o preventDefault do
+        // touchmove logo abaixo.
+        if (on) lenisRef.current?.stop()
+        else lenisRef.current?.start()
       }
 
 
@@ -401,16 +409,68 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       type Phase = 'act1' | 'act3' | 'line' | 'exit'
 
+      /* As 4 fases de repouso, na ordem da cadeia. O índice da fase é também o
+         índice do `targets` (tempo do vídeo) e do `step` — um só número descreve
+         "onde a cena está", e é ele que manda no scroll (e não o contrário). */
+      const PHASES: Phase[] = ['act1', 'act3', 'line', 'exit']
+      const LAST = PHASES.length - 1
+
       let phase: Phase = 'act1'
       let direction: 'forward' | 'backward' | null = null
-      let isLocked = false
       const cooldownRef = { current: 0 }
       let playing = false
+      let releasing = false
       let targetTime: number | null = null
       let step = 0
       let lastTime = 0
       let animFrame = 0
       const targets = [0, 2.64, 4.07, 5.90]
+
+      let pinTrigger: ScrollTrigger | null = null
+      /* Só é "voltar à seção" se ela chegou a sair de vista. O ato 1 descansa
+         exatamente em pinTrigger.start, então o primeiro snap para o ato 2 é
+         lido pelo ScrollTrigger como uma entrada no trigger e dispara onEnter —
+         sem esta guarda, esse onEnter interno rebobinava a cena para o ato 1 no
+         meio da própria transição. Quem levanta a flag é o IntersectionObserver
+         lá embaixo. */
+      let wasOutside = false
+
+      /* O catálogo avisa que começou a sair para cima (fade branco) muito antes
+         de o salto de volta acontecer. Nesse intervalo a seção pode reaparecer
+         na tela — por inércia do gesto no mobile — e o IntersectionObserver
+         lá embaixo leria isso como "voltou à seção", rebobinando a cena para o
+         ato 1. Aí o reverso não teria mais o que reverter (a volta exige a fase
+         'exit') e o usuário caía no começo da seção sem ver os vídeos. */
+      let handoffBackPending = false
+      let handoffBackTimer: ReturnType<typeof setTimeout> | undefined
+      const clearHandoffBack = () => {
+        handoffBackPending = false
+        clearTimeout(handoffBackTimer)
+      }
+      const onPrepareHandoffBackward = () => {
+        handoffBackPending = true
+        clearTimeout(handoffBackTimer)
+        // Rede de segurança: se a saída do catálogo morrer no meio (troca de
+        // aba, refresh do ScrollTrigger), a guarda não fica presa para sempre.
+        handoffBackTimer = setTimeout(clearHandoffBack, 2500)
+      }
+      window.addEventListener('aminosan:prepare-handoff-backward', onPrepareHandoffBackward)
+
+      /* Posição de scroll de cada fase dentro do pin. O pin dá o trilho; quem
+         escolhe o ponto exato do trilho é a máquina de fases, nunca a força do
+         gesto — é isso que faz a seção parar sempre no mesmo pixel. */
+      const phaseY = (i: number) => {
+        if (!pinTrigger) return window.scrollY
+        return Math.round(pinTrigger.start + ((pinTrigger.end - pinTrigger.start) * i) / LAST)
+      }
+
+      const snapToPhase = () => {
+        if (!pinTrigger) return
+        const y = phaseY(PHASES.indexOf(phase))
+        if (Math.abs(window.scrollY - y) < 2) return
+        lenisRef.current?.scrollTo(y, { immediate: true, force: true } as never)
+        window.scrollTo(0, y)
+      }
 
       const safeDur = (v: HTMLVideoElement) => (v.duration > 0 && isFinite(v.duration)) ? v.duration : 6
 
@@ -520,14 +580,25 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         tl.to(linePanelRef.current, { y: 20, autoAlpha: 0, filter: 'blur(10px)', duration: 0.2, ease: 'power2.in' }, 0.08)
       }
 
-      const release = () => {
-        isLocked = false
+      /* Fim da cadeia: entrega o bastão pro catálogo. Sem isto o usuário fica
+         com a seção já esgotada na tela e precisa rolar o pin inteiro no branco
+         até a próxima seção aparecer. */
+      const releaseForward = () => {
+        releasing = true
         lockScroll(false)
-      }
-
-      const releaseUp = () => {
-        isLocked = false
-        lockScroll(false)
+        // Fim do spacer do pin = topo da próxima seção. Vale como referência
+        // própria (não depende do catálogo estar montado — ele é import
+        // dinâmico) e serve de sanidade: se o #sec-produtos ainda não assentou
+        // o layout, o valor dele vem menor que o fim do pin, o que jogaria o
+        // usuário de volta pra dentro da cadeia.
+        const fallback = pinTrigger ? pinTrigger.end + window.innerHeight : window.scrollY
+        const next = document.getElementById('sec-produtos')
+        const measured = next ? Math.round(next.getBoundingClientRect().top + window.scrollY) : null
+        const y = measured !== null && measured >= fallback - 2 ? measured : Math.round(fallback)
+        lenisRef.current?.scrollTo(y, { immediate: true, force: true } as never)
+        window.scrollTo(0, y)
+        ScrollTrigger.update()
+        requestAnimationFrame(() => { releasing = false })
       }
 
       const hideAct1UI = (immediate = false) => {
@@ -567,6 +638,22 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           gsap.set(lineItems, { autoAlpha: 0, y: 18, filter: 'blur(10px)' })
         } else {
           hideLineUI(0)
+        }
+      }
+
+      const updateVideoScale = (video: HTMLVideoElement) => {
+        if (window.innerWidth < 1024) {
+          let vScale = 2.8
+          const cur = video.currentTime
+          if (cur > targets[1] && cur < targets[2]) {
+            const p = (cur - targets[1]) / (targets[2] - targets[1])
+            vScale = 2.8 + (1.45 - 2.8) * Math.max(0, Math.min(1, p))
+          } else if (cur >= targets[2]) {
+            vScale = 1.45
+          }
+          gsap.set(video, { scale: vScale })
+        } else {
+          gsap.set(video, { scale: 1 })
         }
       }
 
@@ -610,22 +697,39 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           if (nextTime <= target + 0.02) { stopPlayback(); return }
         }
         updateActivePhase(video.currentTime)
+        updateVideoScale(video)
         animFrame = requestAnimationFrame(tick)
       }
 
-      const startPlayback = (dir: 'forward' | 'backward', target: number) => {
+      /* `midFlight` = esta chamada está virando um clipe que já estava tocando
+         (o gesto contrário chegou no meio da transição). O tempo do vídeo não é
+         tocado em nenhum dos casos — é isso que faz o reverso sair do frame
+         exato em que o usuário deu o gesto. A diferença está só nos stills:
+         partindo do repouso é preciso trocar still → vídeo; em pleno voo o
+         vídeo já está em cena e repor o still daria flash. */
+      const startPlayback = (dir: 'forward' | 'backward', target: number, midFlight = false) => {
         const video = videoRef.current
         if (!video) return
         if (animFrame) cancelAnimationFrame(animFrame)
         direction = dir
         targetTime = target
         playing = true
+        lockScroll(true)
+        updateVideoScale(video)
 
         if (dir === 'forward') {
           gsap.set(video, { autoAlpha: 1, zIndex: 1 })
           if (step === 1) {
-            gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: 1, yPercent: 0, filter: 'blur(0px)' })
-            gsap.to(oldImg, { autoAlpha: 0, scale: 0.992, filter: 'blur(4px)', duration: 0.24, ease: 'power1.inOut', overwrite: 'auto' })
+            if (midFlight) {
+              // O morph já está em andamento: o frasco antigo saiu de cena e o
+              // frame atual do vídeo é quem manda. Repor o still em autoAlpha 1
+              // para fadear de novo piscaria o frasco antigo por cima dele.
+              gsap.killTweensOf(oldImg)
+              gsap.set(oldImg, { autoAlpha: 0 })
+            } else {
+              gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: 1, yPercent: 0, filter: 'blur(0px)' })
+              gsap.to(oldImg, { autoAlpha: 0, scale: 0.992, filter: 'blur(4px)', duration: 0.24, ease: 'power1.inOut', overwrite: 'auto' })
+            }
             hideAct1UI(false)
             showAct3UI(0.6)
           } else if (step === 2) {
@@ -671,9 +775,13 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       const showStaticAct1 = (exitAfter = false) => {
         const video = videoRef.current
-        if (video) { video.pause(); try { video.currentTime = 0 } catch(e) {} }
-        gsap.killTweensOf(video)
-        gsap.set(video, { autoAlpha: 0, zIndex: 0 })
+        if (video) {
+          video.pause()
+          try { video.currentTime = 0 } catch(e) {}
+          updateVideoScale(video)
+          gsap.killTweensOf(video)
+          gsap.set(video, { autoAlpha: 0, zIndex: 0 })
+        }
         gsap.set([newImg, lineImg, trioImg], { autoAlpha: 0 })
         hideAct3All(true)
         hideLineAll(true)
@@ -695,20 +803,25 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       const restAct3 = () => {
         const video = videoRef.current
-        gsap.set(video, { autoAlpha: 1, zIndex: 1 })
+        if (video) {
+          gsap.set(video, { autoAlpha: 0, zIndex: 0 })
+          try { video.currentTime = targets[1] } catch(e) {}
+          updateVideoScale(video)
+        }
         gsap.set(newImg, { autoAlpha: 1 })
         gsap.set([lineImg, trioImg], { autoAlpha: 0 })
-        hideAct1UI(true)
-        hideLineAll(true)
         gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
         gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
         showAct3UI(0)
-        try { if (video) video.currentTime = targets[1] } catch(e) {}
       }
 
       const restLine = () => {
         const video = videoRef.current
-        gsap.set(video, { autoAlpha: 1, zIndex: 1 })
+        if (video) {
+          gsap.set(video, { autoAlpha: 0, zIndex: 0 })
+          try { video.currentTime = targets[2] } catch(e) {}
+          updateVideoScale(video)
+        }
         gsap.set(lineImg, { autoAlpha: 1 })
         gsap.set([newImg, trioImg], { autoAlpha: 0 })
         gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
@@ -716,13 +829,16 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         hideAct1UI(true)
         hideAct3All(true)
         showLineUI(0)
-        try { if (video) video.currentTime = targets[2] } catch(e) {}
       }
 
       const restExit = () => {
         const video = videoRef.current
+        if (video) {
+          gsap.set(video, { autoAlpha: 0, zIndex: 0 })
+          try { video.currentTime = targets[3] } catch(e) {}
+          updateVideoScale(video)
+        }
         gsap.killTweensOf([oldImg, newImg, lineImg, trioImg])
-        gsap.set(video, { autoAlpha: 0, zIndex: 0 })
         gsap.set([oldImg, newImg, lineImg], { autoAlpha: 0 })
         hideAct1UI(true)
         hideAct3All(true)
@@ -741,17 +857,13 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           pointerEvents: 'none',
         })
         gsap.set(brandMarkRef.current, { autoAlpha: 0 })
-        try { if (video) video.currentTime = targets[3] } catch(e) {}
       }
 
       const finishExit = () => {
-        const currentScrollY = window.scrollY
-        const runwayEl = root.current ?? stageTrigger
-        const targetY = Math.round(currentScrollY + runwayEl.getBoundingClientRect().bottom)
+        // Ordem importa: o catálogo precisa estar preparado (branco, trio
+        // full-frame) ANTES de receber o scroll, senão pisca a cor dele.
         window.dispatchEvent(new CustomEvent('aminosan:prepare-handoff-forward'))
-        release()
-        lenisRef.current?.scrollTo(targetY, { immediate: true, force: true } as any)
-        window.scrollTo(0, targetY)
+        releaseForward()
         gsap.set(trioImg, {
           autoAlpha: 0,
           clearProps: 'display,position,top,right,bottom,left,width,height,zIndex,pointerEvents',
@@ -769,163 +881,203 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         if (step === 1) {
           phase = 'act3'
           restAct3()
+          snapToPhase()
         } else if (step === 2) {
           phase = 'line'
           window.dispatchEvent(new CustomEvent('aminosan:video-handoff-end'))
           restLine()
+          snapToPhase()
         } else if (step === 3) {
           phase = 'exit'
           restExit()
+          // finishExit já leva o scroll para o catálogo — não snapa aqui.
           finishExit()
         } else {
           phase = 'act1'
           const stageTop = stageTrigger.getBoundingClientRect().top
           showStaticAct1(stageTop > window.innerHeight * 0.24)
+          snapToPhase()
         }
-        cooldownRef.current = performance.now() + 650
+        lockScroll(false)
+        cooldownRef.current = performance.now() + 350
       }
 
-      let stTop = ScrollTrigger.create({
+      /* O pin é só o trilho: segura o palco colado no topo da viewport e dá
+         comprimento de scroll pra seção. Ele NÃO decide mais qual ato toca —
+         era esse acoplamento que quebrava no mobile, onde um único flick
+         atravessa os 3 viewports do pin em ~300ms enquanto o primeiro clipe
+         sozinho leva 2,6s: as janelas de progresso dos atos 2 e 3 passavam
+         batido (a guarda `!playing` as descartava) e a cena morria no ato 2,
+         sem nunca disparar o handoff pro catálogo. */
+      pinTrigger = ScrollTrigger.create({
         trigger: root.current,
         start: 'top top',
-        onEnter: () => {
-          playIntro(false)
-          if (phase === 'act1' && !isLocked && !direction && !playing) {
-            isLocked = true
-            lockScroll(true)
-          }
-        },
-        onLeave: () => {
-          if (isLocked) release()
-        },
-        onEnterBack: () => {
-          if (phase === 'act1') playIntro(false)
-          if (isLocked || direction || playing) return
-          if (phase === 'act3') {
-            isLocked = true
-            lockScroll(true)
-            step = 0
-            startPlayback('backward', targets[0])
-          } else if (phase === 'line') {
-            isLocked = true
-            lockScroll(true)
-          } else if (phase === 'exit') {
-            isLocked = true
-            lockScroll(true)
-            step = 2
-            startPlayback('backward', targets[2])
-          }
-        },
-        onLeaveBack: () => {
-          if (isLocked) release()
-        },
+        end: `+=${LAST * 100}%`,
+        pin: stageTrigger,
+        pinSpacing: true,
+        anticipatePin: 1,
+        // Entrar por CIMA quer dizer "começo da história": o SectionNav salta
+        // direto para #sec-origem, e numa segunda visita a máquina ainda estaria
+        // parada no ato em que o usuário largou — o snap de segurança puxaria a
+        // página para o pixel daquele ato, abrindo a seção pelo fim.
+        onEnter: () => playIntro(false),
+        onEnterBack: () => playIntro(false),
       })
 
-      const handleForward = () => {
-        if (!isLocked) return
-        if (playing && direction === 'backward') {
-          if (step < 3) { step++; startPlayback('forward', targets[step]) }
+      /* ── Máquina de atos dirigida por GESTO (mesmo contrato do HeroJornada)
+         Um gesto = um ato — inteiro, ou virado no meio pelo gesto contrário
+         (nunca parcial: as duas pontas do segmento são fases de repouso).
+         Enquanto a seção está pinada o scroll nativo é cancelado, então a força
+         do flick não tem para onde escapar: quem posiciona a página é o
+         snapToPhase, no pixel da fase. */
+
+      const canStep = () => !playing && !releasing && performance.now() >= cooldownRef.current
+
+      /* Reversão em pleno voo (mesmo contrato do HeroJornada): o gesto contrário
+         chegando no meio de uma transição não é engolido — vira o clipe no frame
+         em que ele está e o leva de volta à outra ponta do MESMO segmento.
+         Quem diz qual é essa outra ponta é `step` (o índice de destino, estável),
+         nunca `phase` — `phase` é derivado do currentTime pelo updateActivePhase e
+         já derivou no meio do caminho.
+         O cooldown fica só no caminho a partir do repouso: virar um clipe é
+         resposta imediata, e um gesto longo (vários eventos de wheel no mesmo
+         sentido) vira uma única vez, porque os eventos seguintes já estão no
+         mesmo sentido do clipe e caem no no-op. */
+      const stepForward = () => {
+        if (releasing) return
+        if (playing) {
+          if (direction !== 'backward') return
+          const next = step + 1
+          if (next > LAST) return
+          step = next
+          startPlayback('forward', targets[next], true)
           return
         }
-        if (playing || performance.now() <= cooldownRef.current) return
-        if (step < 3) {
-           step++
-           startPlayback('forward', targets[step])
-        }
+        if (!canStep()) return
+        const i = PHASES.indexOf(phase)
+        if (i >= LAST) return
+        step = i + 1
+        startPlayback('forward', targets[step])
       }
 
-      const handleBackward = () => {
-        if (!isLocked) return
-        if (playing && direction === 'forward') {
-          if (step > 0) { step--; startPlayback('backward', targets[step]) }
+      const stepBackward = () => {
+        if (releasing) return
+        if (playing) {
+          if (direction !== 'forward') return
+          const prev = step - 1
+          if (prev < 0) return
+          step = prev
+          startPlayback('backward', targets[prev], true)
           return
         }
-        if (playing || performance.now() <= cooldownRef.current) return
-        if (step > 0) {
-           step--
-           startPlayback('backward', targets[step])
-        }
+        if (!canStep()) return
+        const i = PHASES.indexOf(phase)
+        if (i <= 0) return
+        step = i - 1
+        startPlayback('backward', targets[step])
       }
 
-      const lockIfStageIsActive = () => {
-        if (isLocked || direction) return false
-        const stage = stageRef.current
-        if (!stage) return false
-        const rect = stage.getBoundingClientRect()
-        const active = rect.top <= 10 && rect.bottom >= window.innerHeight * 0.5
-        if (!active) return false
-        playIntro(false)
-        isLocked = true
-        lockScroll(true)
-        return true
+      /* Nas duas pontas da cadeia o gesto passa direto (sem preventDefault):
+         é assim que o usuário sai da seção pra cima (antes do ato 1) e pra
+         baixo (depois do último ato, se voltar pro fim da cadeia). */
+      const escapes = (down: boolean) =>
+        !playing && ((down && phase === 'exit') || (!down && phase === 'act1'))
+
+      /* Faixa de scroll do pin, com folga de 1px nas pontas. Usar a faixa (e não
+         `pinTrigger.isActive`) importa porque as fases extremas descansam
+         exatamente em `start` e em `end`, onde o isActive fica na fronteira —
+         e uma fase que descansa fora do "ativo" deixaria a seção sem resposta
+         ao gesto seguinte. */
+      const active = () => {
+        if (!pinTrigger || releasing) return false
+        const y = window.scrollY
+        return y >= pinTrigger.start - 1 && y <= pinTrigger.end + 1
       }
 
       const onWheel = (e: WheelEvent) => {
-        if (!isLocked && !lockIfStageIsActive()) return
-        if (e.deltaY < 0 && phase === 'act1' && !direction) {
-          if (performance.now() > cooldownRef.current) {
-            releaseUp()
-          }
-          return
-        }
-        e.preventDefault()
-        if (Math.abs(e.deltaY) < 18) return
-        if (e.deltaY > 0) handleForward()
-        else if (e.deltaY < 0) handleBackward()
+        if (!active() || Math.abs(e.deltaY) < 2) return
+        if (escapes(e.deltaY > 0)) return
+        if (e.cancelable) e.preventDefault()
+        if (Math.abs(e.deltaY) < 8) return
+        if (e.deltaY > 0) stepForward()
+        else stepBackward()
       }
 
       const downKeys = ['ArrowDown', 'PageDown', ' ', 'Spacebar']
-      const upKeys   = ['ArrowUp', 'PageUp']
+      const upKeys = ['ArrowUp', 'PageUp']
       const onKey = (e: KeyboardEvent) => {
-        if (!isLocked) return
+        if (!active()) return
         const down = downKeys.includes(e.key)
-        const up   = upKeys.includes(e.key)
+        const up = upKeys.includes(e.key)
         if (!down && !up) return
-        if (up && phase === 'act1' && !direction) {
-          if (performance.now() > cooldownRef.current) {
-            releaseUp()
-          }
-          return
-        }
+        if (escapes(down)) return
         e.preventDefault()
-        if (down) handleForward()
-        else if (up) handleBackward()
+        if (down) stepForward()
+        else stepBackward()
       }
 
+      /* Toque: o touchmove é cancelado enquanto a seção está travada — isso
+         mata o momentum do iOS na origem, então não sobra rolagem inercial
+         brigando com o snap. A decisão sai no touchend: passou de 30px, vale
+         um ato — e um só, tenha o dedo corrido 30px ou 600px. */
       let touchY = 0
       const onTouchStart = (e: TouchEvent) => {
-        touchY = e.touches[0].clientY
+        touchY = e.touches[0]?.clientY ?? 0
       }
       const onTouchMove = (e: TouchEvent) => {
-        if (!isLocked) return
-        e.preventDefault()
+        if (!active()) return
+        const y = e.touches[0]?.clientY ?? touchY
+        const dy = touchY - y
+        // Zona morta de 4px: no primeiro touchmove o dedo ainda não declarou
+        // sentido. Sem isso o gesto era lido como "subindo" e escapava do
+        // preventDefault, deixando alguns pixels de rolagem nativa vazarem
+        // antes da trava pegar.
+        if (Math.abs(dy) > 4 && escapes(dy > 0)) return
+        if (e.cancelable) e.preventDefault()
       }
       const onTouchEnd = (e: TouchEvent) => {
-        if (!isLocked) return
-        const endY = e.changedTouches[0] ? e.changedTouches[0].clientY : touchY
-        const dy   = touchY - endY
-        if (dy > 30) {
-          handleForward()
-        } else if (dy < -30) {
-          if (phase === 'act1' && !direction) {
-            if (performance.now() > cooldownRef.current) {
-              releaseUp()
-            }
-            return
-          }
-          handleBackward()
-        }
+        if (!active()) return
+        const endY = e.changedTouches[0]?.clientY ?? touchY
+        const dy = touchY - endY
+        if (Math.abs(dy) < 30) return // mesmo limiar do HeroJornada
+        if (dy > 0) stepForward()
+        else stepBackward()
       }
 
-      // Volta a partir do catálogo: o catálogo já preparou o frame (trio full-
-      // frame no branco, igual ao fim do vídeo) e saltou de volta para cá. A
-      // seção continua em 'exit' com o trio still visível — travamos e tocamos
-      // o clipe de transição em reverso (trio → linha), seguindo a cadeia acima.
+      /* Rede de segurança para o que não passa pelos gestos (arrastar a barra
+         de rolagem, âncora do menu, "localizar na página"): ao parar de rolar
+         dentro do pin, volta pro pixel da fase atual. */
+      let idleTimer: ReturnType<typeof setTimeout> | undefined
+      const onScroll = () => {
+        clearTimeout(idleTimer)
+        idleTimer = setTimeout(() => {
+          if (!active() || playing) return
+          snapToPhase()
+        }, 200)
+      }
+
+      window.addEventListener('wheel', onWheel, { passive: false, capture: true })
+      window.addEventListener('keydown', onKey)
+      window.addEventListener('touchstart', onTouchStart, { passive: true })
+      window.addEventListener('touchmove', onTouchMove, { passive: false, capture: true })
+      window.addEventListener('touchend', onTouchEnd, { passive: true })
+      window.addEventListener('scroll', onScroll, { passive: true })
+
+      // Volta a partir do catálogo: o catálogo já preparou o frame e saltou
+      // para cá. Reposiciona o scroll na fase 'exit' antes de rodar o reverso,
+      // senão a fase e o pin ficam apontando para pontos diferentes da cadeia.
       const onHandoffBackward = () => {
-        if (isLocked || playing || phase !== 'exit') return
+        clearHandoffBack()
+        if (playing) return
+        /* O catálogo só sai para cima a partir do produto 0, que é exatamente a
+           ponta 'exit' desta cadeia. Se a fase tiver derivado no caminho (um
+           rebobinar do observer, um reload no meio da página), força o repouso
+           'exit' em vez de desistir: desistir era o que deixava o usuário no
+           início da seção sem passar pelos vídeos. */
+        phase = 'exit'
+        wasOutside = false
         restExit()
-        isLocked = true
-        lockScroll(true)
+        snapToPhase()
         step = 2
         startPlayback('backward', targets[2])
       }
@@ -940,24 +1092,30 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
               if (animFrame) cancelAnimationFrame(animFrame)
               playing = false
               direction = null
+              wasOutside = true
+              return
             }
+            /* Rebobina a cena quando o usuário REALMENTE volta à seção depois de
+               tê-la deixado (salto do SectionNav, por exemplo): sem isto ela
+               reabriria no ato em que ele parou. Fica aqui, e não no onEnter do
+               pin, porque o palco pinado nunca sai de vista durante os snaps
+               internos — então este callback só dispara em ida e volta de
+               verdade. Se um clipe já está tocando, quem manda é ele (é o caso
+               da volta vinda do catálogo, que entra tocando o reverso). */
+            if (wasOutside && !playing && !handoffBackPending && phase !== 'act1') {
+              step = 0
+              phase = 'act1'
+              showStaticAct1(false)
+              snapToPhase()
+            }
+            wasOutside = false
           })
         },
         { threshold: 0.05 },
       )
       if (root.current) observer.observe(root.current)
 
-      window.addEventListener('wheel',      onWheel,     { passive: false })
-      window.addEventListener('keydown',    onKey)
-      window.addEventListener('touchstart', onTouchStart, { passive: true })
-      window.addEventListener('touchmove',  onTouchMove,  { passive: false })
-      window.addEventListener('touchend',   onTouchEnd,   { passive: true })
-
       // Decodifica o primeiro frame de cada vídeo sem exibi-lo (evita flash ao iniciar o play real).
-      // Guarda de `direction`: se o usuário já rolar antes dessa promise resolver, o
-      // play/pause real já está em andamento — resolver tarde aqui pausaria e
-      // resetaria pra 0 um vídeo que já está tocando de verdade, piscando o frame
-      // inicial no meio da transição.
       allVideos.forEach((v) => {
         v.play().then(() => { if (!playing) { v.pause(); v.currentTime = 0 } }).catch(() => {})
       })
@@ -967,30 +1125,35 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         stIntro?.kill()
         stIntroExit?.kill()
         introTl.kill()
-        stTop.kill()
+        pinTrigger?.kill()
+        pinTrigger = null
         titleSplit?.revert()
         lineTitleSplit?.revert()
         currentTl?.kill()
         lineTl?.kill()
         if (animFrame) cancelAnimationFrame(animFrame)
-        lenisRef.current?.start()
+        clearTimeout(idleTimer)
+        lockScroll(false)
 
         // Limpeza dos event listeners globais
         window.dispatchEvent(new CustomEvent('aminosan:video-handoff-end'))
+        clearHandoffBack()
+        window.removeEventListener('aminosan:prepare-handoff-backward', onPrepareHandoffBackward)
         window.removeEventListener('aminosan:handoff-backward', onHandoffBackward)
-        window.removeEventListener('wheel',      onWheel)
-        window.removeEventListener('keydown',    onKey)
+        window.removeEventListener('wheel', onWheel, { capture: true })
+        window.removeEventListener('keydown', onKey)
         window.removeEventListener('touchstart', onTouchStart)
-        window.removeEventListener('touchmove',  onTouchMove)
-        window.removeEventListener('touchend',   onTouchEnd)
+        window.removeEventListener('touchmove', onTouchMove, { capture: true })
+        window.removeEventListener('touchend', onTouchEnd)
+        window.removeEventListener('scroll', onScroll)
       }
     },
-    { dependencies: [isMobile], scope: root },
+    { scope: root },
   )
 
   return (
     <div ref={root} className="relative w-full bg-white">
-      <section ref={stageRef} className="sticky top-0 z-10 h-[100dvh] w-full overflow-hidden bg-white">
+      <section ref={stageRef} className="relative z-10 h-[100dvh] w-full overflow-hidden bg-white">
         {/* Vídeos da cadeia — desktop e mobile compartilham os mesmos clipes.
             Cada segmento tem um clipe forward e um reverso gravado. */}
         <video
@@ -1051,19 +1214,19 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         />
 
         {/* z-30 — texto do Ato 1 */}
-        <Container className="absolute inset-0 z-30 flex h-full items-start pt-[10vh] md:pt-0 md:items-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
+        <Container className="absolute inset-0 z-30 flex h-full items-start pt-[7dvh] md:pt-0 md:items-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
           <div ref={act1Ref} className="flex max-w-[88vw] md:max-w-[24rem] xl:max-w-[28rem] flex-col items-start bg-transparent p-0">
-            <span data-a1 className="text-eyebrow mb-sm md:mb-md text-[10px] xl:text-xs uppercase tracking-[0.18em] text-primary">
+            <span data-a1 className="text-eyebrow mb-1 md:mb-md text-[10px] xl:text-xs uppercase tracking-[0.18em] text-primary">
               {t('eyebrow')}
             </span>
             <div>
-              <BicolorTitle data-a1-title title={t('title')} titleHi={t('titleHi')} className="text-[clamp(1.75rem,7vw,3.75rem)] md:text-[clamp(1.75rem,3.2vw,3.75rem)]" />
+              <BicolorTitle data-a1-title title={t('title')} titleHi={t('titleHi')} className="text-[clamp(1.35rem,5.5vw,2.25rem)] md:text-[clamp(1.75rem,3.2vw,3.75rem)]" />
             </div>
-            <div data-a1 className="mt-sm md:mt-md xl:mt-lg max-w-[22rem] md:max-w-none">
-              <p className="text-subtitle text-sm xl:text-base text-foreground/80">{t('body1')}</p>
-              <p className="text-subtitle mt-1 md:mt-sm text-sm xl:text-base text-foreground/80">{t('body2')}</p>
+            <div data-a1 className="mt-1.5 md:mt-md xl:mt-lg max-w-[22rem] md:max-w-none">
+              <p className="text-subtitle text-xs md:text-sm xl:text-base text-foreground/80 leading-snug md:leading-normal">{t('body1')}</p>
+              <p className="text-subtitle mt-1 text-xs md:text-sm xl:text-base text-foreground/80 leading-snug md:leading-normal">{t('body2')}</p>
             </div>
-            <span data-a1 className="text-eyebrow mt-xl md:mt-xl xl:mt-2xl text-sm xl:text-[11px] uppercase tracking-[0.16em] text-foreground/45">
+            <span data-a1 className="text-eyebrow mt-2 md:mt-xl xl:mt-2xl text-[10px] md:text-sm xl:text-[11px] uppercase tracking-[0.16em] text-foreground/45">
               {t('footerTag')}
             </span>
           </div>
@@ -1089,33 +1252,33 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         {/* UI do Ato 3 — mesmo desenho do Ato 1: coluna de texto à esquerda, frasco em cena.
             No mobile o bloco de prova (número + handoff + CTA) desce para o rodapé da tela,
             deixando o frasco visível no meio. */}
-        <Container className="relative lg:absolute lg:inset-0 z-30 flex min-h-[100dvh] lg:min-h-0 h-auto lg:h-full items-stretch md:items-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pointer-events-none pt-[8vh] md:pt-0 pb-[8vh] md:pb-0">
-          <div ref={leftPanelRef} className="pointer-events-auto flex w-full flex-1 md:flex-none md:w-auto max-w-full md:max-w-[24rem] xl:max-w-[28rem] flex-col items-start">
-            <span data-a3-tag className="text-eyebrow mb-sm md:mb-md text-[10px] xl:text-xs uppercase tracking-[0.18em] text-primary">
+        <Container className="relative lg:absolute lg:inset-0 z-30 flex min-h-[100dvh] lg:min-h-0 h-auto lg:h-full items-stretch md:items-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pointer-events-none pt-[7dvh] md:pt-0 pb-[8vh] md:pb-0">
+          {/* pointer-events fica desligado: no mobile este painel é `relative`
+              e cobre a tela inteira por cima do Ato 1 — ligado, virava uma
+              camada invisível engolindo toque e seleção do texto do Ato 1. */}
+          <div ref={leftPanelRef} className="pointer-events-none flex w-full flex-1 md:flex-none md:w-auto max-w-full md:max-w-[24rem] xl:max-w-[28rem] flex-col items-start">
+            <span data-a3-tag className="text-eyebrow mb-1 md:mb-md text-[10px] xl:text-xs uppercase tracking-[0.18em] text-primary">
               {t('a3Eyebrow')}
             </span>
-            <BicolorTitle data-a3-title title={t('a3Title')} titleHi={t('a3TitleHi')} className="text-[clamp(1.75rem,7vw,3.75rem)] md:text-[clamp(1.75rem,3.2vw,3.75rem)]" />
-            <p data-a3-body className="text-subtitle mt-sm md:mt-md max-w-[22rem] md:max-w-none text-sm xl:text-base text-foreground/80">
+            <BicolorTitle data-a3-title title={t('a3Title')} titleHi={t('a3TitleHi')} className="text-[clamp(1.35rem,5.5vw,2.25rem)] md:text-[clamp(1.75rem,3.2vw,3.75rem)]" />
+            <p data-a3-body className="text-subtitle mt-1.5 md:mt-md max-w-[22rem] md:max-w-none text-xs md:text-sm xl:text-base text-foreground/80 leading-snug md:leading-normal">
               {t('a3Body')}
             </p>
             <div className="mt-auto md:mt-0 flex flex-col items-start">
-              <div data-a3-line className="my-md md:my-lg h-px w-10 md:w-12 bg-primary/40" style={{ transformOrigin: 'left' }} />
-              <div data-a3-stat className="flex flex-col gap-1">
-                <span className="text-highlight text-2xl md:text-3xl xl:text-4xl text-primary"><span ref={counterRef}>{t('a3StatPrefix')}10</span> {t('a3StatUnit')}</span>
-                <span className="text-subtitle text-sm text-foreground/80">{t('a3StatLabel')}</span>
-                <span className="text-[11px] text-foreground/50">{t('a3StatSource')}</span>
+              <div data-a3-line className="my-2 md:my-lg h-px w-10 md:w-12 bg-primary/40" style={{ transformOrigin: 'left' }} />
+              <div data-a3-stat className="flex flex-col gap-0.5">
+                <span className="text-highlight text-xl md:text-3xl xl:text-4xl text-primary"><span ref={counterRef}>{t('a3StatPrefix')}10</span> {t('a3StatUnit')}</span>
+                <span className="text-subtitle text-xs md:text-sm text-foreground/80">{t('a3StatLabel')}</span>
+                <span className="text-[10px] md:text-[11px] text-foreground/50">{t('a3StatSource')}</span>
               </div>
             </div>
           </div>
         </Container>
 
-        <BottleCallout refEl={newCalloutRef} eyebrow={t('a3Eyebrow')} className="max-md:!top-[25vh] max-md:!bottom-auto">
+        <BottleCallout refEl={newCalloutRef} eyebrow={t('a3Eyebrow')} className="max-md:!top-[26dvh] max-md:!bottom-auto">
           {t('newBottleCaption')}
         </BottleCallout>
       </section>
-
-      {/* Pista de pouso */}
-      <div aria-hidden className="pointer-events-none w-full h-[100dvh]" />
     </div>
   )
 }

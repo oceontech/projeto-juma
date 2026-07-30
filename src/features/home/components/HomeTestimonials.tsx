@@ -3,6 +3,7 @@
 import { CheckCircle2 } from 'lucide-react'
 
 import React, { useRef, useState, useEffect } from 'react'
+import Image from 'next/image'
 import { gsap, SplitText } from '@/features/animation/gsap'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
@@ -187,9 +188,11 @@ export const TestimonialsColumn = (props: {
               </p>
               <div className="flex items-center gap-3 pt-2" style={{ borderTop: '1px solid rgba(0,0,0,.06)' }}>
                 {item.image ? (
-                  <img
+                  <Image
                     src={item.image}
                     alt={item.name}
+                    width={40}
+                    height={40}
                     className="w-10 h-10 rounded-full object-cover flex-shrink-0"
                   />
                 ) : (

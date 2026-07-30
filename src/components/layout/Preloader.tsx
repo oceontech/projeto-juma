@@ -2,7 +2,63 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { gsap } from '@/features/animation/gsap'
+import { gsap, ScrollTrigger } from '@/features/animation/gsap'
+
+/**
+ * Aquecedor e pré-carregador de recursos críticos.
+ * Na Home: pré-decodifica imagens da Hero na GPU e pré-carrega o buffer do vídeo.
+ */
+const preloadCriticalAssets = async () => {
+  if (typeof window === 'undefined') return
+
+  const isMobile = window.innerWidth < 1024
+  const imagesToDecode = isMobile
+    ? ['/hero/mobile/frame-1-campo.png', '/hero/mobile/overlay-folhas.png']
+    : ['/hero/desktop/frame-1-campo.png', '/hero/desktop/overlay-folhas.png']
+
+  // 1. Decodificação de Imagens da Hero na GPU
+  const imgPromises = imagesToDecode.map((src) => {
+    return new Promise<void>((resolve) => {
+      const img = new Image()
+      img.src = src
+      if (typeof img.decode === 'function') {
+        img.decode().then(resolve).catch(() => resolve())
+      } else if ((img as HTMLImageElement).complete) {
+        resolve()
+      } else {
+        img.onload = () => resolve()
+        img.onerror = () => resolve()
+      }
+    })
+  })
+
+  // 2. Buffer do Vídeo da Hero Ativa
+  const videoPromise = new Promise<void>((resolve) => {
+    const video = document.querySelector<HTMLVideoElement>(
+      `video[data-hero-video="${isMobile ? 'mobile' : 'desktop'}"]`
+    )
+    if (!video) return resolve()
+
+    if (video.readyState >= 2) {
+      resolve()
+    } else {
+      if (video.preload !== 'auto') {
+        video.preload = 'auto'
+        video.load()
+      }
+      const onLoaded = () => {
+        video.removeEventListener('loadeddata', onLoaded)
+        video.removeEventListener('canplay', onLoaded)
+        resolve()
+      }
+      video.addEventListener('loadeddata', onLoaded)
+      video.addEventListener('canplay', onLoaded)
+      setTimeout(resolve, 1200) // Limite de 1.2s para o vídeo
+    }
+  })
+
+  await Promise.allSettled([...imgPromises, videoPromise])
+}
 
 export function Preloader() {
   const pathname = usePathname()
@@ -103,6 +159,11 @@ export function Preloader() {
     gsap.set(overlayRef.current, { opacity: 1 })
 
     const dismiss = () => {
+      // Atualiza o ScrollTrigger com o layout pronto antes de tirar a cortina
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh()
+      })
+
       // Revela o conteúdo da página antes de o overlay sumir.
       revealBody()
       gsap.to(overlayRef.current, {
@@ -113,15 +174,18 @@ export function Preloader() {
       })
     }
 
-    // Dispensa assim que as fontes carregarem (evita FOUC) — não espera o
-    // evento 'load' da janela, que só dispara depois de TODO recurso da
-    // página terminar (inclusive vídeos e imagens fora da viewport inicial),
-    // o que prendia a página inteira invisível por vários segundos.
     let cancelled = false
     const fontsReady = document.fonts?.ready ?? Promise.resolve()
-    const minShow = new Promise<void>((resolve) => setTimeout(resolve, 500))
+    const minShow = new Promise<void>((resolve) => setTimeout(resolve, 550))
+    const assetsReady = preloadCriticalAssets()
 
-    Promise.all([fontsReady, minShow]).then(() => {
+    // Limite máximo de espera (2000ms) para nunca prender conexões lentas
+    const maxWait = new Promise<void>((resolve) => setTimeout(resolve, 2000))
+
+    Promise.race([
+      Promise.all([fontsReady, minShow, assetsReady]),
+      maxWait
+    ]).then(() => {
       if (!cancelled) dismiss()
     })
 
