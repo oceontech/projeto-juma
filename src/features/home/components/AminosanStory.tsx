@@ -299,7 +299,10 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
  * Cada transição é um par de clipes (forward + reverso gravado) tocado com
  * play() nativo — os clipes não têm keyframes densos o bastante para scrub
  * manual de currentTime ficar fluido (ver comentário do syncVideos).
- * Durante cada transição o scroll é travado; depois é liberado.
+ * Durante cada transição o scroll é travado; depois é liberado. O gesto
+ * contrário no meio de uma transição não é engolido: vira o clipe no frame em
+ * que ele está e o leva de volta à outra ponta do mesmo segmento (a tela segue
+ * travada durante o reverso) — mesmo contrato do HeroJornada.
  */
 
 function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
@@ -677,7 +680,13 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         animFrame = requestAnimationFrame(tick)
       }
 
-      const startPlayback = (dir: 'forward' | 'backward', target: number) => {
+      /* `midFlight` = esta chamada está virando um clipe que já estava tocando
+         (o gesto contrário chegou no meio da transição). O tempo do vídeo não é
+         tocado em nenhum dos casos — é isso que faz o reverso sair do frame
+         exato em que o usuário deu o gesto. A diferença está só nos stills:
+         partindo do repouso é preciso trocar still → vídeo; em pleno voo o
+         vídeo já está em cena e repor o still daria flash. */
+      const startPlayback = (dir: 'forward' | 'backward', target: number, midFlight = false) => {
         const video = videoRef.current
         if (!video) return
         if (animFrame) cancelAnimationFrame(animFrame)
@@ -690,8 +699,16 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         if (dir === 'forward') {
           gsap.set(video, { autoAlpha: 1, zIndex: 1 })
           if (step === 1) {
-            gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: 1, yPercent: 0, filter: 'blur(0px)' })
-            gsap.to(oldImg, { autoAlpha: 0, scale: 0.992, filter: 'blur(4px)', duration: 0.24, ease: 'power1.inOut', overwrite: 'auto' })
+            if (midFlight) {
+              // O morph já está em andamento: o frasco antigo saiu de cena e o
+              // frame atual do vídeo é quem manda. Repor o still em autoAlpha 1
+              // para fadear de novo piscaria o frasco antigo por cima dele.
+              gsap.killTweensOf(oldImg)
+              gsap.set(oldImg, { autoAlpha: 0 })
+            } else {
+              gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: 1, yPercent: 0, filter: 'blur(0px)' })
+              gsap.to(oldImg, { autoAlpha: 0, scale: 0.992, filter: 'blur(4px)', duration: 0.24, ease: 'power1.inOut', overwrite: 'auto' })
+            }
             hideAct1UI(false)
             showAct3UI(0.6)
           } else if (step === 2) {
@@ -887,13 +904,34 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       })
 
       /* ── Máquina de atos dirigida por GESTO (mesmo contrato do HeroJornada)
-         Um gesto = um ato, sempre inteiro. Enquanto a seção está pinada o
-         scroll nativo é cancelado, então a força do flick não tem para onde
-         escapar: quem posiciona a página é o snapToPhase, no pixel da fase. */
+         Um gesto = um ato — inteiro, ou virado no meio pelo gesto contrário
+         (nunca parcial: as duas pontas do segmento são fases de repouso).
+         Enquanto a seção está pinada o scroll nativo é cancelado, então a força
+         do flick não tem para onde escapar: quem posiciona a página é o
+         snapToPhase, no pixel da fase. */
 
       const canStep = () => !playing && !releasing && performance.now() >= cooldownRef.current
 
+      /* Reversão em pleno voo (mesmo contrato do HeroJornada): o gesto contrário
+         chegando no meio de uma transição não é engolido — vira o clipe no frame
+         em que ele está e o leva de volta à outra ponta do MESMO segmento.
+         Quem diz qual é essa outra ponta é `step` (o índice de destino, estável),
+         nunca `phase` — `phase` é derivado do currentTime pelo updateActivePhase e
+         já derivou no meio do caminho.
+         O cooldown fica só no caminho a partir do repouso: virar um clipe é
+         resposta imediata, e um gesto longo (vários eventos de wheel no mesmo
+         sentido) vira uma única vez, porque os eventos seguintes já estão no
+         mesmo sentido do clipe e caem no no-op. */
       const stepForward = () => {
+        if (releasing) return
+        if (playing) {
+          if (direction !== 'backward') return
+          const next = step + 1
+          if (next > LAST) return
+          step = next
+          startPlayback('forward', targets[next], true)
+          return
+        }
         if (!canStep()) return
         const i = PHASES.indexOf(phase)
         if (i >= LAST) return
@@ -902,6 +940,15 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       }
 
       const stepBackward = () => {
+        if (releasing) return
+        if (playing) {
+          if (direction !== 'forward') return
+          const prev = step - 1
+          if (prev < 0) return
+          step = prev
+          startPlayback('backward', targets[prev], true)
+          return
+        }
         if (!canStep()) return
         const i = PHASES.indexOf(phase)
         if (i <= 0) return

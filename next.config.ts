@@ -11,6 +11,9 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
 const nextConfig: NextConfig = {
   images: {
+    // Next 16 só serve as qualidades listadas (padrão [75]) — sem o 90 aqui o
+    // otimizador responde 400 para os frascos do catálogo da home.
+    qualities: [75, 90],
     localPatterns: [
       {
         pathname: '/api/media/file/**',

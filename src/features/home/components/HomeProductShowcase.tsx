@@ -69,7 +69,9 @@ const PRODUCTS: ProductEntry[] = [
     accent: '#7fd0f2',
     sizes: ['1L', '10L', '20L'],
     href: '/produtos/aminosan',
-    image: '/produtos/aminosan-catalogo.png',
+    // Recorte justo 1000×1000, igual aos outros três — o frame do vídeo
+    // (aminosan-catalogo.png, 1777×1000) fica só na ponte de transição.
+    image: '/produtos/aminosan-destaque.png',
   },
   {
     name: 'ACORDA ULTRA',
@@ -125,6 +127,66 @@ const PRODUCTS: ProductEntry[] = [
 ]
 
 const COUNT = PRODUCTS.length
+
+/* ── Ponte de geometria com a seção Aminosan ───────────────────────────
+   O vídeo de transição termina num frame 16:9 servido como imagem
+   (`aminosan-catalogo.png`, 1777×1000: o trio pequeno no meio de muita
+   margem vazia) e o catálogo mostra o MESMO render recortado justo
+   (`aminosan-destaque.png`, 1000×1000). As frações abaixo são o retângulo
+   alpha da arte dentro de cada canvas — sem elas não há como sobrepor os
+   dois, porque as caixas têm proporções diferentes e a arte nunca cai no
+   mesmo lugar. Medidas sobre o alpha dos PNGs; refazer se o asset mudar. */
+const HANDOFF_ART = {
+  /** /produtos/aminosan-catalogo.png — frame final do vídeo */
+  still: { x: 0.3292, y: 0.344, w: 0.3455, h: 0.489 },
+  /** /produtos/aminosan-destaque.png — frasco do catálogo */
+  bottle: { x: 0.055, y: 0.144, w: 0.891, h: 0.711 },
+} as const
+
+type ArtBox = { x: number; y: number; w: number; h: number }
+
+/** Centro e altura (px de viewport) onde a ARTE de um <img> aparece de fato.
+ *  Resolve o object-fit e já vem com os transforms aplicados, então serve
+ *  para alinhar dois elementos de caixas completamente diferentes. */
+function artRect(img: HTMLImageElement | null, art: ArtBox) {
+  if (!img) return null
+  const nw = img.naturalWidth
+  const nh = img.naturalHeight
+  const box = img.getBoundingClientRect()
+  if (!nw || !nh || !box.width || !box.height) return null
+  const cover = getComputedStyle(img).objectFit === 'cover'
+  const fit = cover
+    ? Math.max(box.width / nw, box.height / nh)
+    : Math.min(box.width / nw, box.height / nh)
+  const cw = nw * fit
+  const ch = nh * fit
+  const left = box.left + (box.width - cw) / 2
+  const top = box.top + (box.height - ch) / 2
+  return {
+    cx: left + (art.x + art.w / 2) * cw,
+    cy: top + (art.y + art.h / 2) * ch,
+    h: art.h * ch,
+  }
+}
+
+/** Geometria do still idêntica ao frame final do vídeo do Aminosan.
+ *  O breakpoint aqui é 1024px — o `max-lg:` das classes do trio na seção de
+ *  cima —, e não o 767px do layout do catálogo: usar o do catálogo fazia
+ *  telas de 768–1023px abrirem a transição num tamanho que o vídeo nunca
+ *  mostrou, e o corte aparecia logo no primeiro frame. */
+function stillFullFrameProps(): gsap.TweenVars {
+  const narrow = window.innerWidth < 1024
+  return {
+    left: 0,
+    top: narrow ? '22dvh' : 0,
+    width: '100%',
+    height: narrow ? '60dvh' : '100%',
+    scale: narrow ? 1.45 : 1,
+    x: 0,
+    y: 0,
+    filter: 'blur(0px)',
+  }
+}
 
 /* ── Carrossel de frascos — funções de posição ────────────────── */
 
@@ -258,8 +320,11 @@ function getRoleProps(role: Role, isMobile: boolean, index: number): RoleProps {
   }
 }
 
-function getVisibleRoleProps(role: Role, isMobile: boolean, index: number): RoleProps {
-  const props = getRoleProps(role, isMobile, index)
+/* Todos os frascos usam a mesma caixa (68vh, contido): os quatro assets são
+   1000×1000 com a arte recortada justa, então o tamanho na tela sai igual
+   sem fator de correção por produto. */
+function getCatalogBottleProps(index: number, active: number, isMobile: boolean): RoleProps {
+  const props = getRoleProps(getRole(index, active), isMobile, index)
   return {
     bottom: '8vh',
     width: 'auto',
@@ -267,105 +332,6 @@ function getVisibleRoleProps(role: Role, isMobile: boolean, index: number): Role
     y: -20,
     ...props,
     autoAlpha: props.opacity ?? 1,
-  }
-}
-
-function getCatalogBottleProps(index: number, active: number, isMobile: boolean): RoleProps {
-  const role = getRole(index, active)
-  const props = getVisibleRoleProps(role, isMobile, index)
-  
-  if (isMobile) {
-    if (index === 0) {
-      if (role === 'center') {
-        return {
-          ...props,
-          scale: 2.4,
-        }
-      }
-      if (role === 'left' || role === 'right') {
-        return {
-          ...props,
-          scale: 0.34 * 2.4,
-        }
-      }
-      if (role === 'hidden') {
-        return {
-          ...props,
-          scale: 0.28 * 2.4,
-        }
-      }
-    }
-    return props
-  }
-
-  if (index === 0 && role === 'center') {
-    return { 
-      ...getFullFrameBottleProps(), 
-      scale: 0.85, 
-      y: -37, 
-      zIndex: 20 
-    }
-  }
-  if (index === 0 && role === 'left') {
-    return {
-      ...props,
-      left: '38%',
-      width: '46vw',
-      height: '68vh',
-      y: 20,
-      yPercent: 10,
-      scale: 0.9,
-      opacity: 0.55,
-      autoAlpha: 0.55,
-      zIndex: 9,
-    }
-  }
-  if (index === 0 && role === 'right') {
-    return {
-      ...props,
-      left: '62%',
-      width: '46vw',
-      height: '68vh',
-      y: 20,
-      yPercent: 10,
-      scale: 0.9,
-      opacity: 0.55,
-      autoAlpha: 0.55,
-      zIndex: 9,
-    }
-  }
-  if (index === 0 && role === 'hidden') {
-    return {
-      ...props,
-      width: '46vw',
-      height: '68vh',
-      y: 20,
-      yPercent: 10,
-      scale: 0.61,
-      opacity: 0,
-      autoAlpha: 0,
-      zIndex: 1,
-    }
-  }
-  return props
-}
-
-function getFullFrameBottleProps(): RoleProps {
-  return {
-    left: '50%',
-    xPercent: -50,
-    x: 0,
-    yPercent: 0,
-    top: '0vh',
-    bottom: 'auto',
-    width: '100%',
-    height: '100dvh',
-    scale: 1,
-    filter: 'blur(0px)',
-    autoAlpha: 1,
-    opacity: 1,
-    zIndex: 4,
-    transformOrigin: 'center center',
   }
 }
 
@@ -478,27 +444,6 @@ export function HomeProductShowcase() {
         stats: el.querySelectorAll('.pcs-stat-row'),
       })
 
-      const setAminosanFrameMode = (fullFrame: boolean) => {
-        const bottle = bottles[0]
-        const wrap = bottle?.querySelector<HTMLElement>('.pcs-bottle-wrap')
-        const img = bottle?.querySelector<HTMLImageElement>('.pcs-bottle')
-        if (!wrap || !img) return
-
-        if (fullFrame) {
-          const isMobileNow = window.innerWidth < 1024
-          gsap.set(wrap, { width: '100%', height: '100%', overflow: 'visible' })
-          gsap.set(img, {
-            width: '100%',
-            height: '100%',
-            objectFit: isMobileNow ? 'contain' : 'cover',
-            objectPosition: '50% 50%',
-          })
-          return
-        }
-
-        gsap.set(wrap, { clearProps: 'width,height,overflow' })
-        gsap.set(img, { clearProps: 'width,height,objectFit,objectPosition' })
-      }
       const mm = gsap.matchMedia()
 
       mm.add(
@@ -533,7 +478,6 @@ export function HomeProductShowcase() {
           bottles.forEach((bottle, i) => {
             gsap.set(bottle, getCatalogBottleProps(i, startIndex, isMobile))
           })
-          setAminosanFrameMode(true)
           gsap.set(handoffStillRef.current, { autoAlpha: 0, scale: 1, filter: 'blur(0px)' })
 
           // Spotlight: fade-in inicial — desktop
@@ -619,9 +563,7 @@ export function HomeProductShowcase() {
               )
 
             // Carrossel de frascos
-            if (index === 0) setAminosanFrameMode(true)
             if (from === 0 && index !== 0) {
-              setAminosanFrameMode(true)
               gsap.set(bottles[0], {
                 ...getCatalogBottleProps(0, from, isMobile),
                 autoAlpha: 1,
@@ -741,11 +683,59 @@ export function HomeProductShowcase() {
             gsap.to(spotlightRef.current, { opacity: 0.5, duration: 0.4, overwrite: 'auto' })
             gsap.to(mobileSpotlightRef.current, { opacity: 0.85, duration: 0.4, overwrite: 'auto' })
             bottles.forEach((b, bi) => gsap.set(b, getCatalogBottleProps(bi, i, isMobile)))
-            setAminosanFrameMode(true)
             gsap.set(handoffStillRef.current, { autoAlpha: 0 })
             const p = parts(products[i])
             gsap.set([p.text, p.cta, ...p.stats], { autoAlpha: 1, x: 0, y: 0 })
           }
+
+          /* ── Ponte com o frame final do vídeo ──────────────────────
+             Mede onde a arte do trio cai no still (frame 16:9 full-bleed) e
+             onde ela cai no frasco em repouso no catálogo (68vh contido), e
+             devolve o transform que faz os dois coincidirem pixel a pixel.
+             Medir em vez de chutar números é o que faz a transição fechar em
+             qualquer viewport: as duas caixas têm proporção diferente, então
+             uma escala fixa acerta numa tela e erra em todas as outras. */
+          const measureBridge = () => {
+            const catalogCenter = getCatalogBottleProps(0, 0, isMobile)
+            const bottle = bottles[0]
+            const still = handoffStillRef.current
+            const fallback = { catalogCenter, start: null as RoleProps | null }
+            if (!bottle || !still) return fallback
+
+            const bottleImg = bottle.querySelector<HTMLImageElement>('.pcs-bottle')
+            gsap.set(bottle, { ...catalogCenter, autoAlpha: 0, opacity: 0 })
+            const rest = artRect(bottleImg, HANDOFF_ART.bottle)
+            gsap.set(still, stillFullFrameProps())
+            const frame = artRect(still, HANDOFF_ART.still)
+            if (!rest || !frame || rest.h < 1) return fallback
+
+            const baseX = typeof catalogCenter.x === 'number' ? catalogCenter.x : 0
+            const baseY = typeof catalogCenter.y === 'number' ? catalogCenter.y : 0
+            const scale = (catalogCenter.scale ?? 1) * (frame.h / rest.h)
+            // Segunda medição: o transform-origin do frasco não é o centro da
+            // caixa, então o resíduo de posição depois de escalar sai medido,
+            // não previsto — é o que evita o pulinho no fim do dissolve.
+            gsap.set(bottle, { scale })
+            const probe = artRect(bottleImg, HANDOFF_ART.bottle)
+            if (!probe) return fallback
+
+            return {
+              catalogCenter,
+              start: {
+                ...catalogCenter,
+                scale,
+                x: baseX + (frame.cx - probe.cx),
+                y: baseY + (frame.cy - probe.cy),
+              } as RoleProps,
+            }
+          }
+
+          /** Só o transform — o resto da caixa é igual nas duas pontas. */
+          const bridgeTransform = (props: RoleProps) => ({
+            scale: props.scale ?? 1,
+            x: typeof props.x === 'number' ? props.x : 0,
+            y: typeof props.y === 'number' ? props.y : 0,
+          })
 
           const prepareHandoffIn = () => {
             handingOff = true
@@ -760,14 +750,11 @@ export function HomeProductShowcase() {
               '--pcs-accent': PRODUCTS[0].accent,
             })
             gsap.set(handoffStillRef.current, {
+              ...stillFullFrameProps(),
               autoAlpha: 1,
               opacity: 1,
-              scale: 1,
-              y: 0,
               zIndex: 30,
-              filter: 'blur(0px)',
             })
-            setAminosanFrameMode(true)
             gsap.set([p0.text, p0.cta, ...p0.stats], { autoAlpha: 0 })
             gsap.set([spotlightRef.current, mobileSpotlightRef.current], { opacity: 0 })
             bottles.forEach((bottle, i) =>
@@ -864,7 +851,11 @@ export function HomeProductShowcase() {
           /* ── Handoff vindo da seção Aminosan ───────────────────────
              O vídeo de transição termina no trio Aminosan sobre fundo
              branco; o catálogo entra branco e a cor + textos do produto 0
-             aparecem gradualmente enquanto o auto-scroll assenta no pin. */
+             aparecem gradualmente enquanto o auto-scroll assenta no pin.
+             O frasco de verdade já entra em cena sobreposto ao frame do
+             vídeo e faz o caminho até o repouso do catálogo num tween só —
+             não existe mais troca de elemento no meio (era ela que dava o
+             salto de tamanho e a queda de nitidez). */
           const runHandoffIn = () => {
             handingOff = true
             leavingUp = false
@@ -883,22 +874,6 @@ export function HomeProductShowcase() {
             })
             gsap.set([p0.text, p0.cta, ...p0.stats], { autoAlpha: 0 })
             gsap.set([spotlightRef.current, mobileSpotlightRef.current], { opacity: 0 })
-            gsap.set(handoffStillRef.current, {
-              autoAlpha: 1,
-              opacity: 1,
-              scale: 1,
-              y: 0,
-              zIndex: 30,
-              filter: 'blur(0px)',
-            })
-            setAminosanFrameMode(true)
-            bottles.forEach((bottle, i) => {
-              gsap.set(bottle, {
-                ...getCatalogBottleProps(i, 0, isMobile),
-                autoAlpha: 0,
-                opacity: 0,
-              })
-            })
             // Durante o handoff o frame 16:9 cobre o produto 0; depois o teatro assume.
             products.forEach((el, i) => {
               if (i === 0) return
@@ -906,54 +881,58 @@ export function HomeProductShowcase() {
               gsap.set([p.text, p.cta, ...p.stats], { autoAlpha: 0 })
             })
 
-            const catalogCenter = getCatalogBottleProps(0, 0, isMobile)
+            // measureBridge deixa o still no frame do vídeo e devolve o
+            // transform em que a arte do frasco 0 cai exatamente sobre ele.
+            const { catalogCenter, start } = measureBridge()
+            bottles.forEach((bottle, i) => {
+              if (i === 0) return
+              gsap.set(bottle, {
+                ...getCatalogBottleProps(i, 0, isMobile),
+                autoAlpha: 0,
+                opacity: 0,
+              })
+            })
+            gsap.set(bottles[0], { ...(start ?? catalogCenter), autoAlpha: 1, opacity: 1 })
+            gsap.set(handoffStillRef.current, {
+              ...stillFullFrameProps(),
+              autoAlpha: 1,
+              opacity: 1,
+              zIndex: 30,
+            })
+
             const tl = gsap.timeline({
               defaults: { overwrite: 'auto' },
               onComplete: () => {
                 if (bottles[0]) gsap.set(bottles[0], { ...catalogCenter, autoAlpha: 1, opacity: 1 })
                 gsap.set(handoffStillRef.current, {
+                  ...stillFullFrameProps(),
                   autoAlpha: 0,
                   opacity: 0,
-                  scale: 1,
-                  y: 0,
                   zIndex: 3,
-                  filter: 'blur(0px)',
                 })
                 handingOff = false
               },
             })
             transitionTl = tl
-            gsap.set(bottles[0], { ...catalogCenter, autoAlpha: 0, opacity: 0 })
-            gsap.set(handoffStillRef.current, {
-              autoAlpha: 1,
-              opacity: 1,
-              scale: isMobile ? 1.45 : 1,
-              top: isMobile ? '22dvh' : 0,
-              height: isMobile ? '60dvh' : '100%',
-              y: 0,
-              zIndex: 30,
-              filter: 'blur(0px)',
-            })
-            tl.to(
-              handoffStillRef.current,
-              {
-                scale: catalogCenter.scale,
-                top: isMobile ? '33vh' : 0,
-                height: isMobile ? '68vh' : '100%',
-                y: catalogCenter.y ?? 0,
-                duration: 0.58,
-                ease: 'power2.out',
-              },
-              0,
-            )
-            tl.set(bottles[0], { ...catalogCenter, autoAlpha: 1, opacity: 1 }, 0.58)
-            tl.set(handoffStillRef.current, { autoAlpha: 0, opacity: 0, zIndex: 3 }, 0.58)
+
+            // Dissolve curto entre o frame do vídeo (baixa resolução, é um
+            // still 16:9) e o frasco em alta — como estão sobrepostos, a troca
+            // não se vê; o que se percebe é a imagem ganhando nitidez.
+            tl.to(handoffStillRef.current, { autoAlpha: 0, duration: 0.26, ease: 'power1.out' }, 0)
+            tl.set(handoffStillRef.current, { zIndex: 3 }, 0.26)
+            if (start) {
+              tl.to(
+                bottles[0],
+                { ...bridgeTransform(catalogCenter), duration: 0.85, ease: 'power2.inOut' },
+                0.06,
+              )
+            }
             bottles.forEach((bottle, i) => {
               if (i === 0) return
               tl.to(
                 bottle,
                 { ...getCatalogBottleProps(i, 0, isMobile), duration: 0.6, ease: 'power2.out' },
-                0.08,
+                0.18,
               )
             })
             tl.to(
@@ -1013,13 +992,13 @@ export function HomeProductShowcase() {
             ScrollTrigger.update()
             leavingUp = true
             const p0 = parts(products[0])
-            // Simétrico à entrada: primeiro prepara o catálogo para casar com o
-            // frame final do vídeo de transição (mesmo trio, mas full-frame e
-            // sobre branco) — tira a cor, some com os textos e amplia o trio.
-            // Só então salta INSTANTANEAMENTE para o stage do Aminosan e manda
-            // tocar o clipe em reverso. O wheel/tecla no produto 0 já vêm com
-            // preventDefault (pin ativo), então a página fica parada durante o
-            // preparo — sem o "tranco" do scroll suave anterior.
+            // Simétrico à entrada: o próprio frasco do catálogo volta ao
+            // tamanho e à posição do trio no frame final do vídeo (mesma
+            // medição da entrada, só de trás pra frente), o still aparece por
+            // cima já alinhado e só então a página salta INSTANTANEAMENTE
+            // para o stage do Aminosan, que toca o clipe em reverso. O
+            // wheel/tecla no produto 0 já vêm com preventDefault (pin ativo),
+            // então a página fica parada durante o preparo.
             const tl = gsap.timeline({
               defaults: { overwrite: 'auto' },
               onComplete: () => {
@@ -1046,23 +1025,16 @@ export function HomeProductShowcase() {
               },
             })
             transitionTl = tl
-            const catalogCenter = getCatalogBottleProps(0, 0, isMobile)
 
-            tl.set(
-              handoffStillRef.current,
-              {
-                autoAlpha: 1,
-                opacity: 1,
-                zIndex: 30,
-                filter: 'blur(0px)',
-                scale: catalogCenter.scale,
-                top: 0,
-                height: '100%',
-                y: catalogCenter.y ?? 0,
-              },
-              0,
-            )
-            tl.set(bottles[0], { autoAlpha: 0, opacity: 0 }, 0)
+            const { catalogCenter, start } = measureBridge()
+            gsap.set(bottles[0], { ...catalogCenter, autoAlpha: 1, opacity: 1 })
+            gsap.set(handoffStillRef.current, {
+              ...stillFullFrameProps(),
+              autoAlpha: 0,
+              opacity: 0,
+              zIndex: 30,
+            })
+
             tl.to(
               root,
               {
@@ -1087,18 +1059,17 @@ export function HomeProductShowcase() {
               if (i === 0) return
               tl.to(bottle, { autoAlpha: 0, opacity: 0, duration: 0.28, ease: 'power2.in' }, 0)
             })
-            tl.to(
-              handoffStillRef.current,
-              {
-                scale: isMobile ? 1.45 : 1,
-                top: isMobile ? '22dvh' : 0,
-                height: isMobile ? '60dvh' : '100%',
-                y: 0,
-                duration: 0.58,
-                ease: 'power2.inOut',
-              },
-              0,
-            )
+            if (start) {
+              tl.to(
+                bottles[0],
+                { ...bridgeTransform(start), duration: 0.58, ease: 'power2.inOut' },
+                0,
+              )
+            }
+            // Só depois de alinhado o still assume — o salto para a seção de
+            // cima acontece com o frame do vídeo já cobrindo a tela.
+            tl.to(handoffStillRef.current, { autoAlpha: 1, duration: 0.26, ease: 'power1.in' }, 0.32)
+            tl.set(bottles[0], { autoAlpha: 0, opacity: 0 }, 0.58)
           }
 
           // Snap ao parar de rolar (detecção própria de inatividade — o
@@ -1362,17 +1333,26 @@ export function HomeProductShowcase() {
         />
 
         <div className="pcs-stage">
-          {/* Still de ponte entre o vídeo branco e o catálogo. */}
+          {/* Still de ponte entre o vídeo branco e o catálogo — mesmo asset e
+              mesmo `sizes` do trio na seção Aminosan (1777×1000), para o
+              browser reaproveitar o arquivo já baixado lá e a ponte começar
+              exatamente no frame em que o vídeo parou.
+              O object-fit repete token por token o do trio lá
+              (`STAGE_IMAGE_CLASS`): entre 768 e 1023px o `md:!object-cover`
+              vence o `max-lg:!object-contain` (vem depois na folha, mesma
+              especificidade), então usar só `object-cover max-lg:object-contain`
+              deixava essa faixa começando com um recorte que o vídeo nunca
+              mostrou. A ponte lê o object-fit computado, então acompanha. */}
           <Image
             ref={handoffStillRef as any}
             src="/produtos/aminosan-catalogo.png"
             alt=""
             aria-hidden="true"
             draggable={false}
-            width={1200}
-            height={1500}
-            sizes="(min-width: 1024px) 50vw, 100vw"
-            className="pointer-events-none absolute inset-0 z-[3] h-full w-full object-cover max-lg:top-[22dvh] max-lg:h-[60dvh] max-lg:object-contain opacity-0"
+            width={1777}
+            height={1000}
+            sizes="100vw"
+            className="pointer-events-none absolute inset-0 z-[3] h-full w-full max-lg:top-[22dvh] max-lg:h-[60dvh] object-cover md:!object-cover max-lg:!object-contain opacity-0"
           />
 
           {/* Teatro de frascos — todos os produtos posicionados, GSAP anima */}
@@ -1392,10 +1372,16 @@ export function HomeProductShowcase() {
                       className="pcs-bottle"
                       src={product.image}
                       alt={name}
-                      width={800}
+                      width={1000}
                       height={1000}
-                      sizes="(min-width: 1024px) 35vw, 80vw"
+                      sizes="(min-width: 1024px) 50vw, 100vw"
+                      quality={90}
                       draggable={false}
+                      /* O Aminosan é o alvo do handoff: a ponte mede a imagem
+                         para se alinhar ao frame do vídeo, então ela precisa
+                         estar decodificada antes da transição — lazy deixava a
+                         medição cair no fallback sem movimento. */
+                      loading={i === 0 ? 'eager' : 'lazy'}
                     />
                   </div>
                 </div>
