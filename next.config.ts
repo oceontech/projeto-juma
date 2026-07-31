@@ -71,6 +71,9 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(dirname),
   },
+  experimental: {
+    optimizeCss: true,
+  },
 }
 
 export default withPayload(withNextIntl(nextConfig), { devBundleServerPackages: false })
