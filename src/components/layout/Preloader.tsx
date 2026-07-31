@@ -159,16 +159,13 @@ export function Preloader() {
     gsap.set(overlayRef.current, { opacity: 1 })
 
     const dismiss = () => {
-      // Atualiza o ScrollTrigger com o layout pronto antes de tirar a cortina
       requestAnimationFrame(() => {
         ScrollTrigger.refresh()
       })
 
-      // Revela o conteúdo da página antes de o overlay sumir.
-      revealBody()
       gsap.to(overlayRef.current, {
         opacity: 0,
-        duration: 0.4,
+        duration: 0.25,
         ease: 'power2.out',
         onComplete: finish,
       })
@@ -176,14 +173,10 @@ export function Preloader() {
 
     let cancelled = false
     const fontsReady = document.fonts?.ready ?? Promise.resolve()
-    const minShow = new Promise<void>((resolve) => setTimeout(resolve, 550))
-    const assetsReady = preloadCriticalAssets()
-
-    // Limite máximo de espera (2000ms) para nunca prender conexões lentas
-    const maxWait = new Promise<void>((resolve) => setTimeout(resolve, 2000))
+    const maxWait = new Promise<void>((resolve) => setTimeout(resolve, 800))
 
     Promise.race([
-      Promise.all([fontsReady, minShow, assetsReady]),
+      fontsReady,
       maxWait
     ]).then(() => {
       if (!cancelled) dismiss()

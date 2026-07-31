@@ -727,7 +727,7 @@ export function HeroJornada() {
         <div data-rest className="absolute inset-0 z-20">
           <Image
             src={isMobile ? '/hero/mobile/frame-1-campo.webp' : '/hero/desktop/frame-1-campo.webp'}
-            alt="" aria-hidden fill priority sizes="100vw"
+            alt="" aria-hidden fill priority fetchPriority="high" sizes="100vw"
             className="object-cover max-lg:object-bottom object-center"
           />
         </div>

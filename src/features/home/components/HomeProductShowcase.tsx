@@ -363,19 +363,17 @@ export function HomeProductShowcase() {
     const timeouts: number[] = []
     const rafs: number[] = []
 
-    const refresh = () => ScrollTrigger.refresh()
+    let pendingRaf = 0
     const scheduleRefresh = () => {
-      rafs.push(
-        window.requestAnimationFrame(() => {
-          refresh()
-          rafs.push(window.requestAnimationFrame(refresh))
-        }),
-      )
+      if (pendingRaf) return
+      pendingRaf = window.requestAnimationFrame(() => {
+        pendingRaf = 0
+        ScrollTrigger.refresh()
+      })
     }
 
     scheduleRefresh()
-    timeouts.push(window.setTimeout(scheduleRefresh, 250))
-    timeouts.push(window.setTimeout(scheduleRefresh, 900))
+    timeouts.push(window.setTimeout(scheduleRefresh, 300))
     document.fonts?.ready.then(scheduleRefresh).catch(() => {})
 
     const media = Array.from(

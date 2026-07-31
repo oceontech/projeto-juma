@@ -44,31 +44,48 @@ export function SectionNav() {
   const lenis = useLenis()
   const [active, setActive] = useState(0)
 
-  // Scroll-spy: usa a posição absoluta (getBoundingClientRect) para funcionar
-  // mesmo com âncoras aninhadas e seções pinadas/altas.
+  // Scroll-spy: usa posições pré-calculadas (cache) em vez de getBoundingClientRect no scroll,
+  // eliminando o reflow forçado (layout thrashing) a cada frame de rolagem.
   useEffect(() => {
+    let offsets: number[] = []
+
+    const updateOffsets = () => {
+      const scrollY = window.scrollY
+      offsets = SECTIONS.map((s) => {
+        const el = document.getElementById(s.id)
+        return el ? el.getBoundingClientRect().top + scrollY : 0
+      })
+    }
+
     let raf = 0
     const compute = () => {
       raf = 0
+      if (offsets.length === 0) updateOffsets()
       const line = window.scrollY + window.innerHeight * 0.35
       let idx = 0
-      for (let i = 0; i < SECTIONS.length; i++) {
-        const el = document.getElementById(SECTIONS[i].id)
-        if (!el) continue
-        const top = el.getBoundingClientRect().top + window.scrollY
-        if (top <= line) idx = i
+      for (let i = 0; i < offsets.length; i++) {
+        if (offsets[i] <= line) idx = i
       }
       setActive(idx)
     }
+
     const onScroll = () => {
       if (!raf) raf = requestAnimationFrame(compute)
     }
+
+    const onResize = () => {
+      updateOffsets()
+      compute()
+    }
+
+    updateOffsets()
     compute()
+
     window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
+    window.addEventListener('resize', onResize)
     return () => {
       window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
+      window.removeEventListener('resize', onResize)
       if (raf) cancelAnimationFrame(raf)
     }
   }, [])
