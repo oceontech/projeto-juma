@@ -4,7 +4,7 @@ import { ContactPage } from '@/features/contact/components/ContactPage'
 
 export async function generateMetadata(props: { params: Promise<{ locale: string }> }) {
   const { locale } = await props.params
-  const title = locale === 'pt-BR' ? 'Contato · Juma Agro' : 'Contact · Juma Agro'
+  const title = locale === 'pt-BR' ? 'Contato · Juma-Agro' : 'Contact · Juma-Agro'
   
   return {
     title,

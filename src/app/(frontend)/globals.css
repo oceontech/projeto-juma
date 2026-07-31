@@ -790,12 +790,11 @@ html.lenis body { height: auto; }
 .pcs-stat-row:hover .pcs-stat-text {
   transform: translateX(7px);
 }
-.pcs-stat-row:hover .pcs-stat-value {
+.pcs-stat-row:hover .pcs-stat-title {
   color: var(--stat-accent, var(--pcs-accent));
   text-shadow: 0 0 18px color-mix(in srgb, var(--stat-accent, var(--pcs-accent)) 45%, transparent);
 }
-.pcs-stat-row:hover .pcs-stat-label,
-.pcs-stat-row:hover .pcs-stat-unit {
+.pcs-stat-row:hover .pcs-stat-label {
   color: rgba(255, 255, 255, 0.92);
 }
 .pcs-stat-text {
@@ -803,30 +802,24 @@ html.lenis body { height: auto; }
   flex-direction: column;
   transition: transform 0.35s ease;
 }
-.pcs-stat-value-row {
-  display: flex;
-  align-items: baseline;
-  gap: 0.35rem;
-}
-.pcs-stat-value {
+/* Antes este slot era o número do ganho (clamp 34–50px). Virou o título do
+   benefício: como é texto corrido e não um número curto, precisa de corpo
+   bem menor e de leading, senão estoura a coluna. */
+.pcs-stat-title {
   font-family: var(--font-heading);
-  font-weight: 900;
-  font-size: clamp(34px, 2.4vw, 50px);
-  line-height: 1;
+  font-weight: 800;
+  font-size: clamp(15px, 1.05vw, 19px);
+  line-height: 1.2;
   color: #fff;
+  max-width: 190px;
   transition: color 0.35s ease, text-shadow 0.35s ease;
-}
-.pcs-stat-unit {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.7);
-  transition: color 0.35s ease;
 }
 .pcs-stat-label {
   font-size: 0.75rem;
+  line-height: 1.35;
   color: rgba(255, 255, 255, 0.75);
   margin-top: 0.35rem;
-  max-width: 150px;
+  max-width: 190px;
   transition: color 0.35s ease;
 }
 .pcs-stat-icon svg {
@@ -1027,17 +1020,15 @@ html.lenis body { height: auto; }
     height: 40px;
     flex-shrink: 0;
   }
-  .pcs-stat-value {
-    font-size: 20px;
-  }
-  .pcs-stat-value-row {
-    justify-content: center;
-  }
-  .pcs-stat-unit {
-    font-size: 0.62rem;
+  .pcs-stat-title {
+    font-size: 0.72rem;
+    line-height: 1.15;
+    max-width: none;
+    text-align: center;
   }
   .pcs-stat-label {
     font-size: 0.62rem;
+    line-height: 1.25;
     max-width: none;
     margin-top: 0.1rem;
   }

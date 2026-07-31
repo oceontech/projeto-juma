@@ -12,16 +12,16 @@ import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
 
 const CULTURES = [
-  { slug: 'soja',     label: 'Soja',           idx: '01', bg: 'linear-gradient(135deg, #2d6a1f 0%, #4a8c2a 100%)', image: '/assets/cultures/soja.webp' },
-  { slug: 'milho',    label: 'Milho',           idx: '02', bg: 'linear-gradient(135deg, #6b8c22 0%, #8fad2e 100%)', image: '/assets/cultures/milho.webp' },
-  { slug: 'cafe',     label: 'Café',            idx: '03', bg: 'linear-gradient(135deg, #4a2c0e 0%, #7a4a1a 100%)', image: '/assets/cultures/cafe.webp' },
-  { slug: 'cana',     label: 'Cana-de-açúcar',  idx: '04', bg: 'linear-gradient(135deg, #3d6b1a 0%, #5e9926 100%)', image: '/assets/cultures/cana.webp' },
-  { slug: 'algodao',  label: 'Algodão',         idx: '05', bg: 'linear-gradient(135deg, #5a7a3a 0%, #829b55 100%)', image: '/assets/cultures/algodao.webp' },
-  { slug: 'feijao',   label: 'Feijão',          idx: '06', bg: 'linear-gradient(135deg, #6b3a0e 0%, #9a5e24 100%)', image: '/assets/cultures/feijao.webp' },
-  { slug: 'citros',   label: 'Citros',          idx: '07', bg: 'linear-gradient(135deg, #7a5a0a 0%, #b8850f 100%)', image: '/assets/cultures/limao.webp' },
-  { slug: 'batata',   label: 'Batata',          idx: '08', bg: 'linear-gradient(135deg, #5a4a0a 0%, #8f7520 100%)', image: '/assets/cultures/batata.webp' },
-  { slug: 'tomate',   label: 'Tomate',          idx: '09', bg: 'linear-gradient(135deg, #7a1a0e 0%, #b52a1a 100%)', image: '/assets/cultures/tomate.webp' },
-  { slug: 'pastagem', label: 'Pastagem',        idx: '10', bg: 'linear-gradient(135deg, #1a5c14 0%, #2e8c24 100%)', image: '/assets/cultures/pastagem.webp' },
+  { slug: 'soja',     label: 'Soja',           idx: '01', bg: 'linear-gradient(135deg, #2d6a1f 0%, #4a8c2a 100%)', image: '/assets/cultures/soja.webp?v=20260731' },
+  { slug: 'milho',    label: 'Milho',           idx: '02', bg: 'linear-gradient(135deg, #6b8c22 0%, #8fad2e 100%)', image: '/assets/cultures/milho.webp?v=20260731' },
+  { slug: 'cafe',     label: 'Café',            idx: '03', bg: 'linear-gradient(135deg, #4a2c0e 0%, #7a4a1a 100%)', image: '/assets/cultures/cafe.webp?v=20260731' },
+  { slug: 'cana',     label: 'Cana-de-açúcar',  idx: '04', bg: 'linear-gradient(135deg, #3d6b1a 0%, #5e9926 100%)', image: '/assets/cultures/cana.webp?v=20260731' },
+  { slug: 'algodao',  label: 'Algodão',         idx: '05', bg: 'linear-gradient(135deg, #5a7a3a 0%, #829b55 100%)', image: '/assets/cultures/algodao.webp?v=20260731' },
+  { slug: 'feijao',   label: 'Feijão',          idx: '06', bg: 'linear-gradient(135deg, #6b3a0e 0%, #9a5e24 100%)', image: '/assets/cultures/feijao.webp?v=20260731' },
+  { slug: 'citros',   label: 'Citros',          idx: '07', bg: 'linear-gradient(135deg, #7a5a0a 0%, #b8850f 100%)', image: '/assets/cultures/limao.webp?v=20260731' },
+  { slug: 'batata',   label: 'Batata',          idx: '08', bg: 'linear-gradient(135deg, #5a4a0a 0%, #8f7520 100%)', image: '/assets/cultures/batata.webp?v=20260731' },
+  { slug: 'tomate',   label: 'Tomate',          idx: '09', bg: 'linear-gradient(135deg, #7a1a0e 0%, #b52a1a 100%)', image: '/assets/cultures/tomate.webp?v=20260731' },
+  { slug: 'pastagem', label: 'Pastagem',        idx: '10', bg: 'linear-gradient(135deg, #1a5c14 0%, #2e8c24 100%)', image: '/assets/cultures/pastagem.webp?v=20260731' },
 ]
 
 export function HomeCultures() {

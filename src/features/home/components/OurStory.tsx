@@ -16,22 +16,29 @@ import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
 
-type FounderAlign = 'left' | 'center' | 'right'
-
 type Founder = {
   key: string
-  align: FounderAlign
-  /** Posição horizontal do rótulo, em % da largura da foto. */
+  /** Centro horizontal da pessoa na foto, em % da largura (medido na silhueta). */
   x: number
-  /** Altura da linha conectora até o ombro/cabeça, em % da altura da foto. */
-  lineHeight: number
+  /** Topo da cabeça, em % da altura da foto — é onde a linha conectora termina. */
+  headTop: number
+  /**
+   * Faixa vertical do rótulo. As quatro pessoas ficam próximas demais para os
+   * nomes caberem lado a lado numa linha só, então os rótulos alternam entre
+   * duas faixas: 1ª e 3ª pessoa em cima, 2ª e 4ª logo abaixo.
+   */
+  tier: 'high' | 'low'
 }
 
 const FOUNDERS: Founder[] = [
-  { key: 'fabio', align: 'left', x: 12, lineHeight: 24 },
-  { key: 'julio_fundador', align: 'center', x: 50, lineHeight: 12 },
-  { key: 'julio_comercial', align: 'right', x: 88, lineHeight: 24 },
+  { key: 'fabio', x: 23.2, headTop: 15.6, tier: 'high' },
+  { key: 'julio_fundador', x: 37.6, headTop: 25.2, tier: 'low' },
+  { key: 'julio_comercial', x: 56.2, headTop: 9.3, tier: 'high' },
+  { key: 'joao_vitor', x: 77.8, headTop: 6.7, tier: 'low' },
 ]
+
+/** Topo de cada faixa, em % da altura da foto (negativo = acima da imagem). */
+const TIER_TOP: Record<Founder['tier'], number> = { high: -32, low: -15 }
 
 export function OurStory() {
   const t = useTranslations('ourStory')
@@ -49,7 +56,6 @@ export function OurStory() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const cardRef = useRef<HTMLElement>(null)
   const photoRef = useRef<HTMLDivElement>(null)
-  const watermarkRef = useRef<HTMLDivElement>(null)
   const labelsRootRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
@@ -64,7 +70,6 @@ export function OurStory() {
       if (!section || !card) return
 
       const photo = photoRef.current
-      const watermark = watermarkRef.current
       const title = titleRef.current
       const body = bodyRef.current
       const cta = ctaRef.current
@@ -79,19 +84,6 @@ export function OurStory() {
         isDesktop && labelsRootRef.current
           ? gsap.utils.toArray<HTMLElement>('[data-vline]', labelsRootRef.current)
           : []
-      const hLines =
-        isDesktop && labelsRootRef.current
-          ? gsap.utils.toArray<HTMLElement>('[data-hline]', labelsRootRef.current)
-          : []
-
-      // ── Watermark: parallax contínuo por scrub ──────────────────────
-      if (watermark) {
-        gsap.to(watermark, {
-          yPercent: -10,
-          ease: 'none',
-          scrollTrigger: { trigger: section, start: 'top bottom', end: 'bottom top', scrub: true },
-        })
-      }
 
       // Título em linhas mascaradas (mesma voz do Hero/PhaseLayout). O split
       // roda uma única vez aqui fora das timelines — re-tригgar é só reanimar
@@ -108,17 +100,15 @@ export function OurStory() {
       gsap.set(stats, { y: 10, opacity: 0 })
       if (isDesktop) {
         gsap.set(labels, { opacity: 0 })
-        gsap.set(vLines, { scaleY: 0 })
-        gsap.set(hLines, { scaleX: 0 })
+        gsap.set(vLines, { scaleY: 0, transformOrigin: 'top center' })
       }
 
       // ── Entrada: rápida e limpa ─────────────────────────────────────
       const entry = gsap.timeline({ paused: true, defaults: { ease: EASE.reveal } })
       entry.to(photo, { y: 0, opacity: 1, duration: 0.75 }, 0)
       if (isDesktop) {
-        entry.to(vLines, { scaleY: 1, duration: 0.4, stagger: 0.08 }, 0.1)
-        entry.to(hLines, { scaleX: 1, duration: 0.22, stagger: 0.08 }, 0.35)
-        entry.to(labels, { opacity: 1, duration: 0.4, stagger: 0.08 }, 0.25)
+        entry.to(labels, { opacity: 1, duration: 0.4, stagger: 0.08 }, 0.15)
+        entry.to(vLines, { scaleY: 1, duration: 0.45, stagger: 0.08 }, 0.25)
       }
       entry.set(title, { opacity: 1 }, 0.15)
       entry.to(
@@ -248,52 +238,62 @@ export function OurStory() {
 
       <section
         ref={cardRef}
-        className="relative overflow-hidden rounded-[2.5rem] w-[95%] max-w-[100rem] min-[2000px]:max-w-[120rem] mx-auto border border-black/[0.06] bg-gradient-to-br from-black/[0.01] to-black/[0.04] lg:backdrop-blur-xl isolate transform-gpu"
+        className="relative overflow-hidden rounded-[2.5rem] w-[90%] min-[1600px]:w-[95%] max-w-[100rem] min-[2000px]:max-w-[120rem] mx-auto border border-black/[0.06] bg-white isolate transform-gpu"
         style={{
           transformOrigin: 'top center',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(0, 0, 0, 0.1)',
         }}
       >
-        <Container className="grid min-h-[100dvh] grid-cols-1 items-center gap-2xl py-xl lg:py-2xl xl:py-3xl lg:grid-cols-2 lg:gap-xl xl:gap-4xl">
+        {/* Abaixo de 1600px (notebooks) o card afina, o padding lateral encolhe e a
+            coluna da foto ganha peso — assim a família cresce mesmo com o card menor. */}
+        <Container className="grid min-h-[100dvh] grid-cols-1 items-center gap-2xl py-xl lg:py-2xl xl:py-3xl lg:grid-cols-[1.35fr_1fr] lg:gap-xl lg:px-[3rem]! min-[1600px]:grid-cols-[1.15fr_1fr] min-[1600px]:gap-3xl min-[1600px]:px-[6rem]!">
           {/* ── Coluna esquerda: família ──────────────────────────────── */}
-          <div
-            ref={photoRef}
-            className="relative mx-auto aspect-[1402/974] w-full max-w-[40rem]"
-          >
-            {/* Watermark gigante atrás da foto */}
-            <div
-              ref={watermarkRef}
-              aria-hidden
-              className="pointer-events-none absolute inset-x-[-10%] bottom-0 z-0 select-none text-center font-black uppercase leading-none text-foreground/[0.05]"
-              style={{ fontSize: 'clamp(3.5rem, 13vw, 8rem)' }}
-            >
-              JUMA AGRO
+          {/* pt no desktop: os rótulos ficam ACIMA da foto (top negativo) e
+              precisam desse respiro, senão o card (overflow-hidden) os corta.
+              Em %: padding-top percentual é medido sobre a LARGURA da coluna, e
+              a foto é 16:9 — logo TIER_TOP (32% da altura) equivale a 18% da
+              largura. Assim o respiro acompanha a foto em qualquer tela. */}
+          <div ref={photoRef} className="w-full lg:pt-[19%]">
+            <div className="relative mx-auto aspect-[16/9] w-full max-w-[34rem] lg:max-w-none">
+              <Image
+                src="/heritage/familia-matino.webp"
+                alt={t('familyAlt')}
+                fill
+                sizes="(min-width: 1024px) 55vw, 90vw"
+                className="relative z-10 object-contain object-bottom"
+              />
+
+              {/* Rótulos + linhas conectoras (só desktop) */}
+              <div
+                ref={labelsRootRef}
+                className="pointer-events-none absolute inset-0 z-30 hidden lg:block"
+              >
+                {FOUNDERS.map((f) => (
+                  <FounderLabel
+                    key={f.key}
+                    x={f.x}
+                    headTop={f.headTop}
+                    tier={f.tier}
+                    name={t(`founders.${f.key}.name`)}
+                    role={t(`founders.${f.key}.role`)}
+                  />
+                ))}
+              </div>
             </div>
 
-            <Image
-              src="/heritage/fundador-e-filhos.png"
-              alt={t('familyAlt')}
-              fill
-              sizes="(min-width: 1024px) 40rem, 90vw"
-              className="relative z-10 object-contain object-bottom"
-            />
-
-            {/* Rótulos + linhas conectoras (só desktop) */}
-            <div
-              ref={labelsRootRef}
-              className="pointer-events-none absolute inset-0 z-30 hidden lg:block"
-            >
+            {/* Mobile: os rótulos com linha não cabem, então os nomes viram lista */}
+            <ul className="mt-lg grid grid-cols-2 gap-x-md gap-y-sm lg:hidden">
               {FOUNDERS.map((f) => (
-                <FounderLabel
-                  key={f.key}
-                  align={f.align}
-                  x={f.x}
-                  lineHeight={f.lineHeight}
-                  name={t(`founders.${f.key}.name`)}
-                  role={t(`founders.${f.key}.role`)}
-                />
+                <li key={f.key} className="flex flex-col border-l-2 border-primary/20 pl-sm">
+                  <span className="text-sm font-bold leading-tight text-primary">
+                    {t(`founders.${f.key}.name`)}
+                  </span>
+                  <span className="text-body-regular text-xs leading-tight text-foreground/55">
+                    {t(`founders.${f.key}.role`)}
+                  </span>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
 
           {/* ── Coluna direita: conteúdo ──────────────────────────────── */}
@@ -307,14 +307,14 @@ export function OurStory() {
 
             <h2
               ref={titleRef}
-              className="font-black uppercase leading-[0.98] tracking-tight text-[clamp(2rem,3.8vw,3.25rem)] xl:text-[clamp(2.25rem,4.6vw,4rem)]"
+              className="font-black uppercase leading-[0.98] tracking-tight text-[clamp(1.75rem,3.4vw,2.75rem)] min-[1600px]:text-[clamp(2.25rem,4.6vw,4rem)]"
             >
               <span className="block text-foreground">{t('titleDark')}</span>
               <span className="text-highlight block text-primary">{t('titleGreen')}</span>
             </h2>
 
             <div ref={bodyRef} className="mt-lg lg:mt-xl border-l-2 border-primary/20 pl-lg">
-              <p className="text-subtitle max-w-[34rem] text-base text-foreground/75 lg:text-base xl:text-lg">
+              <p className="text-subtitle max-w-[30rem] text-sm text-foreground/75 lg:text-[0.9375rem] min-[1600px]:max-w-[34rem] min-[1600px]:text-lg">
                 {t('body')}
               </p>
             </div>
@@ -331,7 +331,7 @@ export function OurStory() {
 
             <div
               ref={statsRootRef}
-              className="mt-xl lg:mt-2xl grid gap-md grid-cols-1 md:grid-cols-3 xl:gap-lg w-full"
+              className="mt-xl lg:mt-2xl grid w-full grid-cols-1 gap-md md:grid-cols-3 md:gap-x-sm md:gap-y-lg min-[1600px]:gap-x-xs"
             >
               <Stat icon="users" label={t('stat1')} />
               <Stat icon="sprout" label={t('stat2')} />
@@ -346,59 +346,54 @@ export function OurStory() {
 
 /* ── Rótulo + linha conectora de um fundador ───────────────────────── */
 
+/**
+ * O bloco é ancorado em cima (faixa do rótulo) e embaixo (topo da cabeça da
+ * pessoa). Assim a linha conectora é só um `flex-1` entre os dois: ela se
+ * estica sozinha para o comprimento certo em qualquer largura, sem precisar
+ * calcular altura em px para cada pessoa.
+ */
 function FounderLabel({
-  align,
   x,
-  lineHeight,
+  headTop,
+  tier,
   name,
   role,
 }: {
-  align: FounderAlign
   x: number
-  lineHeight: number
+  headTop: number
+  tier: Founder['tier']
   name: string
   role: string
 }) {
-  const isLeft = align === 'left'
-  const isRight = align === 'right'
-  const isCenter = align === 'center'
-
-  const style = isLeft
-    ? { left: `${x}%` }
-    : isRight
-      ? { right: `${100 - x}%`, left: 'auto' }
-      : { left: `${x}%`, transform: 'translateX(-50%)' }
-
   return (
     <div
       data-label
-      className={`absolute top-0 flex flex-col ${isRight ? 'items-end text-right' : isCenter ? 'items-center text-center' : 'items-start text-left'}`}
-      style={style}
+      className="absolute flex w-[9.5rem] flex-col items-center text-center xl:w-[11.5rem]"
+      style={{
+        left: `${x}%`,
+        top: `${TIER_TOP[tier]}%`,
+        bottom: `${100 - headTop}%`,
+        transform: 'translateX(-50%)',
+      }}
     >
-      <span className="whitespace-nowrap text-sm font-bold text-primary">{name}</span>
-      <span className="text-body-regular whitespace-nowrap text-xs text-foreground/55">{role}</span>
+      <span className="text-sm font-bold leading-tight text-primary xl:text-[0.9375rem]">
+        {name}
+      </span>
+      <span className="text-body-regular mt-[2px] text-xs leading-tight text-foreground/55">
+        {role}
+      </span>
 
-      {/* Linha conectora: desce do rótulo e dobra em direção à pessoa, terminando num nó */}
-      <div className="relative mt-sm" style={{ height: lineHeight, width: isCenter ? 1 : 48 }}>
-        <span
-          data-vline
-          aria-hidden
-          className={`absolute top-0 block w-px bg-primary/40 ${isLeft ? 'left-0' : isRight ? 'right-0' : 'left-1/2 -translate-x-1/2'}`}
-          style={{ height: '100%', transformOrigin: 'top' }}
-        />
-        {!isCenter && (
-          <span
-            data-hline
-            aria-hidden
-            className={`absolute bottom-0 block h-px bg-primary/40 ${isLeft ? 'left-0' : isRight ? 'right-0' : 'left-1/2 -translate-x-1/2'}`}
-            style={{ width: '100%', transformOrigin: isLeft ? 'left' : 'right' }}
-          />
-        )}
-        <span
-          aria-hidden
-          className={`absolute bottom-0 block h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-primary ${isLeft ? 'right-0' : isRight ? 'left-0' : 'left-1/2 -translate-x-1/2'}`}
-        />
-      </div>
+      {/* Linha conectora: preenche o vão até a cabeça e termina num nó */}
+      <span
+        data-vline
+        aria-hidden
+        className="mt-sm block w-px min-h-0 flex-1 bg-gradient-to-b from-primary/45 to-primary/15"
+      />
+      {/* mb: afasta o nó da cabeça — sem isso ele encosta no cabelo */}
+      <span
+        aria-hidden
+        className="mb-[3px] block h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
+      />
     </div>
   )
 }
@@ -409,11 +404,13 @@ type StatIcon = 'users' | 'sprout' | 'network'
 
 function Stat({ icon, label }: { icon: StatIcon; label: string }) {
   return (
-    <div data-stat className="flex w-full items-center gap-sm">
-      <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full border border-primary/25 text-primary">
-        <StatIconGlyph name={icon} className="h-4 w-4" />
+    <div data-stat className="flex w-full items-center gap-xs">
+      <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full border border-primary/25 text-primary">
+        <StatIconGlyph name={icon} className="h-3.5 w-3.5" />
       </span>
-      <span className="text-body-regular text-sm leading-snug text-foreground/90">{label}</span>
+      <span className="text-body-regular text-balance text-sm leading-snug text-foreground/90 md:text-[0.8125rem] min-[1600px]:text-sm">
+        {label}
+      </span>
     </div>
   )
 }

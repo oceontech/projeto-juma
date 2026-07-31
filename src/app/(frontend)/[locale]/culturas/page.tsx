@@ -4,7 +4,7 @@ import { CulturesGrid } from '@/features/cultures/components/CulturesGrid'
 
 export async function generateMetadata(props: { params: Promise<{ locale: string }> }) {
   const { locale } = await props.params
-  const title = locale === 'pt-BR' ? 'Culturas · Juma Agro' : locale === 'en' ? 'Crops · Juma Agro' : 'Cultivos · Juma Agro'
+  const title = locale === 'pt-BR' ? 'Culturas · Juma-Agro' : locale === 'en' ? 'Crops · Juma-Agro' : 'Cultivos · Juma-Agro'
   
   return {
     title,

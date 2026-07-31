@@ -35,7 +35,7 @@
     "headlineLine1": "Together",
     "headlineLine2": "we feed",
     "headlineLine3": "the world",
-    "subtitle": "Nutrition that builds productivity phase by phase in soybean, corn, coffee, sugarcane and six more crops. With results measured in field trials.",
+    "subtitle": "Nutrition that builds productivity phase by phase in soybean, corn, coffee, sugarcane and other crops. With results measured in field trials.",
     "cta": "I want these results on my farm",
     "ctaNote": "The technical team answers, during business hours. No commitment.",
     "imageAlt": "Farmland at dusk with a tractor in the background"
@@ -77,7 +77,7 @@
   "footer": {
     "tagline": "Together, we feed the world",
     "navTitle": "Navigation",
-    "socialTitle": "Follow Juma",
+    "socialTitle": "Follow Juma-Agro",
     "contactTitle": "Contact",
     "whatsappLabel": "WhatsApp",
     "emailLabel": "Email",
@@ -98,7 +98,7 @@
     "footerTag": "1988 · A story that nourishes generations",
     "oldBottleCaption": "The first bottle of Aminosan.",
     "oldBottleAlt": "The first bottle of Aminosan, a historic piece displayed as a relic",
-    "newBottleAlt": "Current Aminosan bottle, the product in use across the Juma Agro line",
+    "newBottleAlt": "Current Aminosan bottle, the product in use across the Juma-Agro line",
     "videoAlt": "Transition from the old Aminosan bottle to the current bottle",
     "a3Eyebrow": "Today",
     "a3Title": "The same amino acid.",
@@ -112,15 +112,15 @@
     "lineEyebrow": "Complete line",
     "lineTitle": "The right product for every crop stage.",
     "lineTitleHi": "crop stage.",
-    "lineBody": "From planting to grain fill, Juma organizes nutrition, physiology, correction and spray technology in one line built to support field management."
+    "lineBody": "From planting to harvest, Juma-Agro organizes nutrition, physiology, correction and spray technology in one line built to support field management."
   },
   "ourStory": {
     "eyebrow": "OUR STORY",
     "titleDark": "ONE FAMILY. ONE PURPOSE.",
     "titleGreen": "COUNTLESS ACHIEVEMENTS.",
-    "body": "More than 45 years ago, Mr. Julio Matino took the first step, driven by courage, hard work and love for the land. By his side, his children carry the legacy forward with excellence, management and vision, leading Juma Agro to new horizons.",
+    "body": "More than 40 years ago, Mr. Julio Matino took the first step, driven by courage, hard work and love for the land. By his side, his children and grandson carry the legacy forward with excellence, management and vision, leading Juma-Agro to new horizons.",
     "cta": "A legacy that builds the future.",
-    "familyAlt": "Fábio, Julio and Julio Matino, founder and directors of Juma Agro, standing with arms crossed",
+    "familyAlt": "Fábio, Julio and Julio Matino, founder and directors of Juma-Agro, standing with arms crossed",
     "founders": {
       "fabio": {
         "name": "Fábio Matino",
@@ -133,10 +133,14 @@
       "julio_comercial": {
         "name": "Julio Matino",
         "role": "Commercial Director"
+      },
+      "joao_vitor": {
+        "name": "João Vitor Matino",
+        "role": "Logistics Manager"
       }
     },
     "stat1": "Family-run, purpose-driven",
-    "stat2": "45+ years of history",
+    "stat2": "40+ years of history",
     "stat3": "Connected to Brazilian agribusiness"
   },
   "proof": {
@@ -144,7 +148,7 @@
     "cana": {
       "unit": "t/ha",
       "label": "more stalks in sugarcane",
-      "source": "Acorda Cana · source: Juma Agro field trials"
+      "source": "Acorda Cana · source: Juma-Agro field trials"
     },
     "milho": {
       "unit": "bags/ha",
@@ -170,7 +174,7 @@
   },
   "solution": {
     "title": "The phase by phase program",
-    "intro": "For each crop, Juma defines the sequence: which product goes in, at which phase, for which purpose. The program starts at seed treatment and runs through grain fill, using the spray calendar you already follow. Every combination has been tested in field trials against a control, and the source of the result is published right next to the number.",
+    "intro": "For each crop, Juma-Agro defines the sequence: which product goes in, at which phase, for which purpose. The program starts at seed treatment and runs through grain fill, using the spray calendar you already follow. Every combination has been tested in field trials against a control, and the source of the result is published right next to the number.",
     "stepsTitle": "How it works, in 3 steps",
     "step1": {
       "title": "Choose your crop.",
@@ -236,14 +240,14 @@
     "disclaimer": "Trial results compared with an untreated control. In the field, the number varies with climate, soil and management. That is why we publish the source of each one."
   },
   "experience": {
-    "title": "Visit Juma from the inside",
+    "title": "Visit Juma-Agro from the inside",
     "body": "Factory, lab and the story told by the people who built it: Mr. Julio Matino welcomes visiting groups in person.",
     "tagline": "Whoever lives it, understands it. Whoever understands it, produces more.",
     "cta": "Discover Juma Experience"
   },
   "video": {
-    "title": "Juma in 2 minutes",
-    "playLabel": "Watch Juma Agro's institutional video"
+    "title": "Juma-Agro in 2 minutes",
+    "playLabel": "Watch Juma-Agro's institutional video"
   },
   "testimonials": {
     "title": "Hear from the growers who use it",
@@ -366,7 +370,7 @@
     },
     "howEyebrow": "How it works",
     "howTitle": "From the right phase to complete management.",
-    "howIntro": "Each crop has its own phase-by-phase demands. Our nutritional programs are built together with Juma agronomists for your management, your region and your soil.",
+    "howIntro": "Each crop has its own phase-by-phase demands. Our nutritional programs are built together with Juma-Agro agronomists for your management, your region and your soil.",
     "steps": {
       "diagnosis": {
         "title": "Phase diagnosis",
@@ -384,24 +388,24 @@
     "ctaEyebrow": "Next step",
     "ctaTitleStart": "What is your",
     "ctaTitleHighlight": "crop?",
-    "ctaBody": "Talk to Juma and build a tailor-made nutritional program for your management.",
+    "ctaBody": "Talk to Juma-Agro and build a tailor-made nutritional program for your management.",
     "ctaButton": "Talk on WhatsApp"
   },
   "experiencePage": {
     "eyebrow": "Juma Experience",
-    "titleStart": "Experience Juma",
+    "titleStart": "Experience Juma-Agro",
     "titleHighlight": "up close.",
-    "intro": "An exclusive immersion program for Juma clients, designed to see in practice how our solutions work in the field. Side by side with our agronomic team — from the lab to the harvest. Become a client and secure your access.",
+    "intro": "An exclusive immersion program for Juma-Agro clients, designed to see in practice how our solutions work in the field. Side by side with our agronomic team — from the lab to the harvest. Become a client and secure your access.",
     "btnParticipate": "I want to become a client",
     "btnProgram": "See program",
     "programEyebrow": "What it is",
-    "programTitle": "Three days inside the Juma operation.",
+    "programTitle": "Three days inside the Juma-Agro operation.",
     "programIntro": "Full immersion: research, formulation, field trials and visits to partner farms.",
     "days": {
       "day1": {
         "num": "01",
         "title": "Day 1 · Research & formulation",
-        "desc": "Visit to the lab and production unit. How a Juma product is born, from the molecule to the bottle."
+        "desc": "Visit to the lab and production unit. How a Juma-Agro product is born, from the molecule to the bottle."
       },
       "day2": {
         "num": "02",
@@ -411,7 +415,7 @@
       "day3": {
         "num": "03",
         "title": "Day 3 · Partner farms",
-        "desc": "Visit to farms where Juma is already delivering results — grower to grower, face to face."
+        "desc": "Visit to farms where Juma-Agro is already delivering results — grower to grower, face to face."
       }
     },
     "benefitsEyebrow": "What you experience",
@@ -424,7 +428,7 @@
       },
       "b2": {
         "title": "Suggested nutritional program",
-        "desc": "Detailed technical recommendation for your next season, built with the Juma team."
+        "desc": "Detailed technical recommendation for your next season, built with the Juma-Agro team."
       },
       "b3": {
         "title": "Partner grower network",
@@ -432,7 +436,7 @@
       },
       "b4": {
         "title": "Extended technical support",
-        "desc": "Priority service from Juma's agronomic team throughout the following season."
+        "desc": "Priority service from Juma-Agro's agronomic team throughout the following season."
       }
     },
     "galleryEyebrow": "What it looks like",
@@ -440,44 +444,44 @@
     "galleryIntro": "Images from recent editions — research lab, field trials and grower exchange.",
     "ctaEyebrow": "Exclusive access",
     "ctaTitleStart": "Live the",
-    "ctaTitleHighlight": "Juma",
+    "ctaTitleHighlight": "Juma-Agro",
     "ctaTitleEnd": "experience.",
-    "ctaBody": "Juma Experience is an immersion program exclusive to our clients. Become a Juma partner and secure your access to the next groups.",
+    "ctaBody": "Juma Experience is an immersion program exclusive to our clients. Become a Juma-Agro partner and secure your access to the next groups.",
     "ctaButton": "Become a client"
   },
   "aboutPage": {
-    "eyebrow": "About Juma",
+    "eyebrow": "About Juma-Agro",
     "titleStart": "Over 40 years in the field, alongside those who",
     "titleHighlight": "produce.",
-    "intro": "Juma was born from the restlessness of a man of the land. Founded by Mr. Julio Matino, the company grew by turning agronomic knowledge into products that raise the productivity of the Brazilian grower — without ever losing touch with the field.",
+    "intro": "Juma-Agro was born from the restlessness of a man of the land. Founded by Mr. Julio Matino, the company grew by turning agronomic knowledge into products that raise the productivity of the Brazilian grower — without ever losing touch with the field.",
     "historyEyebrow": "Our story",
     "historyTitle": "Four decades counted in the field.",
-    "historyIntro": "Milestones that show how Juma grew side by side with the Brazilian grower.",
+    "historyIntro": "Milestones that show how Juma-Agro grew side by side with the Brazilian grower.",
     "timeline": {
       "y1985": {
         "title": "The beginning, in inland São Paulo",
-        "desc": "Mr. Julio Matino founds Juma in Mogi Mirim with the goal of offering Brazilian growers the most advanced plant nutrition available — starting with locally formulated foliar fertilizers."
+        "desc": "Mr. Julio Matino founds Juma-Agro in Mogi Mirim with the goal of offering Brazilian growers the most advanced plant nutrition available — starting with locally formulated foliar fertilizers."
       },
       "y1992": {
         "title": "Launch of Aminosan®",
-        "desc": "The first plant-origin amino acid from Juma reaches the market and would go on, in the following decades, to become the absolute reference in nutritional management of coffee, soybeans and corn in Brazil."
+        "desc": "The first plant-origin amino acid from Juma-Agro reaches the market and would go on, in the following decades, to become the absolute reference in nutritional management of coffee, soybeans and corn in Brazil."
       },
       "y2003": {
         "title": "Expansion to other crops",
-        "desc": "Juma broadens its portfolio to sugarcane, cotton and perennial crops. The Revigo line is born — crop-specific foliar products to correct deficiencies in every cultivar."
+        "desc": "Juma-Agro broadens its portfolio to sugarcane, cotton and perennial crops. The Revigo line is born — crop-specific foliar products to correct deficiencies in every cultivar."
       },
       "y2015": {
         "title": "Application technology",
-        "desc": "With the arrival of the Redutan and Supermix lines, Juma begins offering spray technology — application quality, less drift and greater operational efficiency."
+        "desc": "With the arrival of the Redutan and Supermix lines, Juma-Agro begins offering spray technology — application quality, less drift and greater operational efficiency."
       },
       "y2024": {
         "title": "13 products · 10 crops",
-        "desc": "Juma's current portfolio — products integrated into complete nutritional programs, supporting professional management from planting to harvest across Brazil."
+        "desc": "Juma-Agro's current portfolio — products integrated into complete nutritional programs, supporting professional management from planting to harvest across Brazil."
       }
     },
     "valuesEyebrow": "What drives us",
     "valuesTitle": "Values born in the field.",
-    "valuesIntro": "Principles that have held Juma steady for four decades — and continue to guide us.",
+    "valuesIntro": "Principles that have held Juma-Agro steady for four decades — and continue to guide us.",
     "values": {
       "v1": {
         "title": "Partnership",
@@ -553,7 +557,7 @@
     "showAll": "Show all",
     "loadMore": "Load more articles",
     "ctaEyebrow": "Receive every week",
-    "ctaTitleStart": "Juma content straight to",
+    "ctaTitleStart": "Juma-Agro content straight to",
     "ctaTitleEnd": "your WhatsApp.",
     "ctaBody": "Every week a new article, real field cases and tips from our agronomic team — no spam.",
     "ctaButton": "Subscribe on WhatsApp"
@@ -563,7 +567,7 @@
     "readingTime": "READ",
     "relatedTitle": "Read also",
     "relatedSubtitle": "Selected content on nutrition and crop management.",
-    "author": "Juma Agro Technical Team",
+    "author": "Juma-Agro Technical Team",
     "publishedAt": "Published on",
     "ctaTitleStart": "Talk to our",
     "ctaTitleHighlight": "specialists.",
@@ -575,7 +579,7 @@
     "titleStart": "Let's talk about",
     "titleHighlight": "your season.",
     "intro": "Tell us what you grow and where you are — we build a tailored technical recommendation for you or schedule a visit from our agronomic team.",
-    "formTitle": "Talk to Juma.",
+    "formTitle": "Talk to Juma-Agro.",
     "labelName": "Full name",
     "placeholderName": "John Smith",
     "labelWhatsApp": "WhatsApp",
@@ -596,7 +600,7 @@
     "hoursAlt": "Fri 07:30 to 16:00 · Brasília time",
     "locationMain": "Mogi Mirim · SP",
     "locationAlt": "HQ & plant · service across Brazil",
-    "mapLabel": "Juma Agro · Mogi Mirim/SP",
+    "mapLabel": "Juma-Agro · Mogi Mirim/SP",
     "ctaEyebrow": "Fast response",
     "ctaTitleLine1": "No time to waste?",
     "ctaTitleHighlight": "Talk",
@@ -609,76 +613,76 @@
       "0": {
         "name": "AMINOSAN",
         "line": "LINHA REDUTAN",
-        "description": "Organomineral bioactivator based on free amino acids. Accelerates plant metabolism and enhances nutrient absorption at all stages.",
+        "description": "For over 40 years the best amino acid on the market!",
         "stats": {
           "0": {
-            "label": "Wake Up Sugarcane",
-            "unit": "bags/ha"
+            "title": "Faster recovery",
+            "label": "The plant grows again after stress"
           },
           "1": {
-            "label": "RevigoPhos Amino",
-            "unit": "bags/ha"
+            "title": "More absorption",
+            "label": "Ready amino acid saves the plant energy"
           },
           "2": {
-            "label": "Revigo + Corn and Pasture",
-            "unit": "bags/ha"
+            "title": "Better fruit set",
+            "label": "Supports the reproductive stage"
           }
         }
       },
       "1": {
         "name": "ACORDA ULTRA",
         "line": "LINHA REDUTAN",
-        "description": "Biostimulant for annual crop startup. Stimulates deep rooting from germination and increases the initial vigor of plants.",
+        "description": "The best in Seed Treatment! Higher Germination and Greater Vigor.",
         "stats": {
           "0": {
-            "label": "Soybean Startup",
-            "unit": "bags/ha"
+            "title": "Uniform germination",
+            "label": "Even stand from emergence onward"
           },
           "1": {
-            "label": "Corn Vigor",
-            "unit": "bags/ha"
+            "title": "More root volume",
+            "label": "Balance between root and shoot"
           },
           "2": {
-            "label": "Bean Initial",
-            "unit": "bags/ha"
+            "title": "Withstands dry spells",
+            "label": "Less damage in cold and drought"
           }
         }
       },
       "2": {
         "name": "KMEP ULTRA",
         "line": "LINHA JUMA",
-        "description": "Concentrated solution of potassium, magnesium, and sulfur. Provides essential nutrients for final production quality and stress resistance.",
+        "description": "Insecticide enhancer that acts as a dislodging agent, forcing hidden pests out of shelter and increasing contact with insecticides.",
         "stats": {
           "0": {
-            "label": "Grain Quality",
-            "unit": "bags/ha"
+            "title": "Dislodging action",
+            "label": "Exposes the hidden pest to the insecticide"
           },
           "1": {
-            "label": "Resistance",
-            "unit": "bags/ha"
+            "title": "Potassium in the tank",
+            "label": "The spray that protects also feeds"
           },
           "2": {
-            "label": "Productivity",
-            "unit": "bags/ha"
+            "title": "Validated at congresses",
+            "label": "National and international entomology"
           }
         }
       },
       "3": {
         "name": "REVIGOPHOS AMINO",
         "line": "LINHA JUMA",
-        "description": "Readily available amino-chelated phosphorus. Stimulates deep rooting and grain filling with maximum efficiency.",
+        "description": "The Energy of Phosphorus with amino acid technology!",
         "stats": {
           "0": {
-            "label": "Rooting",
-            "unit": "bags/ha"
+            "title": "Immediate energy",
+            "label": "Phosphorus ready for the plant to use"
           },
           "1": {
-            "label": "Grain Filling",
-            "unit": "bags/ha"
+            "title": "Metabolism ready",
+            "label": "Amino acids as raw material"
           },
           "2": {
-            "label": "Initial Vigor",
-            "unit": "bags/ha"
+            "title": "Recovery after stress",
+            "label": "Frost, dry spell and stalled plant"
           }
         }
       }
@@ -692,7 +696,7 @@
   "homeCultures": {
     "kicker": "Crops",
     "title": "Solutions designed<br></br>for your <highlight>crop.</highlight>",
-    "desc": "From grains to perennials — each crop has its requirements, and Juma has a path for each one.",
+    "desc": "From grains to perennials — each crop has its requirements, and Juma-Agro has a path for each one.",
     "cultures": {
       "0": "Soybeans",
       "1": "Corn",
@@ -735,7 +739,7 @@
   },
   "homeCalculator": {
     "kicker": "Calculate your gain",
-    "title": "How much can Juma<br></br>yield in your <highlight>field?</highlight>",
+    "title": "How much can Juma-Agro<br></br>yield in your <highlight>field?</highlight>",
     "desc": "Simulate in seconds the potential gain in bags and extra revenue based on average field data.",
     "cultures": {
       "soja": "Soybeans",
@@ -747,10 +751,10 @@
     },
     "form": {
       "culture": "Crop",
-      "product": "Juma Product",
+      "product": "Juma-Agro Product",
       "area": "Area (ha)",
       "price": "Bag price ($)",
-      "disclaimer": "Values are estimates. For a tailored plan for your farm, speak with a Juma technician."
+      "disclaimer": "Values are estimates. For a tailored plan for your farm, speak with a Juma-Agro technician."
     },
     "result": {
       "extraBags": "Estimated extra bags",
@@ -763,17 +767,17 @@
   "homeExperience": {
     "immersion": "Immersion program",
     "kicker": "Juma Experience",
-    "titlePart1": "Experience Juma ",
+    "titlePart1": "Experience Juma-Agro ",
     "titleHighlight": "up close.",
-    "desc": "An exclusive experience for Juma clients. See in practice how our solutions are born and work in the field — from research to harvest. Become a partner and secure your access.",
+    "desc": "An exclusive experience for Juma-Agro clients. See in practice how our solutions are born and work in the field — from research to harvest. Become a partner and secure your access.",
     "cta": "I want to become a client"
   },
   "globalPresence": {
     "eyebrow": "International presence",
-    "titleL1": "Juma is present",
+    "titleL1": "Juma-Agro is present",
     "titleL2": "in Brazil and the",
     "titleHighlight": "United States",
-    "body": "Headquartered in Brazil with a branch in the United States, Juma expands its reach to serve strategic markets with proximity, agility and the same excellence that built its history.",
+    "body": "Headquartered in Brazil with a branch in the United States, Juma-Agro expands its reach to serve strategic markets with proximity, agility and the same excellence that built its history.",
     "support": "Connecting Brazilian expertise to global opportunities.",
     "brazilName": "Brazil",
     "brazilSub": "Headquarters · Mogi Guaçu, SP",
@@ -783,7 +787,7 @@
   },
   "homeTestimonials": {
     "kicker": "Applied Results",
-    "titlePart1": "Those who plant with Juma,<br />harvest ",
+    "titlePart1": "Those who plant with Juma-Agro,<br />harvest ",
     "titleHighlight": "results.",
     "desc": "Real stories from farmers who adopted our solutions and measured the difference in the field.",
     "testimonials": [
@@ -795,14 +799,14 @@
         "initials": "JC"
       },
       {
-        "text": "I was looking for nutritional management that went beyond the basics. With Juma, I gained productivity without increasing the cost per hectare — and that changes the game.",
+        "text": "I was looking for nutritional management that went beyond the basics. With Juma-Agro, I gained productivity without increasing the cost per hectare — and that changes the game.",
         "badge": "Corn +13.4 bags/ha · Acorda Ultra",
         "name": "Ricardo Marques",
         "location": "Sorriso · MT",
         "initials": "RM"
       },
       {
-        "text": "The sugarcane field responded quickly. More stalk, more vigor in regrowth, and the Juma technical team was here on every visit. A true partnership.",
+        "text": "The sugarcane field responded quickly. More stalk, more vigor in regrowth, and the Juma-Agro technical team was here on every visit. A true partnership.",
         "badge": "Sugarcane +6.87 t/ha · Acorda Cana",
         "name": "André Souza",
         "location": "Quirinópolis · GO",
@@ -842,7 +846,7 @@
     "kicker": "Next step",
     "titlePart1": "Together we feed the ",
     "titleHighlight": "world.",
-    "desc": "Talk to Juma and discover the right solution for your crop, your region, and your management.",
+    "desc": "Talk to Juma-Agro and discover the right solution for your crop, your region, and your management.",
     "btn": "Talk on WhatsApp"
   },
   "culturePage": {
@@ -851,26 +855,26 @@
     "heroTitle": "Strategic management throughout the <highlight>production cycle.</highlight>",
     "whatsappBtn": "Talk on WhatsApp",
     "seeManagementBtn": "View phase management",
-    "actuaEyebrow": "How Juma acts",
-    "actuaTitle": "What Juma delivers<br></br>in {name}.",
+    "actuaEyebrow": "How Juma-Agro acts",
+    "actuaTitle": "What Juma-Agro delivers<br></br>in {name}.",
     "actuaLede": "Five action fronts that appear in production — and in the farmer's income.",
     "challengesEyebrow": "Challenges by phase",
     "challengesTitle": "Where the {name} cycle<br></br>demands attention.",
     "challengesLede": "Critical windows where nutritional management defines crop size.",
     "managementEyebrow": "Management by phase",
-    "managementTitle": "Juma {name}<br></br>nutritional program.",
+    "managementTitle": "Juma-Agro {name}<br></br>nutritional program.",
     "managementLede": "Product combinations designed for each critical window of the cycle.",
     "recommendedEyebrow": "Recommended products",
     "recommendedTitle": "The indicated line<br></br>for {name}.",
-    "recommendedLede": "The products that appear most frequently in management with Juma.",
+    "recommendedLede": "The products that appear most frequently in management with Juma-Agro.",
     "calcEyebrow": "Calculate your gain",
-    "calcTitle": "How much does Juma yield<br></br>in your {name}?",
+    "calcTitle": "How much does Juma-Agro yield<br></br>in your {name}?",
     "calcLede": "Simulate the gain based on your area, recommended product and current bag price.",
-    "calcProductLabel": "Juma Product",
+    "calcProductLabel": "Juma-Agro Product",
     "calcAreaLabel": "Area (ha)",
     "calcPriceLabel": "Bag price ($)",
     "calcYieldLabel": "Current yield (bags/ha)",
-    "calcFormLede": "Estimate for a crop in production. For a tailored program, speak with a Juma technician.",
+    "calcFormLede": "Estimate for a crop in production. For a tailored program, speak with a Juma-Agro technician.",
     "calcExtraBags": "Estimated extra bags",
     "calcGainAverage": "Average gain of <strong>+{gain} bags/ha</strong> · projected for your informed area.",
     "calcExtraRev": "Estimated extra revenue",
@@ -884,7 +888,7 @@
     "cafe": {
       "name": "Coffee",
       "badge": "Perennial Crop",
-      "description": "Coffee requires attention at every phase: each stage directly impacts productivity and bean quality. Juma develops nutritional programs to support the coffee plantation from rooting to maturation.",
+      "description": "Coffee requires attention at every phase: each stage directly impacts productivity and bean quality. Juma-Agro develops nutritional programs to support the coffee plantation from rooting to maturation.",
       "actua": [
         "Uniform and better distributed flowering throughout the plot.",
         "Higher fruit set, less pinhead drop.",
@@ -959,7 +963,7 @@
     "soja": {
       "name": "Soybeans",
       "badge": "Grain",
-      "description": "Soy is the main crop in Brazil and requires nutritional precision at every phase of the cycle. Juma develops complete programs from seed treatment to grain filling.",
+      "description": "Soy is the main crop in Brazil and requires nutritional precision at every phase of the cycle. Juma-Agro develops complete programs from seed treatment to grain filling.",
       "actua": [
         "Deep rooting and uniform stand from planting.",
         "Vegetative nutrition for high leaf mass production.",
@@ -1096,7 +1100,7 @@
     "cana": {
       "name": "Sugarcane",
       "badge": "Semi-perennial crop",
-      "description": "Sugarcane requires nutrition from planting to maturation, focusing on startup, tillering, and TCH. Juma offers specific solutions for each phase of the crop.",
+      "description": "Sugarcane requires nutrition from planting to maturation, focusing on startup, tillering, and TCH. Juma-Agro offers specific solutions for each phase of the crop.",
       "actua": [
         "Accelerated rooting in seedling planting.",
         "Abundant tillering for a greater number of stalks per hectare.",
@@ -1272,7 +1276,7 @@
     "citros": {
       "name": "Citrus",
       "badge": "Perennial Crop",
-      "description": "Citrus require continuous and balanced nutrition throughout the cycle. Juma offers programs for flowering, fruit setting, and post-harvest quality.",
+      "description": "Citrus require continuous and balanced nutrition throughout the cycle. Juma-Agro offers programs for flowering, fruit setting, and post-harvest quality.",
       "actua": [
         "Abundant and well-distributed flowering.",
         "High fruit set and low post-flowering drop.",
@@ -1443,7 +1447,7 @@
     "pastagem": {
       "name": "Pasture",
       "badge": "Forage",
-      "description": "Degraded pasture is one of the main problems for Brazilian ranchers. Juma offers a nutritional program for recovery, higher stocking, and weight gain.",
+      "description": "Degraded pasture is one of the main problems for Brazilian ranchers. Juma-Agro offers a nutritional program for recovery, higher stocking, and weight gain.",
       "actua": [
         "Recovery of degraded pastures with low density.",
         "Stimulus for regrowth and tillering of forage grasses.",

@@ -10,16 +10,16 @@ import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
 const CULTURE_KEYS = [
-  { id: 'soja', num: '01', color: 'from-green-600 to-green-800', image: '/assets/cultures/soja.webp' },
-  { id: 'milho', num: '02', color: 'from-yellow-500 to-amber-700', image: '/assets/cultures/milho.webp' },
-  { id: 'cafe', num: '03', color: 'from-amber-700 to-orange-900', image: '/assets/cultures/cafe.webp' },
-  { id: 'cana', num: '04', color: 'from-lime-500 to-green-700', image: '/assets/cultures/cana.webp' },
-  { id: 'algodao', num: '05', color: 'from-blue-100 to-slate-300', text: 'text-foreground', image: '/assets/cultures/algodao.webp' },
-  { id: 'feijao', num: '06', color: 'from-orange-800 to-red-900', image: '/assets/cultures/feijao.webp' },
-  { id: 'citros', num: '07', color: 'from-orange-400 to-orange-600', image: '/assets/cultures/limao.webp' },
-  { id: 'batata', num: '08', color: 'from-amber-200 to-yellow-600', text: 'text-foreground', image: '/assets/cultures/batata.webp' },
-  { id: 'tomate', num: '09', color: 'from-red-500 to-red-700', image: '/assets/cultures/tomate.webp' },
-  { id: 'pastagem', num: '10', color: 'from-green-400 to-green-600', image: '/assets/cultures/pastagem.webp' },
+  { id: 'soja', num: '01', color: 'from-green-600 to-green-800', image: '/assets/cultures/soja.webp?v=20260731' },
+  { id: 'milho', num: '02', color: 'from-yellow-500 to-amber-700', image: '/assets/cultures/milho.webp?v=20260731' },
+  { id: 'cafe', num: '03', color: 'from-amber-700 to-orange-900', image: '/assets/cultures/cafe.webp?v=20260731' },
+  { id: 'cana', num: '04', color: 'from-lime-500 to-green-700', image: '/assets/cultures/cana.webp?v=20260731' },
+  { id: 'algodao', num: '05', color: 'from-blue-100 to-slate-300', text: 'text-foreground', image: '/assets/cultures/algodao.webp?v=20260731' },
+  { id: 'feijao', num: '06', color: 'from-orange-800 to-red-900', image: '/assets/cultures/feijao.webp?v=20260731' },
+  { id: 'citros', num: '07', color: 'from-orange-400 to-orange-600', image: '/assets/cultures/limao.webp?v=20260731' },
+  { id: 'batata', num: '08', color: 'from-amber-200 to-yellow-600', text: 'text-foreground', image: '/assets/cultures/batata.webp?v=20260731' },
+  { id: 'tomate', num: '09', color: 'from-red-500 to-red-700', image: '/assets/cultures/tomate.webp?v=20260731' },
+  { id: 'pastagem', num: '10', color: 'from-green-400 to-green-600', image: '/assets/cultures/pastagem.webp?v=20260731' },
 ] as const
 
 function ArrowTopRightIcon(props: React.SVGProps<SVGSVGElement>) {

@@ -4,7 +4,7 @@ import { ArticlesPage } from '@/features/articles/components/ArticlesPage'
 
 export async function generateMetadata(props: { params: Promise<{ locale: string }> }) {
   const { locale } = await props.params
-  const title = locale === 'pt-BR' ? 'Matérias · Juma Agro' : 'Articles · Juma Agro'
+  const title = locale === 'pt-BR' ? 'Matérias · Juma-Agro' : 'Articles · Juma-Agro'
   
   return {
     title,

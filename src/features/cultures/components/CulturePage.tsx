@@ -42,7 +42,7 @@ export type CultureMeta = {
 export const META: Record<string, CultureMeta> = {
   cafe: {
     gradient: 'linear-gradient(165deg, #6c4226 0%, #2a1a10 100%)',
-    image: '/assets/cultures/cafe.webp',
+    image: '/assets/cultures/cafe.webp?v=20260731',
     managementProducts: [
       ['FitoFert', 'Aminosan'],
       ['Aminosan', 'Revigo CaB'],
@@ -58,7 +58,7 @@ export const META: Record<string, CultureMeta> = {
   },
   soja: {
     gradient: 'linear-gradient(165deg, #5d7a3a, #2c3a18)',
-    image: '/assets/cultures/soja.webp',
+    image: '/assets/cultures/soja.webp?v=20260731',
     managementProducts: [
       ['Acorda Ultra', 'Aduban'],
       ['Aminosan'],
@@ -73,7 +73,7 @@ export const META: Record<string, CultureMeta> = {
   },
   milho: {
     gradient: 'linear-gradient(165deg, #c3a445, #6b4f15)',
-    image: '/assets/cultures/milho.webp',
+    image: '/assets/cultures/milho.webp?v=20260731',
     managementProducts: [
       ['Acorda Ultra'],
       ['Aminosan', 'Linha Revigo'],
@@ -88,7 +88,7 @@ export const META: Record<string, CultureMeta> = {
   },
   cana: {
     gradient: 'linear-gradient(165deg, #7fa356, #364a1f)',
-    image: '/assets/cultures/cana.webp',
+    image: '/assets/cultures/cana.webp?v=20260731',
     managementProducts: [
       ['Acorda Cana'],
       ['Aminosan', 'Linha Revigo'],
@@ -101,7 +101,7 @@ export const META: Record<string, CultureMeta> = {
   },
   algodao: {
     gradient: 'linear-gradient(165deg, #e7dfc9, #87826a)',
-    image: '/assets/cultures/algodao.webp',
+    image: '/assets/cultures/algodao.webp?v=20260731',
     managementProducts: [
       ['Acorda Ultra'],
       ['Aminosan', 'Linha Revigo'],
@@ -114,7 +114,7 @@ export const META: Record<string, CultureMeta> = {
   },
   feijao: {
     gradient: 'linear-gradient(165deg, #8b5e3b, #2f1f12)',
-    image: '/assets/cultures/feijao.webp',
+    image: '/assets/cultures/feijao.webp?v=20260731',
     managementProducts: [
       ['Acorda Ultra', 'Aduban'],
       ['Aminosan'],
@@ -127,7 +127,7 @@ export const META: Record<string, CultureMeta> = {
   },
   citros: {
     gradient: 'linear-gradient(165deg, #d3a52a, #5e4910)',
-    image: '/assets/cultures/limao.webp',
+    image: '/assets/cultures/limao.webp?v=20260731',
     managementProducts: [
       ['Aminosan', 'FitoFert'],
       ['Aminosan', 'Revigo CaB'],
@@ -140,7 +140,7 @@ export const META: Record<string, CultureMeta> = {
   },
   batata: {
     gradient: 'linear-gradient(165deg, #a08562, #463623)',
-    image: '/assets/cultures/batata.webp',
+    image: '/assets/cultures/batata.webp?v=20260731',
     managementProducts: [
       ['Aminosan'],
       ['FitoFert', 'Linha Revigo'],
@@ -153,7 +153,7 @@ export const META: Record<string, CultureMeta> = {
   },
   tomate: {
     gradient: 'linear-gradient(165deg, #b73a2a, #4e1410)',
-    image: '/assets/cultures/tomate.webp',
+    image: '/assets/cultures/tomate.webp?v=20260731',
     managementProducts: [
       ['Aminosan', 'Linha Revigo'],
       ['FitoFert', 'Aminosan'],
@@ -166,7 +166,7 @@ export const META: Record<string, CultureMeta> = {
   },
   pastagem: {
     gradient: 'linear-gradient(165deg, #80a558, #2c3e1d)',
-    image: '/assets/cultures/pastagem.webp',
+    image: '/assets/cultures/pastagem.webp?v=20260731',
     managementProducts: [
       ['Linha Revigo', 'Aminosan'],
       ['Revigo + Pasto']

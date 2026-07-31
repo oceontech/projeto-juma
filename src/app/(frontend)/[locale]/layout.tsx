@@ -36,16 +36,16 @@ export async function generateMetadata(props: { params: Promise<{ locale: string
   const { locale } = await props.params
 
   const titles: Record<string, string> = {
-    'pt-BR': 'Juma Agro — Fertilizantes especiais e aminoácidos',
-    en: 'Juma Agro — Specialty fertilizers and amino acids',
-    es: 'Juma Agro — Fertilizantes especiales y aminoácidos',
+    'pt-BR': 'Juma-Agro — Fertilizantes especiais e aminoácidos',
+    en: 'Juma-Agro — Specialty fertilizers and amino acids',
+    es: 'Juma-Agro — Fertilizantes especiales y aminoácidos',
   }
 
   const descriptions: Record<string, string> = {
     'pt-BR':
-      'A Juma Agro desenvolve fertilizantes especiais e aminoácidos que aumentam a produtividade do campo, fase a fase.',
-    en: 'Juma Agro develops specialty fertilizers and amino acids that boost field productivity, phase by phase.',
-    es: 'Juma Agro desarrolla fertilizantes especiales y aminoácidos que aumentan la productividad del campo, fase a fase.',
+      'A Juma-Agro desenvolve fertilizantes especiais e aminoácidos que aumentam a produtividade do campo, fase a fase.',
+    en: 'Juma-Agro develops specialty fertilizers and amino acids that boost field productivity, phase by phase.',
+    es: 'Juma-Agro desarrolla fertilizantes especiales y aminoácidos que aumentan la productividad del campo, fase a fase.',
   }
 
   return {

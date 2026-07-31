@@ -3,7 +3,21 @@
 import { useEffect, useRef } from 'react'
 import type { CSSProperties } from 'react'
 import Image from 'next/image'
-import { Leaf, Atom, Sprout, ChevronDown, ArrowRight } from 'lucide-react'
+import {
+  Leaf,
+  Atom,
+  Sprout,
+  ChevronDown,
+  ArrowRight,
+  Award,
+  Bug,
+  Zap,
+  ShieldCheck,
+  Waypoints,
+  Repeat,
+  Activity,
+  Flower2,
+} from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
@@ -14,13 +28,24 @@ import { useTranslations } from 'next-intl'
 
 /* â”€â”€ Tipos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-type StatIcon = 'leaf' | 'molecule' | 'sprout'
+type StatIcon =
+  | 'leaf'
+  | 'molecule'
+  | 'sprout'
+  | 'award'
+  | 'bug'
+  | 'energy'
+  | 'shield'
+  | 'roots'
+  | 'recovery'
+  | 'metabolism'
+  | 'bloom'
 
+/** Benefício do produto. O texto (título + apoio) vem do i18n pelo índice;
+ *  aqui fica só o ícone. Antes isto era um número de ganho por saca, trocado
+ *  por benefício a pedido do cliente. */
 type Stat = {
   icon: StatIcon
-  value: string
-  unit: string
-  label: string
 }
 
 type ProductEntry = {
@@ -47,6 +72,14 @@ const STAT_ICONS: Record<StatIcon, LucideIcon> = {
   leaf: Leaf,
   molecule: Atom,
   sprout: Sprout,
+  award: Award,
+  bug: Bug,
+  energy: Zap,
+  shield: ShieldCheck,
+  roots: Waypoints,
+  recovery: Repeat,
+  metabolism: Activity,
+  bloom: Flower2,
 }
 
 /* ── Produtos do catálogo da home ─ 4 itens ───────────── */
@@ -57,13 +90,8 @@ const PRODUCTS: ProductEntry[] = [
   {
     name: 'AMINOSAN',
     line: 'LINHA REDUTAN',
-    description:
-      'Bioativador organomineral à base de aminoácidos livres. Acelera o metabolismo da planta e potencializa a absorção de nutrientes em todas as fases.',
-    stats: [
-      { icon: 'leaf', value: '+14', unit: 'sc/ha', label: 'Acorda Cana' },
-      { icon: 'molecule', value: '+20', unit: 'sc/ha', label: 'RevigoPhos Amino' },
-      { icon: 'sprout', value: '+5', unit: 'sc/ha', label: 'Revigo + Milho e Pasto' },
-    ],
+    description: 'Há mais de 40 anos o melhor aminoácido do mercado!',
+    stats: [{ icon: 'recovery' }, { icon: 'leaf' }, { icon: 'bloom' }],
     base: '#07133a',
     mid: '#030817',
     accent: '#7fd0f2',
@@ -76,13 +104,8 @@ const PRODUCTS: ProductEntry[] = [
   {
     name: 'ACORDA ULTRA',
     line: 'LINHA REDUTAN',
-    description:
-      'Bioestimulante para arranque de culturas anuais. Estimula o enraizamento profundo desde a germinação e aumenta o vigor inicial das plantas.',
-    stats: [
-      { icon: 'sprout', value: '+18', unit: 'sc/ha', label: 'Soja Arranque' },
-      { icon: 'leaf', value: '+11', unit: 'sc/ha', label: 'Milho Vigor' },
-      { icon: 'molecule', value: '+7', unit: 'sc/ha', label: 'Feijão Inicial' },
-    ],
+    description: 'O melhor no Tratamento de Sementes! Maior Germinação e Maior Vigor.',
+    stats: [{ icon: 'sprout' }, { icon: 'roots' }, { icon: 'shield' }],
     base: '#052538',
     mid: '#031018',
     accent: '#2c96c8',
@@ -94,12 +117,8 @@ const PRODUCTS: ProductEntry[] = [
     name: 'KMEP ULTRA',
     line: 'LINHA JUMA',
     description:
-      'Solução concentrada de potássio, magnésio e enxofre. Fornece nutrientes essenciais para a qualidade final da produção e resistência a estresses.',
-    stats: [
-      { icon: 'molecule', value: '+15', unit: 'sc/ha', label: 'Qualidade Grão' },
-      { icon: 'leaf', value: '+11', unit: 'sc/ha', label: 'Resistência' },
-      { icon: 'sprout', value: '+7', unit: 'sc/ha', label: 'Produtividade' },
-    ],
+      'Potencializador de Inseticidas atua como agente desalojante, forçando pragas ocultas a saírem do abrigo aumentando o contato com os inseticidas.',
+    stats: [{ icon: 'bug' }, { icon: 'molecule' }, { icon: 'award' }],
     base: '#141414',
     mid: '#080808',
     accent: '#f0463a',
@@ -110,13 +129,8 @@ const PRODUCTS: ProductEntry[] = [
   {
     name: 'REVIGOPHOS AMINO',
     line: 'LINHA JUMA',
-    description:
-      'Fósforo aminoquelatado de pronta disponibilidade. Estimula o enraizamento profundo e o enchimento de grãos com máxima eficiência.',
-    stats: [
-      { icon: 'molecule', value: '+20', unit: 'sc/ha', label: 'Enraizamento' },
-      { icon: 'leaf', value: '+16', unit: 'sc/ha', label: 'Enchimento de Grãos' },
-      { icon: 'sprout', value: '+8', unit: 'sc/ha', label: 'Vigor Inicial' },
-    ],
+    description: 'A Energia do Fósforo com a tecnologia dos aminoácidos!',
+    stats: [{ icon: 'energy' }, { icon: 'metabolism' }, { icon: 'recovery' }],
     base: '#062418',
     mid: '#020d08',
     accent: '#f2c94c',
@@ -1529,12 +1543,12 @@ export function HomeProductShowcase() {
                 {/* Coluna 3 — stats */}
                 <div className="pcs-panel-stats">
                   {product.stats.map((stat, si) => {
+                    const statTitle = t(`products.${i}.stats.${si}.title`)
                     const statLabel = t(`products.${i}.stats.${si}.label`)
-                    const statUnit = t(`products.${i}.stats.${si}.unit`)
                     const Icon = STAT_ICONS[stat.icon]
                     return (
                       <div
-                        key={statLabel}
+                        key={statTitle}
                         className="pcs-stat-row"
                         style={{ '--stat-accent': product.accent } as CSSProperties}
                       >
@@ -1548,10 +1562,7 @@ export function HomeProductShowcase() {
                           <Icon size={26} strokeWidth={1.75} />
                         </div>
                         <div className="pcs-stat-text">
-                          <div className="pcs-stat-value-row">
-                            <span className="pcs-stat-value">{stat.value}</span>
-                            <span className="pcs-stat-unit">{statUnit}</span>
-                          </div>
+                          <div className="pcs-stat-title">{statTitle}</div>
                           <div className="pcs-stat-label">{statLabel}</div>
                         </div>
                       </div>

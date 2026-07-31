@@ -15,7 +15,7 @@ export async function generateMetadata(props: {
   params: Promise<{ locale: string; slug: string }>
 }) {
   const { slug } = await props.params
-  return { title: `${slug.charAt(0).toUpperCase() + slug.slice(1)} · Culturas · Juma Agro` }
+  return { title: `${slug.charAt(0).toUpperCase() + slug.slice(1)} · Culturas · Juma-Agro` }
 }
 
 export default async function CulturaPage(props: {
