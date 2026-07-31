@@ -1610,8 +1610,8 @@ export function HomeProductShowcase() {
                       alt={name}
                       width={1000}
                       height={1000}
-                      sizes="(min-width: 1024px) 50vw, 100vw"
-                      quality={90}
+                      sizes="(min-width: 1024px) 45vw, (min-width: 768px) 60vw, 80vw"
+                      quality={85}
                       draggable={false}
                       /* O Aminosan é o alvo do handoff: a ponte mede a imagem
                          para se alinhar ao frame do vídeo, então ela precisa

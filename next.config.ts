@@ -35,6 +35,9 @@ const nextConfig: NextConfig = {
         pathname: '/produtos/**',
       },
       {
+        pathname: '/assets/products/**',
+      },
+      {
         pathname: '/cta-final/**',
       },
       {
@@ -48,9 +51,6 @@ const nextConfig: NextConfig = {
       },
       {
         pathname: '/assets/linha-produtos/**',
-      },
-      {
-        pathname: '/assets/products/**',
       },
       {
         pathname: '/materias/**',

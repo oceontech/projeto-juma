@@ -35,9 +35,9 @@ type TFn = ReturnType<typeof useTranslations>
    composição inteira sempre cabe no palco, centrada, e as tarjas que sobram são
    brancas iguais ao fundo da seção (bg-white) — invisíveis. */
 const STAGE_VIDEO_CLASS =
-  'absolute inset-0 z-0 h-full w-full object-contain opacity-0 max-lg:top-[22dvh] max-lg:h-[60dvh]'
+  'absolute inset-0 z-0 h-full w-full object-contain opacity-0 max-lg:!top-[22dvh] max-lg:!bottom-auto max-lg:!h-[60dvh]'
 const STAGE_IMAGE_CLASS =
-  'absolute z-10 pointer-events-none object-contain lg:!inset-0 max-lg:!top-[22dvh] max-lg:!h-[60dvh]'
+  'absolute z-10 pointer-events-none object-contain lg:!inset-0 max-lg:!top-[22dvh] max-lg:!bottom-auto max-lg:!h-[60dvh]'
 
 /* Âncora vertical única das colunas de texto do Ato 1 e do Ato 3 no desktop.
    O clamp segura a faixa entre 6rem e 22rem, então em janela baixa (600px) o
@@ -261,7 +261,8 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
             ref={oldImgRef}
             src="/heritage/desktop/morph-aminosan-1-antigo.webp"
             alt={t('oldBottleAlt')}
-            fill sizes="100vw"
+            fill sizes="(max-width: 1024px) 100vw, 100vw"
+            quality={85}
             className="object-cover object-bottom z-10"
             priority
           />
@@ -296,7 +297,8 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
           <Image
             src="/heritage/desktop/morph-aminosan-2-novo.webp"
             alt={t('newBottleAlt')}
-            fill sizes="100vw"
+            fill sizes="(max-width: 1024px) 100vw, 100vw"
+            quality={85}
             className="object-cover"
           />
           <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-white to-transparent" />
@@ -375,7 +377,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       gsap.set(video, { zIndex: 1 })
       gsap.set([newImg, lineImg, trioImg], { autoAlpha: 0 })
       gsap.set(brandMarkRef.current, { autoAlpha: 1, y: 0, filter: 'blur(0px)' })
-      gsap.set(oldImg,       { zIndex: 10, scale: 1, autoAlpha: 1, yPercent: 0, filter: 'blur(0px)' })
+      gsap.set(oldImg,       { zIndex: 10, scale: stageZoom().bottle, autoAlpha: 1, yPercent: 0, filter: 'blur(0px)' })
       gsap.set(scrimRef.current, { autoAlpha: 1 })
       gsap.set(titleChars,   { x: 0, autoAlpha: 1, filter: 'blur(0px)' })
       gsap.set(act1Items,    { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
@@ -506,7 +508,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       const introTl = gsap.timeline({ paused: true })
       introTl.to(scrimRef.current, { autoAlpha: 1, duration: 0.5, ease: 'power1.out' }, 0)
-      introTl.to(oldImg,           { scale: 1, yPercent: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.95, ease: 'power3.out' }, 0)
+      introTl.to(oldImg,           { scale: () => stageZoom().bottle, yPercent: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.95, ease: 'power3.out' }, 0)
       introTl.to(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.7, ease: 'power3.out' }, 0.1)
       introTl.to(titleChars,       { x: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.72, stagger: STAGGER.char, ease: 'power2.out' }, 0.16)
       introTl.to(act1Items,        { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.72, stagger: 0.12, ease: 'power2.out' }, 0.28)
@@ -516,6 +518,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       const playIntro = (restart = false) => {
         if (phase !== 'act1' || direction) return
+        if (oldCalloutRef.current) gsap.set(oldCalloutRef.current, { autoAlpha: 1 })
         introTl.timeScale(1)
         if (restart) introTl.restart()
         else if (introTl.progress() < 1) introTl.play()
@@ -545,6 +548,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       const showAct3UI = (delay = 0) => {
         currentTl?.kill()
+        if (newCalloutRef.current) gsap.set(newCalloutRef.current, { autoAlpha: 1 })
         const tl = currentTl = gsap.timeline({ delay })
 
         tl.to(a3Eyebrow, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.6, ease: 'power2.out' }, 0)
@@ -563,6 +567,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         tl.to(newCalloutLabel, { x: 12, autoAlpha: 0, duration: 0.14, ease: 'power2.in' }, 0)
         tl.to(newCalloutDot, { scale: 0, autoAlpha: 0, duration: 0.12, ease: 'power2.in' }, 0.03)
         tl.to(newCalloutLine, { scaleX: 0, duration: 0.14, ease: 'power2.in' }, 0.04)
+        if (newCalloutRef.current) tl.to(newCalloutRef.current, { autoAlpha: 0, duration: 0.16, ease: 'power2.in' }, 0.04)
         tl.to(a3Line, { scaleX: 0, duration: 0.14, ease: 'power2.in' }, 0.07)
         tl.to(a3Body, { autoAlpha: 0, filter: 'blur(10px)', duration: 0.16, ease: 'power2.in' }, 0.08)
         tl.to(a3Title, { y: 30, autoAlpha: 0, duration: 0.16, ease: 'power2.in' }, 0.1)
@@ -613,24 +618,28 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       }
 
       const hideAct1UI = (immediate = false) => {
+        introTl.pause()
         if (immediate) {
           // `gsap.set` NÃO sobrescreve tween em andamento: sem este kill, um
           // `hideAct1UI(false)`/intro ainda correndo continuaria escrevendo por
           // cima do estado que acabamos de fixar.
-          gsap.killTweensOf([...titleChars, ...act1Items, calloutLine, calloutDot, calloutLabel, scrimRef.current].filter(Boolean))
+          gsap.killTweensOf([...titleChars, ...act1Items, calloutLine, calloutDot, calloutLabel, scrimRef.current, oldCalloutRef.current].filter(Boolean))
           gsap.set(titleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)' })
           gsap.set(act1Items, { y: 20, autoAlpha: 0, filter: 'blur(10px)' })
           gsap.set(calloutLine, { scaleX: 0 })
           gsap.set(calloutDot, { scale: 0, autoAlpha: 0 })
           gsap.set(calloutLabel, { x: 12, autoAlpha: 0 })
           gsap.set(scrimRef.current, { autoAlpha: 0 })
+          if (oldCalloutRef.current) gsap.set(oldCalloutRef.current, { autoAlpha: 0 })
         } else {
+          gsap.killTweensOf([...titleChars, ...act1Items, calloutLine, calloutDot, calloutLabel, scrimRef.current, oldCalloutRef.current].filter(Boolean))
           gsap.to(titleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)', duration: 0.6, stagger: STAGGER.char, ease: 'power1.inOut', overwrite: 'auto' })
           gsap.to(act1Items, { y: 20, autoAlpha: 0, filter: 'blur(10px)', duration: 0.6, stagger: 0.05, ease: 'power1.inOut', overwrite: 'auto' })
           gsap.to(calloutLabel, { x: 12, autoAlpha: 0, duration: 0.36, ease: 'power1.inOut', overwrite: 'auto' })
           gsap.to(calloutDot, { scale: 0, autoAlpha: 0, duration: 0.33, ease: 'power1.inOut', overwrite: 'auto' })
           gsap.to(calloutLine, { scaleX: 0, duration: 0.45, ease: 'power1.inOut', overwrite: 'auto' })
           gsap.to(scrimRef.current, { autoAlpha: 0, duration: 1.2, ease: 'power1.inOut', overwrite: 'auto' })
+          if (oldCalloutRef.current) gsap.to(oldCalloutRef.current, { autoAlpha: 0, duration: 0.36, ease: 'power1.inOut', overwrite: 'auto' })
         }
       }
 
@@ -642,8 +651,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
              para +14 numa fase onde o número nem está na tela. */
           currentTl?.kill()
           currentTl = null
-          gsap.killTweensOf([a3Eyebrow, a3Title, a3Body, a3Line, newCalloutLine, newCalloutDot, newCalloutLabel])
-          gsap.set([a3Eyebrow, a3Title, a3Body, newCalloutLabel], { autoAlpha: 0 })
+          gsap.killTweensOf([a3Eyebrow, a3Title, a3Body, a3Line, newCalloutLine, newCalloutDot, newCalloutLabel, newCalloutRef.current].filter(Boolean))
+          gsap.set([a3Eyebrow, a3Title, a3Body, newCalloutLabel, newCalloutRef.current], { autoAlpha: 0 })
           gsap.set([a3Line, newCalloutLine], { scaleX: 0 })
           gsap.set(newCalloutDot, { scale: 0, autoAlpha: 0 })
         } else {
@@ -682,8 +691,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const showAct3Static = () => {
         currentTl?.kill()
         currentTl = null
-        gsap.killTweensOf([a3Eyebrow, a3Title, a3Body, a3Line, newCalloutLine, newCalloutDot, newCalloutLabel])
-        gsap.set([a3Eyebrow, a3Title, a3Body], { autoAlpha: 1, y: 0, filter: 'blur(0px)' })
+        gsap.killTweensOf([a3Eyebrow, a3Title, a3Body, a3Line, newCalloutLine, newCalloutDot, newCalloutLabel, newCalloutRef.current].filter(Boolean))
+        gsap.set([a3Eyebrow, a3Title, a3Body, newCalloutRef.current], { autoAlpha: 1, y: 0, filter: 'blur(0px)' })
         gsap.set([a3Line, newCalloutLine], { scaleX: 1, transformOrigin: 'left' })
         gsap.set(newCalloutDot, { scale: 1, autoAlpha: 1 })
         gsap.set(newCalloutLabel, { autoAlpha: 1, x: 0 })
@@ -709,7 +718,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
          Nas telas estreitas o limite de largura ganha e o resultado é o mesmo
          2,8 de antes; conforme a janela alarga, o limite de altura assume e o
          zoom cai sozinho até encontrar o enquadramento do desktop em 1024px. */
-      const stageZoom = () => {
+      function stageZoom() {
         const W = window.innerWidth
         const H = window.innerHeight
         if (W >= 1024) return { bottle: 1, line: 1 }
@@ -736,6 +745,10 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         const z = stageZoom()
         stageTrigger.style.setProperty('--stage-zoom', String(z.bottle))
         stageTrigger.style.setProperty('--stage-zoom-line', String(z.line))
+        if (oldImg) gsap.set(oldImg, { scale: z.bottle })
+        if (newImg) gsap.set(newImg, { scale: z.bottle })
+        if (lineImg) gsap.set(lineImg, { scale: z.line })
+        if (trioImg) gsap.set(trioImg, { scale: z.line })
       }
 
       const updateVideoScale = (video: HTMLVideoElement) => {
@@ -863,8 +876,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
               gsap.killTweensOf(oldImg)
               gsap.set(oldImg, { autoAlpha: 0 })
             } else {
-              gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: 1, yPercent: 0, filter: 'blur(0px)' })
-              gsap.to(oldImg, { autoAlpha: 0, scale: 0.992, filter: 'blur(4px)', duration: 0.24, ease: 'power1.inOut', overwrite: 'auto' })
+              gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: stageZoom().bottle, yPercent: 0, filter: 'blur(0px)' })
+              gsap.to(oldImg, { autoAlpha: 0, scale: stageZoom().bottle * 0.992, filter: 'blur(4px)', duration: 0.24, ease: 'power1.inOut', overwrite: 'auto' })
             }
             hideAct1UI(false)
             showAct3UI(0.6)
@@ -924,7 +937,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         gsap.set([newImg, lineImg, trioImg], { autoAlpha: 0 })
         hideAct3All(true)
         hideLineAll(true)
-        gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: 1, yPercent: 0, filter: 'blur(0px)' })
+        gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: stageZoom().bottle, yPercent: 0, filter: 'blur(0px)' })
         gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
         if (exitAfter) {
           requestAnimationFrame(() => reverseIntro())
@@ -942,9 +955,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           updateVideoScale(video)
         }
         gsap.killTweensOf([oldImg, newImg, lineImg, trioImg, brandMarkRef.current].filter(Boolean))
-        gsap.set(newImg, { autoAlpha: 1 })
+        gsap.set(newImg, { autoAlpha: 1, scale: stageZoom().bottle })
         gsap.set([lineImg, trioImg], { autoAlpha: 0 })
-        gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
+        gsap.set(oldImg, { autoAlpha: 0, scale: stageZoom().bottle * 0.985, filter: 'blur(8px)' })
         gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
         /* As camadas que NÃO são deste ato são assertadas aqui, nunca herdadas
            do `hideAct1UI`/`hideLineUI` que o `startPlayback` disparou lá atrás:
@@ -968,9 +981,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           updateVideoScale(video)
         }
         gsap.killTweensOf([oldImg, newImg, lineImg, trioImg, brandMarkRef.current].filter(Boolean))
-        gsap.set(lineImg, { autoAlpha: 1 })
+        gsap.set(lineImg, { autoAlpha: 1, scale: stageZoom().line })
         gsap.set([newImg, trioImg], { autoAlpha: 0 })
-        gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
+        gsap.set(oldImg, { autoAlpha: 0, scale: stageZoom().bottle * 0.985, filter: 'blur(8px)' })
         gsap.set(brandMarkRef.current, { autoAlpha: 0, y: -18, filter: 'blur(8px)' })
         hideAct1UI(true)
         hideAct3All(true)
@@ -1434,8 +1447,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           ref={oldImgRef}
           src="/heritage/desktop/morph-aminosan-1-antigo.webp"
           alt={t('oldBottleAlt')}
-          fill sizes="100vw"
-          className={`${STAGE_IMAGE_CLASS} max-lg:!scale-[var(--stage-zoom,2.8)]`}
+          fill sizes="(max-width: 1024px) 100vw, 100vw"
+          quality={85}
+          className={STAGE_IMAGE_CLASS}
           priority
         />
 
@@ -1444,8 +1458,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           ref={newImgRef}
           src="/heritage/desktop/morph-aminosan-2-novo.webp"
           alt={t('newBottleAlt')}
-          fill sizes="100vw"
-          className={`${STAGE_IMAGE_CLASS} opacity-0 max-lg:!scale-[var(--stage-zoom,2.8)]`}
+          fill sizes="(max-width: 1024px) 100vw, 100vw"
+          quality={85}
+          className={`${STAGE_IMAGE_CLASS} opacity-0`}
           priority
         />
 
@@ -1455,8 +1470,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           src="/heritage/desktop/line-aminosan-full.webp"
           alt=""
           aria-hidden
-          fill sizes="100vw"
-          className={`${STAGE_IMAGE_CLASS} opacity-0 max-lg:!scale-[var(--stage-zoom-line,1.45)]`}
+          fill sizes="(max-width: 1024px) 100vw, 100vw"
+          quality={85}
+          className={`${STAGE_IMAGE_CLASS} opacity-0`}
         />
 
         {/* z-10 — still do trio do catálogo (fim da transição) */}
@@ -1465,8 +1481,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           src="/produtos/aminosan-catalogo.png"
           alt=""
           aria-hidden
-          fill sizes="100vw"
-          className={`${STAGE_IMAGE_CLASS} opacity-0 max-lg:!scale-[var(--stage-zoom-line,1.45)]`}
+          fill sizes="(max-width: 1024px) 100vw, 100vw"
+          quality={85}
+          className={`${STAGE_IMAGE_CLASS} opacity-0`}
         />
 
         <AminosanBrandMark refEl={brandMarkRef} />

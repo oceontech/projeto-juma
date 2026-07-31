@@ -2,12 +2,12 @@ import { setRequestLocale } from 'next-intl/server'
 import dynamic from 'next/dynamic'
 
 import { HeroJornada }      from '@/features/home/components/HeroJornada'
-import { OurStory }         from '@/features/home/components/OurStory'
-import { AminosanStory }    from '@/features/home/components/AminosanStory'
 import { SectionNav }       from '@/features/home/components/SectionNav'
 
 // Seções abaixo da dobra do "filme contínuo": code-split em chunks separados
 // (continuam com SSR normal — só tiram peso do bundle inicial de hidratação).
+const OurStory            = dynamic(() => import('@/features/home/components/OurStory').then(m => m.OurStory))
+const AminosanStory       = dynamic(() => import('@/features/home/components/AminosanStory').then(m => m.AminosanStory))
 const HomeProductShowcase = dynamic(() => import('@/features/home/components/HomeProductShowcase').then(m => m.HomeProductShowcase))
 const HomeCultures    = dynamic(() => import('@/features/home/components/HomeCultures').then(m => m.HomeCultures))
 const ProofStrip      = dynamic(() => import('@/features/home/components/ProofStrip').then(m => m.ProofStrip))

@@ -21,7 +21,8 @@ export function HomeExperience() {
     const visual = ref.current.querySelector<HTMLElement>('[data-exp-visual]')
     const body = ref.current.querySelector<HTMLElement>('[data-exp-body]')
     
-    if (visual) gsap.set(visual, { x: -40, opacity: 0, filter: 'blur(10px)' })
+    const isMobile = window.innerWidth < 1024
+    if (visual) gsap.set(visual, { x: -40, opacity: 0, ...(!isMobile && { filter: 'blur(10px)' }) })
     
     let split: SplitText | null = null;
     if (body) {
@@ -34,7 +35,7 @@ export function HomeExperience() {
       split = title ? new SplitText(title, { type: 'chars,words' }) : null
 
       if (kicker) gsap.set(kicker, { y: 14, opacity: 0 })
-      if (split) gsap.set(split.chars, { x: 30, opacity: 0, filter: 'blur(10px)' })
+      if (split) gsap.set(split.chars, { x: 30, opacity: 0, ...(!isMobile && { filter: 'blur(10px)' }) })
       if (line) gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
       if (desc) gsap.set(desc, { y: 20, opacity: 0 })
       if (cta) gsap.set(cta, { y: 20, opacity: 0 })
@@ -50,7 +51,7 @@ export function HomeExperience() {
       defaults: { ease: EASE.reveal }
     })
     
-    if (visual) tl.to(visual, { x: 0, opacity: 1, filter: 'blur(0px)', duration: 0.9 })
+    if (visual) tl.to(visual, { x: 0, opacity: 1, ...(!isMobile && { filter: 'blur(0px)' }), duration: 0.9 })
     
     if (body) {
       const kicker = body.querySelector<HTMLElement>('[data-kicker]')
@@ -59,7 +60,7 @@ export function HomeExperience() {
       const cta = body.querySelector<HTMLElement>('[data-cta]')
 
       if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub }, '-=0.5')
-      if (split) tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, '-=0.4')
+      if (split) tl.to(split.chars, { x: 0, opacity: 1, ...(!isMobile && { filter: 'blur(0px)' }), duration: DUR.title, stagger: STAGGER.char }, '-=0.4')
       if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: DUR.sub }, '-=0.4')
       if (desc) tl.to(desc, { y: 0, opacity: 1, duration: DUR.sub }, '-=0.4')
       if (cta) tl.to(cta, { y: 0, opacity: 1, duration: DUR.sub }, '-=0.4')
@@ -82,6 +83,7 @@ export function HomeExperience() {
               alt={t('immersion')}
               fill
               sizes="(min-width: 1024px) 50vw, 100vw"
+              quality={85}
               className="object-cover"
             />
             <div aria-hidden className="absolute inset-0 bg-black/25" />

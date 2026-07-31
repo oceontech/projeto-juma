@@ -35,6 +35,8 @@ export function HeroJornada() {
 
   // Estado da jornada
   const phaseRef         = useRef<'rest' | 'animating' | 'done'>('rest')
+  const [phase, setPhase] = useState<'rest' | 'animating' | 'done'>('rest')
+  const capRef           = useRef(0)
   const stepRef          = useRef(-1)
   const playingRef       = useRef(false)
   const targetRef        = useRef<number | null>(null)
@@ -89,10 +91,27 @@ export function HeroJornada() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
+  const getVideo = () => {
+    if (videoRef.current) return videoRef.current
+    if (!root.current) return null
+    return root.current.querySelector<HTMLVideoElement>(
+      `video[data-hero-video="${isMobile ? 'mobile' : 'desktop'}"]`,
+    )
+  }
+
   // ── Entrada cinematográfica ───────────────────────────────────────
   useGSAP(
     () => {
-      if (!enhanced || entranceRanRef.current) return
+      if (!enhanced) return
+      if (entranceRanRef.current) {
+        if (titleWrapRef.current) gsap.set(titleWrapRef.current, { opacity: 1, y: 0 })
+        if (supportRef.current) gsap.set(supportRef.current, { opacity: 1, y: 0, filter: 'none' })
+        if (glowRef.current) gsap.set(glowRef.current, { opacity: 0.45 })
+        if (accentLineRef.current) gsap.set(accentLineRef.current, { scaleX: 1 })
+        if (leafContainerRef.current) gsap.set(leafContainerRef.current, { opacity: 1 })
+        if (scrollIndicatorRef.current) gsap.set(scrollIndicatorRef.current, { opacity: 1 })
+        return
+      }
       entranceRanRef.current = true
 
       const mainNav   = document.querySelector<HTMLElement>('#main-nav-pill')
@@ -112,9 +131,9 @@ export function HeroJornada() {
       const naturalLangWidth = langPill ? langPill.offsetWidth : 80
 
       // Estado inicial — evita flash antes da timeline
-      gsap.set(titleWrap, { y: 220, opacity: 0 })
+      gsap.set(titleWrap, { y: 60, opacity: 0 })
       gsap.set(glow,    { opacity: 0 })
-      gsap.set(support, { y: 40, opacity: 0, filter: 'blur(10px)' })
+      gsap.set(support, { y: 30, opacity: 0, filter: 'blur(8px)' })
       gsap.set(accent,  { scaleX: 0, transformOrigin: 'left center' })
       gsap.set(leaves,  { opacity: 0 })
       gsap.set(scrollInd, { opacity: 0 })
@@ -123,7 +142,12 @@ export function HeroJornada() {
       if (ctaBtn)   gsap.set(ctaBtn,   { opacity: 0, filter: 'blur(10px)' })
       if (navLinks) gsap.set(navLinks,  { opacity: 0, filter: 'blur(8px)' })
 
-      const tl = gsap.timeline({ defaults: { overwrite: 'auto' } })
+      const tl = gsap.timeline({
+        defaults: { overwrite: 'auto' },
+        onComplete: () => {
+          gsap.set([titleWrap, glow, support, accent, leaves, scrollInd].filter(Boolean), { clearProps: 'filter' })
+        }
+      })
       tl.timeScale(1.8)
 
       // 1. Navbar — pílula surge suavemente com blur-in (unificado para mobile e desktop)
@@ -204,21 +228,32 @@ export function HeroJornada() {
           requestAnimationFrame(() => ScrollTrigger.refresh())
         }
       }
-      const fadeRest = (show: boolean) =>
-        gsap.to(restEls(), { autoAlpha: show ? 1 : 0, duration: show ? 0.3 : 0.2, ease: 'power2.out' })
+      const safeSetCap = (nextCap: number) => {
+        if (capRef.current !== nextCap) {
+          capRef.current = nextCap
+          setCap(nextCap)
+        }
+      }
+
+      const fadeRest = (show: boolean) => {
+        const targetPhase = show ? 'rest' : 'animating'
+        if (phaseRef.current !== targetPhase) {
+          phaseRef.current = targetPhase
+          setPhase(targetPhase)
+        }
+        gsap.to(restEls(), { autoAlpha: show ? 1 : 0, duration: show ? 0.3 : 0.4, ease: 'power2.out' })
+      }
 
       const updateActivePhase = (time: number) => {
-        if (isMobile) {
-          if (time < 1.5)      setCap(0)
-          else if (time < 4.5) setCap(2)
-          else if (time < 7.5) setCap(3)
-          else                  setCap(4)
-        } else {
-          if (time < 1.5)      setCap(0)
-          else if (time < 5.0) setCap(2)
-          else if (time < 8.2) setCap(3)
-          else                  setCap(4)
+        if (time > 0.05 && phaseRef.current === 'rest') {
+          phaseRef.current = 'animating'
+          setPhase('animating')
+          fadeRest(false)
         }
+        const nextCap = isMobile
+          ? (time < 1.5 ? 0 : time < 4.5 ? 2 : time < 7.5 ? 3 : 4)
+          : (time < 1.5 ? 0 : time < 5.0 ? 2 : time < 8.2 ? 3 : 4)
+        safeSetCap(nextCap)
       }
 
       const updateLeavesParallax = (time: number) => {
@@ -240,7 +275,7 @@ export function HeroJornada() {
       }
 
       const getTargets = () => {
-        const video = videoRef.current
+        const video = getVideo()
         const fallback = isMobile ? 9.04 : 10.12
         const duration = (video && video.duration > 0) ? video.duration : fallback
         const safeEnd = duration - 0.1
@@ -248,7 +283,7 @@ export function HeroJornada() {
       }
 
       const tick = (now: number) => {
-        const video = videoRef.current
+        const video = getVideo()
         if (!video) { stopPlayback(); return }
         if (!playingRef.current) return
         const target = targetRef.current
@@ -295,7 +330,7 @@ export function HeroJornada() {
       }
 
       const startPlayback = (dir: 'forward' | 'backward', target: number) => {
-        const video = videoRef.current
+        const video = getVideo()
         if (!video) return
         if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
         directionRef.current = dir
@@ -316,7 +351,7 @@ export function HeroJornada() {
       }
 
       const stopPlayback = () => {
-        const video = videoRef.current
+        const video = getVideo()
         if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
         playingRef.current  = false
         directionRef.current = null
@@ -334,38 +369,46 @@ export function HeroJornada() {
         if (i >= 1 && i <= capAtPause.length) setCap(capAtPause[i - 1])
         if (target <= 0.05) {
           phaseRef.current = 'rest'
+          setPhase('rest')
           stepRef.current  = -1
           lockScroll(false)
           setCap(0)
           fadeRest(true)
           autoRewindRef.current = false
           return
+        } else {
+          fadeRest(false)
         }
       }
 
       const startJourney = () => {
-        const video = videoRef.current
+        const video = getVideo()
         if (!video) return
         phaseRef.current = 'animating'
+        setPhase('animating')
         lockScroll(true)
         fadeRest(false)
         stepRef.current = 1
         setCap(0)
         setIsPaused(false)
-        try { video.currentTime = 0 } catch {}
+        if (video.currentTime > 0.05) {
+          try { video.currentTime = 0 } catch {}
+        }
         startPlayback('forward', getTargets()[1])
       }
 
       const release = () => {
-        const video = videoRef.current
+        const video = getVideo()
         if (video) { try { video.pause() } catch {} }
         if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
         phaseRef.current  = 'done'
+        setPhase('done')
         playingRef.current = false
         directionRef.current = null
         targetRef.current  = null
         setIsPaused(true)
         lockScroll(false)
+        fadeRest(false)
       }
 
       const targetsLength = 3
@@ -412,7 +455,7 @@ export function HeroJornada() {
       const upKeys   = ['ArrowUp', 'PageUp']
 
       const onWheel = (e: WheelEvent) => {
-        const video = videoRef.current
+        const video = getVideo()
         if (!video) return
         const ph = phaseRef.current
         if (ph === 'done') {
@@ -435,7 +478,7 @@ export function HeroJornada() {
       }
 
       const onKey = (e: KeyboardEvent) => {
-        const video = videoRef.current
+        const video = getVideo()
         if (!video) return
         const ph   = phaseRef.current
         const down = downKeys.includes(e.key)
@@ -462,17 +505,27 @@ export function HeroJornada() {
 
       let touchY = 0
       const onTouchStart = (e: TouchEvent) => {
-        const video = videoRef.current
+        const video = getVideo()
         if (!video) return
         touchY = e.touches[0].clientY
       }
       const onTouchMove  = (e: TouchEvent) => {
-        const video = videoRef.current
+        const video = getVideo()
         if (!video) return
-        if (phaseRef.current !== 'done') e.preventDefault()
+        if (phaseRef.current === 'done') return
+        if (e.touches.length > 0) {
+          const currentY = e.touches[0].clientY
+          const dy = touchY - currentY
+          // Se estiver na fase final (Gota) e arrastar para cima (scroll para baixo), libera o scroll para continuar a navegação
+          if (dy > 10 && stepRef.current >= targetsLength && !playingRef.current) {
+            release()
+            return
+          }
+        }
+        e.preventDefault()
       }
       const onTouchEnd   = (e: TouchEvent) => {
-        const video = videoRef.current
+        const video = getVideo()
         if (!video) return
         const ph  = phaseRef.current
         const endY = e.changedTouches[0] ? e.changedTouches[0].clientY : touchY
@@ -488,15 +541,25 @@ export function HeroJornada() {
         }
         if (ph === 'rest') { if (dy > 30) startJourney() }
         else if (ph === 'animating') {
-          if (dy > 30) handleForward()
+          if (dy > 30) {
+            if (stepRef.current >= targetsLength && !playingRef.current) {
+              release()
+            } else {
+              handleForward()
+            }
+          }
           else if (dy < -30) handleBackward()
         }
       }
 
       const onScroll = () => {
-        const video = videoRef.current
+        const video = getVideo()
         if (!video) return
         
+        if (phaseRef.current === 'rest' && window.scrollY > 10) {
+          fadeRest(false)
+        }
+
         if (phaseRef.current === 'done') {
           if (window.scrollY > 10) {
             hasLeftTopRef.current = true
@@ -516,7 +579,7 @@ export function HeroJornada() {
       // 'reset'    → volta ao frame inicial (o clique em "Início" replay o intro).
       const skipToDone = () => {
         if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
-        const video = videoRef.current
+        const video = getVideo()
         const targets = getTargets()
         const end = targets[targets.length - 1]
         if (video) { try { video.pause() } catch {}; try { video.currentTime = end } catch {} }
@@ -526,6 +589,7 @@ export function HeroJornada() {
         autoRewindRef.current = false
         stepRef.current = targetsLength
         phaseRef.current = 'done'
+        setPhase('done')
         setCap(4)
         setIsPaused(true)
         updateLeavesParallax(end)
@@ -534,7 +598,7 @@ export function HeroJornada() {
       }
       const resetToStart = () => {
         if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
-        const video = videoRef.current
+        const video = getVideo()
         if (video) { try { video.pause() } catch {}; try { video.currentTime = 0 } catch {} }
         playingRef.current = false
         directionRef.current = null
@@ -542,6 +606,7 @@ export function HeroJornada() {
         autoRewindRef.current = false
         stepRef.current = -1
         phaseRef.current = 'rest'
+        setPhase('rest')
         setCap(0)
         setIsPaused(true)
         updateLeavesParallax(0)
@@ -662,36 +727,44 @@ export function HeroJornada() {
       <div className="relative h-[100dvh] w-full overflow-hidden">
 
         {/* Desktop Poster Image */}
-        <div data-rest className="absolute inset-0 z-0 h-full w-full hidden lg:block">
-          <Image
-            src="/hero/desktop/journey-poster.webp"
-            alt="" aria-hidden fill sizes="100vw" quality={60}
-            className="object-cover"
-          />
-        </div>
-        {/* z-0 — Vídeo desktop */}
+        {!isMobile && (
+          <div className="absolute inset-0 z-0 h-full w-full hidden lg:block">
+            <Image
+              src="/hero/desktop/journey-poster.webp"
+              alt="" aria-hidden fill sizes="100vw" quality={60}
+              className="object-cover"
+              priority
+            />
+          </div>
+        )}
+        {/* z-[1] — Vídeo desktop */}
         <video
           ref={isMobile ? null : videoRef}
           data-hero-video="desktop"
+          poster="/hero/desktop/journey-poster.webp"
           muted playsInline preload="none"
           aria-label={tj('videoAlt')}
-          className="absolute inset-0 z-0 h-full w-full object-cover hidden lg:block"
+          className="absolute inset-0 z-[1] h-full w-full object-cover hidden lg:block"
         >
           <source src="/hero/desktop/journey.mp4" type="video/mp4" />
         </video>
 
         {/* Mobile Poster Image */}
-        <div data-rest className="absolute inset-0 z-[1] h-full w-full block lg:hidden mix-blend-multiply">
-          <Image
-            src="/hero/mobile/journey-poster.webp"
-            alt="" aria-hidden fill sizes="100vw" quality={60}
-            className="object-cover max-lg:object-bottom"
-          />
-        </div>
+        {isMobile && (
+          <div data-rest className="absolute inset-0 z-0 h-full w-full block lg:hidden mix-blend-multiply">
+            <Image
+              src="/hero/mobile/journey-poster.webp"
+              alt="" aria-hidden fill sizes="100vw" quality={60}
+              className="object-cover max-lg:object-bottom"
+              priority
+            />
+          </div>
+        )}
         {/* z-[1] — Vídeo mobile (com multiply para revelar o selo por trás do branco) */}
         <video
           ref={isMobile ? videoRef : null}
           data-hero-video="mobile"
+          poster="/hero/mobile/journey-poster.webp"
           muted playsInline preload="none"
           aria-label={tj('videoAlt')}
           className="absolute inset-0 z-[1] h-full w-full object-cover max-lg:object-bottom block lg:hidden mix-blend-multiply"
@@ -738,7 +811,7 @@ export function HeroJornada() {
 
         {/* z-20 — Campo (montanhas): mascaras a base do título + transparente no céu.
              NÃO tem ref de parallax — deve estar perfeitamente alinhado ao vídeo. */}
-        <div data-rest className="absolute inset-0 z-20">
+        <div data-rest className={`absolute inset-0 z-20 ${cap !== 0 ? 'pointer-events-none opacity-0 invisible' : ''}`}>
           <Image
             src={isMobile ? '/hero/mobile/frame-1-campo.webp' : '/hero/desktop/frame-1-campo.webp'}
             alt="" aria-hidden fill priority fetchPriority="high" sizes="100vw" quality={60}
@@ -919,7 +992,14 @@ function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, alig
 
       const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
       if (kickerEl) tl.fromTo(kickerEl, { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0)
-      if (split)    tl.fromTo(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' }, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, 0.05)
+      if (split) {
+        tl.fromTo(
+          split.chars,
+          { x: 20, opacity: 0, ...(!mobile && { filter: 'blur(10px)' }) },
+          { x: 0, opacity: 1, ...(!mobile && { filter: 'blur(0px)' }), duration: DUR.title, stagger: STAGGER.char },
+          0.05,
+        )
+      }
       if (lineEl)   tl.fromTo(lineEl, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: DUR.sub, transformOrigin: lineOrigin }, 0.2)
       if (subEl)    tl.fromTo(subEl, { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0.28)
       if (itemsEl)  tl.fromTo(itemsEl, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0.34)
@@ -1090,6 +1170,7 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitl
 
       let rotatorTl: gsap.core.Timeline | null = null;
 
+      const isMobileGota = window.innerWidth < 1024
       const tl = gsap.timeline({ 
         defaults: { ease: EASE.reveal },
         onComplete: () => {
@@ -1097,7 +1178,14 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitl
         }
       })
       if (kickerEl) tl.fromTo(kickerEl, { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0)
-      if (split)    tl.fromTo(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' }, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, 0.12)
+      if (split) {
+        tl.fromTo(
+          split.chars,
+          { x: 20, opacity: 0, ...(!isMobileGota && { filter: 'blur(10px)' }) },
+          { x: 0, opacity: 1, ...(!isMobileGota && { filter: 'blur(0px)' }), duration: DUR.title, stagger: STAGGER.char },
+          0.12,
+        )
+      }
       if (lineEl)   tl.fromTo(lineEl, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: DUR.sub }, 0.55)
       if (subEl)    tl.fromTo(subEl, { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0.7)
 
