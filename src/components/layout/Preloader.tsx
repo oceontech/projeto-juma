@@ -13,8 +13,8 @@ const preloadCriticalAssets = async () => {
 
   const isMobile = window.innerWidth < 1024
   const imagesToDecode = isMobile
-    ? ['/hero/mobile/frame-1-campo.png', '/hero/mobile/overlay-folhas.png']
-    : ['/hero/desktop/frame-1-campo.png', '/hero/desktop/overlay-folhas.png']
+    ? ['/hero/mobile/frame-1-campo.webp', '/hero/mobile/overlay-folhas.webp']
+    : ['/hero/desktop/frame-1-campo.webp', '/hero/desktop/overlay-folhas.webp']
 
   // 1. Decodificação de Imagens da Hero na GPU
   const imgPromises = imagesToDecode.map((src) => {

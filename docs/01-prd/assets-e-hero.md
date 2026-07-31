@@ -6,10 +6,10 @@
 
 | Arquivo | O que é | Cena |
 |---|---|---|
-| `frame-1-campo.png` | Campo ao entardecer, trator, montanhas | Estado de repouso da seção 1 e primeiro frame do vídeo 1 |
-| `frame-2-folha.png` | Folha de milho com gota d'água, fundo branco | Junção vídeo 1 → vídeo 2 (repouso da seção 2). **Só existe no mobile.** |
-| `frame-3-solo.png` | Planta no solo com respingo d'água, fundo branco | Junção vídeo 2 → vídeo 3 (repouso da seção 3) |
-| `overlay-folhas.png` | Folhas desfocadas em primeiro plano, fundo transparente | Camada da frente da seção 1 (balança com o vento) |
+| `frame-1-campo.webp` | Campo ao entardecer, trator, montanhas | Estado de repouso da seção 1 e primeiro frame do vídeo 1 |
+| `frame-2-folha.webp` | Folha de milho com gota d'água, fundo branco | Junção vídeo 1 → vídeo 2 (repouso da seção 2). **Só existe no mobile.** |
+| `frame-3-solo.webp` | Planta no solo com respingo d'água, fundo branco | Junção vídeo 2 → vídeo 3 (repouso da seção 3) |
+| `overlay-folhas.webp` | Folhas desfocadas em primeiro plano, fundo transparente | Camada da frente da seção 1 (balança com o vento) |
 | `video-1-campo-folha.mp4` | Zoom do campo até a folha em macro | Seção 1, toca ao rolar |
 | `video-2-folha-solo.mp4` | Água escorre pela folha e pinga no chão | Seção 2, toca ao rolar |
 | `video-3-gota-branco.mp4` | A gota entra na câmera e tudo fica branco | Seção 3, entrega para a seção de água (WebGL) |
@@ -36,8 +36,8 @@ A jornada inteira (campo → folha → solo → gota) NÃO são seções separad
 
 1. **VÍDEO da jornada** (`video-1...`, depois 2 e 3), atrás de TUDO, parado no primeiro frame.
 2. **Headline** "JUNTOS ALIMENTAMOS O MUNDO", em cima do vídeo.
-3. **`frame-1-campo.png`** (céu transparente), em cima da headline — as montanhas escondem a base do texto (profundidade). Como é o primeiro frame do vídeo, casa perfeito com ele.
-4. **`overlay-folhas.png`**, as folhas desfocadas na frente de tudo, balançando (CSS, transform).
+3. **`frame-1-campo.webp`** (céu transparente), em cima da headline — as montanhas escondem a base do texto (profundidade). Como é o primeiro frame do vídeo, casa perfeito com ele.
+4. **`overlay-folhas.webp`**, as folhas desfocadas na frente de tudo, balançando (CSS, transform).
 
 O texto de apoio (subtítulo + CTA) fica num canto, no branco, sem overlay.
 

@@ -253,7 +253,7 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
         <div className="relative flex-1 w-full mt-auto">
           <Image
             ref={oldImgRef}
-            src="/heritage/desktop/morph-aminosan-1-antigo.png"
+            src="/heritage/desktop/morph-aminosan-1-antigo.webp"
             alt={t('oldBottleAlt')}
             fill sizes="100vw"
             className="object-cover object-bottom z-10"
@@ -262,7 +262,7 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
           <video
             ref={videoRef}
             muted playsInline preload="metadata"
-            poster="/heritage/desktop/morph-aminosan-1-antigo.png"
+            poster="/heritage/desktop/morph-aminosan-1-antigo.webp"
             aria-label={t('videoAlt')}
             className="absolute inset-0 h-full w-full object-cover object-bottom opacity-0 z-0"
           >
@@ -288,7 +288,7 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
       <div ref={calloutSectionRef} className="absolute top-[150vh] left-0 w-full min-h-[100dvh] bg-white z-20 pointer-events-auto flex flex-col justify-end">
         <div className="relative h-[70dvh] w-full overflow-hidden sm:h-[75dvh]">
           <Image
-            src="/heritage/desktop/morph-aminosan-2-novo.png"
+            src="/heritage/desktop/morph-aminosan-2-novo.webp"
             alt={t('newBottleAlt')}
             fill sizes="100vw"
             className="object-cover"
@@ -1447,7 +1447,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         <video
           ref={videoRef}
           muted playsInline preload="auto"
-          poster="/heritage/desktop/morph-aminosan-1-antigo.png"
+          poster="/heritage/desktop/morph-aminosan-1-antigo.webp"
           aria-label={t('videoAlt')}
           className={STAGE_VIDEO_CLASS}
         >
@@ -1457,7 +1457,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         {/* z-10 — foto estática do frasco antigo */}
         <Image
           ref={oldImgRef}
-          src="/heritage/desktop/morph-aminosan-1-antigo.png"
+          src="/heritage/desktop/morph-aminosan-1-antigo.webp"
           alt={t('oldBottleAlt')}
           fill sizes="100vw"
           className={`${STAGE_IMAGE_CLASS} max-lg:!scale-[var(--stage-zoom,2.8)]`}
@@ -1467,7 +1467,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         {/* z-10 — foto estática do frasco novo */}
         <Image
           ref={newImgRef}
-          src="/heritage/desktop/morph-aminosan-2-novo.png"
+          src="/heritage/desktop/morph-aminosan-2-novo.webp"
           alt={t('newBottleAlt')}
           fill sizes="100vw"
           className={`${STAGE_IMAGE_CLASS} opacity-0 max-lg:!scale-[var(--stage-zoom,2.8)]`}
@@ -1477,7 +1477,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         {/* z-10 — still da linha completa (repouso da fase line) */}
         <Image
           ref={lineImgRef}
-          src="/heritage/desktop/line-aminosan-full.png"
+          src="/heritage/desktop/line-aminosan-full.webp"
           alt=""
           aria-hidden
           fill sizes="100vw"

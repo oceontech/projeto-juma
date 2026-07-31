@@ -619,14 +619,14 @@ export function HeroJornada() {
         </Container>
         <div className="relative h-[40vh] w-full overflow-hidden sm:h-[46vh] lg:h-[60vh]">
           <Image
-            src={isMobile ? '/hero/mobile/frame-1-campo.png' : '/hero/desktop/frame-1-campo.png'}
+            src={isMobile ? '/hero/mobile/frame-1-campo.webp' : '/hero/desktop/frame-1-campo.webp'}
             alt="" aria-hidden fill priority sizes="100vw"
             className="object-cover object-center"
           />
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute" style={isMobile ? { left: '-30%', right: '-30%', bottom: '-10%', transformOrigin: 'bottom center' } : { left: '-12%', right: '-12%', bottom: '-40%', transformOrigin: 'bottom center' }}>
               <Image
-                src={isMobile ? '/hero/mobile/overlay-folhas.png' : '/hero/desktop/overlay-folhas.png'}
+                src={isMobile ? '/hero/mobile/overlay-folhas.webp' : '/hero/desktop/overlay-folhas.webp'}
                 alt="" aria-hidden width={1920} height={1080} priority className="w-full h-auto"
               />
             </div>
@@ -634,9 +634,9 @@ export function HeroJornada() {
         </div>
         <Container className="flex flex-col gap-2xl py-3xl min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
           {[
-            { title: tj('q1Title'), subtitle: tj('q1Subtitle'), src: isMobile ? '/hero/mobile/frame-1-campo.png' : '/hero/desktop/frame-1-campo.png' },
-            { title: tj('q2Title'), subtitle: tj('q2Subtitle'), src: isMobile ? '/hero/mobile/frame-2-folha.png'  : '/hero/desktop/frame-2-folha.png'  },
-            { title: tj('q3Title'), subtitle: tj('q3Subtitle'), src: isMobile ? '/hero/mobile/frame-3-solo.png'   : '/hero/desktop/frame-3-solo.png'   },
+            { title: tj('q1Title'), subtitle: tj('q1Subtitle'), src: isMobile ? '/hero/mobile/frame-1-campo.webp' : '/hero/desktop/frame-1-campo.webp' },
+            { title: tj('q2Title'), subtitle: tj('q2Subtitle'), src: isMobile ? '/hero/mobile/frame-2-folha.webp'  : '/hero/desktop/frame-2-folha.webp'  },
+            { title: tj('q3Title'), subtitle: tj('q3Subtitle'), src: isMobile ? '/hero/mobile/frame-3-solo.webp'   : '/hero/desktop/frame-3-solo.webp'   },
           ].map(({ title, subtitle, src }) => (
             <div key={title} className="grid grid-cols-1 md:grid-cols-2 gap-xl">
               <div className="flex flex-col justify-center"><PhaseText title={title} subtitle={subtitle} /></div>
@@ -666,7 +666,7 @@ export function HeroJornada() {
           ref={isMobile ? null : videoRef}
           data-hero-video="desktop"
           muted playsInline preload="none"
-          poster="/hero/desktop/journey-poster.jpg"
+          poster="/hero/desktop/journey-poster.webp"
           aria-label={tj('videoAlt')}
           className="absolute inset-0 z-0 h-full w-full object-cover hidden lg:block"
         >
@@ -678,7 +678,7 @@ export function HeroJornada() {
           ref={isMobile ? videoRef : null}
           data-hero-video="mobile"
           muted playsInline preload="none"
-          poster="/hero/mobile/journey-poster.jpg"
+          poster="/hero/mobile/journey-poster.webp"
           aria-label={tj('videoAlt')}
           className="absolute inset-0 z-[1] h-full w-full object-cover max-lg:object-bottom block lg:hidden mix-blend-multiply"
         >
@@ -726,7 +726,7 @@ export function HeroJornada() {
              NÃO tem ref de parallax — deve estar perfeitamente alinhado ao vídeo. */}
         <div data-rest className="absolute inset-0 z-20">
           <Image
-            src={isMobile ? '/hero/mobile/frame-1-campo.png' : '/hero/desktop/frame-1-campo.png'}
+            src={isMobile ? '/hero/mobile/frame-1-campo.webp' : '/hero/desktop/frame-1-campo.webp'}
             alt="" aria-hidden fill priority sizes="100vw"
             className="object-cover max-lg:object-bottom object-center"
           />
@@ -744,7 +744,7 @@ export function HeroJornada() {
             style={isMobile ? { left: '-30%', right: '-30%', bottom: '-14%', transformOrigin: 'bottom center', opacity: 0.5 } : { left: '-12%', right: '-12%', bottom: '-46%', transformOrigin: 'bottom center', opacity: 0.5 }}
           >
             <Image
-              src={isMobile ? '/hero/mobile/overlay-folhas.png' : '/hero/desktop/overlay-folhas.png'}
+              src={isMobile ? '/hero/mobile/overlay-folhas.webp' : '/hero/desktop/overlay-folhas.webp'}
               alt="" aria-hidden width={1920} height={1080}
               className="w-full h-auto"
             />
@@ -755,7 +755,7 @@ export function HeroJornada() {
             style={isMobile ? { left: '-30%', right: '-30%', bottom: '-10%', transformOrigin: 'bottom center' } : { left: '-12%', right: '-12%', bottom: '-42%', transformOrigin: 'bottom center' }}
           >
             <Image
-              src={isMobile ? '/hero/mobile/overlay-folhas.png' : '/hero/desktop/overlay-folhas.png'}
+              src={isMobile ? '/hero/mobile/overlay-folhas.webp' : '/hero/desktop/overlay-folhas.webp'}
               alt="" aria-hidden width={1920} height={1080} priority
               className="w-full h-auto"
             />
