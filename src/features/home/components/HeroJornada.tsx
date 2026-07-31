@@ -661,24 +661,38 @@ export function HeroJornada() {
     <section ref={root} className="bg-white overflow-x-hidden">
       <div className="relative h-[100dvh] w-full overflow-hidden">
 
+        {/* Desktop Poster Image */}
+        <div data-rest className="absolute inset-0 z-0 h-full w-full hidden lg:block">
+          <Image
+            src="/hero/desktop/journey-poster.webp"
+            alt="" aria-hidden fill sizes="100vw" quality={60}
+            className="object-cover"
+          />
+        </div>
         {/* z-0 — Vídeo desktop */}
         <video
           ref={isMobile ? null : videoRef}
           data-hero-video="desktop"
           muted playsInline preload="none"
-          poster="/hero/desktop/journey-poster.webp"
           aria-label={tj('videoAlt')}
           className="absolute inset-0 z-0 h-full w-full object-cover hidden lg:block"
         >
           <source src="/hero/desktop/journey.mp4" type="video/mp4" />
         </video>
 
+        {/* Mobile Poster Image */}
+        <div data-rest className="absolute inset-0 z-[1] h-full w-full block lg:hidden mix-blend-multiply">
+          <Image
+            src="/hero/mobile/journey-poster.webp"
+            alt="" aria-hidden fill sizes="100vw" quality={60}
+            className="object-cover max-lg:object-bottom"
+          />
+        </div>
         {/* z-[1] — Vídeo mobile (com multiply para revelar o selo por trás do branco) */}
         <video
           ref={isMobile ? videoRef : null}
           data-hero-video="mobile"
           muted playsInline preload="none"
-          poster="/hero/mobile/journey-poster.webp"
           aria-label={tj('videoAlt')}
           className="absolute inset-0 z-[1] h-full w-full object-cover max-lg:object-bottom block lg:hidden mix-blend-multiply"
         >
@@ -727,7 +741,7 @@ export function HeroJornada() {
         <div data-rest className="absolute inset-0 z-20">
           <Image
             src={isMobile ? '/hero/mobile/frame-1-campo.webp' : '/hero/desktop/frame-1-campo.webp'}
-            alt="" aria-hidden fill priority fetchPriority="high" sizes="100vw"
+            alt="" aria-hidden fill priority fetchPriority="high" sizes="100vw" quality={60}
             className="object-cover max-lg:object-bottom object-center"
           />
         </div>
