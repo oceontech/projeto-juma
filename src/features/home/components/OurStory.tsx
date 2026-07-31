@@ -244,9 +244,11 @@ export function OurStory() {
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(0, 0, 0, 0.1)',
         }}
       >
-        {/* Abaixo de 1600px (notebooks) o card afina, o padding lateral encolhe e a
-            coluna da foto ganha peso — assim a família cresce mesmo com o card menor. */}
-        <Container className="grid min-h-[100dvh] grid-cols-1 items-center gap-2xl py-xl lg:py-2xl xl:py-3xl lg:grid-cols-[1.35fr_1fr] lg:gap-xl lg:px-[3rem]! min-[1600px]:grid-cols-[1.15fr_1fr] min-[1600px]:gap-3xl min-[1600px]:px-[6rem]!">
+        {/* Abaixo de 1600px (notebooks) o card afina e a coluna da foto ganha
+            peso — assim a família cresce mesmo com o card menor. O padding
+            lateral não é mais forçado aqui: o Container já entrega a escala
+            enxuta nessa faixa (ver doc do Container). */}
+        <Container className="grid min-h-[100dvh] grid-cols-1 items-center gap-2xl py-xl lg:py-2xl xl:py-3xl lg:grid-cols-[1.35fr_1fr] lg:gap-xl min-[1600px]:grid-cols-[1.15fr_1fr] min-[1600px]:gap-3xl">
           {/* ── Coluna esquerda: família ──────────────────────────────── */}
           {/* pt no desktop: os rótulos ficam ACIMA da foto (top negativo) e
               precisam desse respiro, senão o card (overflow-hidden) os corta.
