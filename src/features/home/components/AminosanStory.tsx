@@ -749,7 +749,14 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       /* Os stills tiram o zoom do CSS e o vídeo do GSAP — publicar os dois
          números como custom property é o que mantém still e vídeo do mesmo
-         tamanho na troca de um pelo outro. */
+         tamanho na troca de um pelo outro.
+
+         Essa divisão é EXCLUSIVA: o <video> não pode carregar a classe
+         `scale-[var(--stage-zoom)]` junto. No Tailwind v4 `scale-*` compila
+         para a propriedade `scale`, que é independente de `transform` e se
+         multiplica com ele — com a classe E o gsap.set escrevendo, o vídeo
+         saía em zoom², ~2,8× maior que o still no mobile, e a troca
+         still↔vídeo pulava de tamanho. */
       const applyStageZoom = () => {
         const z = stageZoom()
         stageTrigger.style.setProperty('--stage-zoom', String(z.bottle))
@@ -770,6 +777,11 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       }
 
       applyStageZoom()
+      /* O vídeo só ganha zoom por gsap.set (ver acima), então precisa nascer
+         com ele: sem esta primeira chamada ele fica em scale 1 até o primeiro
+         startPlayback, e um frame que apareça antes disso (decode inicial,
+         reparo de fase) sairia no tamanho errado. */
+      updateVideoScale(video)
       /* Só em mudança de LARGURA, mesma guarda do refresh do ScrollTrigger lá em
          cima: no mobile a altura muda sozinha quando a barra de endereço some,
          e recalcular o zoom nesse instante redimensionaria o frasco no meio do
@@ -1427,13 +1439,17 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
     <div ref={root} className="relative w-full bg-white">
       <section ref={stageRef} className="relative z-10 h-[100dvh] w-full overflow-hidden bg-white">
         {/* Vídeos da cadeia — desktop e mobile compartilham os mesmos clipes.
-            Cada segmento tem um clipe forward e um reverso gravado. */}
+            Cada segmento tem um clipe forward e um reverso gravado.
+            Sem classe de `scale` aqui de propósito: o zoom mobile do vídeo é
+            escrito pelo `updateVideoScale` (transform do GSAP), porque ele
+            interpola entre o zoom do frasco e o da linha durante o clipe. Os
+            stills usam a custom property; somar os dois duplicava o zoom. */}
         <video
           ref={videoRef}
           muted playsInline preload="auto"
           poster="/heritage/desktop/morph-aminosan-1-antigo.png"
           aria-label={t('videoAlt')}
-          className={`${STAGE_VIDEO_CLASS} max-lg:scale-[var(--stage-zoom,2.8)]`}
+          className={STAGE_VIDEO_CLASS}
         >
           <source src="/heritage/desktop/full-transition-aminosan.mp4" type="video/mp4" />
         </video>
