@@ -21,7 +21,12 @@ Nomes em kebab-case, sem espaços nem acentos. Estrutura espelhada em `desktop/`
 - Os frames já estão alinhados (mesma posição e escala), prontos pro start/end frame do Kling.
 
 ## produtos/
-- `placeholder-produto.png` — montagem padrão (Revigo CaB) usada só como protótipo. Trocar pela foto real de cada produto.
+- `<slug>.webp` — foto oficial de cada produto, 1000×1000 com fundo transparente. O nome do arquivo é o slug da rota (`acorda-cana.webp` → `/produtos/acorda-cana`). Usadas na listagem, na página do produto e nos relacionados das culturas.
+  - Exceção: a Linha Revigo é representada pelo `revigo-comoni.webp` e a Linha Redutan pelo `redutan-sili-4.webp` (não existe foto "da linha").
+- `*-destaque.png` — recortes 1000×1000 usados **só** no catálogo animado da home. São as mesmas fotos dos `.webp`, mantidas em arquivo separado porque o Aminosan é o alvo do morph com o vídeo da seção anterior e depende do enquadramento exato.
+- `aminosan-catalogo.png` — frame do vídeo (1777×1000), só na ponte de transição entre AminosanStory e o catálogo.
+- `placeholder-produto.png` — fallback quando um produto não tem foto.
+- Os arquivos por tamanho (`*-1l.png`, `*-10l.png`, `*-20l.png`) ficaram sem uso quando as fotos únicas entraram; as embalagens hoje são pílulas de texto, não imagens.
 
 ## cta-final/ (última seção da home — fecha o filme repetindo a declaração do hero)
 - `globo-terra.webp` — globo terrestre, fundo transparente (só a curva da Terra com brilho, sem retângulo). Ancorado no rodapé da seção, atrás do título "Juntos alimentamos o mundo.".

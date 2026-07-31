@@ -42,7 +42,7 @@ const PRODUCTS = [
     cultures: ['cul-cana'],
     color: '#79ab34',
     href: '/produtos/acorda-cana',
-    image: '/produtos/acorda-cana-20l.png',
+    image: '/produtos/acorda-cana.webp',
   },
   {
     id: 'acorda-ultra',
@@ -52,7 +52,7 @@ const PRODUCTS = [
     cultures: ['cul-soja', 'cul-milho', 'cul-algodao', 'cul-feijao'],
     color: '#008dc2',
     href: '/produtos/acorda-ultra',
-    image: '/produtos/acorda-ultra-10l.png',
+    image: '/produtos/acorda-ultra.webp',
   },
   {
     id: 'aduban',
@@ -62,7 +62,7 @@ const PRODUCTS = [
     cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-feijao'],
     color: '#ad1115',
     href: '/produtos/aduban',
-    image: '/produtos/aduban-20l.png',
+    image: '/produtos/aduban.webp',
   },
   {
     id: 'aminosan',
@@ -72,7 +72,7 @@ const PRODUCTS = [
     cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-algodao', 'cul-feijao', 'cul-citros', 'cul-tomate', 'cul-batata', 'cul-cana'],
     color: '#006838',
     href: '/produtos/aminosan',
-    image: '/produtos/aminosan-20l.png',
+    image: '/produtos/aminosan.webp',
   },
   {
     id: 'fitofert',
@@ -82,7 +82,7 @@ const PRODUCTS = [
     cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-citros', 'cul-tomate'],
     color: '#006838',
     href: '/produtos/fitofert',
-    image: '/produtos/fitofert-20l.png',
+    image: '/produtos/fitofert.webp',
   },
   {
     id: 'linha-revigo',
@@ -92,7 +92,7 @@ const PRODUCTS = [
     cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-algodao', 'cul-feijao', 'cul-citros', 'cul-tomate', 'cul-batata'],
     color: '#312783',
     href: '/produtos/linha-revigo',
-    image: '/produtos/revigo-comoni-1l.png',
+    image: '/produtos/revigo-comoni.webp',
   },
   {
     id: 'revigophos-amino',
@@ -102,7 +102,7 @@ const PRODUCTS = [
     cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-algodao', 'cul-feijao', 'cul-cana'],
     color: '#312783',
     href: '/produtos/revigophos-amino',
-    image: '/produtos/revigophos-amino-20l.png',
+    image: '/produtos/revigophos-amino.webp',
   },
   {
     id: 'revigo-cobre-ultra',
@@ -112,7 +112,7 @@ const PRODUCTS = [
     cultures: ['cul-soja', 'cul-cafe', 'cul-citros', 'cul-tomate', 'cul-batata'],
     color: '#312783',
     href: '/produtos/revigo-cobre-ultra',
-    image: '/produtos/revigo-cobre-ultra-20l.png',
+    image: '/produtos/revigo-cobre-ultra.webp',
   },
   {
     id: 'kmep-ultra',
@@ -122,7 +122,7 @@ const PRODUCTS = [
     cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-algodao', 'cul-feijao', 'cul-tomate', 'cul-batata', 'cul-cana'],
     color: '#ad1115',
     href: '/produtos/kmep-ultra',
-    image: '/produtos/kmep-ultra-20l.png',
+    image: '/produtos/kmep-ultra.webp',
   },
   {
     id: 'linha-redutan',
@@ -132,7 +132,7 @@ const PRODUCTS = [
     cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-algodao', 'cul-feijao', 'cul-citros', 'cul-tomate', 'cul-batata', 'cul-cana', 'cul-pastagem'],
     color: '#7d252a',
     href: '/produtos/linha-redutan',
-    image: '/produtos/redutan-npk-sili-4-1l.png',
+    image: '/produtos/redutan-sili-4.webp',
   },
   {
     id: 'supermix',
@@ -142,7 +142,7 @@ const PRODUCTS = [
     cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-algodao', 'cul-feijao', 'cul-citros', 'cul-tomate', 'cul-batata', 'cul-cana', 'cul-pastagem'],
     color: '#388123',
     href: '/produtos/supermix',
-    image: '/produtos/supermix-20l.png',
+    image: '/produtos/supermix.webp',
   },
   {
     id: 'revigo-milho',
@@ -152,7 +152,7 @@ const PRODUCTS = [
     cultures: ['cul-milho'],
     color: '#312783',
     href: '/produtos/revigo-milho',
-    image: '/produtos/revigo-milho-20l.png',
+    image: '/produtos/revigo-milho.webp',
   },
   {
     id: 'revigo-pasto',
@@ -162,7 +162,7 @@ const PRODUCTS = [
     cultures: ['cul-pastagem'],
     color: '#312783',
     href: '/produtos/revigo-pasto',
-    image: '/produtos/revigo-pasto-20l.png',
+    image: '/produtos/revigo-pasto.webp',
   },
 ]
 
@@ -328,7 +328,7 @@ export function ProductGrid() {
               className="group flex flex-col h-full rounded-2xl overflow-hidden border border-foreground/10 bg-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
             >
               <div
-                className="relative h-64 flex items-center justify-center p-6 overflow-hidden transition-colors duration-500 bg-[#f4f9f0]"
+                className="relative h-72 flex items-center justify-center p-5 overflow-hidden transition-colors duration-500 bg-[#f4f9f0]"
               >
                 <div
                   className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[#ebf4e3]"
@@ -341,8 +341,8 @@ export function ProductGrid() {
                     src={product.image || "/produtos/placeholder-produto.png"}
                     alt={`${t('productImageAlt')} ${product.name}`}
                     width={400}
-                    height={600}
-                    quality={20}
+                    height={400}
+                    quality={75}
                     className="object-contain h-full w-auto drop-shadow-xl"
                   />
                 </div>

@@ -21,15 +21,15 @@ export type RecommendedProduct = { slug: string; name: string; tag: string; desc
 export type Challenge = { stage: string; title: string; desc: string }
 
 export const REC_META: Record<string, { name: string, labelColor: string, image?: string }> = {
-  'aminosan': { name: 'Aminosan®', labelColor: '#659357', image: '/produtos/aminosan-20l.png' },
-  'fitofert': { name: 'Fitofert', labelColor: '#659357', image: '/produtos/fitofert-20l.png' },
-  'revigophos-amino': { name: 'RevigoPhos Amino', labelColor: '#302783', image: '/produtos/revigophos-amino-20l.png' },
-  'acorda-ultra': { name: 'Acorda Ultra', labelColor: '#008dc2', image: '/produtos/acorda-ultra-10l.png' },
-  'revigo-milho': { name: 'Revigo + Milho', labelColor: '#302783', image: '/produtos/revigo-milho-20l.png' },
-  'acorda-cana': { name: 'Acorda Cana', labelColor: '#79ab34', image: '/produtos/acorda-cana-20l.png' },
-  'linha-redutan': { name: 'Linha Redutan', labelColor: '#7d252a', image: '/produtos/redutan-npk-sili-5-1l.png' },
-  'linha-revigo': { name: 'Linha Revigo', labelColor: '#302783', image: '/produtos/revigo-cobre-ultra-20l.png' },
-  'revigo-pasto': { name: 'Revigo + Pasto', labelColor: '#302783', image: '/produtos/revigo-pasto-20l.png' }
+  'aminosan': { name: 'Aminosan®', labelColor: '#659357', image: '/produtos/aminosan.webp' },
+  'fitofert': { name: 'Fitofert', labelColor: '#659357', image: '/produtos/fitofert.webp' },
+  'revigophos-amino': { name: 'RevigoPhos Amino', labelColor: '#302783', image: '/produtos/revigophos-amino.webp' },
+  'acorda-ultra': { name: 'Acorda Ultra', labelColor: '#008dc2', image: '/produtos/acorda-ultra.webp' },
+  'revigo-milho': { name: 'Revigo + Milho', labelColor: '#302783', image: '/produtos/revigo-milho.webp' },
+  'acorda-cana': { name: 'Acorda Cana', labelColor: '#79ab34', image: '/produtos/acorda-cana.webp' },
+  'linha-redutan': { name: 'Linha Redutan', labelColor: '#7d252a', image: '/produtos/redutan-sili-5.webp' },
+  'linha-revigo': { name: 'Linha Revigo', labelColor: '#302783', image: '/produtos/revigo-cobre-ultra.webp' },
+  'revigo-pasto': { name: 'Revigo + Pasto', labelColor: '#302783', image: '/produtos/revigo-pasto.webp' }
 }
 
 export type CultureMeta = {

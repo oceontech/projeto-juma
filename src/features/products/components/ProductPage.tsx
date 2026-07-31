@@ -25,6 +25,9 @@ export type ProductMeta = {
   resultsMeta: { value: string; unit: string }[]
   relatedMeta: { slug: string; labelColor: string }[]
   image?: string
+  /** Embalagens de fábrica, na ordem do menor para o maior. Lista fechada
+   *  passada pelo cliente — não inventar tamanho que não existe. */
+  sizes: string[]
 }
 
 const META: Record<string, ProductMeta> = {
@@ -33,91 +36,107 @@ const META: Record<string, ProductMeta> = {
     problemsMeta: ['seed', 'sun', 'drop'],
     resultsMeta: [{ value: '+14', unit: 'sc/ha' }, { value: '+10', unit: 'sc/ha' }, { value: '+38', unit: '%' }],
     relatedMeta: [{ slug: 'fitofert', labelColor: '#659357' }, { slug: 'linha-revigo', labelColor: '#302783' }, { slug: 'revigophos-amino', labelColor: '#302783' }],
-    image: '/produtos/aminosan-20l.png'
+    image: '/produtos/aminosan.webp',
+    sizes: ['1L', '10L', '20L']
   },
   'fitofert': {
     labelColor: '#659357',
     problemsMeta: ['leaf', 'chart', 'sun'],
     resultsMeta: [],
     relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'revigophos-amino', labelColor: '#302783' }],
-    image: '/produtos/fitofert-20l.png'
+    image: '/produtos/fitofert.webp',
+    sizes: ['20L']
   },
+  // Página de LINHA, não de item único: as embalagens são a união dos produtos
+  // da linha (Comoni 1L, Cobre Ultra 1L/10L, +Milho 20L, +Pasto 20L).
   'linha-revigo': {
     labelColor: '#302783',
     problemsMeta: ['leaf', 'sun', 'drop'],
     resultsMeta: [],
     relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'fitofert', labelColor: '#659357' }],
-    image: '/produtos/revigo-comoni-1l.png'
+    image: '/produtos/revigo-comoni.webp',
+    sizes: ['1L', '10L', '20L']
   },
   'revigophos-amino': {
     labelColor: '#302783',
     problemsMeta: ['sun', 'drop', 'seed'],
     resultsMeta: [],
     relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'fitofert', labelColor: '#659357' }],
-    image: '/produtos/revigophos-amino-20l.png'
+    image: '/produtos/revigophos-amino.webp',
+    sizes: ['10L', '20L']
   },
   'revigo-cobre-ultra': {
     labelColor: '#302783',
     problemsMeta: ['leaf', 'shield'],
     resultsMeta: [],
     relatedMeta: [{ slug: 'linha-revigo', labelColor: '#302783' }, { slug: 'aminosan', labelColor: '#659357' }],
-    image: '/produtos/revigo-cobre-ultra-20l.png'
+    image: '/produtos/revigo-cobre-ultra.webp',
+    sizes: ['1L', '10L']
   },
   'acorda-cana': {
     labelColor: '#79ab34',
     problemsMeta: ['seed', 'drop'],
     resultsMeta: [],
     relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'linha-redutan', labelColor: '#7d252a' }],
-    image: '/produtos/acorda-cana-20l.png'
+    image: '/produtos/acorda-cana.webp',
+    sizes: ['20L']
   },
   'acorda-ultra': {
     labelColor: '#008dc2',
     problemsMeta: ['chart', 'drop'],
     resultsMeta: [],
     relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'aduban', labelColor: '#ad1115' }],
-    image: '/produtos/acorda-ultra-10l.png'
+    image: '/produtos/acorda-ultra.webp',
+    sizes: ['1L', '10L']
   },
   'aduban': {
     labelColor: '#ad1115',
     problemsMeta: ['drop', 'seed'],
     resultsMeta: [],
     relatedMeta: [{ slug: 'acorda-ultra', labelColor: '#008dc2' }, { slug: 'aminosan', labelColor: '#659357' }],
-    image: '/produtos/aduban-20l.png'
+    image: '/produtos/aduban.webp',
+    sizes: ['20L']
   },
   'kmep-ultra': {
     labelColor: '#ad1115',
     problemsMeta: ['shield', 'chart'],
     resultsMeta: [],
     relatedMeta: [{ slug: 'linha-redutan', labelColor: '#7d252a' }, { slug: 'supermix', labelColor: '#388123' }],
-    image: '/produtos/kmep-ultra-20l.png'
+    image: '/produtos/kmep-ultra.webp',
+    sizes: ['10L', '20L']
   },
+  // Página de LINHA: Sili 4 e Sili 5, ambos só em 1L.
   'linha-redutan': {
     labelColor: '#7d252a',
     problemsMeta: ['sun', 'drop'],
     resultsMeta: [],
     relatedMeta: [{ slug: 'supermix', labelColor: '#388123' }, { slug: 'kmep-ultra', labelColor: '#ad1115' }],
-    image: '/produtos/redutan-npk-sili-4-1l.png'
+    image: '/produtos/redutan-sili-4.webp',
+    sizes: ['1L']
   },
   'supermix': {
     labelColor: '#388123',
     problemsMeta: ['drop', 'chart'],
     resultsMeta: [],
     relatedMeta: [{ slug: 'linha-redutan', labelColor: '#7d252a' }, { slug: 'kmep-ultra', labelColor: '#ad1115' }],
-    image: '/produtos/supermix-20l.png'
+    image: '/produtos/supermix.webp',
+    sizes: ['1L', '10L', '20L']
   },
   'revigo-milho': {
     labelColor: '#302783',
     problemsMeta: ['chart', 'sun'],
     resultsMeta: [],
     relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'fitofert', labelColor: '#659357' }],
-    image: '/produtos/revigo-milho-20l.png'
+    image: '/produtos/revigo-milho.webp',
+    sizes: ['20L']
   },
   'revigo-pasto': {
     labelColor: '#302783',
     problemsMeta: ['leaf', 'chart'],
     resultsMeta: [],
     relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'linha-redutan', labelColor: '#7d252a' }],
-    image: '/produtos/revigo-pasto-20l.png'
+    image: '/produtos/revigo-pasto.webp',
+    sizes: ['20L']
   }
 }
 
@@ -339,25 +358,36 @@ export function ProductPage({ slug }: { slug: string }) {
             <span className="text-[#1A1A1A]">{product.name}</span>
           </nav>
 
-          <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] xl:grid-cols-[480px_1fr] gap-10 lg:gap-16 xl:gap-20 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] xl:grid-cols-[500px_1fr] gap-10 lg:gap-12 xl:gap-16 items-start">
 
-            {/* Visual — CSS bottle */}
+            {/* Visual — foto de família do produto (as embalagens juntas).
+                Container quadrado porque o canvas da foto é 1000×1000: com o
+                4/5 antigo a imagem cabia pela largura e sobrava faixa vazia
+                em cima e embaixo, fazendo o frasco parecer pequeno. */}
             <div
               data-hero-el
-              className="relative w-full max-w-[500px] mx-auto lg:max-w-none aspect-[4/5] rounded-[24px] overflow-hidden grid place-items-center"
+              className="relative w-full max-w-[500px] mx-auto lg:max-w-none aspect-square rounded-[24px] overflow-hidden grid place-items-center"
               style={{
                 background: 'radial-gradient(80% 60% at 50% 70%, rgba(0,0,0,.10), transparent 70%), linear-gradient(160deg, #E8EFE2, #E4ECEA)',
                 boxShadow: '0 1px 2px rgba(20,30,20,.04), 0 24px 60px -32px rgba(20,30,20,.25)',
               }}
             >
-              <div className="relative z-10 h-full w-full flex items-center justify-center p-6 md:p-8 transition-transform duration-500 hover:scale-105">
+              {/* Sem padding: a própria foto já traz margem transparente
+                  embutida (~15% em cima/embaixo, 7,7% nas laterais no caso mais
+                  apertado). O 112% abaixo come parte dessa borda vazia — o
+                  excedente sai fora do card, que tem overflow-hidden. Medido
+                  nas 14 fotos: o limite seguro antes de cortar produto é 118%.
+                  `max-w-none` é necessário porque o reset global limita img a
+                  max-width:100%. */}
+              <div className="relative z-10 h-full w-full flex items-center justify-center transition-transform duration-500 hover:scale-105">
                 <Image
                   src={product.image || "/produtos/placeholder-produto.png"}
                   alt={`Imagem do produto ${product.name}`}
                   width={1000}
-                  height={1500}
-                  quality={85}
-                  className="object-contain w-full h-full max-w-[90%] max-h-[90%] drop-shadow-2xl"
+                  height={1000}
+                  sizes="(min-width: 1280px) 560px, (min-width: 1024px) 50vw, 95vw"
+                  quality={90}
+                  className="object-contain w-[112%] h-[112%] max-w-none drop-shadow-2xl"
                   priority
                 />
               </div>
@@ -406,6 +436,34 @@ export function ProductPage({ slug }: { slug: string }) {
                   ))}
                 </div>
               </div>
+
+              {/* Embalagens — mesma pílula das culturas, mas na cor do rótulo do
+                  produto (como as tags de tamanho do catálogo da home). */}
+              {product.sizes.length > 0 && (
+                <div data-hero-el className="mb-8">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.06em] text-[#1A1A1A] block mb-3">
+                    Embalagens disponíveis
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {product.sizes.map((size) => (
+                      <span
+                        key={size}
+                        className="inline-flex items-center gap-[7px] text-[13px] font-bold px-3.5 py-[7px] rounded-full bg-white"
+                        style={{
+                          color: product.labelColor,
+                          border: `1.5px solid ${product.labelColor}59`,
+                        }}
+                      >
+                        <span
+                          className="w-2 h-2 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: product.labelColor }}
+                        />
+                        {size}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* CTAs */}
               <div data-hero-el className="flex flex-wrap gap-3">
