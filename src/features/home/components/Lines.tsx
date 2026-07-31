@@ -148,7 +148,7 @@ export function Lines() {
         </div>
 
         {/* Grid de linhas — 1 col mobile, 2 col tablet, 6 col desktop */}
-        <div className="grid grid-cols-1 gap-xl sm:grid-cols-2 lg:grid-cols-6">
+        <div className="grid grid-cols-1 gap-md sm:grid-cols-2 lg:grid-cols-6">
           {LINES.map((key, i) => {
             const { accent, text, image } = LINE_COLORS[key]
             
@@ -199,13 +199,13 @@ export function Lines() {
                   <h3
                     data-line-title
                     className="font-black uppercase leading-[1.05] tracking-tight text-foreground"
-                    style={{ fontSize: 'clamp(0.95rem, 1.1vw, 1.15rem)' }}
+                    style={{ fontSize: 'clamp(0.85rem, 1vw, 1.05rem)' }}
                   >
                     {t(`${key}.title` as any)}
                   </h3>
 
                   {/* Produtos */}
-                  <p data-line-support className="text-subtitle m-0 text-xs xl:text-sm leading-relaxed text-foreground/55 max-w-[95%]">
+                  <p data-line-support className="text-subtitle m-0 text-[11px] lg:text-xs leading-snug text-foreground/55 max-w-[95%]">
                     {t(`${key}.support` as any)}
                   </p>
 
