@@ -35,6 +35,7 @@ export function HeroJornada() {
 
   // Estado da jornada
   const phaseRef         = useRef<'rest' | 'animating' | 'done'>('rest')
+  const [phase, setPhase] = useState<'rest' | 'animating' | 'done'>('rest')
   const stepRef          = useRef(-1)
   const playingRef       = useRef(false)
   const targetRef        = useRef<number | null>(null)
@@ -89,10 +90,27 @@ export function HeroJornada() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
+  const getVideo = () => {
+    if (videoRef.current) return videoRef.current
+    if (!root.current) return null
+    return root.current.querySelector<HTMLVideoElement>(
+      `video[data-hero-video="${isMobile ? 'mobile' : 'desktop'}"]`,
+    )
+  }
+
   // ── Entrada cinematográfica ───────────────────────────────────────
   useGSAP(
     () => {
-      if (!enhanced || entranceRanRef.current) return
+      if (!enhanced) return
+      if (entranceRanRef.current) {
+        if (titleWrapRef.current) gsap.set(titleWrapRef.current, { opacity: 1, y: 0 })
+        if (supportRef.current) gsap.set(supportRef.current, { opacity: 1, y: 0, filter: 'none' })
+        if (glowRef.current) gsap.set(glowRef.current, { opacity: 0.45 })
+        if (accentLineRef.current) gsap.set(accentLineRef.current, { scaleX: 1 })
+        if (leafContainerRef.current) gsap.set(leafContainerRef.current, { opacity: 1 })
+        if (scrollIndicatorRef.current) gsap.set(scrollIndicatorRef.current, { opacity: 1 })
+        return
+      }
       entranceRanRef.current = true
 
       const mainNav   = document.querySelector<HTMLElement>('#main-nav-pill')
@@ -112,9 +130,9 @@ export function HeroJornada() {
       const naturalLangWidth = langPill ? langPill.offsetWidth : 80
 
       // Estado inicial — evita flash antes da timeline
-      gsap.set(titleWrap, { y: 220, opacity: 0 })
+      gsap.set(titleWrap, { y: 60, opacity: 0 })
       gsap.set(glow,    { opacity: 0 })
-      gsap.set(support, { y: 40, opacity: 0, filter: 'blur(10px)' })
+      gsap.set(support, { y: 30, opacity: 0, filter: 'blur(8px)' })
       gsap.set(accent,  { scaleX: 0, transformOrigin: 'left center' })
       gsap.set(leaves,  { opacity: 0 })
       gsap.set(scrollInd, { opacity: 0 })
@@ -123,7 +141,12 @@ export function HeroJornada() {
       if (ctaBtn)   gsap.set(ctaBtn,   { opacity: 0, filter: 'blur(10px)' })
       if (navLinks) gsap.set(navLinks,  { opacity: 0, filter: 'blur(8px)' })
 
-      const tl = gsap.timeline({ defaults: { overwrite: 'auto' } })
+      const tl = gsap.timeline({
+        defaults: { overwrite: 'auto' },
+        onComplete: () => {
+          gsap.set([titleWrap, glow, support, accent, leaves, scrollInd].filter(Boolean), { clearProps: 'filter' })
+        }
+      })
       tl.timeScale(1.8)
 
       // 1. Navbar — pílula surge suavemente com blur-in (unificado para mobile e desktop)
@@ -204,10 +227,17 @@ export function HeroJornada() {
           requestAnimationFrame(() => ScrollTrigger.refresh())
         }
       }
-      const fadeRest = (show: boolean) =>
+      const fadeRest = (show: boolean) => {
+        setPhase(show ? 'rest' : 'animating')
         gsap.to(restEls(), { autoAlpha: show ? 1 : 0, duration: show ? 0.3 : 0.4, ease: 'power2.out' })
+      }
 
       const updateActivePhase = (time: number) => {
+        if (time > 0.05 && phaseRef.current === 'rest') {
+          phaseRef.current = 'animating'
+          setPhase('animating')
+          fadeRest(false)
+        }
         if (isMobile) {
           if (time < 1.5)      setCap(0)
           else if (time < 4.5) setCap(2)
@@ -240,7 +270,7 @@ export function HeroJornada() {
       }
 
       const getTargets = () => {
-        const video = videoRef.current
+        const video = getVideo()
         const fallback = isMobile ? 9.04 : 10.12
         const duration = (video && video.duration > 0) ? video.duration : fallback
         const safeEnd = duration - 0.1
@@ -248,7 +278,7 @@ export function HeroJornada() {
       }
 
       const tick = (now: number) => {
-        const video = videoRef.current
+        const video = getVideo()
         if (!video) { stopPlayback(); return }
         if (!playingRef.current) return
         const target = targetRef.current
@@ -295,7 +325,7 @@ export function HeroJornada() {
       }
 
       const startPlayback = (dir: 'forward' | 'backward', target: number) => {
-        const video = videoRef.current
+        const video = getVideo()
         if (!video) return
         if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
         directionRef.current = dir
@@ -316,7 +346,7 @@ export function HeroJornada() {
       }
 
       const stopPlayback = () => {
-        const video = videoRef.current
+        const video = getVideo()
         if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
         playingRef.current  = false
         directionRef.current = null
@@ -334,19 +364,23 @@ export function HeroJornada() {
         if (i >= 1 && i <= capAtPause.length) setCap(capAtPause[i - 1])
         if (target <= 0.05) {
           phaseRef.current = 'rest'
+          setPhase('rest')
           stepRef.current  = -1
           lockScroll(false)
           setCap(0)
           fadeRest(true)
           autoRewindRef.current = false
           return
+        } else {
+          fadeRest(false)
         }
       }
 
       const startJourney = () => {
-        const video = videoRef.current
+        const video = getVideo()
         if (!video) return
         phaseRef.current = 'animating'
+        setPhase('animating')
         lockScroll(true)
         fadeRest(false)
         stepRef.current = 1
@@ -359,15 +393,17 @@ export function HeroJornada() {
       }
 
       const release = () => {
-        const video = videoRef.current
+        const video = getVideo()
         if (video) { try { video.pause() } catch {} }
         if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
         phaseRef.current  = 'done'
+        setPhase('done')
         playingRef.current = false
         directionRef.current = null
         targetRef.current  = null
         setIsPaused(true)
         lockScroll(false)
+        fadeRest(false)
       }
 
       const targetsLength = 3
@@ -414,7 +450,7 @@ export function HeroJornada() {
       const upKeys   = ['ArrowUp', 'PageUp']
 
       const onWheel = (e: WheelEvent) => {
-        const video = videoRef.current
+        const video = getVideo()
         if (!video) return
         const ph = phaseRef.current
         if (ph === 'done') {
@@ -437,7 +473,7 @@ export function HeroJornada() {
       }
 
       const onKey = (e: KeyboardEvent) => {
-        const video = videoRef.current
+        const video = getVideo()
         if (!video) return
         const ph   = phaseRef.current
         const down = downKeys.includes(e.key)
@@ -464,17 +500,17 @@ export function HeroJornada() {
 
       let touchY = 0
       const onTouchStart = (e: TouchEvent) => {
-        const video = videoRef.current
+        const video = getVideo()
         if (!video) return
         touchY = e.touches[0].clientY
       }
       const onTouchMove  = (e: TouchEvent) => {
-        const video = videoRef.current
+        const video = getVideo()
         if (!video) return
         if (phaseRef.current !== 'done') e.preventDefault()
       }
       const onTouchEnd   = (e: TouchEvent) => {
-        const video = videoRef.current
+        const video = getVideo()
         if (!video) return
         const ph  = phaseRef.current
         const endY = e.changedTouches[0] ? e.changedTouches[0].clientY : touchY
@@ -496,9 +532,13 @@ export function HeroJornada() {
       }
 
       const onScroll = () => {
-        const video = videoRef.current
+        const video = getVideo()
         if (!video) return
         
+        if (phaseRef.current === 'rest' && window.scrollY > 10) {
+          fadeRest(false)
+        }
+
         if (phaseRef.current === 'done') {
           if (window.scrollY > 10) {
             hasLeftTopRef.current = true
@@ -518,7 +558,7 @@ export function HeroJornada() {
       // 'reset'    → volta ao frame inicial (o clique em "Início" replay o intro).
       const skipToDone = () => {
         if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
-        const video = videoRef.current
+        const video = getVideo()
         const targets = getTargets()
         const end = targets[targets.length - 1]
         if (video) { try { video.pause() } catch {}; try { video.currentTime = end } catch {} }
@@ -528,6 +568,7 @@ export function HeroJornada() {
         autoRewindRef.current = false
         stepRef.current = targetsLength
         phaseRef.current = 'done'
+        setPhase('done')
         setCap(4)
         setIsPaused(true)
         updateLeavesParallax(end)
@@ -536,7 +577,7 @@ export function HeroJornada() {
       }
       const resetToStart = () => {
         if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
-        const video = videoRef.current
+        const video = getVideo()
         if (video) { try { video.pause() } catch {}; try { video.currentTime = 0 } catch {} }
         playingRef.current = false
         directionRef.current = null
@@ -544,6 +585,7 @@ export function HeroJornada() {
         autoRewindRef.current = false
         stepRef.current = -1
         phaseRef.current = 'rest'
+        setPhase('rest')
         setCap(0)
         setIsPaused(true)
         updateLeavesParallax(0)
@@ -676,7 +718,7 @@ export function HeroJornada() {
           ref={isMobile ? null : videoRef}
           data-hero-video="desktop"
           poster="/hero/desktop/journey-poster.webp"
-          muted playsInline preload="none"
+          muted playsInline preload="auto"
           aria-label={tj('videoAlt')}
           className="absolute inset-0 z-[1] h-full w-full object-cover hidden lg:block"
         >
@@ -684,7 +726,7 @@ export function HeroJornada() {
         </video>
 
         {/* Mobile Poster Image */}
-        <div className="absolute inset-0 z-0 h-full w-full block lg:hidden mix-blend-multiply">
+        <div data-rest className="absolute inset-0 z-0 h-full w-full block lg:hidden mix-blend-multiply">
           <Image
             src="/hero/mobile/journey-poster.webp"
             alt="" aria-hidden fill sizes="100vw" quality={60}
@@ -696,7 +738,7 @@ export function HeroJornada() {
           ref={isMobile ? videoRef : null}
           data-hero-video="mobile"
           poster="/hero/mobile/journey-poster.webp"
-          muted playsInline preload="none"
+          muted playsInline preload="auto"
           aria-label={tj('videoAlt')}
           className="absolute inset-0 z-[1] h-full w-full object-cover max-lg:object-bottom block lg:hidden mix-blend-multiply"
         >
@@ -742,7 +784,7 @@ export function HeroJornada() {
 
         {/* z-20 — Campo (montanhas): mascaras a base do título + transparente no céu.
              NÃO tem ref de parallax — deve estar perfeitamente alinhado ao vídeo. */}
-        <div data-rest className="absolute inset-0 z-20">
+        <div data-rest className={`absolute inset-0 z-20 ${cap !== 0 ? 'pointer-events-none opacity-0 invisible' : ''}`}>
           <Image
             src={isMobile ? '/hero/mobile/frame-1-campo.webp' : '/hero/desktop/frame-1-campo.webp'}
             alt="" aria-hidden fill priority fetchPriority="high" sizes="100vw" quality={60}
