@@ -290,7 +290,7 @@
     },
     "products": {
       "acordaCana": {
-        "tag": "Seed Treatment",
+        "tag": "Planting Furrow",
         "description": "Rooting, vigor and higher productivity in sugarcane, from the very first day."
       },
       "acordaUltra": {
@@ -298,7 +298,7 @@
         "description": "Strong establishment and deep rooting from the very first day in the soil."
       },
       "aduban": {
-        "tag": "Seed Treatment",
+        "tag": "Nutrient Bioavailability",
         "description": "Balanced soil and better nutrient uptake for the young plant."
       },
       "aminosan": {
@@ -309,9 +309,9 @@
         "tag": "Nutrition & Physiology",
         "description": "Better fruit set, grain fill and productivity in the reproductive phase."
       },
-      "linhaRevigo": {
+      "revigoComoni": {
         "tag": "Nutrition & Physiology",
-        "description": "Complete foliar line to correct deficiencies across every crop."
+        "description": "Corrects nutritional deficiencies, in seed treatment and via foliar application."
       },
       "revigophosAmino": {
         "tag": "Nutrition & Physiology",
@@ -319,15 +319,15 @@
       },
       "revigoCobreUltra": {
         "tag": "Nutrition & Physiology",
-        "description": "Complexed copper: physiological strength and plant resistance."
+        "description": "Complexed copper with added amino acids: physiological strength for the plant."
       },
       "kmepUltra": {
-        "tag": "Crop Protection",
-        "description": "Boosts insecticides and improves efficiency in pest control."
+        "tag": "Insecticide Enhancer",
+        "description": "Dislodging agent that exposes the hidden pest and increases insecticide contact with the target."
       },
-      "linhaRedutan": {
+      "redutanSili4": {
         "tag": "Application Technology",
-        "description": "Spray quality, less drift and greater operational efficiency."
+        "description": "Droplet standardization and drift reduction for everyday spraying."
       },
       "supermix": {
         "tag": "Application Technology",
@@ -340,6 +340,10 @@
       "revigoPasto": {
         "tag": "Complete Management",
         "description": "Pasture recovery, weight gain and higher stocking rate per hectare."
+      },
+      "redutanSili5": {
+        "tag": "Application Technology",
+        "description": "Maximum drift reduction for operations where the droplet cannot leave the target."
       }
     },
     "productImageAlt": "Product bottle",
@@ -1153,7 +1157,7 @@
           "tag": "Nutrition & Physiology",
           "desc": "Vigor and resistance throughout growth."
         },
-        "linha-redutan": {
+        "redutan-sili-4": {
           "tag": "Application Technology",
           "desc": "Spray quality for sugarcane applications."
         }
@@ -1324,7 +1328,7 @@
           "tag": "Nutrition & Physiology",
           "desc": "Setting and fruit quality."
         },
-        "linha-revigo": {
+        "revigo-comoni": {
           "tag": "Nutrition & Physiology",
           "desc": "Foliars for deficiency correction."
         }
@@ -1381,7 +1385,7 @@
           "tag": "Nutrition & Physiology",
           "desc": "Filling and tuber quality."
         },
-        "linha-revigo": {
+        "revigo-comoni": {
           "tag": "Nutrition & Physiology",
           "desc": "Correction of nutritional deficiencies."
         }
@@ -1434,7 +1438,7 @@
           "tag": "Nutrition & Physiology",
           "desc": "Vigor and resistance for the entire cycle."
         },
-        "linha-revigo": {
+        "revigo-comoni": {
           "tag": "Nutrition & Physiology",
           "desc": "Correction of nutritional deficiencies."
         },
@@ -1491,7 +1495,7 @@
           "tag": "Nutrition & Physiology",
           "desc": "Vigor and resistance of forage grasses."
         },
-        "linha-redutan": {
+        "redutan-sili-4": {
           "tag": "Application Technology",
           "desc": "Efficiency in field applications."
         }
@@ -1521,7 +1525,9 @@
     "relatedTitle": "Products that work<br></br>together with {name}.",
     "galleryEyebrow": "In the field",
     "galleryTitle": "{name} in action.",
-    "galleryLede": "Photos of fields and real trials conducted with partner producers."
+    "galleryLede": "Photos of fields and real trials conducted with partner producers.",
+    "sizesLabel": "Available packaging",
+    "cropsMore": "+{count} crops"
   },
   "productData": {
     "aminosan": {
@@ -1529,15 +1535,38 @@
       "tag": "Plant Nutrition & Physiology",
       "description": "Foliar fertilizer based on free amino acids of plant origin. For over 40 years, a benchmark in performance — acts on plant metabolism, providing vigor, deeper roots, and tolerance to environmental stress.",
       "crops": [
-        "Soybeans",
-        "Corn",
-        "Coffee",
         "Cotton",
-        "Beans",
-        "Citrus",
-        "Tomato",
+        "Rice",
+        "Wheat",
+        "Barley",
+        "Bean",
+        "Soybean",
+        "Pea",
+        "Peanut",
         "Potato",
-        "Sugarcane"
+        "Tomato (staked and ground)",
+        "Carrot",
+        "Beet",
+        "Strawberry",
+        "Cucumber",
+        "Green bean",
+        "Vegetables",
+        "Garlic",
+        "Onion",
+        "Corn",
+        "Sorghum",
+        "Peach",
+        "Apple",
+        "Mango",
+        "Fruit crops",
+        "Grape",
+        "Citrus",
+        "Coffee",
+        "Rose",
+        "Chrysanthemum",
+        "Carnation",
+        "Gladiolus",
+        "Ornamentals"
       ],
       "problems": {
         "0": {
@@ -1623,8 +1652,8 @@
           "tag": "Nutrition & Physiology",
           "desc": "More setting, grain filling, and productivity."
         },
-        "linha-revigo": {
-          "name": "Revigo Line",
+        "revigo-comoni": {
+          "name": "Revigo CoMoNi",
           "tag": "Nutrition & Physiology",
           "desc": "Foliars to correct deficiencies in each crop."
         },
@@ -1640,11 +1669,14 @@
       "tag": "Plant Nutrition & Physiology",
       "description": "Foliar fertilizer developed to maximize setting, grain filling, and productivity in the reproductive phase of crops.",
       "crops": [
-        "Soybeans",
-        "Corn",
+        "Soybean",
+        "Bean",
         "Coffee",
         "Citrus",
-        "Tomato"
+        "Garlic",
+        "Onion",
+        "Tomato (staked and ground)",
+        "Ornamentals"
       ],
       "problems": {
         "0": {
@@ -1700,19 +1732,23 @@
         }
       }
     },
-    "linha-revigo": {
-      "name": "Revigo Line",
+    "revigo-comoni": {
+      "name": "Revigo CoMoNi",
       "tag": "Plant Nutrition & Physiology",
-      "description": "Complete line of foliar fertilizers to correct nutritional deficiencies in each crop, at different phases of the cycle.",
+      "description": "Fertilizer for seed treatment and foliar application, correcting nutritional deficiencies at every stage of the cycle.",
       "crops": [
-        "Soybeans",
+        "Soybean",
+        "Bean",
+        "Rice",
+        "Wheat",
+        "Oats",
+        "Sugarcane",
         "Corn",
-        "Coffee",
+        "Sorghum",
         "Cotton",
-        "Beans",
+        "Coffee",
         "Citrus",
-        "Tomato",
-        "Potato"
+        "Vegetables"
       ],
       "problems": {
         "0": {
@@ -1755,6 +1791,36 @@
           "tag": "Nutrition & Physiology",
           "desc": "Setting and filling in the reproductive phase."
         }
+      },
+      "cropGroups": {
+        "0": {
+          "label": "Seed treatment",
+          "crops": [
+            "Soybean",
+            "Bean",
+            "Rice",
+            "Wheat",
+            "Oats",
+            "Sugarcane"
+          ]
+        },
+        "1": {
+          "label": "Foliar application",
+          "crops": [
+            "Soybean",
+            "Bean",
+            "Wheat",
+            "Oats",
+            "Rice",
+            "Corn",
+            "Sorghum",
+            "Cotton",
+            "Coffee",
+            "Citrus",
+            "Sugarcane",
+            "Vegetables"
+          ]
+        }
       }
     },
     "revigophos-amino": {
@@ -1762,12 +1828,26 @@
       "tag": "Plant Nutrition & Physiology",
       "description": "Foliar fertilizer with phosphorus and amino acids for fast energy and accelerated recovery after stress. Ideal for critical windows of the cycle.",
       "crops": [
-        "Soybeans",
+        "Soybean",
+        "Bean",
+        "Potato",
+        "Rice",
+        "Wheat",
         "Corn",
+        "Sorghum",
         "Coffee",
-        "Cotton",
-        "Beans",
-        "Sugarcane"
+        "Citrus",
+        "Tomato (staked/ground)",
+        "Onion",
+        "Garlic",
+        "Vegetables",
+        "Fruit crops",
+        "Ornamental plants",
+        "Pasture",
+        "Tomato",
+        "Bell pepper",
+        "Strawberry",
+        "Rose/Ornamentals"
       ],
       "problems": {
         "0": {
@@ -1810,18 +1890,58 @@
           "tag": "Nutrition & Physiology",
           "desc": "More setting and filling."
         }
+      },
+      "cropGroups": {
+        "0": {
+          "label": "Foliar application",
+          "crops": [
+            "Soybean",
+            "Bean",
+            "Potato",
+            "Rice",
+            "Wheat",
+            "Corn",
+            "Sorghum",
+            "Coffee",
+            "Citrus",
+            "Tomato (staked/ground)",
+            "Onion",
+            "Garlic",
+            "Vegetables",
+            "Fruit crops",
+            "Ornamental plants",
+            "Pasture"
+          ]
+        },
+        "1": {
+          "label": "Fertigation",
+          "crops": [
+            "Coffee",
+            "Tomato",
+            "Bell pepper",
+            "Strawberry",
+            "Rose/Ornamentals"
+          ]
+        }
       }
     },
     "revigo-cobre-ultra": {
       "name": "Revigo Copper Ultra",
       "tag": "Plant Nutrition & Physiology",
-      "description": "Complexed copper for physiological strength and plant resistance. High-efficiency formulation for correction and prevention of deficiencies.",
+      "description": "Complexed copper with added amino acids for the plant physiological strength. High-efficiency formulation for correcting and preventing deficiencies.",
       "crops": [
-        "Soybeans",
-        "Coffee",
-        "Citrus",
+        "Soybean",
+        "Bean",
+        "Corn",
+        "Sorghum",
+        "Wheat",
+        "Oats",
+        "Rice",
         "Tomato",
-        "Potato"
+        "Potato",
+        "Vegetables",
+        "Coffee",
+        "Citrus"
       ],
       "problems": {
         "0": {
@@ -1846,8 +1966,8 @@
       "stages": {},
       "results": {},
       "related": {
-        "linha-revigo": {
-          "name": "Revigo Line",
+        "revigo-comoni": {
+          "name": "Revigo CoMoNi",
           "tag": "Nutrition & Physiology",
           "desc": "Complete line of foliars."
         },
@@ -1860,7 +1980,7 @@
     },
     "acorda-cana": {
       "name": "Acorda Cana",
-      "tag": "Seed Treatment",
+      "tag": "Planting Furrow",
       "description": "Rooting, vigor, and more productivity in sugarcane, starting from planting. Formulated to stimulate the initial development of the crop.",
       "crops": [
         "Sugarcane"
@@ -1899,8 +2019,8 @@
           "tag": "Nutrition & Physiology",
           "desc": "Vigor during growth."
         },
-        "linha-redutan": {
-          "name": "Redutan Line",
+        "redutan-sili-4": {
+          "name": "Redutan NPK Sili-4",
           "tag": "Application Technology",
           "desc": "Spray quality for sugarcane applications."
         }
@@ -1911,10 +2031,25 @@
       "tag": "Seed Treatment",
       "description": "Strong startup and deep rooting from the first day in the soil. For soybeans, corn, cotton, and beans.",
       "crops": [
-        "Soybeans",
-        "Corn",
         "Cotton",
-        "Beans"
+        "Rice",
+        "Garlic",
+        "Potato",
+        "Coffee",
+        "Citrus",
+        "Onion",
+        "Carrot",
+        "Bean",
+        "Soybean",
+        "Fruit crops",
+        "Vegetables",
+        "Corn",
+        "Sorghum",
+        "Tomato",
+        "Bell pepper",
+        "Wheat",
+        "Barley",
+        "Nurseries/Trays"
       ],
       "problems": {
         "0": {
@@ -1938,9 +2073,14 @@
       },
       "stages": {
         "0": {
-          "label": "Seed",
-          "title": "Treatment",
-          "desc": "Applied directly to the seed before planting."
+          "label": "ST",
+          "title": "Seed treatment",
+          "desc": "Applied to the seed before planting."
+        },
+        "1": {
+          "label": "V2",
+          "title": "Vegetative stage",
+          "desc": "Foliar application during the vegetative stage."
         }
       },
       "results": {},
@@ -1959,13 +2099,51 @@
     },
     "aduban": {
       "name": "Aduban",
-      "tag": "Seed Treatment",
+      "tag": "Nutrient Bioavailability",
       "description": "Balanced soil and more nutrient absorption by the young plant. For soybeans, corn, coffee, and beans.",
       "crops": [
-        "Soybeans",
+        "Cotton",
+        "Rice",
+        "Wheat",
+        "Barley",
+        "Bean",
+        "Soybean",
+        "Pea",
+        "Peanut",
+        "Potato",
+        "Tomato",
+        "Carrot",
+        "Beet",
+        "Garlic",
+        "Onion",
+        "Strawberry",
+        "Cucumber",
+        "Green bean",
+        "Vegetables",
         "Corn",
+        "Sorghum",
+        "Peach",
+        "Apple",
+        "Grape",
+        "Annual fruit crops",
+        "Citrus",
         "Coffee",
-        "Beans"
+        "Rose",
+        "Chrysanthemum",
+        "Carnation",
+        "Gladiolus",
+        "Ornamentals",
+        "Bell pepper",
+        "Lettuce",
+        "Escarole",
+        "Leafy vegetables",
+        "Squash",
+        "Melon",
+        "Eggplant",
+        "Rose/Ornamentals",
+        "Nurseries",
+        "Pear",
+        "Kiwi"
       ],
       "problems": {
         "0": {
@@ -1989,9 +2167,19 @@
       },
       "stages": {
         "0": {
-          "label": "Seed",
-          "title": "Treatment",
-          "desc": "Applied to the seed for immediate action in the soil."
+          "label": "Soil",
+          "title": "Fertigation",
+          "desc": "Applied through the irrigation water."
+        },
+        "1": {
+          "label": "Planting",
+          "title": "Planting furrow",
+          "desc": "Applied in the furrow, along with base fertilization."
+        },
+        "2": {
+          "label": "Leaf",
+          "title": "Foliar spraying",
+          "desc": "Applied via foliar spray during the cycle."
         }
       },
       "results": {},
@@ -2006,21 +2194,91 @@
           "tag": "Nutrition & Physiology",
           "desc": "Vigor during growth."
         }
+      },
+      "cropGroups": {
+        "0": {
+          "label": "Foliar application",
+          "crops": [
+            "Cotton",
+            "Rice",
+            "Wheat",
+            "Barley",
+            "Bean",
+            "Soybean",
+            "Pea",
+            "Peanut",
+            "Potato",
+            "Tomato",
+            "Carrot",
+            "Beet",
+            "Garlic",
+            "Onion",
+            "Strawberry",
+            "Cucumber",
+            "Green bean",
+            "Vegetables",
+            "Corn",
+            "Sorghum",
+            "Peach",
+            "Apple",
+            "Grape",
+            "Annual fruit crops",
+            "Citrus",
+            "Coffee",
+            "Rose",
+            "Chrysanthemum",
+            "Carnation",
+            "Gladiolus",
+            "Ornamentals"
+          ]
+        },
+        "1": {
+          "label": "Fertigation",
+          "crops": [
+            "Tomato",
+            "Bell pepper",
+            "Strawberry",
+            "Lettuce",
+            "Escarole",
+            "Leafy vegetables",
+            "Squash",
+            "Melon",
+            "Eggplant",
+            "Cucumber",
+            "Rose/Ornamentals",
+            "Nurseries",
+            "Citrus",
+            "Grape",
+            "Pear",
+            "Kiwi",
+            "Coffee",
+            "Soybean",
+            "Corn",
+            "Bean"
+          ]
+        }
       }
     },
     "kmep-ultra": {
       "name": "Kmep Ultra",
-      "tag": "Crop Protection",
-      "description": "Potentiates insecticides and improves pest control efficiency. Specialized adjuvant to maximize application results.",
+      "tag": "Insecticide Enhancer",
+      "description": "Acts as a dislodging agent, forcing hidden pests out of shelter and increasing the insecticide contact with the target. Supports resistance management and contributes to grain filling through the potassium in its formulation.",
       "crops": [
-        "Soybeans",
-        "Corn",
-        "Coffee",
         "Cotton",
-        "Beans",
-        "Tomato",
         "Potato",
-        "Sugarcane"
+        "Onion",
+        "Garlic",
+        "Carrot",
+        "Beet",
+        "Bean",
+        "Corn",
+        "Soybean",
+        "Tomato",
+        "Coffee",
+        "Bell pepper",
+        "Fruit crops in general",
+        "Vegetables in general",
+        "Citrus"
       ],
       "problems": {
         "0": {
@@ -2040,13 +2298,17 @@
         "1": {
           "title": "Better deposition",
           "desc": "Reduces surface tension for better spreading over the leaf and the pest."
+        },
+        "2": {
+          "title": "Potassium source",
+          "desc": "Potassium in the formulation contributes to grain filling."
         }
       },
       "stages": {},
       "results": {},
       "related": {
-        "linha-redutan": {
-          "name": "Redutan Line",
+        "redutan-sili-4": {
+          "name": "Redutan NPK Sili-4",
           "tag": "Application Technology",
           "desc": "Spray quality for every application."
         },
@@ -2057,21 +2319,19 @@
         }
       }
     },
-    "linha-redutan": {
-      "name": "Redutan Line",
+    "redutan-sili-4": {
+      "name": "Redutan NPK Sili-4",
       "tag": "Application Technology",
-      "description": "Spray quality, less drift, and more operational efficiency. The complete line to optimize every spray in the field.",
+      "description": "Based on nitrogen, phosphorus and potassium, which act on the plant photosynthesis and protein synthesis. Redutan NPK Sili-4 was created so growers get maximum efficiency from foliar applications.",
       "crops": [
-        "Soybeans",
         "Corn",
-        "Coffee",
-        "Cotton",
-        "Beans",
+        "Soybean",
+        "Bean",
         "Citrus",
-        "Tomato",
-        "Potato",
+        "Coffee",
+        "Vegetables",
         "Sugarcane",
-        "Pasture"
+        "Other crops"
       ],
       "problems": {
         "0": {
@@ -2096,15 +2356,15 @@
       "stages": {},
       "results": {},
       "related": {
+        "redutan-sili-5": {
+          "name": "Redutan NPK Sili-5",
+          "tag": "Application Technology",
+          "desc": "The higher-intensity version against drift."
+        },
         "supermix": {
           "name": "Supermix",
           "tag": "Application Technology",
-          "desc": "Adjuvant for uniform spray."
-        },
-        "kmep-ultra": {
-          "name": "Kmep Ultra",
-          "tag": "Crop Protection",
-          "desc": "Potentiates insecticides."
+          "desc": "Adjuvant for a uniform tank mix."
         }
       }
     },
@@ -2112,18 +2372,7 @@
       "name": "Supermix",
       "tag": "Application Technology",
       "description": "Adjuvant for uniform spray, without clogging and greater compatibility between products in the tank.",
-      "crops": [
-        "Soybeans",
-        "Corn",
-        "Coffee",
-        "Cotton",
-        "Beans",
-        "Citrus",
-        "Tomato",
-        "Potato",
-        "Sugarcane",
-        "Pasture"
-      ],
+      "crops": [],
       "problems": {
         "0": {
           "title": "Non-homogeneous spray",
@@ -2147,8 +2396,8 @@
       "stages": {},
       "results": {},
       "related": {
-        "linha-redutan": {
-          "name": "Redutan Line",
+        "redutan-sili-4": {
+          "name": "Redutan NPK Sili-4",
           "tag": "Application Technology",
           "desc": "Less drift and more efficiency."
         },
@@ -2157,14 +2406,17 @@
           "tag": "Crop Protection",
           "desc": "Potentiates insecticides."
         }
-      }
+      },
+      "cropsNote": "Adjuvant for diluting and dispersing crop protection products. Dosage is by spray volume (ml per 100 L), not by crop."
     },
     "revigo-milho": {
       "name": "Revigo + Corn",
       "tag": "Complete Management",
       "description": "Strategic nutrition for second crop corn — real gain per hectare with integrated nutritional program.",
       "crops": [
-        "Corn"
+        "Corn",
+        "Sorghum",
+        "Millet"
       ],
       "problems": {
         "0": {
@@ -2222,7 +2474,11 @@
       "tag": "Complete Management",
       "description": "Pasture recovery, weight gain, and more stocking per hectare with strategic nutrition for forage grasses.",
       "crops": [
-        "Pasture"
+        "Grasses/Pasture",
+        "Grasses for seed",
+        "Corn",
+        "Sorghum",
+        "Millet"
       ],
       "problems": {
         "0": {
@@ -2252,10 +2508,63 @@
           "tag": "Nutrition & Physiology",
           "desc": "Vigor and resistance for the entire cycle."
         },
-        "linha-redutan": {
-          "name": "Redutan Line",
+        "redutan-sili-4": {
+          "name": "Redutan NPK Sili-4",
           "tag": "Application Technology",
           "desc": "Efficiency in applications."
+        }
+      }
+    },
+    "redutan-sili-5": {
+      "name": "Redutan NPK Sili-5",
+      "tag": "Application Technology",
+      "description": "Based on nitrogen, phosphorus and potassium, which act on the plant photosynthesis and protein synthesis. Redutan NPK Sili-5 is the higher-intensity version, for operations where drift is unacceptable: field borders, sensitive areas and aerial application.",
+      "crops": [
+        "Corn",
+        "Soybean",
+        "Bean",
+        "Citrus",
+        "Coffee",
+        "Vegetables",
+        "Sugarcane",
+        "Other crops"
+      ],
+      "problems": {
+        "0": {
+          "title": "Drift where it cannot happen",
+          "desc": "Field borders, riparian forest and sensitive neighbouring crops leave little room for the droplet to miss the target."
+        },
+        "1": {
+          "title": "Spray lost on the way",
+          "desc": "Part of what was paid for evaporates or drifts before reaching the plant, and the bill shows up later as control below expectation."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Drift cut to the limit",
+          "desc": "The highest-intensity formulation in the line, for when there is no margin for error in the application."
+        },
+        "1": {
+          "title": "Droplets that land on target",
+          "desc": "Standardizes droplet size, which resists evaporation and lands where the boom pointed."
+        },
+        "2": {
+          "title": "The spray that protects also feeds",
+          "desc": "It carries NPK, adding a nutritional effect to the same application."
+        }
+      },
+      "stages": {},
+      "results": {},
+      "related": {
+        "redutan-sili-4": {
+          "name": "Redutan NPK Sili-4",
+          "tag": "Application Technology",
+          "desc": "The complete tank-mix conditioning line."
+        },
+        "supermix": {
+          "name": "Supermix",
+          "tag": "Application Technology",
+          "desc": "Adjuvant for a uniform tank mix."
         }
       }
     }

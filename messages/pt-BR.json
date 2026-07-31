@@ -196,7 +196,7 @@
     "viewLine": "Ver produtos da linha",
     "nutricao": {
       "title": "Para a planta produzir no potencial",
-      "support": "Aminosan, FitoFert, Linha Revigo, RevigoPhos Amino, Revigo Cobre Ultra"
+      "support": "Aminosan, FitoFert, Revigo CoMoNi, RevigoPhos Amino, Revigo Cobre Ultra"
     },
     "arranque": {
       "title": "Para a safra começar na frente",
@@ -212,7 +212,7 @@
     },
     "aplicacao": {
       "title": "Para a calda chegar no alvo",
-      "support": "Linha Redutan e Supermix"
+      "support": "Redutan NPK Sili-4 e Supermix"
     }
   },
   "culturesGrid": {
@@ -290,7 +290,7 @@
     },
     "products": {
       "acordaCana": {
-        "tag": "Tratamento de Sementes",
+        "tag": "Sulco de Plantio",
         "description": "Enraizamento, vigor e mais produtividade na cana, desde o plantio."
       },
       "acordaUltra": {
@@ -298,7 +298,7 @@
         "description": "Arranque forte e enraizamento profundo desde o primeiro dia no solo."
       },
       "aduban": {
-        "tag": "Tratamento de Sementes",
+        "tag": "Biodisponibilidade de Nutrientes",
         "description": "Solo equilibrado e mais absorção de nutrientes pela planta jovem."
       },
       "aminosan": {
@@ -309,9 +309,9 @@
         "tag": "Nutrição e Fisiologia",
         "description": "Mais pegamento, enchimento de grãos e produtividade na fase reprodutiva."
       },
-      "linhaRevigo": {
+      "revigoComoni": {
         "tag": "Nutrição e Fisiologia",
-        "description": "Linha completa de foliares para corrigir deficiências em cada cultura."
+        "description": "Correção de deficiências nutricionais, no tratamento de sementes e via foliar."
       },
       "revigophosAmino": {
         "tag": "Nutrição e Fisiologia",
@@ -319,15 +319,15 @@
       },
       "revigoCobreUltra": {
         "tag": "Nutrição e Fisiologia",
-        "description": "Cobre complexado: força fisiológica e resistência da planta."
+        "description": "Cobre complexado e aditivado com aminoácidos: força fisiológica da planta."
       },
       "kmepUltra": {
-        "tag": "Proteção de Cultivos",
-        "description": "Potencializa inseticidas e melhora a eficiência no controle de pragas."
+        "tag": "Potencializador de Inseticidas",
+        "description": "Agente desalojante que expõe a praga oculta e aumenta o contato do inseticida com o alvo."
       },
-      "linhaRedutan": {
+      "redutanSili4": {
         "tag": "Tecnologia de Aplicação",
-        "description": "Qualidade de calda, menos deriva e mais eficiência operacional."
+        "description": "Padronização de gotas e redução de deriva no dia a dia da pulverização."
       },
       "supermix": {
         "tag": "Tecnologia de Aplicação",
@@ -340,6 +340,10 @@
       "revigoPasto": {
         "tag": "Manejo Completo",
         "description": "Recuperação da pastagem, ganho de peso e mais lotação por hectare."
+      },
+      "redutanSili5": {
+        "tag": "Tecnologia de Aplicação",
+        "description": "Máxima redução de deriva para operações onde a gota não pode sair do alvo."
       }
     },
     "productImageAlt": "Frasco do produto",
@@ -689,7 +693,7 @@
     },
     "hint": "role para explorar",
     "hintReduced": "Ver produto",
-    "subtitle": "Linha Redutan® · Linha Juma",
+    "subtitle": "Redutan NPK Sili-4® · Linha Juma",
     "sizesLabel": "Tamanhos disponíveis",
     "skip": "Pular seção"
   },
@@ -1153,7 +1157,7 @@
           "tag": "Nutrição e Fisiologia",
           "desc": "Vigor e resistência durante todo o crescimento."
         },
-        "linha-redutan": {
+        "redutan-sili-4": {
           "tag": "Tecnologia de Aplicação",
           "desc": "Qualidade de calda para aplicações em cana."
         }
@@ -1324,7 +1328,7 @@
           "tag": "Nutrição e Fisiologia",
           "desc": "Pegamento e qualidade de frutos."
         },
-        "linha-revigo": {
+        "revigo-comoni": {
           "tag": "Nutrição e Fisiologia",
           "desc": "Foliares para correção de deficiências."
         }
@@ -1381,7 +1385,7 @@
           "tag": "Nutrição e Fisiologia",
           "desc": "Enchimento e qualidade de tubérculos."
         },
-        "linha-revigo": {
+        "revigo-comoni": {
           "tag": "Nutrição e Fisiologia",
           "desc": "Correção de deficiências nutricionais."
         }
@@ -1434,7 +1438,7 @@
           "tag": "Nutrição e Fisiologia",
           "desc": "Vigor e resistência para todo o ciclo."
         },
-        "linha-revigo": {
+        "revigo-comoni": {
           "tag": "Nutrição e Fisiologia",
           "desc": "Correção de deficiências nutricionais."
         },
@@ -1491,7 +1495,7 @@
           "tag": "Nutrição e Fisiologia",
           "desc": "Vigor e resistência das forrageiras."
         },
-        "linha-redutan": {
+        "redutan-sili-4": {
           "tag": "Tecnologia de Aplicação",
           "desc": "Eficiência nas aplicações de campo."
         }
@@ -1521,7 +1525,9 @@
     "relatedTitle": "Produtos que trabalham<br></br>junto com o {name}.",
     "galleryEyebrow": "No campo",
     "galleryTitle": "{name} em ação.",
-    "galleryLede": "Fotos de talhões e ensaios reais conduzidos com produtores parceiros."
+    "galleryLede": "Fotos de talhões e ensaios reais conduzidos com produtores parceiros.",
+    "sizesLabel": "Embalagens disponíveis",
+    "cropsMore": "+{count} culturas"
   },
   "productData": {
     "aminosan": {
@@ -1529,15 +1535,38 @@
       "tag": "Nutrição e Fisiologia Vegetal",
       "description": "Fertilizante foliar à base de aminoácidos livres de origem vegetal. Há mais de 40 anos, referência em performance — atua no metabolismo da planta, dando vigor, raízes mais profundas e tolerância a estresses ambientais.",
       "crops": [
-        "Soja",
-        "Milho",
-        "Café",
         "Algodão",
+        "Arroz",
+        "Trigo",
+        "Cevada",
         "Feijão",
-        "Citros",
-        "Tomate",
+        "Soja",
+        "Ervilha",
+        "Amendoim",
         "Batata",
-        "Cana"
+        "Tomate (envarado e rasteiro)",
+        "Cenoura",
+        "Beterraba",
+        "Morango",
+        "Pepino",
+        "Vagem",
+        "Hortaliças",
+        "Alho",
+        "Cebola",
+        "Milho",
+        "Sorgo",
+        "Pêssego",
+        "Maçã",
+        "Manga",
+        "Frutíferas",
+        "Uva",
+        "Citros",
+        "Café",
+        "Rosa",
+        "Crisântemo",
+        "Cravo",
+        "Gladíolo",
+        "Ornamentais"
       ],
       "problems": {
         "0": {
@@ -1623,8 +1652,8 @@
           "tag": "Nutrição e Fisiologia",
           "desc": "Mais pegamento, enchimento de grãos e produtividade."
         },
-        "linha-revigo": {
-          "name": "Linha Revigo",
+        "revigo-comoni": {
+          "name": "Revigo CoMoNi",
           "tag": "Nutrição e Fisiologia",
           "desc": "Foliares para corrigir deficiências em cada cultura."
         },
@@ -1641,10 +1670,13 @@
       "description": "Fertilizante foliar desenvolvido para maximizar pegamento, enchimento de grãos e produtividade na fase reprodutiva das culturas.",
       "crops": [
         "Soja",
-        "Milho",
+        "Feijão",
         "Café",
         "Citros",
-        "Tomate"
+        "Alho",
+        "Cebola",
+        "Tomate (envarado e rasteiro)",
+        "Ornamentais"
       ],
       "problems": {
         "0": {
@@ -1700,19 +1732,23 @@
         }
       }
     },
-    "linha-revigo": {
-      "name": "Linha Revigo",
+    "revigo-comoni": {
+      "name": "Revigo CoMoNi",
       "tag": "Nutrição e Fisiologia Vegetal",
-      "description": "Linha completa de fertilizantes foliares para correção de deficiências nutricionais em cada cultura, nas diferentes fases do ciclo.",
+      "description": "Fertilizante para tratamento de sementes e aplicação foliar, na correção de deficiências nutricionais em cada fase do ciclo.",
       "crops": [
         "Soja",
-        "Milho",
-        "Café",
-        "Algodão",
         "Feijão",
+        "Arroz",
+        "Trigo",
+        "Aveia",
+        "Cana-de-açúcar",
+        "Milho",
+        "Sorgo",
+        "Algodão",
+        "Café",
         "Citros",
-        "Tomate",
-        "Batata"
+        "Hortaliças"
       ],
       "problems": {
         "0": {
@@ -1755,6 +1791,36 @@
           "tag": "Nutrição e Fisiologia",
           "desc": "Pegamento e enchimento na fase reprodutiva."
         }
+      },
+      "cropGroups": {
+        "0": {
+          "label": "Tratamento de sementes",
+          "crops": [
+            "Soja",
+            "Feijão",
+            "Arroz",
+            "Trigo",
+            "Aveia",
+            "Cana-de-açúcar"
+          ]
+        },
+        "1": {
+          "label": "Aplicação foliar",
+          "crops": [
+            "Soja",
+            "Feijão",
+            "Trigo",
+            "Aveia",
+            "Arroz",
+            "Milho",
+            "Sorgo",
+            "Algodão",
+            "Café",
+            "Citros",
+            "Cana-de-açúcar",
+            "Hortaliças"
+          ]
+        }
       }
     },
     "revigophos-amino": {
@@ -1763,11 +1829,25 @@
       "description": "Fertilizante foliar com fósforo e aminoácidos para energia rápida e recuperação acelerada após estresses. Ideal para janelas críticas do ciclo.",
       "crops": [
         "Soja",
-        "Milho",
-        "Café",
-        "Algodão",
         "Feijão",
-        "Cana"
+        "Batata",
+        "Arroz",
+        "Trigo",
+        "Milho",
+        "Sorgo",
+        "Café",
+        "Citros",
+        "Tomate (estaqueado/rasteiro)",
+        "Cebola",
+        "Alho",
+        "Hortaliças",
+        "Frutíferas",
+        "Plantas ornamentais",
+        "Pastagem",
+        "Tomate",
+        "Pimentão",
+        "Morango",
+        "Rosa/Ornamentais"
       ],
       "problems": {
         "0": {
@@ -1810,18 +1890,58 @@
           "tag": "Nutrição e Fisiologia",
           "desc": "Mais pegamento e enchimento."
         }
+      },
+      "cropGroups": {
+        "0": {
+          "label": "Aplicação foliar",
+          "crops": [
+            "Soja",
+            "Feijão",
+            "Batata",
+            "Arroz",
+            "Trigo",
+            "Milho",
+            "Sorgo",
+            "Café",
+            "Citros",
+            "Tomate (estaqueado/rasteiro)",
+            "Cebola",
+            "Alho",
+            "Hortaliças",
+            "Frutíferas",
+            "Plantas ornamentais",
+            "Pastagem"
+          ]
+        },
+        "1": {
+          "label": "Fertirrigação",
+          "crops": [
+            "Café",
+            "Tomate",
+            "Pimentão",
+            "Morango",
+            "Rosa/Ornamentais"
+          ]
+        }
       }
     },
     "revigo-cobre-ultra": {
       "name": "Revigo Cobre Ultra",
       "tag": "Nutrição e Fisiologia Vegetal",
-      "description": "Cobre complexado para força fisiológica e resistência da planta. Formulação de alta eficiência para correção e prevenção de deficiências.",
+      "description": "Cobre complexado e aditivado com aminoácidos para força fisiológica da planta. Formulação de alta eficiência para correção e prevenção de deficiências.",
       "crops": [
         "Soja",
-        "Café",
-        "Citros",
+        "Feijão",
+        "Milho",
+        "Sorgo",
+        "Trigo",
+        "Aveia",
+        "Arroz",
         "Tomate",
-        "Batata"
+        "Batata",
+        "Hortaliças",
+        "Café",
+        "Citros"
       ],
       "problems": {
         "0": {
@@ -1846,8 +1966,8 @@
       "stages": {},
       "results": {},
       "related": {
-        "linha-revigo": {
-          "name": "Linha Revigo",
+        "revigo-comoni": {
+          "name": "Revigo CoMoNi",
           "tag": "Nutrição e Fisiologia",
           "desc": "Linha completa de foliares."
         },
@@ -1860,7 +1980,7 @@
     },
     "acorda-cana": {
       "name": "Acorda Cana",
-      "tag": "Tratamento de Sementes",
+      "tag": "Sulco de Plantio",
       "description": "Enraizamento, vigor e mais produtividade na cana-de-açúcar, desde o plantio. Formulado para estimular o desenvolvimento inicial da cultura.",
       "crops": [
         "Cana-de-açúcar"
@@ -1899,8 +2019,8 @@
           "tag": "Nutrição e Fisiologia",
           "desc": "Vigor durante o crescimento."
         },
-        "linha-redutan": {
-          "name": "Linha Redutan",
+        "redutan-sili-4": {
+          "name": "Redutan NPK Sili-4",
           "tag": "Tecnologia de Aplicação",
           "desc": "Qualidade de calda para aplicações em cana."
         }
@@ -1911,10 +2031,25 @@
       "tag": "Tratamento de Sementes",
       "description": "Arranque forte e enraizamento profundo desde o primeiro dia no solo. Para soja, milho, algodão e feijão.",
       "crops": [
-        "Soja",
-        "Milho",
         "Algodão",
-        "Feijão"
+        "Arroz",
+        "Alho",
+        "Batata",
+        "Café",
+        "Citros",
+        "Cebola",
+        "Cenoura",
+        "Feijão",
+        "Soja",
+        "Frutíferas",
+        "Hortaliças",
+        "Milho",
+        "Sorgo",
+        "Tomate",
+        "Pimentão",
+        "Trigo",
+        "Cevada",
+        "Viveiros/Bandejas"
       ],
       "problems": {
         "0": {
@@ -1938,9 +2073,14 @@
       },
       "stages": {
         "0": {
-          "label": "Semente",
-          "title": "Tratamento",
-          "desc": "Aplicado diretamente na semente antes do plantio."
+          "label": "TS",
+          "title": "Tratamento de sementes",
+          "desc": "Aplicado na semente antes do plantio."
+        },
+        "1": {
+          "label": "V2",
+          "title": "Fase vegetativa",
+          "desc": "Aplicação via folha na fase vegetativa."
         }
       },
       "results": {},
@@ -1959,13 +2099,51 @@
     },
     "aduban": {
       "name": "Aduban",
-      "tag": "Tratamento de Sementes",
+      "tag": "Biodisponibilidade de Nutrientes",
       "description": "Solo equilibrado e mais absorção de nutrientes pela planta jovem. Para soja, milho, café e feijão.",
       "crops": [
+        "Algodão",
+        "Arroz",
+        "Trigo",
+        "Cevada",
+        "Feijão",
         "Soja",
+        "Ervilha",
+        "Amendoim",
+        "Batata",
+        "Tomate",
+        "Cenoura",
+        "Beterraba",
+        "Alho",
+        "Cebola",
+        "Morango",
+        "Pepino",
+        "Vagem",
+        "Hortaliças",
         "Milho",
+        "Sorgo",
+        "Pêssego",
+        "Maçã",
+        "Uva",
+        "Frutíferas anuais",
+        "Citros",
         "Café",
-        "Feijão"
+        "Rosa",
+        "Crisântemo",
+        "Cravo",
+        "Gladíolo",
+        "Ornamentais",
+        "Pimentão",
+        "Alface",
+        "Escarola",
+        "Hortaliças folhosas",
+        "Abóbora",
+        "Melão",
+        "Berinjela",
+        "Rosa/Ornamentais",
+        "Viveiros",
+        "Pera",
+        "Kiwi"
       ],
       "problems": {
         "0": {
@@ -1989,9 +2167,19 @@
       },
       "stages": {
         "0": {
-          "label": "Semente",
-          "title": "Tratamento",
-          "desc": "Aplicado na semente para ação imediata no solo."
+          "label": "Solo",
+          "title": "Fertirrigação",
+          "desc": "Aplicado via água de irrigação."
+        },
+        "1": {
+          "label": "Plantio",
+          "title": "Sulco de plantio",
+          "desc": "Aplicado no sulco, junto à adubação de base."
+        },
+        "2": {
+          "label": "Folha",
+          "title": "Pulverização foliar",
+          "desc": "Aplicado via foliar durante o ciclo."
         }
       },
       "results": {},
@@ -2006,21 +2194,91 @@
           "tag": "Nutrição e Fisiologia",
           "desc": "Vigor durante o crescimento."
         }
+      },
+      "cropGroups": {
+        "0": {
+          "label": "Aplicação foliar",
+          "crops": [
+            "Algodão",
+            "Arroz",
+            "Trigo",
+            "Cevada",
+            "Feijão",
+            "Soja",
+            "Ervilha",
+            "Amendoim",
+            "Batata",
+            "Tomate",
+            "Cenoura",
+            "Beterraba",
+            "Alho",
+            "Cebola",
+            "Morango",
+            "Pepino",
+            "Vagem",
+            "Hortaliças",
+            "Milho",
+            "Sorgo",
+            "Pêssego",
+            "Maçã",
+            "Uva",
+            "Frutíferas anuais",
+            "Citros",
+            "Café",
+            "Rosa",
+            "Crisântemo",
+            "Cravo",
+            "Gladíolo",
+            "Ornamentais"
+          ]
+        },
+        "1": {
+          "label": "Fertirrigação",
+          "crops": [
+            "Tomate",
+            "Pimentão",
+            "Morango",
+            "Alface",
+            "Escarola",
+            "Hortaliças folhosas",
+            "Abóbora",
+            "Melão",
+            "Berinjela",
+            "Pepino",
+            "Rosa/Ornamentais",
+            "Viveiros",
+            "Citros",
+            "Uva",
+            "Pera",
+            "Kiwi",
+            "Café",
+            "Soja",
+            "Milho",
+            "Feijão"
+          ]
+        }
       }
     },
     "kmep-ultra": {
       "name": "Kmep Ultra",
-      "tag": "Proteção de Cultivos",
-      "description": "Potencializa inseticidas e melhora a eficiência no controle de pragas. Adjuvante especializado para maximizar o resultado das aplicações.",
+      "tag": "Potencializador de Inseticidas",
+      "description": "Atua como agente desalojante, forçando pragas ocultas a saírem do abrigo, aumentando o contato do inseticida com o alvo. Auxilia no manejo da resistência e contribui no enchimento de grãos com potássio na sua formulação.",
       "crops": [
-        "Soja",
-        "Milho",
-        "Café",
         "Algodão",
-        "Feijão",
-        "Tomate",
         "Batata",
-        "Cana"
+        "Cebola",
+        "Alho",
+        "Cenoura",
+        "Beterraba",
+        "Feijão",
+        "Milho",
+        "Soja",
+        "Tomate",
+        "Café",
+        "Pimentão",
+        "Frutíferas em geral",
+        "Hortaliças em geral",
+        "Citros"
       ],
       "problems": {
         "0": {
@@ -2040,13 +2298,17 @@
         "1": {
           "title": "Melhor deposição",
           "desc": "Reduz a tensão superficial para melhor espalhamento sobre a folha e a praga."
+        },
+        "2": {
+          "title": "Fonte de potássio",
+          "desc": "Potássio na formulação contribui para o enchimento de grãos."
         }
       },
       "stages": {},
       "results": {},
       "related": {
-        "linha-redutan": {
-          "name": "Linha Redutan",
+        "redutan-sili-4": {
+          "name": "Redutan NPK Sili-4",
           "tag": "Tecnologia de Aplicação",
           "desc": "Qualidade de calda para cada pulverização."
         },
@@ -2057,21 +2319,19 @@
         }
       }
     },
-    "linha-redutan": {
-      "name": "Linha Redutan",
+    "redutan-sili-4": {
+      "name": "Redutan NPK Sili-4",
       "tag": "Tecnologia de Aplicação",
-      "description": "Qualidade de calda, menos deriva e mais eficiência operacional. A linha completa para otimizar cada pulverização no campo.",
+      "description": "À base de nitrogênio, fósforo e potássio, que atuam nos processos de fotossíntese e síntese de proteínas da planta. O Redutan NPK Sili-4 foi criado para o produtor ter o máximo de eficiência nas aplicações foliares.",
       "crops": [
-        "Soja",
         "Milho",
-        "Café",
-        "Algodão",
+        "Soja",
         "Feijão",
         "Citros",
-        "Tomate",
-        "Batata",
-        "Cana",
-        "Pastagem"
+        "Café",
+        "Hortaliças",
+        "Cana-de-açúcar",
+        "Demais culturas"
       ],
       "problems": {
         "0": {
@@ -2096,15 +2356,15 @@
       "stages": {},
       "results": {},
       "related": {
+        "redutan-sili-5": {
+          "name": "Redutan NPK Sili-5",
+          "tag": "Tecnologia de Aplicação",
+          "desc": "Versão de maior intensidade contra deriva."
+        },
         "supermix": {
           "name": "Supermix",
           "tag": "Tecnologia de Aplicação",
           "desc": "Adjuvante para calda uniforme."
-        },
-        "kmep-ultra": {
-          "name": "Kmep Ultra",
-          "tag": "Proteção de Cultivos",
-          "desc": "Potencializa inseticidas."
         }
       }
     },
@@ -2112,18 +2372,7 @@
       "name": "Supermix",
       "tag": "Tecnologia de Aplicação",
       "description": "Adjuvante para calda uniforme, sem entupimentos e maior compatibilidade entre produtos na pulverização.",
-      "crops": [
-        "Soja",
-        "Milho",
-        "Café",
-        "Algodão",
-        "Feijão",
-        "Citros",
-        "Tomate",
-        "Batata",
-        "Cana",
-        "Pastagem"
-      ],
+      "crops": [],
       "problems": {
         "0": {
           "title": "Calda não homogênea",
@@ -2147,8 +2396,8 @@
       "stages": {},
       "results": {},
       "related": {
-        "linha-redutan": {
-          "name": "Linha Redutan",
+        "redutan-sili-4": {
+          "name": "Redutan NPK Sili-4",
           "tag": "Tecnologia de Aplicação",
           "desc": "Menos deriva e mais eficiência."
         },
@@ -2157,14 +2406,17 @@
           "tag": "Proteção de Cultivos",
           "desc": "Potencializa inseticidas."
         }
-      }
+      },
+      "cropsNote": "Adjuvante para diluição e dispersão de defensivos. A dosagem é por volume de calda (ml por 100 L), não por cultura."
     },
     "revigo-milho": {
       "name": "Revigo + Milho",
       "tag": "Manejo Completo",
       "description": "Nutrição estratégica para o milho safrinha — ganho real por hectare com programa nutricional integrado.",
       "crops": [
-        "Milho"
+        "Milho",
+        "Sorgo",
+        "Milheto"
       ],
       "problems": {
         "0": {
@@ -2222,7 +2474,11 @@
       "tag": "Manejo Completo",
       "description": "Recuperação da pastagem, ganho de peso e mais lotação por hectare com nutrição estratégica para forrageiras.",
       "crops": [
-        "Pastagem"
+        "Capins/Pastagem",
+        "Capins para sementes",
+        "Milho",
+        "Sorgo",
+        "Milheto"
       ],
       "problems": {
         "0": {
@@ -2252,10 +2508,63 @@
           "tag": "Nutrição e Fisiologia",
           "desc": "Vigor e resistência para todo o ciclo."
         },
-        "linha-redutan": {
-          "name": "Linha Redutan",
+        "redutan-sili-4": {
+          "name": "Redutan NPK Sili-4",
           "tag": "Tecnologia de Aplicação",
           "desc": "Eficiência nas aplicações."
+        }
+      }
+    },
+    "redutan-sili-5": {
+      "name": "Redutan NPK Sili-5",
+      "tag": "Tecnologia de Aplicação",
+      "description": "À base de nitrogênio, fósforo e potássio, que atuam nos processos de fotossíntese e síntese de proteínas da planta. O Redutan NPK Sili-5 é a versão de maior intensidade, para operações onde deriva é inaceitável: divisas, áreas sensíveis e aplicação aérea.",
+      "crops": [
+        "Milho",
+        "Soja",
+        "Feijão",
+        "Citros",
+        "Café",
+        "Hortaliças",
+        "Cana-de-açúcar",
+        "Demais culturas"
+      ],
+      "problems": {
+        "0": {
+          "title": "Deriva onde não pode haver",
+          "desc": "Divisa, mata ciliar e vizinho de cultura sensível deixam pouca margem para a gota sair do alvo."
+        },
+        "1": {
+          "title": "Calda que se perde no caminho",
+          "desc": "Parte do que foi pago evapora ou deriva antes de tocar a planta, e a conta aparece depois como controle abaixo do esperado."
+        }
+      },
+      "benefits": {
+        "0": {
+          "title": "Deriva cortada no limite",
+          "desc": "Formulação de maior intensidade da linha, para quando não existe margem de erro na aplicação."
+        },
+        "1": {
+          "title": "Gota que deposita no alvo",
+          "desc": "Padroniza o tamanho da gota, que resiste à evaporação e chega onde a barra apontou."
+        },
+        "2": {
+          "title": "A aplicação que protege também nutre",
+          "desc": "Carrega NPK, somando efeito nutricional à mesma pulverização."
+        }
+      },
+      "stages": {},
+      "results": {},
+      "related": {
+        "redutan-sili-4": {
+          "name": "Redutan NPK Sili-4",
+          "tag": "Tecnologia de Aplicação",
+          "desc": "A linha completa de condicionamento de calda."
+        },
+        "supermix": {
+          "name": "Supermix",
+          "tag": "Tecnologia de Aplicação",
+          "desc": "Adjuvante para calda uniforme."
         }
       }
     }

@@ -27,8 +27,8 @@ export const REC_META: Record<string, { name: string, labelColor: string, image?
   'acorda-ultra': { name: 'Acorda Ultra', labelColor: '#008dc2', image: '/produtos/acorda-ultra.webp' },
   'revigo-milho': { name: 'Revigo + Milho', labelColor: '#302783', image: '/produtos/revigo-milho.webp' },
   'acorda-cana': { name: 'Acorda Cana', labelColor: '#79ab34', image: '/produtos/acorda-cana.webp' },
-  'linha-redutan': { name: 'Linha Redutan', labelColor: '#7d252a', image: '/produtos/redutan-sili-5.webp' },
-  'linha-revigo': { name: 'Linha Revigo', labelColor: '#302783', image: '/produtos/revigo-cobre-ultra.webp' },
+  'redutan-sili-4': { name: 'Redutan NPK Sili-4', labelColor: '#7d252a', image: '/produtos/redutan-sili-5.webp' },
+  'revigo-comoni': { name: 'Revigo CoMoNi', labelColor: '#302783', image: '/produtos/revigo-cobre-ultra.webp' },
   'revigo-pasto': { name: 'Revigo + Pasto', labelColor: '#302783', image: '/produtos/revigo-pasto.webp' }
 }
 
@@ -76,7 +76,7 @@ export const META: Record<string, CultureMeta> = {
     image: '/assets/cultures/milho.webp?v=20260731b',
     managementProducts: [
       ['Acorda Ultra'],
-      ['Aminosan', 'Linha Revigo'],
+      ['Aminosan', 'Revigo CoMoNi'],
       ['Aminosan', 'FitoFert'],
       ['RevigoPHOS Amino', 'FitoFert']
     ],
@@ -91,7 +91,7 @@ export const META: Record<string, CultureMeta> = {
     image: '/assets/cultures/cana.webp?v=20260731',
     managementProducts: [
       ['Acorda Cana'],
-      ['Aminosan', 'Linha Revigo'],
+      ['Aminosan', 'Revigo CoMoNi'],
       ['Aminosan', 'RevigoPHOS Amino']
     ],
     calcProducts: [
@@ -104,7 +104,7 @@ export const META: Record<string, CultureMeta> = {
     image: '/assets/cultures/algodao.webp?v=20260731',
     managementProducts: [
       ['Acorda Ultra'],
-      ['Aminosan', 'Linha Revigo'],
+      ['Aminosan', 'Revigo CoMoNi'],
       ['FitoFert', 'RevigoPHOS Amino']
     ],
     calcProducts: [
@@ -131,7 +131,7 @@ export const META: Record<string, CultureMeta> = {
     managementProducts: [
       ['Aminosan', 'FitoFert'],
       ['Aminosan', 'Revigo CaB'],
-      ['Linha Revigo', 'RevigoPHOS Amino']
+      ['Revigo CoMoNi', 'RevigoPHOS Amino']
     ],
     calcProducts: [
       { id: 'aminosan', label: 'Aminosan', gainPerHa: 5 },
@@ -143,7 +143,7 @@ export const META: Record<string, CultureMeta> = {
     image: '/assets/cultures/batata.webp?v=20260731',
     managementProducts: [
       ['Aminosan'],
-      ['FitoFert', 'Linha Revigo'],
+      ['FitoFert', 'Revigo CoMoNi'],
       ['RevigoPHOS Amino', 'Aminosan']
     ],
     calcProducts: [
@@ -155,7 +155,7 @@ export const META: Record<string, CultureMeta> = {
     gradient: 'linear-gradient(165deg, #b73a2a, #4e1410)',
     image: '/assets/cultures/tomate.webp?v=20260731',
     managementProducts: [
-      ['Aminosan', 'Linha Revigo'],
+      ['Aminosan', 'Revigo CoMoNi'],
       ['FitoFert', 'Aminosan'],
       ['Revigo CaB', 'RevigoPHOS Amino']
     ],
@@ -168,7 +168,7 @@ export const META: Record<string, CultureMeta> = {
     gradient: 'linear-gradient(165deg, #80a558, #2c3e1d)',
     image: '/assets/cultures/pastagem.webp?v=20260731',
     managementProducts: [
-      ['Linha Revigo', 'Aminosan'],
+      ['Revigo CoMoNi', 'Aminosan'],
       ['Revigo + Pasto']
     ],
     calcProducts: [

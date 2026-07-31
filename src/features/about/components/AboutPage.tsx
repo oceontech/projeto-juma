@@ -23,13 +23,13 @@ const TIMELINE_ICONS: Record<typeof TIMELINE_KEYS[number], LucideIcon> = {
 const VALUE_KEYS = ['v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7'] as const
 
 const VALUES_CONTENT: Record<typeof VALUE_KEYS[number], { image: string }> = {
-  v1: { image: '/assets/about/ao-lado-produtor.webp' },
-  v2: { image: '/assets/about/conhecimento-aplicado.webp' },
-  v3: { image: '/assets/about/responsabilidade.webp' },
-  v4: { image: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=800&auto=format&fit=crop' },
-  v5: { image: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=800&auto=format&fit=crop' },
-  v6: { image: 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?q=80&w=800&auto=format&fit=crop' },
-  v7: { image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=800&auto=format&fit=crop' }
+  v1: { image: '/assets/about/bento/values-parceria.webp?v=20260731c' },
+  v2: { image: '/assets/about/bento/values-qualidade.webp?v=20260731c' },
+  v3: { image: '/assets/about/bento/values-etica.webp?v=20260731c' },
+  v4: { image: '/assets/about/bento/values-honestidade.webp?v=20260731c' },
+  v5: { image: '/assets/about/bento/values-comprometimento.webp?v=20260731c' },
+  v6: { image: '/assets/about/bento/values-eficiencia.webp?v=20260731c' },
+  v7: { image: '/assets/about/bento/values-otimismo.webp?v=20260731c' }
 }
 
 export function AboutPage() {
@@ -560,7 +560,7 @@ export function AboutPage() {
             {/* Visual Panel */}
             <div data-mis-visual className="order-2 lg:order-1 lg:col-span-5 relative h-[300px] sm:h-[400px] lg:h-[450px] rounded-[2rem] overflow-hidden group shadow-xl">
               <Image 
-                src="https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=800&auto=format&fit=crop"
+                src="/assets/about/bento/mission-sustentavel.webp?v=20260731c"
                 alt={t('missionTitle')}
                 fill
                 className="object-cover object-center group-hover:scale-105 transition-transform duration-[1.2s] ease-out"
@@ -624,10 +624,10 @@ export function AboutPage() {
           {/* Foto grande: acervo da família; demais do banco de imagens até chegar o acervo completo */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-[60vh] md:h-[80vh]">
             {[
-              { src: '/heritage/familia-matino.webp', span: 'col-span-2 row-span-2', sizes: '(min-width: 768px) 50vw, 100vw' },
-              { src: 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?q=80&w=800&auto=format&fit=crop', span: '', sizes: '(min-width: 768px) 25vw, 50vw' },
-              { src: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?q=80&w=800&auto=format&fit=crop', span: '', sizes: '(min-width: 768px) 25vw, 50vw' },
-              { src: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1200&auto=format&fit=crop', span: 'col-span-2', sizes: '(min-width: 768px) 50vw, 100vw' },
+              { src: '/assets/about/bento/gallery-suporte-campo.webp?v=20260731c', span: 'col-span-2 row-span-2', sizes: '(min-width: 768px) 50vw, 100vw' },
+              { src: '/heritage/familia-matino.webp', span: '', sizes: '(min-width: 768px) 25vw, 50vw' },
+              { src: '/assets/about/bento/gallery-ensaios-campo.webp?v=20260731c', span: '', sizes: '(min-width: 768px) 25vw, 50vw' },
+              { src: '/assets/about/bento/values-comprometimento.webp?v=20260731c', span: 'col-span-2', sizes: '(min-width: 768px) 50vw, 100vw' },
             ].map((photo, i) => (
               <div key={i} data-gal-img className={`${photo.span} bg-foreground/5 rounded-3xl overflow-hidden relative group`}>
                 <Image

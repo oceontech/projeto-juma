@@ -229,8 +229,8 @@ export function ContactPage() {
                   menuClassName="w-full max-h-[300px] overflow-y-auto"
                   options={[
                     t('productDefault'), 'Aminosan®', 'Acorda Ultra', 'Acorda Cana', 
-                    'Fitofert', 'Linha Revigo', 'RevigoPhos Amino', 'Revigo Cobre Ultra', 
-                    'Kmep Ultra', 'Linha Redutan', 'Supermix', 'Revigo + Milho', 
+                    'Fitofert', 'Revigo CoMoNi', 'RevigoPhos Amino', 'Revigo Cobre Ultra', 
+                    'Kmep Ultra', 'Redutan NPK Sili-4', 'Supermix', 'Revigo + Milho', 
                     'Revigo + Pasto', 'Aduban'
                   ].map(p => ({
                     label: p,

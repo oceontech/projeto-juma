@@ -13,11 +13,115 @@ import { HomeCtaFinal } from '@/features/home/components/HomeCtaFinal'
 
 const WHATSAPP = 'https://wa.me/5519999648186'
 
+const galleryImage = (
+  name: string,
+  span = '',
+  sizes = '(min-width: 768px) 25vw, 50vw',
+): GalleryPhoto => ({
+  src: `/assets/products/gallery/${name}.webp?v=20260731c`,
+  span,
+  sizes,
+})
+
+const PRODUCT_GALLERIES: Record<string, GalleryPhoto[]> = {
+  'aminosan': [
+    galleryImage('foliar-soja', 'col-span-2 row-span-2', '(min-width: 768px) 50vw, 100vw'),
+    galleryImage('raizes-vigor'),
+    galleryImage('cafe-florada'),
+    galleryImage('enchimento-soja', 'col-span-2', '(min-width: 768px) 50vw, 100vw'),
+  ],
+  'fitofert': [
+    galleryImage('florada-cafe', 'col-span-2 row-span-2', '(min-width: 768px) 50vw, 100vw'),
+    galleryImage('tomate-frutificacao'),
+    galleryImage('citros-foliar'),
+    galleryImage('enchimento-soja', 'col-span-2', '(min-width: 768px) 50vw, 100vw'),
+  ],
+  'revigo-comoni': [
+    galleryImage('deficiencia-foliar', 'col-span-2 row-span-2', '(min-width: 768px) 50vw, 100vw'),
+    galleryImage('citros-foliar'),
+    galleryImage('tomate-frutificacao'),
+    galleryImage('foliar-soja', 'col-span-2', '(min-width: 768px) 50vw, 100vw'),
+  ],
+  'revigophos-amino': [
+    galleryImage('raizes-vigor', 'col-span-2 row-span-2', '(min-width: 768px) 50vw, 100vw'),
+    galleryImage('solo-raizes'),
+    galleryImage('foliar-soja'),
+    galleryImage('enchimento-soja', 'col-span-2', '(min-width: 768px) 50vw, 100vw'),
+  ],
+  'revigo-cobre-ultra': [
+    galleryImage('deficiencia-foliar', 'col-span-2 row-span-2', '(min-width: 768px) 50vw, 100vw'),
+    galleryImage('citros-foliar'),
+    galleryImage('tomate-frutificacao'),
+    galleryImage('cafe-florada', 'col-span-2', '(min-width: 768px) 50vw, 100vw'),
+  ],
+  'acorda-cana': [
+    galleryImage('sulco-cana', 'col-span-2 row-span-2', '(min-width: 768px) 50vw, 100vw'),
+    galleryImage('solo-raizes'),
+    galleryImage('raizes-vigor'),
+    galleryImage('pulverizacao-campo', 'col-span-2', '(min-width: 768px) 50vw, 100vw'),
+  ],
+  'acorda-ultra': [
+    galleryImage('tratamento-sementes', 'col-span-2 row-span-2', '(min-width: 768px) 50vw, 100vw'),
+    galleryImage('emergencia-uniforme'),
+    galleryImage('raizes-vigor'),
+    galleryImage('solo-raizes', 'col-span-2', '(min-width: 768px) 50vw, 100vw'),
+  ],
+  'aduban': [
+    galleryImage('solo-raizes', 'col-span-2 row-span-2', '(min-width: 768px) 50vw, 100vw'),
+    galleryImage('emergencia-uniforme'),
+    galleryImage('raizes-vigor'),
+    galleryImage('foliar-soja', 'col-span-2', '(min-width: 768px) 50vw, 100vw'),
+  ],
+  'kmep-ultra': [
+    galleryImage('pragas-scouting', 'col-span-2 row-span-2', '(min-width: 768px) 50vw, 100vw'),
+    galleryImage('controle-gotas'),
+    galleryImage('pulverizacao-campo'),
+    galleryImage('enchimento-soja', 'col-span-2', '(min-width: 768px) 50vw, 100vw'),
+  ],
+  'redutan-sili-4': [
+    galleryImage('controle-gotas', 'col-span-2 row-span-2', '(min-width: 768px) 50vw, 100vw'),
+    galleryImage('calda-homogenea'),
+    galleryImage('pulverizacao-campo'),
+    galleryImage('bicos-filtros', 'col-span-2', '(min-width: 768px) 50vw, 100vw'),
+  ],
+  'redutan-sili-5': [
+    galleryImage('aplicacao-aerea', 'col-span-2 row-span-2', '(min-width: 768px) 50vw, 100vw'),
+    galleryImage('controle-gotas'),
+    galleryImage('pulverizacao-campo'),
+    galleryImage('calda-homogenea', 'col-span-2', '(min-width: 768px) 50vw, 100vw'),
+  ],
+  'supermix': [
+    galleryImage('calda-homogenea', 'col-span-2 row-span-2', '(min-width: 768px) 50vw, 100vw'),
+    galleryImage('bicos-filtros'),
+    galleryImage('controle-gotas'),
+    galleryImage('pulverizacao-campo', 'col-span-2', '(min-width: 768px) 50vw, 100vw'),
+  ],
+  'revigo-milho': [
+    galleryImage('milho-safrinha', 'col-span-2 row-span-2', '(min-width: 768px) 50vw, 100vw'),
+    galleryImage('foliar-soja'),
+    galleryImage('pulverizacao-campo'),
+    galleryImage('enchimento-soja', 'col-span-2', '(min-width: 768px) 50vw, 100vw'),
+  ],
+  'revigo-pasto': [
+    galleryImage('pastagem-vigor', 'col-span-2 row-span-2', '(min-width: 768px) 50vw, 100vw'),
+    galleryImage('pulverizacao-campo'),
+    galleryImage('controle-gotas'),
+    galleryImage('raizes-vigor', 'col-span-2', '(min-width: 768px) 50vw, 100vw'),
+  ],
+}
+
+const DEFAULT_PRODUCT_GALLERY = PRODUCT_GALLERIES['aminosan']
+
 type Problem = { title: string; desc: string; icon: 'seed' | 'sun' | 'drop' | 'leaf' | 'shield' | 'chart' }
 type Benefit = { title: string; desc: string }
 type Stage = { num: string; label: string; title: string; desc: string }
 type Result = { value: string; unit: string; desc: string }
 type Related = { slug: string; name: string; tag: string; desc: string; labelColor: string; image?: string }
+type GalleryPhoto = { src: string; span: string; sizes: string }
+/** Culturas agrupadas por método de aplicação: alguns rótulos autorizam a
+ *  cultura só em foliar ou só em TS/fertirrigação, e juntar tudo numa lista
+ *  só apagaria essa distinção. */
+type CropGroup = { label: string; crops: string[] }
 
 export type ProductMeta = {
   labelColor: string
@@ -35,7 +139,7 @@ const META: Record<string, ProductMeta> = {
     labelColor: '#659357',
     problemsMeta: ['seed', 'sun', 'drop'],
     resultsMeta: [{ value: '+14', unit: 'sc/ha' }, { value: '+10', unit: 'sc/ha' }, { value: '+38', unit: '%' }],
-    relatedMeta: [{ slug: 'fitofert', labelColor: '#659357' }, { slug: 'linha-revigo', labelColor: '#302783' }, { slug: 'revigophos-amino', labelColor: '#302783' }],
+    relatedMeta: [{ slug: 'fitofert', labelColor: '#659357' }, { slug: 'revigo-comoni', labelColor: '#302783' }, { slug: 'revigophos-amino', labelColor: '#302783' }],
     image: '/produtos/aminosan.webp',
     sizes: ['1L', '10L', '20L']
   },
@@ -47,15 +151,13 @@ const META: Record<string, ProductMeta> = {
     image: '/produtos/fitofert.webp',
     sizes: ['20L']
   },
-  // Página de LINHA, não de item único: as embalagens são a união dos produtos
-  // da linha (Comoni 1L, Cobre Ultra 1L/10L, +Milho 20L, +Pasto 20L).
-  'linha-revigo': {
+  'revigo-comoni': {
     labelColor: '#302783',
     problemsMeta: ['leaf', 'sun', 'drop'],
     resultsMeta: [],
     relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'fitofert', labelColor: '#659357' }],
     image: '/produtos/revigo-comoni.webp',
-    sizes: ['1L', '10L', '20L']
+    sizes: ['1L']
   },
   'revigophos-amino': {
     labelColor: '#302783',
@@ -69,7 +171,7 @@ const META: Record<string, ProductMeta> = {
     labelColor: '#302783',
     problemsMeta: ['leaf', 'shield'],
     resultsMeta: [],
-    relatedMeta: [{ slug: 'linha-revigo', labelColor: '#302783' }, { slug: 'aminosan', labelColor: '#659357' }],
+    relatedMeta: [{ slug: 'revigo-comoni', labelColor: '#302783' }, { slug: 'aminosan', labelColor: '#659357' }],
     image: '/produtos/revigo-cobre-ultra.webp',
     sizes: ['1L', '10L']
   },
@@ -77,7 +179,7 @@ const META: Record<string, ProductMeta> = {
     labelColor: '#79ab34',
     problemsMeta: ['seed', 'drop'],
     resultsMeta: [],
-    relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'linha-redutan', labelColor: '#7d252a' }],
+    relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'redutan-sili-4', labelColor: '#7d252a' }],
     image: '/produtos/acorda-cana.webp',
     sizes: ['20L']
   },
@@ -101,24 +203,34 @@ const META: Record<string, ProductMeta> = {
     labelColor: '#ad1115',
     problemsMeta: ['shield', 'chart'],
     resultsMeta: [],
-    relatedMeta: [{ slug: 'linha-redutan', labelColor: '#7d252a' }, { slug: 'supermix', labelColor: '#388123' }],
+    relatedMeta: [{ slug: 'redutan-sili-4', labelColor: '#7d252a' }, { slug: 'supermix', labelColor: '#388123' }],
     image: '/produtos/kmep-ultra.webp',
     sizes: ['10L', '20L']
   },
-  // Página de LINHA: Sili 4 e Sili 5, ambos só em 1L.
-  'linha-redutan': {
+  // Redutan NPK Sili-4 representada pelo Sili-4; o Sili-5 tem página própria.
+  'redutan-sili-4': {
+    labelColor: '#006838',
+    problemsMeta: ['sun', 'drop'],
+    resultsMeta: [],
+    relatedMeta: [{ slug: 'redutan-sili-5', labelColor: '#7d252a' }, { slug: 'supermix', labelColor: '#388123' }],
+    image: '/produtos/redutan-sili-4.webp',
+    sizes: ['1L']
+  },
+  // Sili-5: mesma linha do Sili-4, formulação de maior intensidade
+  // (docs/04-copy/04-produtos.md, "[OS TRÊS PRODUTOS]").
+  'redutan-sili-5': {
     labelColor: '#7d252a',
     problemsMeta: ['sun', 'drop'],
     resultsMeta: [],
-    relatedMeta: [{ slug: 'supermix', labelColor: '#388123' }, { slug: 'kmep-ultra', labelColor: '#ad1115' }],
-    image: '/produtos/redutan-sili-4.webp',
+    relatedMeta: [{ slug: 'redutan-sili-4', labelColor: '#006838' }, { slug: 'supermix', labelColor: '#388123' }],
+    image: '/produtos/redutan-sili-5.webp',
     sizes: ['1L']
   },
   'supermix': {
     labelColor: '#388123',
     problemsMeta: ['drop', 'chart'],
     resultsMeta: [],
-    relatedMeta: [{ slug: 'linha-redutan', labelColor: '#7d252a' }, { slug: 'kmep-ultra', labelColor: '#ad1115' }],
+    relatedMeta: [{ slug: 'redutan-sili-4', labelColor: '#7d252a' }, { slug: 'kmep-ultra', labelColor: '#ad1115' }],
     image: '/produtos/supermix.webp',
     sizes: ['1L', '10L', '20L']
   },
@@ -134,7 +246,7 @@ const META: Record<string, ProductMeta> = {
     labelColor: '#302783',
     problemsMeta: ['leaf', 'chart'],
     resultsMeta: [],
-    relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'linha-redutan', labelColor: '#7d252a' }],
+    relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'redutan-sili-4', labelColor: '#7d252a' }],
     image: '/produtos/revigo-pasto.webp',
     sizes: ['20L']
   }
@@ -145,11 +257,15 @@ type ProductData = ProductMeta & {
   tag: string
   description: string
   crops: string[]
+  cropGroups: CropGroup[]
+  /** Só para o Supermix: adjuvante dosado por volume de calda, sem lista de culturas. */
+  cropsNote: string
   problems: Problem[]
   benefits: Benefit[]
   stages: Stage[]
   results: Result[]
   related: Related[]
+  gallery: GalleryPhoto[]
 }
 
 /* ─── Icons ─── */
@@ -242,6 +358,41 @@ function SectionHead({ eyebrow, icon, title, lede }: { eyebrow: string; icon?: R
   )
 }
 
+/** Pílulas de cultura. Alguns rótulos trazem mais de 30 culturas (Aminosan,
+ *  Aduban); mostrar tudo de uma vez empurraria o CTA para fora da tela, então
+ *  acima de VISIBLE a lista colapsa atrás de um "+N". */
+const VISIBLE_CROPS = 12
+
+function CropPills({ crops, color, moreLabel }: { crops: string[]; color: string; moreLabel: string }) {
+  const [expanded, setExpanded] = React.useState(false)
+  const overflow = crops.length - VISIBLE_CROPS
+  const shown = expanded || overflow <= 0 ? crops : crops.slice(0, VISIBLE_CROPS)
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {shown.map((crop) => (
+        <span
+          key={crop}
+          className="inline-flex items-center gap-[7px] text-[13px] font-medium px-3.5 py-[7px] rounded-full bg-white border border-black/10 text-[#1A1A1A]"
+        >
+          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
+          {crop}
+        </span>
+      ))}
+      {overflow > 0 && !expanded && (
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="inline-flex items-center text-[13px] font-semibold px-3.5 py-[7px] rounded-full border transition-colors hover:bg-black/[0.03]"
+          style={{ color, borderColor: `${color}59` }}
+        >
+          {moreLabel.replace('{count}', String(overflow))}
+        </button>
+      )}
+    </div>
+  )
+}
+
 export function ProductPage({ slug }: { slug: string }) {
   const tPage = useTranslations('productPage')
   const tData = useTranslations('productData')
@@ -253,11 +404,16 @@ export function ProductPage({ slug }: { slug: string }) {
     tag: tData(`${slug}.tag`),
     description: tData(`${slug}.description`),
     crops: tData.raw(`${slug}.crops`) as string[],
+    cropGroups: tData.has(`${slug}.cropGroups`)
+      ? Object.values(tData.raw(`${slug}.cropGroups`) as Record<string, CropGroup>)
+      : [],
+    cropsNote: tData.has(`${slug}.cropsNote`) ? tData(`${slug}.cropsNote`) : '',
     problems: Object.values(tData.raw(`${slug}.problems`) as Record<string, {title: string, desc: string}>).map((p, i) => ({ ...p, icon: meta.problemsMeta[i] })),
     benefits: Object.values(tData.raw(`${slug}.benefits`) as Record<string, {title: string, desc: string}>),
     stages: Object.entries(tData.raw(`${slug}.stages`) as Record<string, {label: string, title: string, desc: string}>).map(([k, s], i) => ({ ...s, num: `0${i+1}` })),
     results: Object.values(tData.raw(`${slug}.results`) as Record<string, {desc: string}>).map((r, i) => ({ ...r, ...meta.resultsMeta[i] })),
-    related: Object.entries(tData.raw(`${slug}.related`) as Record<string, {name: string, tag: string, desc: string}>).map(([relSlug, r], i) => ({ slug: relSlug, ...r, labelColor: meta.relatedMeta[i]?.labelColor || '#000', image: META[relSlug]?.image }))
+    related: Object.entries(tData.raw(`${slug}.related`) as Record<string, {name: string, tag: string, desc: string}>).map(([relSlug, r], i) => ({ slug: relSlug, ...r, labelColor: meta.relatedMeta[i]?.labelColor || '#000', image: META[relSlug]?.image })),
+    gallery: PRODUCT_GALLERIES[slug] ?? DEFAULT_PRODUCT_GALLERY,
   } : null;
   const reduced = useReducedMotion()
   const heroRef = useRef<HTMLDivElement>(null)
@@ -419,30 +575,41 @@ export function ProductPage({ slug }: { slug: string }) {
                 {product.description}
               </p>
 
-              {/* Crops */}
-              <div data-hero-el className="mb-8">
-                <span className="text-[11px] font-bold uppercase tracking-[0.06em] text-[#1A1A1A] block mb-3">
-                  Culturas indicadas
-                </span>
-                <div className="flex flex-wrap gap-2">
-                  {product.crops.map((crop) => (
-                    <span
-                      key={crop}
-                      className="inline-flex items-center gap-[7px] text-[13px] font-medium px-3.5 py-[7px] rounded-full bg-white border border-black/10 text-[#1A1A1A]"
-                    >
-                      <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: product.labelColor }} />
-                      {crop}
-                    </span>
-                  ))}
+              {/* Culturas — lista simples, agrupada por método de aplicação, ou
+                  nota (Supermix, que é adjuvante e não tem lista de culturas). */}
+              {(product.cropsNote || product.cropGroups.length > 0 || product.crops.length > 0) && (
+                <div data-hero-el className="mb-8">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.06em] text-[#1A1A1A] block mb-3">
+                    {tPage('cropsLabel')}
+                  </span>
+
+                  {product.cropsNote ? (
+                    <p className="text-[14px] text-[#5A5A57] leading-[1.55] max-w-[46ch] m-0">
+                      {product.cropsNote}
+                    </p>
+                  ) : product.cropGroups.length > 0 ? (
+                    <div className="flex flex-col gap-4">
+                      {product.cropGroups.map((group) => (
+                        <div key={group.label}>
+                          <span className="text-[11px] font-semibold text-[#5A5A57] block mb-2">
+                            {group.label}
+                          </span>
+                          <CropPills crops={group.crops} color={product.labelColor} moreLabel={tPage('cropsMore')} />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <CropPills crops={product.crops} color={product.labelColor} moreLabel={tPage('cropsMore')} />
+                  )}
                 </div>
-              </div>
+              )}
 
               {/* Embalagens — mesma pílula das culturas, mas na cor do rótulo do
                   produto (como as tags de tamanho do catálogo da home). */}
               {product.sizes.length > 0 && (
                 <div data-hero-el className="mb-8">
                   <span className="text-[11px] font-bold uppercase tracking-[0.06em] text-[#1A1A1A] block mb-3">
-                    Embalagens disponíveis
+                    {tPage('sizesLabel')}
                   </span>
                   <div className="flex flex-wrap gap-2">
                     {product.sizes.map((size) => (
@@ -643,14 +810,8 @@ export function ProductPage({ slug }: { slug: string }) {
               title={tPage.rich("galleryTitle", { name: nameShort, br: () => <br /> })}
               lede={tPage("galleryLede")}
             />
-            {/* Banco de imagens (Unsplash) até chegarem as fotos do acervo da Juma */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-[60vh] md:h-[80vh]">
-              {[
-                { src: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=1400&auto=format&fit=crop', span: 'col-span-2 row-span-2', sizes: '(min-width: 768px) 50vw, 100vw' },
-                { src: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?q=80&w=800&auto=format&fit=crop', span: '', sizes: '(min-width: 768px) 25vw, 50vw' },
-                { src: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=800&auto=format&fit=crop', span: '', sizes: '(min-width: 768px) 25vw, 50vw' },
-                { src: 'https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=1200&auto=format&fit=crop', span: 'col-span-2', sizes: '(min-width: 768px) 50vw, 100vw' },
-              ].map((photo, i) => (
+              {product.gallery.map((photo, i) => (
                 <div key={i} data-animate-content className={`${photo.span} bg-black/5 rounded-[18px] overflow-hidden relative group`}>
                   <Image
                     src={photo.src}
