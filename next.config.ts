@@ -50,6 +50,9 @@ const nextConfig: NextConfig = {
         pathname: '/assets/linha-produtos/**',
       },
       {
+        pathname: '/assets/products/**',
+      },
+      {
         pathname: '/materias/**',
       },
     ],
