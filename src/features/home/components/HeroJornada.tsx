@@ -36,6 +36,7 @@ export function HeroJornada() {
   // Estado da jornada
   const phaseRef         = useRef<'rest' | 'animating' | 'done'>('rest')
   const [phase, setPhase] = useState<'rest' | 'animating' | 'done'>('rest')
+  const capRef           = useRef(0)
   const stepRef          = useRef(-1)
   const playingRef       = useRef(false)
   const targetRef        = useRef<number | null>(null)
@@ -227,8 +228,19 @@ export function HeroJornada() {
           requestAnimationFrame(() => ScrollTrigger.refresh())
         }
       }
+      const safeSetCap = (nextCap: number) => {
+        if (capRef.current !== nextCap) {
+          capRef.current = nextCap
+          setCap(nextCap)
+        }
+      }
+
       const fadeRest = (show: boolean) => {
-        setPhase(show ? 'rest' : 'animating')
+        const targetPhase = show ? 'rest' : 'animating'
+        if (phaseRef.current !== targetPhase) {
+          phaseRef.current = targetPhase
+          setPhase(targetPhase)
+        }
         gsap.to(restEls(), { autoAlpha: show ? 1 : 0, duration: show ? 0.3 : 0.4, ease: 'power2.out' })
       }
 
@@ -238,17 +250,10 @@ export function HeroJornada() {
           setPhase('animating')
           fadeRest(false)
         }
-        if (isMobile) {
-          if (time < 1.5)      setCap(0)
-          else if (time < 4.5) setCap(2)
-          else if (time < 7.5) setCap(3)
-          else                  setCap(4)
-        } else {
-          if (time < 1.5)      setCap(0)
-          else if (time < 5.0) setCap(2)
-          else if (time < 8.2) setCap(3)
-          else                  setCap(4)
-        }
+        const nextCap = isMobile
+          ? (time < 1.5 ? 0 : time < 4.5 ? 2 : time < 7.5 ? 3 : 4)
+          : (time < 1.5 ? 0 : time < 5.0 ? 2 : time < 8.2 ? 3 : 4)
+        safeSetCap(nextCap)
       }
 
       const updateLeavesParallax = (time: number) => {
@@ -706,19 +711,22 @@ export function HeroJornada() {
       <div className="relative h-[100dvh] w-full overflow-hidden">
 
         {/* Desktop Poster Image */}
-        <div className="absolute inset-0 z-0 h-full w-full hidden lg:block">
-          <Image
-            src="/hero/desktop/journey-poster.webp"
-            alt="" aria-hidden fill sizes="100vw" quality={60}
-            className="object-cover"
-          />
-        </div>
+        {!isMobile && (
+          <div className="absolute inset-0 z-0 h-full w-full hidden lg:block">
+            <Image
+              src="/hero/desktop/journey-poster.webp"
+              alt="" aria-hidden fill sizes="100vw" quality={60}
+              className="object-cover"
+              priority
+            />
+          </div>
+        )}
         {/* z-[1] — Vídeo desktop */}
         <video
           ref={isMobile ? null : videoRef}
           data-hero-video="desktop"
           poster="/hero/desktop/journey-poster.webp"
-          muted playsInline preload="auto"
+          muted playsInline preload="none"
           aria-label={tj('videoAlt')}
           className="absolute inset-0 z-[1] h-full w-full object-cover hidden lg:block"
         >
@@ -726,19 +734,22 @@ export function HeroJornada() {
         </video>
 
         {/* Mobile Poster Image */}
-        <div data-rest className="absolute inset-0 z-0 h-full w-full block lg:hidden mix-blend-multiply">
-          <Image
-            src="/hero/mobile/journey-poster.webp"
-            alt="" aria-hidden fill sizes="100vw" quality={60}
-            className="object-cover max-lg:object-bottom"
-          />
-        </div>
+        {isMobile && (
+          <div data-rest className="absolute inset-0 z-0 h-full w-full block lg:hidden mix-blend-multiply">
+            <Image
+              src="/hero/mobile/journey-poster.webp"
+              alt="" aria-hidden fill sizes="100vw" quality={60}
+              className="object-cover max-lg:object-bottom"
+              priority
+            />
+          </div>
+        )}
         {/* z-[1] — Vídeo mobile (com multiply para revelar o selo por trás do branco) */}
         <video
           ref={isMobile ? videoRef : null}
           data-hero-video="mobile"
           poster="/hero/mobile/journey-poster.webp"
-          muted playsInline preload="auto"
+          muted playsInline preload="none"
           aria-label={tj('videoAlt')}
           className="absolute inset-0 z-[1] h-full w-full object-cover max-lg:object-bottom block lg:hidden mix-blend-multiply"
         >
@@ -965,7 +976,14 @@ function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, alig
 
       const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
       if (kickerEl) tl.fromTo(kickerEl, { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0)
-      if (split)    tl.fromTo(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' }, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, 0.05)
+      if (split) {
+        tl.fromTo(
+          split.chars,
+          { x: 20, opacity: 0, ...(!mobile && { filter: 'blur(10px)' }) },
+          { x: 0, opacity: 1, ...(!mobile && { filter: 'blur(0px)' }), duration: DUR.title, stagger: STAGGER.char },
+          0.05,
+        )
+      }
       if (lineEl)   tl.fromTo(lineEl, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: DUR.sub, transformOrigin: lineOrigin }, 0.2)
       if (subEl)    tl.fromTo(subEl, { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0.28)
       if (itemsEl)  tl.fromTo(itemsEl, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0.34)
@@ -1136,6 +1154,7 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitl
 
       let rotatorTl: gsap.core.Timeline | null = null;
 
+      const isMobileGota = window.innerWidth < 1024
       const tl = gsap.timeline({ 
         defaults: { ease: EASE.reveal },
         onComplete: () => {
@@ -1143,7 +1162,14 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitl
         }
       })
       if (kickerEl) tl.fromTo(kickerEl, { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0)
-      if (split)    tl.fromTo(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' }, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, 0.12)
+      if (split) {
+        tl.fromTo(
+          split.chars,
+          { x: 20, opacity: 0, ...(!isMobileGota && { filter: 'blur(10px)' }) },
+          { x: 0, opacity: 1, ...(!isMobileGota && { filter: 'blur(0px)' }), duration: DUR.title, stagger: STAGGER.char },
+          0.12,
+        )
+      }
       if (lineEl)   tl.fromTo(lineEl, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: DUR.sub }, 0.55)
       if (subEl)    tl.fromTo(subEl, { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0.7)
 

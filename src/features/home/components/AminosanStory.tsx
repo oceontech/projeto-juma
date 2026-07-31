@@ -255,8 +255,8 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
             ref={oldImgRef}
             src="/heritage/desktop/morph-aminosan-1-antigo.webp"
             alt={t('oldBottleAlt')}
-            fill sizes="(max-width: 1024px) 280vw, 100vw"
-            quality={90}
+            fill sizes="(max-width: 1024px) 100vw, 100vw"
+            quality={85}
             className="object-cover object-bottom z-10"
             priority
           />
@@ -291,8 +291,8 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
           <Image
             src="/heritage/desktop/morph-aminosan-2-novo.webp"
             alt={t('newBottleAlt')}
-            fill sizes="(max-width: 1024px) 280vw, 100vw"
-            quality={90}
+            fill sizes="(max-width: 1024px) 100vw, 100vw"
+            quality={85}
             className="object-cover"
           />
           <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-white to-transparent" />
@@ -1472,8 +1472,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           ref={oldImgRef}
           src="/heritage/desktop/morph-aminosan-1-antigo.webp"
           alt={t('oldBottleAlt')}
-          fill sizes="(max-width: 1024px) 280vw, 100vw"
-          quality={95}
+          fill sizes="(max-width: 1024px) 100vw, 100vw"
+          quality={85}
           className={STAGE_IMAGE_CLASS}
           priority
         />
@@ -1483,8 +1483,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           ref={newImgRef}
           src="/heritage/desktop/morph-aminosan-2-novo.webp"
           alt={t('newBottleAlt')}
-          fill sizes="(max-width: 1024px) 280vw, 100vw"
-          quality={95}
+          fill sizes="(max-width: 1024px) 100vw, 100vw"
+          quality={85}
           className={`${STAGE_IMAGE_CLASS} opacity-0`}
           priority
         />
@@ -1495,8 +1495,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           src="/heritage/desktop/line-aminosan-full.webp"
           alt=""
           aria-hidden
-          fill sizes="(max-width: 1024px) 200vw, 100vw"
-          quality={95}
+          fill sizes="(max-width: 1024px) 100vw, 100vw"
+          quality={85}
           className={`${STAGE_IMAGE_CLASS} opacity-0`}
         />
 
@@ -1506,8 +1506,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           src="/produtos/aminosan-catalogo.png"
           alt=""
           aria-hidden
-          fill sizes="(max-width: 1024px) 200vw, 100vw"
-          quality={95}
+          fill sizes="(max-width: 1024px) 100vw, 100vw"
+          quality={85}
           className={`${STAGE_IMAGE_CLASS} opacity-0`}
         />
 

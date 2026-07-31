@@ -96,10 +96,10 @@ export function Lines() {
           })
         })
 
-        // Mobile - ScrollTrigger individual para cada card
+        // Mobile - ScrollTrigger individual para cada card sem filter blur para alta performance de GPU
         mm.add('(max-width: 639px)', () => {
           cards.forEach((card) => {
-            gsap.set(card, { opacity: 0, filter: 'blur(12px)' })
+            gsap.set(card, { opacity: 0, y: 20 })
 
             gsap.to(card, {
               scrollTrigger: {
@@ -109,7 +109,7 @@ export function Lines() {
                 toggleActions: 'play reverse play reverse',
               },
               opacity: 1,
-              filter: 'blur(0px)',
+              y: 0,
               duration: 0.8,
               ease: 'power3.out'
             })

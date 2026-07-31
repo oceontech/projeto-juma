@@ -40,8 +40,9 @@ export function Solution() {
         : null
       const chars = split?.chars ?? []
 
+      const isMobile = window.innerWidth < 1024
       if (title) gsap.set(title, { opacity: 0 })
-      if (chars.length) gsap.set(chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
+      if (chars.length) gsap.set(chars, { x: 20, opacity: 0, ...(!isMobile && { filter: 'blur(10px)' }) })
       if (intro) gsap.set(intro, { y: 20, opacity: 0 })
       if (cta) gsap.set(cta, { y: 16, opacity: 0 })
 
@@ -60,7 +61,7 @@ export function Solution() {
 
       if (title) tlHead.set(title, { opacity: 1 }, 0)
       if (chars.length)
-        tlHead.to(chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char, ease: EASE.reveal }, 0)
+        tlHead.to(chars, { x: 0, opacity: 1, ...(!isMobile && { filter: 'blur(0px)' }), duration: DUR.title, stagger: STAGGER.char, ease: EASE.reveal }, 0)
 
       if (gline)
         tlHead.to(gline, { scaleX: 1, opacity: 1, duration: 0.8, ease: 'power3.out' }, 0.2)

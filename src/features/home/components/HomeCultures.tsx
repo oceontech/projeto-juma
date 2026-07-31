@@ -81,11 +81,10 @@ export function HomeCultures() {
 
     mm.add('(max-width: 639px)', () => {
       cards.forEach((card) => {
-        gsap.set(card, { y: 40, opacity: 0, filter: 'blur(12px)' })
+        gsap.set(card, { y: 40, opacity: 0 })
         gsap.to(card, {
           y: 0,
           opacity: 1,
-          filter: 'blur(0px)',
           duration: 1.0,
           ease: EASE.reveal,
           scrollTrigger: {
@@ -153,6 +152,7 @@ export function HomeCultures() {
                 alt={t(`cultures.${i}`)}
                 fill
                 sizes="(min-width: 1024px) 20vw, 50vw"
+                quality={80}
                 className="object-cover group-hover:scale-110 transition-transform duration-700"
               />
               <div
