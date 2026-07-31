@@ -47,40 +47,35 @@ export function Navbar() {
     setOpen(false)
   }, [pathname])
 
-  // Detecção automática de fundo escuro: seções marcadas com data-nav-theme="dark"
-  // trocam os textos/logo da navbar para branco quando passam sob ela.
+  // Detecção automática de fundo escuro via IntersectionObserver: substitui listeners de
+  // scroll/wheel/touchmove e chamadas getBoundingClientRect por checagem nativa assíncrona,
+  // eliminando completamente o reflow forçado no Navbar.
   useEffect(() => {
-    let ticking = false
-    const probeY = 40 // faixa vertical aproximada da navbar
-
-    const update = () => {
-      ticking = false
-      const darkSections = document.querySelectorAll<HTMLElement>('[data-nav-theme="dark"]')
-      let isDark = false
-      darkSections.forEach((el) => {
-        const r = el.getBoundingClientRect()
-        if (r.top <= probeY && r.bottom > probeY) isDark = true
-      })
-      setTheme(isDark ? 'dark' : 'light')
+    const darkSections = document.querySelectorAll<HTMLElement>('[data-nav-theme="dark"]')
+    if (!darkSections.length) {
+      setTheme('light')
+      return
     }
 
-    const onScroll = () => {
-      if (ticking) return
-      ticking = true
-      requestAnimationFrame(update)
-    }
+    const activeMap = new Map<HTMLElement, boolean>()
 
-    update()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('wheel', onScroll, { passive: true })
-    window.addEventListener('touchmove', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
-    return () => {
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('wheel', onScroll)
-      window.removeEventListener('touchmove', onScroll)
-      window.removeEventListener('resize', onScroll)
-    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          activeMap.set(entry.target as HTMLElement, entry.isIntersecting)
+        })
+        const isDark = Array.from(activeMap.values()).some(Boolean)
+        setTheme(isDark ? 'dark' : 'light')
+      },
+      {
+        // ProbeY ~ 40px no topo do viewport
+        rootMargin: '-30px 0px -90% 0px',
+        threshold: 0,
+      },
+    )
+
+    darkSections.forEach((el) => observer.observe(el))
+    return () => observer.disconnect()
   }, [pathname])
 
   // Esconde ao rolar para baixo, reaparece ao rolar para cima (imersão) SOMENTE NO DESKTOP.

@@ -28,7 +28,7 @@ const ARTICLES = [
     readTime: '8 min de leitura',
     title: 'Nutrição na fase certa: o que muda na produtividade da soja',
     bg: 'linear-gradient(135deg, #3a5c20 0%, #5a8a30 100%)',
-    image: '/materias/nutricao-fase-certa.png',
+    image: '/materias/nutricao-fase-certa.webp',
   },
   {
     slug: 'manejo-pastagem',
@@ -37,7 +37,7 @@ const ARTICLES = [
     readTime: '5 min de leitura',
     title: 'Manejo de pastagem: recuperação e ganho de peso',
     bg: 'linear-gradient(135deg, #1a3a12 0%, #2d6020 100%)',
-    image: '/materias/manejo-pastagem.png',
+    image: '/materias/manejo-pastagem.webp',
   },
 ]
 

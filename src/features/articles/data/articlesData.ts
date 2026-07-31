@@ -128,7 +128,7 @@ export const ARTICLES_DATA: Article[] = [
     category: 'nutricao',
     date: '15 ABR 2026',
     readTime: '6 MIN',
-    image: '/materias/nutricao-fase-certa.png',
+    image: '/materias/nutricao-fase-certa.webp',
     color: 'from-green-600 to-green-800',
     translations: {
       'pt-BR': {
@@ -186,7 +186,7 @@ export const ARTICLES_DATA: Article[] = [
     category: 'pecuaria',
     date: '02 ABR 2026',
     readTime: '8 MIN',
-    image: '/materias/manejo-pastagem.png',
+    image: '/materias/manejo-pastagem.webp',
     color: 'from-amber-600 to-orange-850',
     translations: {
       'pt-BR': {
@@ -244,7 +244,7 @@ export const ARTICLES_DATA: Article[] = [
     category: 'manejo',
     date: '25 MAR 2026',
     readTime: '5 MIN',
-    image: '/materias/tratamento-sementes.png',
+    image: '/materias/tratamento-sementes.webp',
     color: 'from-blue-600 to-indigo-850',
     translations: {
       'pt-BR': {
@@ -418,7 +418,7 @@ export const ARTICLES_DATA: Article[] = [
     category: 'nutricao',
     date: '04 MAR 2026',
     readTime: '6 MIN',
-    image: '/materias/floracao-cafe.png',
+    image: '/materias/floracao-cafe.webp',
     color: 'from-green-600 to-green-950',
     translations: {
       'pt-BR': {

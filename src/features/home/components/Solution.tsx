@@ -260,9 +260,10 @@ export function Solution() {
                       src={images[n - 1]}
                       alt={t(`step${n}.title` as any)}
                       fill
-                      sizes="(max-width: 1024px) 100vw, 60vw"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className="object-cover"
                       priority={n === 1}
+                      quality={60}
                     />
                     {/* Overlay escuro sutil sobre a imagem */}
                     <div className="absolute inset-0 bg-black/20 pointer-events-none" />

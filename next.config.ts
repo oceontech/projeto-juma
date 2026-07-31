@@ -11,9 +11,10 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
 const nextConfig: NextConfig = {
   images: {
+    deviceSizes: [320, 420, 480, 640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     // Next 16 só serve as qualidades listadas (padrão [75]) — sem o 90 aqui o
     // otimizador responde 400 para os frascos do catálogo da home.
-    qualities: [75, 90],
+    qualities: [60, 75, 90],
     localPatterns: [
       {
         pathname: '/api/media/file/**',
@@ -70,6 +71,9 @@ const nextConfig: NextConfig = {
   },
   turbopack: {
     root: path.resolve(dirname),
+  },
+  experimental: {
+    optimizeCss: true,
   },
 }
 

@@ -20,7 +20,7 @@ const ARTICLES = [
     date: '15 ABR 2026',
     readTime: '6 MIN',
     color: 'from-green-600 to-green-800',
-    image: '/materias/nutricao-fase-certa.png'
+    image: '/materias/nutricao-fase-certa.webp'
   },
   {
     id: 'manejo-pastagem',
@@ -29,7 +29,7 @@ const ARTICLES = [
     date: '02 ABR 2026',
     readTime: '8 MIN',
     color: 'from-amber-600 to-orange-800',
-    image: '/materias/manejo-pastagem.png'
+    image: '/materias/manejo-pastagem.webp'
   },
   {
     id: 'tratamento-sementes',
@@ -38,7 +38,7 @@ const ARTICLES = [
     date: '25 MAR 2026',
     readTime: '5 MIN',
     color: 'from-blue-600 to-indigo-800',
-    image: '/materias/tratamento-sementes.png'
+    image: '/materias/tratamento-sementes.webp'
   },
   {
     id: 'aminoacidos-foliares',
@@ -65,7 +65,7 @@ const ARTICLES = [
     date: '04 MAR 2026',
     readTime: '6 MIN',
     color: 'from-green-600 to-green-800',
-    image: '/materias/floracao-cafe.png'
+    image: '/materias/floracao-cafe.webp'
   }
 ]
 

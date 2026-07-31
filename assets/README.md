@@ -15,8 +15,8 @@ Nomes em kebab-case, sem espaços nem acentos. Estrutura espelhada em `desktop/`
 ## heritage/ (fundador + morph do Aminosan, depois da água)
 - `familia-matino.webp` — foto da Família Matino (fundador, os dois filhos e o neto), fundo transparente. Usada na home e na página Sobre.
 - `desktop/` e `mobile/`:
-  - `morph-aminosan-1-antigo.png` — frame inicial do morph (frasco antigo, recortado, centralizado).
-  - `morph-aminosan-2-novo.png` — frame final do morph (frasco novo 1L, mesma posição).
+  - `morph-aminosan-1-antigo.webp` — frame inicial do morph (frasco antigo, recortado, centralizado).
+  - `morph-aminosan-2-novo.webp` — frame final do morph (frasco novo 1L, mesma posição).
   - `morph-aminosan.mp4` — vídeo do morph (antigo → novo).
 - Os frames já estão alinhados (mesma posição e escala), prontos pro start/end frame do Kling.
 
