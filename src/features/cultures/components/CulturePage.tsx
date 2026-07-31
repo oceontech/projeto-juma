@@ -58,7 +58,7 @@ export const META: Record<string, CultureMeta> = {
   },
   soja: {
     gradient: 'linear-gradient(165deg, #5d7a3a, #2c3a18)',
-    image: '/assets/cultures/soja.webp?v=20260731',
+    image: '/assets/cultures/soja.webp?v=20260731b',
     managementProducts: [
       ['Acorda Ultra', 'Aduban'],
       ['Aminosan'],
@@ -73,7 +73,7 @@ export const META: Record<string, CultureMeta> = {
   },
   milho: {
     gradient: 'linear-gradient(165deg, #c3a445, #6b4f15)',
-    image: '/assets/cultures/milho.webp?v=20260731',
+    image: '/assets/cultures/milho.webp?v=20260731b',
     managementProducts: [
       ['Acorda Ultra'],
       ['Aminosan', 'Linha Revigo'],
@@ -114,7 +114,7 @@ export const META: Record<string, CultureMeta> = {
   },
   feijao: {
     gradient: 'linear-gradient(165deg, #8b5e3b, #2f1f12)',
-    image: '/assets/cultures/feijao.webp?v=20260731',
+    image: '/assets/cultures/feijao.webp?v=20260731b',
     managementProducts: [
       ['Acorda Ultra', 'Aduban'],
       ['Aminosan'],
