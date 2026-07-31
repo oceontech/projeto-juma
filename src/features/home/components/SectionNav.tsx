@@ -101,7 +101,7 @@ export function SectionNav() {
   return (
     <nav
       aria-label={t('label')}
-      className="fixed right-5 top-1/2 z-40 hidden -translate-y-1/2 lg:block"
+      className="fixed right-5 top-1/2 z-[60] hidden -translate-y-1/2 lg:block"
     >
       <ul className="flex flex-col items-end gap-3">
         {SECTIONS.map((s, i) => {

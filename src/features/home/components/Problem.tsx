@@ -112,7 +112,7 @@ export function Problem() {
           <h2
             ref={titleRef}
             className="font-black leading-[1.06] tracking-tight text-foreground uppercase"
-            style={{ fontSize: 'clamp(2.7rem, 6vw, 5.6rem)' }}
+            style={{ fontSize: 'clamp(2.7rem, 5.5vw, 5.6rem)' }}
           >
             {t('titleSentence')}
           </h2>

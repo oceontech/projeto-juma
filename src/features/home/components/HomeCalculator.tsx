@@ -131,7 +131,7 @@ export function HomeCalculator() {
     <section
       ref={ref}
       id="calc"
-      style={{ backgroundColor: '#F2F6F2', paddingBlock: 'clamp(80px,8vw,120px)' }}
+      style={{ backgroundColor: '#F2F6F2', paddingBlock: 'clamp(80px, 7.5vw, 120px)' }}
     >
       <Container>
         {/* Cabeçalho */}
@@ -146,7 +146,7 @@ export function HomeCalculator() {
             <h2
               data-title
               className="font-black uppercase leading-[1.05] tracking-tight"
-              style={{ color: '#0F1A0A', fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
+              style={{ color: '#0F1A0A', fontSize: 'clamp(2.5rem, 4.5vw, 4.5rem)' }}
             >
               {t.rich('title', {
                 br: () => <br />,
@@ -261,7 +261,7 @@ export function HomeCalculator() {
                 </p>
                 <div
                   className="font-black leading-none tracking-[-0.03em]"
-                  style={{ fontSize: 'clamp(52px,6vw,80px)', color: '#F0E27A' }}
+                  style={{ fontSize: 'clamp(52px, 5.5vw, 80px)', color: '#F0E27A' }}
                 >
                   {fmt(sacasExtras)}
                   <span className="text-[0.36em] font-bold ml-2 align-baseline" style={{ color: 'rgba(240,226,122,.55)' }}>
@@ -280,7 +280,7 @@ export function HomeCalculator() {
                 <p className="text-[12px] font-semibold tracking-[0.08em] uppercase mb-3" style={{ color: 'rgba(255,255,255,.55)' }}>
                   {t('result.extraRev')}
                 </p>
-                <div className="font-black leading-none text-white tracking-[-0.02em]" style={{ fontSize: 'clamp(28px,3vw,40px)' }}>
+                <div className="font-black leading-none text-white tracking-[-0.02em]" style={{ fontSize: 'clamp(28px, 2.5vw, 40px)' }}>
                   {fmtR(receitaExtra)}
                 </div>
                 <p className="text-[13px] mt-2" style={{ color: 'rgba(255,255,255,.55)' }}>

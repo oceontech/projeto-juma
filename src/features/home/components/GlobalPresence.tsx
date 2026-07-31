@@ -242,7 +242,7 @@ export function GlobalPresence({ variant = 'section' }: { variant?: 'section' | 
   if (variant === 'embedded') return inner
 
   return (
-    <section className="bg-white overflow-hidden" style={{ paddingBlock: 'clamp(80px,8vw,120px)' }}>
+    <section className="bg-white overflow-hidden" style={{ paddingBlock: 'clamp(80px, 7.5vw, 120px)' }}>
       <Container className="min-[1600px]:max-w-[100rem]">{inner}</Container>
     </section>
   )

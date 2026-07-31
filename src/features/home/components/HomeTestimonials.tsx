@@ -78,7 +78,8 @@ export function HomeTestimonials() {
   return (
     <section
       ref={ref}
-      style={{ backgroundColor: '#F2F6F2', paddingBlock: 'clamp(80px,8vw,120px)' }}
+      style={{ backgroundColor: '#F2F6F2', paddingBlock: 'clamp(80px, 7.5vw, 120px)' }}
+      className="overflow-x-clip"
     >
       <Container>
         {/* Cabeçalho */}
@@ -93,7 +94,7 @@ export function HomeTestimonials() {
             <h2
               data-title
               className="font-black uppercase leading-[1.05] tracking-tight"
-              style={{ color: '#0F1A0A', fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
+              style={{ color: '#0F1A0A', fontSize: 'clamp(2.5rem, 4.5vw, 4.5rem)' }}
             >
               <span dangerouslySetInnerHTML={{ __html: t('titlePart1') }} /><span className="text-[#004B26] text-highlight inline-block">{t('titleHighlight')}</span>
             </h2>
@@ -107,7 +108,7 @@ export function HomeTestimonials() {
 
         {/* Cards */}
         <div
-          className="flex justify-center gap-6 overflow-hidden h-[500px] md:h-[600px] lg:h-[700px] px-12"
+          className="flex justify-center gap-6 overflow-hidden h-[500px] md:h-[600px] lg:h-[700px] px-12 -mx-12"
           style={{ maskImage: 'linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)', WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)' }}
         >
           <TestimonialsColumn testimonials={testimonialsData} duration={25} className="w-full md:w-1/2 lg:w-1/3" />

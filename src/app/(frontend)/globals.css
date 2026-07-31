@@ -131,21 +131,21 @@
   }
 
   h1 {
-    font-size: clamp(2.5rem, 5vw + 1rem, 5rem);
+    font-size: clamp(2.5rem, 4.5vw + 1rem, 5rem);
     letter-spacing: -0.02em;
   }
 
   h2 {
-    font-size: clamp(2rem, 4vw + 0.5rem, 3.5rem);
+    font-size: clamp(2rem, 3.5vw + 0.5rem, 3.5rem);
     letter-spacing: -0.01em;
   }
 
   h3 {
-    font-size: clamp(1.5rem, 3vw + 0.25rem, 2.25rem);
+    font-size: clamp(1.5rem, 2.5vw + 0.25rem, 2.25rem);
   }
 
   h4 {
-    font-size: clamp(1.25rem, 2vw + 0.25rem, 1.75rem);
+    font-size: clamp(1.25rem, 1.5vw + 0.25rem, 1.75rem);
   }
 
   /* ── Texto corrido ────────────────────────────────────────── */
@@ -614,7 +614,7 @@ html.lenis body { height: auto; }
   justify-content: center;
 }
 .pcs-panel-brand {
-  width: clamp(118px, 9vw, 200px);
+  width: clamp(118px, 8.5vw, 200px);
   margin-bottom: clamp(1.2rem, 2.4vh, 1.8rem);
 }
 .pcs-panel-brand img {
@@ -634,7 +634,7 @@ html.lenis body { height: auto; }
 .pcs-panel-title {
   font-family: var(--font-heading);
   font-weight: 900;
-  font-size: clamp(2.75rem, 6.2vw, 8.75rem);
+  font-size: clamp(2.75rem, 5.7vw, 8.75rem);
   line-height: 0.92;
   letter-spacing: 0;
   text-transform: uppercase;
@@ -643,13 +643,13 @@ html.lenis body { height: auto; }
   overflow-wrap: break-word;
 }
 .pcs-panel-title-0 {
-  font-size: clamp(2.5rem, 5.4vw, 7.5rem);
+  font-size: clamp(2.5rem, 4.9vw, 7.5rem);
   max-width: none;
   white-space: nowrap;
 }
 .pcs-panel-title-1,
 .pcs-panel-title-3 {
-  font-size: clamp(2.45rem, 5.1vw, 7rem);
+  font-size: clamp(2.45rem, 4.6vw, 7rem);
   max-width: none;
 }
 .pcs-title-line {
@@ -663,10 +663,10 @@ html.lenis body { height: auto; }
   margin: 1.6rem 0 1.4rem;
 }
 .pcs-panel-copy {
-  font-size: clamp(1rem, 1.05vw, 1.35rem);
+  font-size: clamp(1rem, 0.55vw, 1.35rem);
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.82);
-  max-width: clamp(380px, 28vw, 500px);
+  max-width: clamp(380px, 27.5vw, 500px);
   margin: 0;
 }
 
@@ -692,8 +692,8 @@ html.lenis body { height: auto; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: clamp(44px, 2.6vw, 62px);
-  height: clamp(44px, 2.6vw, 62px);
+  width: clamp(44px, 2.1vw, 62px);
+  height: clamp(44px, 2.1vw, 62px);
   border-radius: 999px;
   border: 1.5px solid;
   font-size: clamp(0.78rem, 0.85vw, 1.1rem);
@@ -961,19 +961,19 @@ html.lenis body { height: auto; }
     top: 0;
   }
   .pcs-panel-title {
-    font-size: clamp(2.25rem, 11vw, 3.35rem);
+    font-size: clamp(2.25rem, 10.5vw, 3.35rem);
     max-width: 100%;
   }
   .pcs-title-line {
     display: inline;
   }
   .pcs-panel-title-0 {
-    font-size: clamp(2rem, 10vw, 3rem);
+    font-size: clamp(2rem, 9.5vw, 3rem);
     max-width: none;
   }
   .pcs-panel-title-1,
   .pcs-panel-title-3 {
-    font-size: clamp(1.85rem, 9vw, 2.7rem);
+    font-size: clamp(1.85rem, 8.5vw, 2.7rem);
     max-width: none;
   }
   .pcs-panel-divider {
@@ -1095,7 +1095,7 @@ html.lenis body { height: auto; }
 .aminosan-bottle-callout__line {
   position: relative;
   display: block;
-  width: clamp(5.5rem, 8vw, 8.25rem);
+  width: clamp(5.5rem, 7.5vw, 8.25rem);
   height: 1px;
   background: linear-gradient(to right, transparent, rgba(0, 76, 38, 0.68));
 }
@@ -1112,7 +1112,7 @@ html.lenis body { height: auto; }
 .aminosan-bottle-callout__card {
   position: relative;
   display: flex;
-  width: clamp(8.5rem, 10vw, 10.75rem);
+  width: clamp(8.5rem, 9.5vw, 10.75rem);
   flex-direction: column;
   gap: 0.28rem;
   padding-left: 0.9rem;
@@ -1146,10 +1146,15 @@ html.lenis body { height: auto; }
   50% { transform: scale(1.22); box-shadow: 0 0 0 11px rgba(0, 76, 38, 0.015); }
 }
 
-@media (max-width: 767px) {
+/* 1023.98px e não 767px: o corte da seção Aminosan inteira é `lg` (1024) —
+   é onde os stills trocam de enquadramento e a escala 2.8x do frasco cai. */
+@media (max-width: 1023.98px) {
   .aminosan-bottle-callout {
     right: 1.25rem;
-    bottom: 8vh;
+    /* dvh, não vh: o palco da seção é h-[100dvh]. Com vh o callout ficava
+       ancorado na viewport "grande" e deslizava dentro do palco toda vez que a
+       barra de endereço do mobile aparecia ou sumia. */
+    bottom: 8dvh;
     gap: 0.5rem;
   }
   .aminosan-bottle-callout__line {
@@ -1203,7 +1208,7 @@ html.lenis body { height: auto; }
   align-items: baseline;
   gap: 0.45em;
   font-family: var(--font-heading);
-  font-size: clamp(0.86rem, 1.02vw, 1.08rem);
+  font-size: clamp(0.86rem, 0.52vw, 1.08rem);
   font-weight: 500;
   line-height: 1;
   letter-spacing: 0.11em;

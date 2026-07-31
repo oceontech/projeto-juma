@@ -185,7 +185,7 @@ export function Solution() {
               <h2
                 ref={titleRef}
                 className="font-black uppercase leading-[1.05] tracking-tight text-foreground"
-                style={{ fontSize: 'clamp(2.5rem, 4.5vw, 4.5rem)' }}
+                style={{ fontSize: 'clamp(2.5rem, 4vw, 4.5rem)' }}
               >
                 {t('title')}
               </h2>
@@ -280,7 +280,7 @@ export function Solution() {
                       </span>
                       <h3
                         className="font-black uppercase tracking-tight text-white m-0 mb-4 drop-shadow-md leading-tight"
-                        style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2.25rem)' }}
+                        style={{ fontSize: 'clamp(1.5rem, 2vw, 2.25rem)' }}
                       >
                         {t(`step${n}.title` as any)}
                       </h3>

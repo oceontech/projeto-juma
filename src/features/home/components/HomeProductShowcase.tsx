@@ -531,11 +531,74 @@ export function HomeProductShowcase() {
           dots.forEach((d, i) => d.classList.toggle('is-active', i === startIndex))
 
           /* ── Transição entre produtos ──────────────────────────────
-             Interrompível: um scroll rápido pode atravessar vários
-             produtos; a timeline anterior é morta e a nova parte do
-             estado atual (overwrite), então nunca trava nem enfileira. */
+             Com trava de transição (step lock): enquanto a timeline de um
+             produto estiver animando, scrolls rápidos são retidos até a
+             animação concluir, garantindo peso, responsividade e evitando
+             atropelo de fases. */
 
           let transitionTl: gsap.core.Timeline | null = null
+          let isTransitioning = false
+          let stepLocked = false
+          let touchStartY = 0
+          let transitionUnlockTimer: ReturnType<typeof setTimeout> | null = null
+          /* Rede de segurança da trava: o `onComplete` de uma timeline morta
+             nunca roda, e alguns caminhos (saída para cima, handoff) trocam a
+             timeline no meio do passo. Sem um teto, a trava ficava presa e o
+             catálogo congelava — a roda continuava cancelada e nenhum produto
+             trocava mais. */
+          let stepLockWatchdog: ReturnType<typeof setTimeout> | null = null
+
+          const clearStepLockTimers = () => {
+            if (transitionUnlockTimer) clearTimeout(transitionUnlockTimer)
+            if (stepLockWatchdog) clearTimeout(stepLockWatchdog)
+            transitionUnlockTimer = null
+            stepLockWatchdog = null
+          }
+          /** Libera a trava agora (passo concluído ou abandonado). */
+          const releaseStepLock = () => {
+            clearStepLockTimers()
+            isTransitioning = false
+            stepLocked = false
+          }
+          /** Trava os passos e agenda a liberação de emergência. */
+          const holdStepLock = (maxMs = 2200) => {
+            clearStepLockTimers()
+            isTransitioning = true
+            stepLocked = true
+            stepLockWatchdog = setTimeout(releaseStepLock, maxMs)
+          }
+
+          /* ── Trava real do scroll enquanto o catálogo dirige ─────────────
+             `preventDefault` no wheel cancela só a rolagem NATIVA. O Lenis lê
+             o mesmo evento por conta própria e nem olha o `defaultPrevented`:
+             soma o delta no `targetScroll` e continua animando a página. Era
+             isso que fazia um gesto rápido atravessar a seção inteira sem
+             tocar uma transição sequer — o step lock retinha os PASSOS, mas
+             ninguém retinha o SCROLL, então a página saía pela borda do pin
+             direto na seção vizinha.
+             Parado, o próprio Lenis descarta os eventos de roda (e o `stop()`
+             já faz `reset()`: mata a inércia acumulada no flick de entrada e
+             reancora o alvo no scroll real). O `scrollTo(..., { force: true })`
+             do `scrollToY` continua funcionando com ele parado, que é como as
+             trocas de produto movem a página. Mesmo contrato do `lockScroll`
+             da seção Aminosan. */
+          let lenisOwned = false
+          const lockLenis = () => {
+            const l = lenisRef.current
+            if (!l) return
+            lenisOwned = true
+            if (!l.isStopped) l.stop()
+          }
+          const unlockLenis = () => {
+            const l = lenisRef.current
+            if (!l || !lenisOwned) return
+            lenisOwned = false
+            if (l.isStopped) l.start()
+          }
+          /** Entrega o scroll a outra seção sem religar o Lenis por baixo dela. */
+          const releaseLenisOwnership = () => {
+            lenisOwned = false
+          }
 
           const applyIndex = (index: number) => {
             const from = currentIndexRef.current
@@ -543,11 +606,23 @@ export function HomeProductShowcase() {
             currentIndexRef.current = index
             hideHint()
 
+            holdStepLock()
+
             const dir = index > from ? 1 : -1
             const next = PRODUCTS[index]
 
             transitionTl?.kill()
-            const tl = gsap.timeline({ defaults: { overwrite: 'auto' } })
+
+            const tl = gsap.timeline({
+              defaults: { overwrite: 'auto' },
+              onComplete: () => {
+                // Pequeno buffer (140ms) após o encerramento da animação para
+                // absorver a inércia do gesto e dar sensação de peso ("trava").
+                if (stepLockWatchdog) clearTimeout(stepLockWatchdog)
+                stepLockWatchdog = null
+                transitionUnlockTimer = setTimeout(releaseStepLock, 140)
+              },
+            })
             transitionTl = tl
 
             // Fundo: anima as CSS vars direto (parte do valor atual, sem saltos)
@@ -556,7 +631,7 @@ export function HomeProductShowcase() {
               {
                 '--pcs-base': next.base,
                 '--pcs-mid': next.mid,
-                duration: 0.9,
+                duration: 0.8,
                 ease: 'power2.inOut',
               },
               0,
@@ -565,7 +640,7 @@ export function HomeProductShowcase() {
               root,
               {
                 '--pcs-accent': next.accent,
-                duration: 0.38,
+                duration: 0.35,
                 ease: 'power2.out',
               },
               0,
@@ -573,7 +648,7 @@ export function HomeProductShowcase() {
 
             // Spotlight: dim rápido, volta devagar
             tl.to(spotlightRef.current, { opacity: 0.2, duration: 0.15, ease: 'power2.in' }, 0)
-              .to(spotlightRef.current, { opacity: 0.5, duration: 0.35, ease: 'power2.out' }, 0.4)
+              .to(spotlightRef.current, { opacity: 0.5, duration: 0.35, ease: 'power2.out' }, 0.35)
               .to(
                 mobileSpotlightRef.current,
                 { opacity: 0.1, duration: 0.15, ease: 'power2.in' },
@@ -582,7 +657,7 @@ export function HomeProductShowcase() {
               .to(
                 mobileSpotlightRef.current,
                 { opacity: 0.85, duration: 0.35, ease: 'power2.out' },
-                0.4,
+                0.35,
               )
 
             // Carrossel de frascos
@@ -605,7 +680,7 @@ export function HomeProductShowcase() {
                 bottle,
                 {
                   ...getCatalogBottleProps(i, index, isMobile),
-                  duration: isMotion ? 0.65 : 0.4,
+                  duration: isMotion ? 0.6 : 0.4,
                   ease: 'power2.inOut',
                 },
                 0,
@@ -613,7 +688,7 @@ export function HomeProductShowcase() {
               // Zera o offset de mouse de quem sai do centro
               if (i !== index) {
                 const wrap = bottle.querySelector('.pcs-bottle-wrap')
-                if (wrap) tl.to(wrap, { x: 0, y: 0, duration: 0.5, ease: 'power2.out' }, 0)
+                if (wrap) tl.to(wrap, { x: 0, y: 0, duration: 0.4, ease: 'power2.out' }, 0)
               }
             })
 
@@ -631,13 +706,13 @@ export function HomeProductShowcase() {
               // Saída do painel atual (direção acompanha o scroll)
               tl.to(
                 curParts.text,
-                { autoAlpha: 0, x: -40 * dir, duration: 0.45, ease: 'power2.in' },
+                { autoAlpha: 0, x: -40 * dir, duration: 0.35, ease: 'power2.in' },
                 0,
               )
-                .to(curParts.cta, { autoAlpha: 0, y: 12, duration: 0.35, ease: 'power2.in' }, 0)
+                .to(curParts.cta, { autoAlpha: 0, y: 12, duration: 0.28, ease: 'power2.in' }, 0)
                 .to(
                   curParts.stats,
-                  { autoAlpha: 0, x: 40 * dir, stagger: 0.04, duration: 0.45, ease: 'power2.in' },
+                  { autoAlpha: 0, x: 40 * dir, stagger: 0.03, duration: 0.35, ease: 'power2.in' },
                   0,
                 )
 
@@ -645,20 +720,20 @@ export function HomeProductShowcase() {
               tl.fromTo(
                 nextParts.text,
                 { autoAlpha: 0, x: 45 * dir },
-                { autoAlpha: 1, x: 0, duration: 0.7, ease: 'power3.out' },
-                0.3,
+                { autoAlpha: 1, x: 0, duration: 0.55, ease: 'power3.out' },
+                0.25,
               )
                 .fromTo(
                   nextParts.cta,
                   { autoAlpha: 0, y: 12 },
-                  { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-                  0.45,
+                  { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power3.out' },
+                  0.35,
                 )
                 .fromTo(
                   nextParts.stats,
                   { autoAlpha: 0, x: -45 * dir },
-                  { autoAlpha: 1, x: 0, stagger: 0.06, duration: 0.7, ease: 'power3.out' },
-                  0.3,
+                  { autoAlpha: 1, x: 0, stagger: 0.05, duration: 0.55, ease: 'power3.out' },
+                  0.25,
                 )
             } else {
               // Reduced motion: crossfade simples
@@ -691,6 +766,10 @@ export function HomeProductShowcase() {
              entrada branco→cor; leavingUp evita disparo duplo da saída. */
           let handingOff = false
           let leavingUp = false
+          /* Saída deliberada para baixo (último produto ou botão "pular"): o
+             scroll está sendo levado para fora do pin de propósito, então
+             ninguém pode reafirmar a trava do Lenis no caminho. */
+          let leavingDown = false
           let aminosanVideoHandoff = false
           /* outroHolding: a saída para cima está no ar (fade branco de ~0,6s
              antes do salto para o Aminosan). No mobile não existe Lenis para
@@ -772,6 +851,11 @@ export function HomeProductShowcase() {
           const prepareHandoffIn = () => {
             handingOff = true
             leavingUp = false
+            leavingDown = false
+            // Entrando de novo: a trava do passo anterior (inclusive a que
+            // levou a página pra fora daqui) não pode sobreviver à volta.
+            releaseStepLock()
+            lockLenis()
             currentIndexRef.current = 0
             dots.forEach((d, i) => d.classList.toggle('is-active', i === 0))
             products.forEach((el, i) => el.classList.toggle('is-active', i === 0))
@@ -806,14 +890,42 @@ export function HomeProductShowcase() {
           }
           window.addEventListener('aminosan:video-handoff-start', onAminosanVideoHandoffStart)
           window.addEventListener('aminosan:video-handoff-end', onAminosanVideoHandoffEnd)
+          /* O `isActive` e os callbacks do pin descrevem o que o ScrollTrigger
+             ACHA da posição — e ele erra quando o scroll salta (handoff, âncora,
+             refresh no meio de um salto). Antes de reagir como "entrei na
+             seção", confere a posição real: fora da faixa do pin, o catálogo não
+             mexe em estado nem em scroll.
+             A caixa existe porque o onEnter pode disparar durante o próprio
+             `ScrollTrigger.create` (página aberta já dentro da seção), quando a
+             const `pinTrigger` ainda não foi atribuída. */
+          const pinBox: { current: ScrollTrigger | null } = { current: null }
+          const insidePin = () => {
+            const t = pinBox.current
+            if (!t) return false
+            const y = window.scrollY
+            return y >= t.start - 1 && y <= t.end + 1
+          }
+
           const pinTrigger = ScrollTrigger.create({
             trigger: root,
             start: 'top top',
             end: `+=${(COUNT - 1) * 100}%`,
             pin: true,
             pinSpacing: true,
-            anticipatePin: 1,
+            /* SEM `anticipatePin`. Ele adianta o pin com base na VELOCIDADE do
+               scroll, e a saída para cima move a página em dois saltos
+               programáticos gigantes (catálogo → topo do Aminosan → repouso da
+               fase 'exit'). Essa velocidade fabricada fazia o ScrollTrigger
+               ativar o pin ~1 viewport ANTES do start: o .pcs-root virava
+               `position: fixed` cobrindo a tela inteira no meio da seção de
+               cima (a "tela toda azul"), e o onEnter disparava em looping —
+               zerando `leavingUp` e devolvendo a página ao catálogo. A seção
+               nunca é alcançada em rolagem livre (a entrada é sempre o handoff
+               ou o gesto cancelado do pin), então não há flicker a evitar. */
             onEnter: () => {
+              if (!insidePin()) return
+              leavingDown = false
+              lockLenis()
               window.dispatchEvent(new CustomEvent('nav:hide'))
               // Rede de segurança: qualquer entrada por cima cancela um
               // "saindo pra cima" que tenha ficado pendente.
@@ -822,15 +934,29 @@ export function HomeProductShowcase() {
               if (!handingOff) restoreVisual()
             },
             onEnterBack: () => {
+              if (!insidePin()) return
+              leavingDown = false
+              lockLenis()
               window.dispatchEvent(new CustomEvent('nav:hide'))
               if (currentIndexRef.current !== COUNT - 1) applyIndex(COUNT - 1)
             },
             onToggle: (self) => {
               if (self.isActive) {
+                if (!insidePin()) return
+                lockLenis()
                 window.dispatchEvent(new CustomEvent('nav:hide'))
+                return
               }
+              // Saiu do pin numa rolagem normal: devolve o scroll ao Lenis.
+              // Nas saídas dirigidas (handoff para a seção de cima) quem manda
+              // na posição passa a ser a outra seção — religar aqui devolveria
+              // a inércia do gesto bem no meio do vídeo reverso.
+              if (leavingUp || handingOff || outroHolding) return
+              leavingDown = false
+              unlockLenis()
             },
           })
+          pinBox.current = pinTrigger
 
           /* ── Navegação programática (dots, teclado, pular) ──────── */
 
@@ -877,7 +1003,13 @@ export function HomeProductShowcase() {
           skipRef.current = () => {
             hideHint()
             window.dispatchEvent(new CustomEvent('nav:show'))
-            scrollToY(pinTrigger.end + window.innerHeight, 1.1)
+            // Solta o Lenis ANTES de sair: o `start()` dele faz `reset()`, que
+            // mata qualquer tween em voo. Se a soltura viesse depois (no
+            // onToggle do pin, ao cruzar a borda), ela matava justamente este
+            // scroll de saída no meio do caminho.
+            leavingDown = true
+            unlockLenis()
+            scrollToY(pinTrigger.end + 2, 0.65)
           }
 
           /* ── Handoff vindo da seção Aminosan ───────────────────────
@@ -891,6 +1023,9 @@ export function HomeProductShowcase() {
           const runHandoffIn = () => {
             handingOff = true
             leavingUp = false
+            leavingDown = false
+            releaseStepLock()
+            lockLenis()
             hideHint()
             transitionTl?.kill()
             currentIndexRef.current = 0
@@ -1028,7 +1163,7 @@ export function HomeProductShowcase() {
             window.dispatchEvent(new CustomEvent('aminosan:prepare-handoff-backward'))
             transitionTl?.kill()
             clearTimeout(idleTimer)
-            lenisRef.current?.stop()
+            lockLenis()
             lenisRef.current?.scrollTo(pinTrigger.start, { immediate: true, force: true })
             window.scrollTo(0, pinTrigger.start)
             ScrollTrigger.update()
@@ -1058,6 +1193,12 @@ export function HomeProductShowcase() {
               onComplete: () => {
                 // Cancela qualquer assentamento pendente antes do salto.
                 clearTimeout(idleTimer)
+                // A trava do passo que pediu a saída morre aqui: quem entrar
+                // de novo (handoff ou onEnter) precisa achar o catálogo livre.
+                releaseStepLock()
+                // O Lenis continua parado, mas a partir do salto quem manda
+                // nele é a seção Aminosan (o lockScroll de lá religa no fim).
+                releaseLenisOwnership()
                 // Solta o scroll um instante antes de saltar — daqui pra frente
                 // quem manda na posição é a seção Aminosan.
                 stopOutroHold()
@@ -1139,14 +1280,16 @@ export function HomeProductShowcase() {
           // — nas bordas (seção parcialmente visível): completa o movimento na
           //   direção do gesto, para nunca descansar com faixa da seção vizinha.
           const settle = () => {
-            // Durante um handoff (entrando do vídeo ou saindo pra cima) o scroll
-            // é dirigido pelo Aminosan/pela timeline — o catálogo não pode
-            // assentar nada, senão briga com aquele controle.
-            if (leavingUp || handingOff || aminosanVideoHandoff) return
+            // Durante um handoff ou durante a transição animada de um produto,
+            // o scroll é dirigido pela timeline; não pode assentar no meio.
+            if (leavingUp || handingOff || aminosanVideoHandoff || isTransitioning || stepLocked) return
             const scroll = window.scrollY
             const vh = window.innerHeight
 
-            if (pinTrigger.isActive) {
+            // `isActive` sozinho não basta: ele pode estar ligado com a página
+            // longe da seção (ver `insidePin`). Assentar nesse estado era o que
+            // arrastava o usuário de volta pro catálogo no meio do vídeo reverso.
+            if (pinTrigger.isActive && insidePin()) {
               // No mobile, a fronteira com a Cultures (último produto) fica de
               // fora do "cola no alvo": senão, ao subir vindo da Cultures, o
               // settle briga com o dedo e puxa a página de volta pra baixo.
@@ -1169,36 +1312,28 @@ export function HomeProductShowcase() {
             // sem completar o movimento sozinho.
             if (scroll > pinTrigger.end && scroll < pinTrigger.end + vh) {
               if (isMobile) return
-              scrollToY(lastDir > 0 ? pinTrigger.end + vh : pinTrigger.end, 0.7)
+              scrollToY(lastDir > 0 ? pinTrigger.end + 2 : pinTrigger.end, 0.6)
             }
           }
 
-          let stepLocked = false
-          let touchStartY = 0
-
-          const unlockStep = () => {
-            window.setTimeout(() => {
-              stepLocked = false
-            }, 420)
-          }
-
           const stepCatalog = (dir: 1 | -1) => {
-            if (leavingUp || handingOff || aminosanVideoHandoff) return
-            if (!pinTrigger.isActive || stepLocked) return
-            stepLocked = true
+            if (leavingUp || handingOff || aminosanVideoHandoff || isTransitioning || stepLocked) return
+            holdStepLock()
             hideHint()
 
             const current = currentIndexRef.current
             if (dir > 0) {
-              if (current < COUNT - 1) goToIndex(current + 1, 0.5)
-              else skipRef.current?.()
+              if (current < COUNT - 1) {
+                goToIndex(current + 1, 0.6)
+              } else {
+                skipRef.current?.()
+                transitionUnlockTimer = setTimeout(releaseStepLock, 700)
+              }
             } else if (current > 0) {
-              goToIndex(current - 1, 0.5)
+              goToIndex(current - 1, 0.6)
             } else {
               runHandoffOut()
             }
-
-            unlockStep()
           }
 
           const onWheelStep = (e: WheelEvent) => {
@@ -1222,7 +1357,17 @@ export function HomeProductShowcase() {
               }
               return
             }
+            // Pin ativo: o scroll é nosso. O preventDefault mata a rolagem
+            // nativa e o lockLenis mata a do Lenis — as duas precisam cair,
+            // senão o gesto continua correndo por cima da transição. A
+            // exceção é a saída deliberada para a próxima seção, que já está
+            // em voo e não pode ser interrompida.
             if (e.cancelable) e.preventDefault()
+            if (!leavingDown) lockLenis()
+            // Mesmo contrato da seção Aminosan: a cauda de inércia do
+            // trackpad chega em deltas minúsculos e não conta como gesto —
+            // sem este piso, um flick só atravessava vários produtos.
+            if (Math.abs(e.deltaY) < 8) return
             stepCatalog(e.deltaY > 0 ? 1 : -1)
           }
 
@@ -1291,6 +1436,14 @@ export function HomeProductShowcase() {
             const y = window.scrollY
             if (y !== lastY) lastDir = y > lastY ? 1 : -1
             lastY = y
+            // Rede de segurança da trava do Lenis: o onToggle do pin não
+            // dispara quando a página chega aqui por salto programático ou por
+            // um refresh no meio do gesto. Dentro da faixa do pin o scroll é
+            // sempre nosso, então a trava é reafirmada a cada evento (barata:
+            // `stop()` no Lenis já parado é no-op).
+            if (pinTrigger.isActive && insidePin() && !leavingUp && !leavingDown && !outroHolding) {
+              lockLenis()
+            }
             clearTimeout(idleTimer)
             idleTimer = setTimeout(settle, 180)
           }
@@ -1334,15 +1487,10 @@ export function HomeProductShowcase() {
             }
             if (e.key === 'ArrowDown' || e.key === 'PageDown') {
               e.preventDefault()
-              if (currentIndexRef.current < COUNT - 1) goToIndex(currentIndexRef.current + 1)
-              else skipRef.current?.()
+              stepCatalog(1)
             } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
               e.preventDefault()
-              if (currentIndexRef.current > 0) {
-                goToIndex(currentIndexRef.current - 1)
-              } else {
-                runHandoffOut()
-              }
+              stepCatalog(-1)
             }
           }
           window.addEventListener('keydown', handleKeyDown)
@@ -1360,6 +1508,10 @@ export function HomeProductShowcase() {
             if (onPointerMove) window.removeEventListener('pointermove', onPointerMove)
             settleTimers.forEach(window.clearTimeout)
             clearTimeout(idleTimer)
+            clearStepLockTimers()
+            // Nunca deixar o Lenis parado atrás de nós (troca de breakpoint,
+            // navegação): o resto da página ficaria sem scroll.
+            unlockLenis()
             stopOutroHold()
             transitionTl?.kill()
             pinTrigger.kill(true)

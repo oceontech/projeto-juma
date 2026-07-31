@@ -71,7 +71,7 @@ export function HomeExperience() {
   return (
     <section
       ref={ref}
-      style={{ backgroundColor: '#0F1A0A', paddingBlock: 'clamp(80px,8vw,120px)' }}
+      style={{ backgroundColor: '#0F1A0A', paddingBlock: 'clamp(80px, 7.5vw, 120px)' }}
     >
       <Container>
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
@@ -113,7 +113,7 @@ export function HomeExperience() {
             <h2
               data-title
               className="font-black uppercase leading-[1.05] tracking-tight text-white"
-              style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
+              style={{ fontSize: 'clamp(2.5rem, 4.5vw, 4.5rem)' }}
             >
               {t('titlePart1')} <span className="text-[#F0E27A] text-highlight inline-block">{t('titleHighlight')}</span>
             </h2>

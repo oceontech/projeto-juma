@@ -92,9 +92,12 @@ export function HomeCtaFinal() {
       ref={ref}
       id="whatsapp"
       className="relative overflow-hidden"
+      /* Sem backgroundColor aqui de propósito: o azul vive na camada
+         [data-bg-reveal] (z-0) para o clip-path da entrada poder revelá-lo
+         de trás do globo. Padding inferior grande reserva o espaço do globo. */
       style={{
-        paddingTop: 'clamp(80px,8vw,120px)',
-        paddingBottom: 'clamp(260px,30vw,440px)',
+        paddingTop: 'clamp(80px, 7.5vw, 120px)',
+        paddingBottom: 'clamp(260px, 30vw, 440px)',
       }}
     >
       {/* z-0 — fundo azul: plano isolado só pra poder animar o clip-path
@@ -113,7 +116,7 @@ export function HomeCtaFinal() {
           <h2
             data-title
             className="font-black uppercase leading-[1.05] tracking-tight text-white max-w-[14ch]"
-            style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
+            style={{ fontSize: 'clamp(2.5rem, 4.5vw, 4.5rem)' }}
           >
             {t('titlePart1')} <span className="text-[#64A142] text-highlight inline-block">{t('titleHighlight')}</span>
           </h2>

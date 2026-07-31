@@ -140,7 +140,7 @@ export function Lines() {
           <h2
             ref={titleRef}
             className="font-black uppercase leading-[1.05] tracking-tight text-foreground"
-            style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
+            style={{ fontSize: 'clamp(2.5rem, 4.5vw, 4.5rem)' }}
           >
             {t('title')}
           </h2>
@@ -193,19 +193,19 @@ export function Lines() {
                 {/* Conteúdo */}
                 <div
                   data-line-content
-                  className={`relative z-10 flex flex-col gap-sm p-xl lg:p-2xl w-full sm:max-w-[80%] lg:max-w-[70%] ${alignClass}`}
+                  className={`relative z-10 flex flex-col gap-sm p-lg xl:p-xl 2xl:p-2xl w-full sm:max-w-[70%] lg:max-w-[60%] xl:max-w-[55%] ${alignClass}`}
                 >
                   {/* Título da linha */}
                   <h3
                     data-line-title
-                    className="font-black uppercase leading-[1.0] tracking-tight text-foreground"
-                    style={{ fontSize: 'clamp(1.05rem, 2vw, 1.25rem)' }}
+                    className="font-black uppercase leading-[1.05] tracking-tight text-foreground"
+                    style={{ fontSize: 'clamp(0.95rem, 1.1vw, 1.15rem)' }}
                   >
                     {t(`${key}.title` as any)}
                   </h3>
 
                   {/* Produtos */}
-                  <p data-line-support className="text-subtitle m-0 text-sm leading-relaxed text-foreground/55 max-w-[90%]">
+                  <p data-line-support className="text-subtitle m-0 text-xs xl:text-sm leading-relaxed text-foreground/55 max-w-[95%]">
                     {t(`${key}.support` as any)}
                   </p>
 

@@ -72,7 +72,7 @@ export function HomeMarquee() {
   return (
     <section
       className="overflow-hidden"
-      style={{ backgroundColor: '#004B26', paddingBlock: 'clamp(36px,4vw,56px)' }}
+      style={{ backgroundColor: '#004B26', paddingBlock: 'clamp(36px, 3.5vw, 56px)' }}
       aria-label="Portfólio de produtos Juma-Agro"
     >
       <div ref={trackRef} className="flex gap-3.5 w-max will-change-transform">

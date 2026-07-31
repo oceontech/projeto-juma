@@ -26,11 +26,31 @@ import { Container } from '@/components/layout/Container'
 
 type TFn = ReturnType<typeof useTranslations>
 
-/* Vídeos e stills compartilhados por desktop e mobile */
+/* Vídeos e stills compartilhados por desktop e mobile.
+   `object-contain` em TODAS as larguras (não só no mobile): os clipes e stills
+   são composições fechadas 1920×1080 com fundo branco puro, então `cover` fazia
+   o enquadramento seguir a proporção da janela — em tela larga e baixa o frasco
+   saía cortado em cima e embaixo, em tela estreita e alta ele era ampliado a
+   ponto de passar por trás do texto e da assinatura AMINOSAN. Com `contain` a
+   composição inteira sempre cabe no palco, centrada, e as tarjas que sobram são
+   brancas iguais ao fundo da seção (bg-white) — invisíveis. */
 const STAGE_VIDEO_CLASS =
-  'absolute inset-0 z-0 h-full w-full object-cover opacity-0 max-lg:top-[22dvh] max-lg:h-[60dvh] max-lg:object-contain'
+  'absolute inset-0 z-0 h-full w-full object-contain opacity-0 max-lg:top-[22dvh] max-lg:h-[60dvh]'
 const STAGE_IMAGE_CLASS =
-  'absolute z-10 pointer-events-none object-cover md:!object-cover lg:!inset-0 max-lg:!top-[22dvh] max-lg:!h-[60dvh] max-lg:!object-contain'
+  'absolute z-10 pointer-events-none object-contain lg:!inset-0 max-lg:!top-[22dvh] max-lg:!h-[60dvh]'
+
+/* Âncora vertical única das colunas de texto do Ato 1 e do Ato 3 no desktop.
+   O clamp segura a faixa entre 6rem e 22rem, então em janela baixa (600px) o
+   texto não desce demais e em monitor alto (1400px+) não sobe demais — é sempre
+   a mesma faixa da tela, e não uma fração do conteúdo.
+
+   O corte é `lg` (1024px), NÃO `md`: 1024 é onde o `isMobile`, o
+   `updateVideoScale` (escala 2.8/1.45) e as classes `max-lg:` dos stills já
+   trocam de tratamento. Enquanto o texto virava desktop em 768 e a mídia só em
+   1024, a faixa de 768 a 1023 juntava coluna de texto centralizada com o frasco
+   ampliado 2,8× — a assinatura AMINOSAN caía na tampa e a copy atravessava o
+   rótulo. Agora a seção inteira vira num número só. */
+const ACT_COLUMN_TOP = 'lg:pt-[clamp(6rem,30dvh,22rem)]'
 
 export function AminosanStory() {
   const t = useTranslations('aminosanStory')
@@ -266,7 +286,7 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
 
       {/* Texto 2 (Frame Final) - Posicionado ao final do super-container */}
       <div ref={calloutSectionRef} className="absolute top-[150vh] left-0 w-full min-h-[100dvh] bg-white z-20 pointer-events-auto flex flex-col justify-end">
-        <div className="relative h-[70vh] w-full overflow-hidden sm:h-[75vh]">
+        <div className="relative h-[70dvh] w-full overflow-hidden sm:h-[75dvh]">
           <Image
             src="/heritage/desktop/morph-aminosan-2-novo.png"
             alt={t('newBottleAlt')}
@@ -416,6 +436,14 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const LAST = PHASES.length - 1
 
       let phase: Phase = 'act1'
+      /* `phase` é a INTENÇÃO da máquina; `visualPhase` é o que as camadas de
+         texto e os stills realmente mostram na tela. Vira null enquanto um
+         clipe roda (a cena está no meio do caminho, não representa fase
+         nenhuma). Quando os dois divergem com a cena parada, alguma transição
+         morreu no meio — e é exatamente aí que o texto de um ato sobrevivia
+         por cima do outro. O `enforceVisuals` reescreve a fase inteira. */
+      let visualPhase: Phase | null = 'act1'
+      let inView = false
       let direction: 'forward' | 'backward' | null = null
       const cooldownRef = { current: 0 }
       let playing = false
@@ -424,6 +452,12 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       let step = 0
       let lastTime = 0
       let animFrame = 0
+      /* Sinais de vida do clipe em voo: `lastTickAt` é o último rAF (congela
+         com a aba em segundo plano) e `lastProgressAt` é o último avanço real
+         do currentTime (congela em buffer/decode travado). */
+      let lastTickAt = 0
+      let lastProgressAt = 0
+      let lastSeenTime = -1
       const targets = [0, 2.64, 4.07, 5.90]
 
       let pinTrigger: ScrollTrigger | null = null
@@ -603,6 +637,10 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       const hideAct1UI = (immediate = false) => {
         if (immediate) {
+          // `gsap.set` NÃO sobrescreve tween em andamento: sem este kill, um
+          // `hideAct1UI(false)`/intro ainda correndo continuaria escrevendo por
+          // cima do estado que acabamos de fixar.
+          gsap.killTweensOf([...titleChars, ...act1Items, calloutLine, calloutDot, calloutLabel, scrimRef.current].filter(Boolean))
           gsap.set(titleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)' })
           gsap.set(act1Items, { y: 20, autoAlpha: 0, filter: 'blur(10px)' })
           gsap.set(calloutLine, { scaleX: 0 })
@@ -621,10 +659,17 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       const hideAct3All = (immediate = false) => {
         if (immediate) {
+          /* Matar a timeline, e não só os tweens dos alvos: `showAct3UI` é
+             criada com `delay` (0.6s), então nasce pendente. Só killTweensOf
+             deixava a casca viva — e com ela o contador, que seguia subindo
+             para +14 numa fase onde o número nem está na tela. */
+          currentTl?.kill()
+          currentTl = null
           gsap.killTweensOf([a3Eyebrow, a3Title, a3Body, a3Line, a3Stat, newCalloutLine, newCalloutDot, newCalloutLabel])
           gsap.set([a3Eyebrow, a3Title, a3Body, a3Stat, newCalloutLabel], { autoAlpha: 0 })
           gsap.set([a3Line, newCalloutLine], { scaleX: 0 })
           gsap.set(newCalloutDot, { scale: 0, autoAlpha: 0 })
+          if (counterRef.current) counterRef.current.innerText = `${counterPrefix}10`
         } else {
           hideAct3UI(0)
         }
@@ -632,6 +677,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       const hideLineAll = (immediate = false) => {
         if (immediate) {
+          lineTl?.kill()
+          lineTl = null
           gsap.killTweensOf([linePanelRef.current, lineBodyRef.current, ...lineItems, ...lineTitleChars])
           gsap.set([linePanelRef.current, lineBodyRef.current], { autoAlpha: 0, y: 24, filter: 'blur(10px)' })
           gsap.set(lineTitleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)' })
@@ -641,21 +688,101 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         }
       }
 
-      const updateVideoScale = (video: HTMLVideoElement) => {
-        if (window.innerWidth < 1024) {
-          let vScale = 2.8
-          const cur = video.currentTime
-          if (cur > targets[1] && cur < targets[2]) {
-            const p = (cur - targets[1]) / (targets[2] - targets[1])
-            vScale = 2.8 + (1.45 - 2.8) * Math.max(0, Math.min(1, p))
-          } else if (cur >= targets[2]) {
-            vScale = 1.45
-          }
-          gsap.set(video, { scale: vScale })
-        } else {
-          gsap.set(video, { scale: 1 })
+      /* ── Estados estáticos: cada camada descrita por inteiro, sem animação ──
+         São a contrapartida dos `hide*All(true)`. Nenhum deles depende de uma
+         animação anterior ter chegado ao fim — é isso que permite reconstruir
+         uma fase de repouso do zero depois de uma transição abortada. */
+      const showAct1Static = () => {
+        introTl.timeScale(1).progress(1).pause()
+        gsap.killTweensOf([act1Ref.current, scrimRef.current, oldCalloutRef.current, ...titleChars, ...act1Items, calloutLine, calloutDot, calloutLabel].filter(Boolean))
+        gsap.set([act1Ref.current, scrimRef.current, oldCalloutRef.current], { autoAlpha: 1 })
+        gsap.set(titleChars, { x: 0, autoAlpha: 1, filter: 'blur(0px)' })
+        gsap.set(act1Items, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
+        gsap.set(calloutLine, { scaleX: 1, transformOrigin: 'left' })
+        gsap.set(calloutDot, { scale: 1, autoAlpha: 1 })
+        gsap.set(calloutLabel, { x: 0, autoAlpha: 1 })
+      }
+
+      const showAct3Static = () => {
+        currentTl?.kill()
+        currentTl = null
+        gsap.killTweensOf([a3Eyebrow, a3Title, a3Body, a3Line, a3Stat, newCalloutLine, newCalloutDot, newCalloutLabel])
+        gsap.set([a3Eyebrow, a3Title, a3Body, a3Stat], { autoAlpha: 1, y: 0, filter: 'blur(0px)' })
+        gsap.set([a3Line, newCalloutLine], { scaleX: 1, transformOrigin: 'left' })
+        gsap.set(newCalloutDot, { scale: 1, autoAlpha: 1 })
+        gsap.set(newCalloutLabel, { autoAlpha: 1, x: 0 })
+        if (counterRef.current) counterRef.current.innerText = `${counterPrefix}14`
+      }
+
+      const showLineStatic = () => {
+        lineTl?.kill()
+        lineTl = null
+        gsap.killTweensOf([linePanelRef.current, lineBodyRef.current, ...lineItems, ...lineTitleChars])
+        gsap.set([linePanelRef.current, lineBodyRef.current], { autoAlpha: 1, y: 0, filter: 'blur(0px)' })
+        gsap.set(lineTitleChars, { x: 0, autoAlpha: 1, filter: 'blur(0px)' })
+        gsap.set(lineItems, { autoAlpha: 1, y: 0, filter: 'blur(0px)' })
+      }
+
+      /* Zoom do palco abaixo de 1024px. A arte é uma composição 1920×1080 em
+         que o frasco ocupa ~14% da largura: numa tela de 390px ele sairia
+         minúsculo, daí a ampliação. Só que ampliar por um número fixo (era 2,8)
+         serve para tela estreita e nada mais — a 1000px de largura o mesmo 2,8
+         jogava o frasco muito além do palco, cortado em cima e embaixo, com a
+         copy atravessando o rótulo.
+         Aqui a largura final da arte é limitada pelos DOIS eixos: nunca mais que
+         2,8× a largura da tela, nunca tão grande que o frasco estoure a altura.
+         Nas telas estreitas o limite de largura ganha e o resultado é o mesmo
+         2,8 de antes; conforme a janela alarga, o limite de altura assume e o
+         zoom cai sozinho até encontrar o enquadramento do desktop em 1024px. */
+      const stageZoom = () => {
+        const W = window.innerWidth
+        const H = window.innerHeight
+        if (W >= 1024) return { bottle: 1, line: 1 }
+        // Largura que a arte assume dentro do box (w-full × 60dvh) no object-contain.
+        const fitted = 1920 * Math.min(W / 1920, (H * 0.6) / 1080)
+        if (!fitted) return { bottle: 1, line: 1 }
+        return {
+          bottle: Math.min(W * 2.8, H * 1.33) / fitted,
+          line: Math.min(W * 1.45, H) / fitted,
         }
       }
+
+      /* Os stills tiram o zoom do CSS e o vídeo do GSAP — publicar os dois
+         números como custom property é o que mantém still e vídeo do mesmo
+         tamanho na troca de um pelo outro. */
+      const applyStageZoom = () => {
+        const z = stageZoom()
+        stageTrigger.style.setProperty('--stage-zoom', String(z.bottle))
+        stageTrigger.style.setProperty('--stage-zoom-line', String(z.line))
+      }
+
+      const updateVideoScale = (video: HTMLVideoElement) => {
+        const { bottle, line } = stageZoom()
+        let vScale = bottle
+        const cur = video.currentTime
+        if (cur > targets[1] && cur < targets[2]) {
+          const p = Math.max(0, Math.min(1, (cur - targets[1]) / (targets[2] - targets[1])))
+          vScale = bottle + (line - bottle) * p
+        } else if (cur >= targets[2]) {
+          vScale = line
+        }
+        gsap.set(video, { scale: vScale })
+      }
+
+      applyStageZoom()
+      /* Só em mudança de LARGURA, mesma guarda do refresh do ScrollTrigger lá em
+         cima: no mobile a altura muda sozinha quando a barra de endereço some,
+         e recalcular o zoom nesse instante redimensionaria o frasco no meio do
+         gesto do usuário. */
+      let zoomWidth = window.innerWidth
+      const onResizeZoom = () => {
+        if (window.innerWidth === zoomWidth) return
+        zoomWidth = window.innerWidth
+        applyStageZoom()
+        const v = videoRef.current
+        if (v) updateVideoScale(v)
+      }
+      window.addEventListener('resize', onResizeZoom)
 
       const updateActivePhase = (time: number) => {
         if (time < targets[1] - 0.2) phase = 'act1'
@@ -670,6 +797,23 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         if (!playing) return
         const target = targetTime
         if (target === null) return
+
+        lastTickAt = now
+        /* Clipe sem progresso: buffer, decode preso, ou aba que voltou do
+           segundo plano com o vídeo fora de lugar. Fecha o passo no destino em
+           vez de deixar meia transição viva na tela — o `stopPlayback` leva a
+           cena para a fase de repouso inteira. Sem isto, `playing` ficava true
+           para sempre: scroll travado e as duas camadas de texto na tela. */
+        const seen = video.currentTime
+        if (Math.abs(seen - lastSeenTime) > 0.001) {
+          lastSeenTime = seen
+          lastProgressAt = now
+        } else if (now - lastProgressAt > 1600) {
+          try { video.pause() } catch {}
+          try { video.currentTime = target } catch {}
+          stopPlayback()
+          return
+        }
 
         if (direction === 'forward') {
           lastTime = now
@@ -714,6 +858,11 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         direction = dir
         targetTime = target
         playing = true
+        // A cena passa a não representar fase nenhuma até o próximo repouso.
+        visualPhase = null
+        lastTickAt = performance.now()
+        lastProgressAt = lastTickAt
+        lastSeenTime = -1
         lockScroll(true)
         updateVideoScale(video)
 
@@ -782,6 +931,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           gsap.killTweensOf(video)
           gsap.set(video, { autoAlpha: 0, zIndex: 0 })
         }
+        // Idem `hideAct1UI(true)`: um `gsap.to` do morph ainda em voo ganharia
+        // do `set` abaixo e apagaria o frasco antigo que acabamos de repor.
+        gsap.killTweensOf([oldImg, newImg, lineImg, trioImg, brandMarkRef.current].filter(Boolean))
         gsap.set([newImg, lineImg, trioImg], { autoAlpha: 0 })
         hideAct3All(true)
         hideLineAll(true)
@@ -790,45 +942,54 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         if (exitAfter) {
           requestAnimationFrame(() => reverseIntro())
         } else {
-          introTl.timeScale(1).progress(1).pause()
-          gsap.set([act1Ref.current, scrimRef.current, oldCalloutRef.current], { autoAlpha: 1 })
-          gsap.set(scrimRef.current, { autoAlpha: 1 })
-          gsap.set(titleChars, { x: 0, autoAlpha: 1, filter: 'blur(0px)' })
-          gsap.set(act1Items, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
-          gsap.set(calloutLine, { scaleX: 1, transformOrigin: 'left' })
-          gsap.set(calloutDot, { scale: 1, autoAlpha: 1 })
-          gsap.set(calloutLabel, { x: 0, autoAlpha: 1 })
+          showAct1Static()
         }
+        visualPhase = 'act1'
       }
 
-      const restAct3 = () => {
+      const restAct3 = (immediate = false) => {
         const video = videoRef.current
         if (video) {
           gsap.set(video, { autoAlpha: 0, zIndex: 0 })
           try { video.currentTime = targets[1] } catch(e) {}
           updateVideoScale(video)
         }
+        gsap.killTweensOf([oldImg, newImg, lineImg, trioImg, brandMarkRef.current].filter(Boolean))
         gsap.set(newImg, { autoAlpha: 1 })
         gsap.set([lineImg, trioImg], { autoAlpha: 0 })
         gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
         gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
-        showAct3UI(0)
+        /* As camadas que NÃO são deste ato são assertadas aqui, nunca herdadas
+           do `hideAct1UI`/`hideLineUI` que o `startPlayback` disparou lá atrás:
+           se aqueles tweens tivessem sido mortos no meio (aba trocada, gesto
+           contrário, refresh do ScrollTrigger), o texto do Ato 1 ou o painel da
+           linha ficava vivo por cima do Ato 3. Quando este repouso é alcançado,
+           as duas animações já tiveram tempo de sobra para terminar — forçar o
+           estado final aqui é redundante no caminho feliz e salva o raro. */
+        hideAct1UI(true)
+        hideLineAll(true)
+        if (immediate) showAct3Static()
+        else showAct3UI(0)
+        visualPhase = 'act3'
       }
 
-      const restLine = () => {
+      const restLine = (immediate = false) => {
         const video = videoRef.current
         if (video) {
           gsap.set(video, { autoAlpha: 0, zIndex: 0 })
           try { video.currentTime = targets[2] } catch(e) {}
           updateVideoScale(video)
         }
+        gsap.killTweensOf([oldImg, newImg, lineImg, trioImg, brandMarkRef.current].filter(Boolean))
         gsap.set(lineImg, { autoAlpha: 1 })
         gsap.set([newImg, trioImg], { autoAlpha: 0 })
         gsap.set(oldImg, { autoAlpha: 0, scale: 0.985, filter: 'blur(8px)' })
         gsap.set(brandMarkRef.current, { autoAlpha: 0, y: -18, filter: 'blur(8px)' })
         hideAct1UI(true)
         hideAct3All(true)
-        showLineUI(0)
+        if (immediate) showLineStatic()
+        else showLineUI(0)
+        visualPhase = 'line'
       }
 
       const restExit = () => {
@@ -838,7 +999,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           try { video.currentTime = targets[3] } catch(e) {}
           updateVideoScale(video)
         }
-        gsap.killTweensOf([oldImg, newImg, lineImg, trioImg])
+        gsap.killTweensOf([oldImg, newImg, lineImg, trioImg, brandMarkRef.current].filter(Boolean))
         gsap.set([oldImg, newImg, lineImg], { autoAlpha: 0 })
         hideAct1UI(true)
         hideAct3All(true)
@@ -857,6 +1018,20 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           pointerEvents: 'none',
         })
         gsap.set(brandMarkRef.current, { autoAlpha: 0 })
+        visualPhase = 'exit'
+      }
+
+      /* O trio em `position: fixed`/z-80 é um artefato de handoff: ele cobre a
+         página inteira. Só pode existir entre o `restExit` e a entrega ao
+         catálogo — em qualquer outro caminho que caia na fase 'exit' (aborto,
+         reparo) ele tem que sair, senão vira uma tela cheia de imagem por cima
+         de tudo. */
+      const clearTrioOverlay = () => {
+        gsap.set(trioImg, {
+          autoAlpha: 0,
+          clearProps: 'display,position,top,right,bottom,left,width,height,zIndex,pointerEvents',
+        })
+        gsap.set(newImg, { clearProps: 'display' })
       }
 
       const finishExit = () => {
@@ -864,13 +1039,60 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         // full-frame) ANTES de receber o scroll, senão pisca a cor dele.
         window.dispatchEvent(new CustomEvent('aminosan:prepare-handoff-forward'))
         releaseForward()
-        gsap.set(trioImg, {
-          autoAlpha: 0,
-          clearProps: 'display,position,top,right,bottom,left,width,height,zIndex,pointerEvents',
-        })
-        gsap.set(newImg, { clearProps: 'display' })
+        clearTrioOverlay()
         window.dispatchEvent(new CustomEvent('aminosan:handoff-forward'))
         window.dispatchEvent(new CustomEvent('aminosan:video-handoff-end'))
+      }
+
+      /* ── Fonte única de verdade da cena parada ────────────────────────────
+         Escreve TODAS as camadas de uma fase de repouso de uma vez, sem
+         animação e sem depender de nada anterior. É por aqui que qualquer
+         estado sujo volta a ser um estado válido. */
+      const applyPhaseVisuals = (p: Phase) => {
+        if (p === 'act1') showStaticAct1(false)
+        else if (p === 'act3') restAct3(true)
+        else if (p === 'line') restLine(true)
+        else {
+          restExit()
+          clearTrioOverlay()
+        }
+      }
+
+      /* Uma transição pode morrer sem passar pelo `stopPlayback`: a seção sai
+         de vista, a aba vai para segundo plano (o rAF congela e o vídeo corre
+         solto), o clipe trava no buffer. Antes, o que estivesse meio-visível
+         nesse instante simplesmente ficava na tela — era assim que o texto de
+         um ato acabava por cima do texto estático de outro. Agora todo aborto
+         cai numa fase de repouso inteira, com o scroll destravado. */
+      const abortPlayback = (snap = false) => {
+        const video = videoRef.current
+        if (video) { try { video.pause() } catch {} }
+        if (animFrame) cancelAnimationFrame(animFrame)
+        animFrame = 0
+        playing = false
+        direction = null
+        targetTime = null
+        releasing = false
+        lockScroll(false)
+        // O destino do passo é a fase válida mais próxima. 'exit' não é lugar
+        // de descanso fora do handoff (o palco fica em branco), então um aborto
+        // no último segmento volta para a linha completa.
+        const i = Math.min(Math.max(step, 0), LAST)
+        phase = PHASES[i] === 'exit' ? 'line' : PHASES[i]
+        step = PHASES.indexOf(phase)
+        applyPhaseVisuals(phase)
+        if (snap) snapToPhase()
+        cooldownRef.current = performance.now() + 350
+      }
+
+      /* Verificação: com a cena parada, o que está na tela TEM que ser a fase
+         em que a máquina diz estar. Divergiu, reescreve. É idempotente e
+         no-op no caminho feliz (todo repouso já marca o `visualPhase`), então
+         não briga com nenhuma animação de entrada em andamento. */
+      const enforceVisuals = () => {
+        if (playing || releasing) return
+        if (visualPhase === phase) return
+        applyPhaseVisuals(phase)
       }
 
       const stopPlayback = () => {
@@ -1052,6 +1274,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         clearTimeout(idleTimer)
         idleTimer = setTimeout(() => {
           if (!active() || playing) return
+          // Parou de rolar dentro do pin: além do pixel, confere a cena.
+          enforceVisuals()
           snapToPhase()
         }, 200)
       }
@@ -1079,6 +1303,11 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         restExit()
         snapToPhase()
         step = 2
+        /* Simétrico ao passo 3 da ida: enquanto o clipe reverso roda, quem manda
+           na posição da página é esta seção. O aviso desliga o `settle` do
+           catálogo — sem ele, qualquer assentamento de lá puxava a página de
+           volta no meio do vídeo. `stopPlayback` (step 2) dispara o `-end`. */
+        window.dispatchEvent(new CustomEvent('aminosan:video-handoff-start'))
         startPlayback('backward', targets[2])
       }
       window.addEventListener('aminosan:handoff-backward', onHandoffBackward)
@@ -1087,11 +1316,19 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
+            inView = entry.isIntersecting
             if (!entry.isIntersecting) {
-              allVideos.forEach((v) => { try { v.pause() } catch(e) {} })
-              if (animFrame) cancelAnimationFrame(animFrame)
-              playing = false
-              direction = null
+              /* Antes daqui saía só `playing = false` + cancelamento do rAF: a
+                 cena ficava congelada no meio do clipe, com as duas camadas de
+                 texto meio-visíveis, e o Lenis continuava parado porque o
+                 `lockScroll(false)` nunca acontecia. O `abortPlayback` fecha a
+                 cena numa fase inteira. Sem snap: o usuário está saindo, mexer
+                 no scroll dele agora seria pior que o bug. */
+              // `releasing` fica de fora de propósito: a entrega ao catálogo é
+              // uma transição concluída, não um travamento — abortá-la desfaria
+              // a fase 'exit' que o catálogo espera encontrar na volta.
+              if (playing) abortPlayback(false)
+              else allVideos.forEach((v) => { try { v.pause() } catch(e) {} })
               wasOutside = true
               return
             }
@@ -1102,7 +1339,13 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
                internos — então este callback só dispara em ida e volta de
                verdade. Se um clipe já está tocando, quem manda é ele (é o caso
                da volta vinda do catálogo, que entra tocando o reverso). */
-            if (wasOutside && !playing && !handoffBackPending && phase !== 'act1') {
+            /* `visualPhase !== 'act1'` cobre o caso que escapava: um aborto no
+               começo do morph deixa `phase` derivado ainda em 'act1' (quem
+               escreve `phase` durante o clipe é o `updateActivePhase`, pelo
+               currentTime), então a condição antiga não rebobinava nada e a UI
+               do Ato 3 já iniciada pelo `showAct3UI(0.6)` ficava na tela por
+               cima do frame estático do Ato 1. */
+            if (wasOutside && !playing && !handoffBackPending && (phase !== 'act1' || visualPhase !== 'act1')) {
               step = 0
               phase = 'act1'
               showStaticAct1(false)
@@ -1115,6 +1358,32 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       )
       if (root.current) observer.observe(root.current)
 
+      /* Rede final. Só custa uma comparação de string e só roda com a seção na
+         tela. Cobre o que nenhum evento avisa: um clipe cujo rAF parou de
+         chegar (aba em segundo plano, thread travada) e uma cena parada que,
+         por qualquer motivo, não corresponde à fase da máquina. */
+      const watchdog = window.setInterval(() => {
+        if (!inView) return
+        if (playing) {
+          if (performance.now() - lastTickAt > 1500) abortPlayback(active())
+          return
+        }
+        enforceVisuals()
+      }, 600)
+
+      /* Aba em segundo plano: o rAF congela mas o `<video>` continua correndo,
+         então o clipe atravessa o alvo e volta com a cena em qualquer frame.
+         Pausar na saída e fechar numa fase de repouso na volta. */
+      const onVisibility = () => {
+        if (document.visibilityState !== 'visible') {
+          if (playing) { try { videoRef.current?.pause() } catch {} }
+          return
+        }
+        if (playing) abortPlayback(active())
+        else enforceVisuals()
+      }
+      document.addEventListener('visibilitychange', onVisibility)
+
       // Decodifica o primeiro frame de cada vídeo sem exibi-lo (evita flash ao iniciar o play real).
       allVideos.forEach((v) => {
         v.play().then(() => { if (!playing) { v.pause(); v.currentTime = 0 } }).catch(() => {})
@@ -1122,6 +1391,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       return () => {
         observer.disconnect()
+        window.clearInterval(watchdog)
+        document.removeEventListener('visibilitychange', onVisibility)
         stIntro?.kill()
         stIntroExit?.kill()
         introTl.kill()
@@ -1146,6 +1417,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         window.removeEventListener('touchmove', onTouchMove, { capture: true })
         window.removeEventListener('touchend', onTouchEnd)
         window.removeEventListener('scroll', onScroll)
+        window.removeEventListener('resize', onResizeZoom)
       }
     },
     { scope: root },
@@ -1161,7 +1433,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           muted playsInline preload="auto"
           poster="/heritage/desktop/morph-aminosan-1-antigo.png"
           aria-label={t('videoAlt')}
-          className={`${STAGE_VIDEO_CLASS} max-lg:scale-[2.8]`}
+          className={`${STAGE_VIDEO_CLASS} max-lg:scale-[var(--stage-zoom,2.8)]`}
         >
           <source src="/heritage/desktop/full-transition-aminosan.mp4" type="video/mp4" />
         </video>
@@ -1172,7 +1444,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           src="/heritage/desktop/morph-aminosan-1-antigo.png"
           alt={t('oldBottleAlt')}
           fill sizes="100vw"
-          className={`${STAGE_IMAGE_CLASS} max-lg:!scale-[2.8]`}
+          className={`${STAGE_IMAGE_CLASS} max-lg:!scale-[var(--stage-zoom,2.8)]`}
           priority
         />
 
@@ -1182,7 +1454,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           src="/heritage/desktop/morph-aminosan-2-novo.png"
           alt={t('newBottleAlt')}
           fill sizes="100vw"
-          className={`${STAGE_IMAGE_CLASS} opacity-0 max-lg:!scale-[2.8]`}
+          className={`${STAGE_IMAGE_CLASS} opacity-0 max-lg:!scale-[var(--stage-zoom,2.8)]`}
           priority
         />
 
@@ -1193,7 +1465,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           alt=""
           aria-hidden
           fill sizes="100vw"
-          className={`${STAGE_IMAGE_CLASS} opacity-0 max-lg:!scale-[1.45]`}
+          className={`${STAGE_IMAGE_CLASS} opacity-0 max-lg:!scale-[var(--stage-zoom-line,1.45)]`}
         />
 
         {/* z-10 — still do trio do catálogo (fim da transição) */}
@@ -1203,19 +1475,24 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           alt=""
           aria-hidden
           fill sizes="100vw"
-          className={`${STAGE_IMAGE_CLASS} opacity-0 max-lg:!scale-[1.45]`}
+          className={`${STAGE_IMAGE_CLASS} opacity-0 max-lg:!scale-[var(--stage-zoom-line,1.45)]`}
         />
 
         <AminosanBrandMark refEl={brandMarkRef} />
 
         {/* z-20 — scrim lateral para legibilidade do Ato 1 */}
         <div ref={scrimRef} aria-hidden
-          className="absolute inset-x-0 top-0 md:inset-y-0 md:left-0 z-20 w-full h-[60%] md:h-full md:max-w-[40rem] bg-gradient-to-b md:bg-gradient-to-r from-white/90 via-white/40 to-transparent"
+          className="absolute inset-x-0 top-0 lg:inset-y-0 lg:left-0 z-20 w-full h-[60%] lg:h-full lg:max-w-[40rem] bg-gradient-to-b lg:bg-gradient-to-r from-white/90 via-white/40 to-transparent"
         />
 
-        {/* z-30 — texto do Ato 1 */}
-        <Container className="absolute inset-0 z-30 flex h-full items-start pt-[7dvh] md:pt-0 md:items-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
-          <div ref={act1Ref} className="flex max-w-[88vw] md:max-w-[24rem] xl:max-w-[28rem] flex-col items-start bg-transparent p-0">
+        {/* z-30 — texto do Ato 1.
+            No desktop a coluna é ancorada pelo TOPO numa faixa fixa
+            (`ACT_COLUMN_TOP`), não centrada: centrar cada ato pela própria
+            altura fazia o título saltar ~10px na virada do Ato 1 para o Ato 3,
+            porque as duas colunas têm alturas de conteúdo diferentes. Com a
+            mesma âncora, os dois atos caem no mesmo pixel. */}
+        <Container className={`absolute inset-0 z-30 flex h-full items-start pt-[7dvh] ${ACT_COLUMN_TOP} min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]`}>
+          <div ref={act1Ref} className="flex max-w-[88vw] lg:max-w-[24rem] xl:max-w-[28rem] flex-col items-start bg-transparent p-0">
             <span data-a1 className="text-eyebrow mb-1 md:mb-md text-[10px] xl:text-xs uppercase tracking-[0.18em] text-primary">
               {t('eyebrow')}
             </span>
@@ -1236,7 +1513,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           {t('oldBottleCaption')}
         </BottleCallout>
         {/* UI da linha completa - aparece so depois que o frasco vira portfolio. */}
-        <Container className="pointer-events-none absolute inset-x-0 top-[calc(10vh+10px)] z-30 flex justify-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
+        {/* +10px: afasta o bloco da navbar (estava encostando). Em dvh, não vh,
+            para não pular quando a barra do navegador mobile recolhe. */}
+        <Container className="pointer-events-none absolute inset-x-0 top-[calc(10dvh+10px)] z-30 flex justify-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
           <div ref={linePanelRef} className="max-w-[92vw] text-center md:max-w-[68rem] xl:max-w-[74rem]">
             <span data-line-copy className="text-eyebrow mb-sm block text-[10px] uppercase tracking-[0.18em] text-primary xl:text-xs">
               {t('lineEyebrow')}
@@ -1244,11 +1523,11 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
             <BicolorTitle data-line-title title={t('lineTitle')} titleHi={t('lineTitleHi')} className="text-[clamp(1.75rem,5vw,4rem)] md:text-[clamp(1.9rem,2.6vw,2.75rem)] min-[1600px]:text-[clamp(2.15rem,3.45vw,4.15rem)]" />
           </div>
         </Container>
-        {/* Abaixo de 1600px (notebooks) o texto some para mais perto do rodapé
-            da tela — o título/parágrafo menores (ver acima) deixaram sobrar
+        {/* Abaixo de 1600px (notebooks) o texto desce para mais perto do rodapé
+            da tela: o título/parágrafo menores (ver acima) deixaram sobrar
             espaço vertical, e sem isso o parágrafo ficava colado na base dos
-            frascos. */}
-        <Container className="pointer-events-none absolute inset-x-0 bottom-[1.5vh] z-30 flex justify-center min-[1600px]:bottom-[4vh] min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
+            frascos. Em dvh para acompanhar a barra do navegador no mobile. */}
+        <Container className="pointer-events-none absolute inset-x-0 bottom-[1.5dvh] z-30 flex justify-center min-[1600px]:bottom-[4dvh] min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
           <p ref={lineBodyRef} className="text-subtitle mx-auto max-w-[50rem] text-center text-sm text-foreground/75 md:text-base min-[1600px]:text-lg">
             {t('lineBody')}
           </p>
@@ -1256,11 +1535,11 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         {/* UI do Ato 3 — mesmo desenho do Ato 1: coluna de texto à esquerda, frasco em cena.
             No mobile o bloco de prova (número + handoff + CTA) desce para o rodapé da tela,
             deixando o frasco visível no meio. */}
-        <Container className="relative lg:absolute lg:inset-0 z-30 flex min-h-[100dvh] lg:min-h-0 h-auto lg:h-full items-stretch md:items-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pointer-events-none pt-[7dvh] md:pt-0 pb-[8vh] md:pb-0">
+        <Container className={`relative lg:absolute lg:inset-0 z-30 flex min-h-[100dvh] lg:min-h-0 h-auto lg:h-full items-stretch lg:items-start min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pointer-events-none pt-[7dvh] ${ACT_COLUMN_TOP} pb-[8dvh] lg:pb-0`}>
           {/* pointer-events fica desligado: no mobile este painel é `relative`
               e cobre a tela inteira por cima do Ato 1 — ligado, virava uma
               camada invisível engolindo toque e seleção do texto do Ato 1. */}
-          <div ref={leftPanelRef} className="pointer-events-none flex w-full flex-1 md:flex-none md:w-auto max-w-full md:max-w-[24rem] xl:max-w-[28rem] flex-col items-start">
+          <div ref={leftPanelRef} className="pointer-events-none flex w-full flex-1 lg:flex-none lg:w-auto max-w-full lg:max-w-[24rem] xl:max-w-[28rem] flex-col items-start">
             <span data-a3-tag className="text-eyebrow mb-1 md:mb-md text-[10px] xl:text-xs uppercase tracking-[0.18em] text-primary">
               {t('a3Eyebrow')}
             </span>
@@ -1268,7 +1547,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
             <p data-a3-body className="text-subtitle mt-1.5 md:mt-md max-w-[22rem] md:max-w-none text-xs md:text-sm xl:text-base text-foreground/80 leading-snug md:leading-normal">
               {t('a3Body')}
             </p>
-            <div className="mt-auto md:mt-0 flex flex-col items-start">
+            <div className="mt-auto lg:mt-0 flex flex-col items-start">
               <div data-a3-line className="my-2 md:my-lg h-px w-10 md:w-12 bg-primary/40" style={{ transformOrigin: 'left' }} />
               <div data-a3-stat className="flex flex-col gap-0.5">
                 <span className="text-highlight text-xl md:text-3xl xl:text-4xl text-primary"><span ref={counterRef}>{t('a3StatPrefix')}10</span> {t('a3StatUnit')}</span>
@@ -1279,7 +1558,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           </div>
         </Container>
 
-        <BottleCallout refEl={newCalloutRef} eyebrow={t('a3Eyebrow')} className="max-md:!top-[26dvh] max-md:!bottom-auto">
+        <BottleCallout refEl={newCalloutRef} eyebrow={t('a3Eyebrow')} className="max-lg:!top-[26dvh] max-lg:!bottom-auto">
           {t('newBottleCaption')}
         </BottleCallout>
       </section>
@@ -1318,7 +1597,7 @@ function AminosanBrandMark({ refEl }: { refEl: RefObject<HTMLDivElement | null> 
     <div
       ref={refEl}
       aria-label="Aminosan registrado"
-      className="pointer-events-none absolute left-1/2 top-[12dvh] z-30 -translate-x-1/2 text-center max-md:top-[4dvh]"
+      className="pointer-events-none absolute left-1/2 top-[12dvh] z-30 -translate-x-1/2 text-center max-lg:top-[4dvh]"
     >
       <span className="font-black uppercase leading-none tracking-[0.02em] text-foreground text-[clamp(1.45rem,2.08vw,2.65rem)]">
         AMINOSAN<sup className="ml-1 align-super text-[0.36em] leading-none">&reg;</sup>
@@ -1342,7 +1621,7 @@ function BottleCallout({
   return (
     <div
       ref={refEl}
-      className={`aminosan-bottle-callout pointer-events-none absolute z-30 flex items-center gap-3 md:top-1/2 md:left-[65%] md:-translate-y-1/2 ${className}`}
+      className={`aminosan-bottle-callout pointer-events-none absolute z-30 flex items-center gap-3 lg:top-1/2 lg:left-[65%] lg:-translate-y-1/2 ${className}`}
     >
       <span data-line aria-hidden className="aminosan-bottle-callout__line" style={{ transformOrigin: 'left' }} />
       <span data-dot aria-hidden className="aminosan-bottle-callout__dot" />
