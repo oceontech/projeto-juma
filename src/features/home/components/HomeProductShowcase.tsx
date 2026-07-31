@@ -99,7 +99,7 @@ const PRODUCTS: ProductEntry[] = [
     href: '/produtos/aminosan',
     // Recorte justo 1000×1000, igual aos outros três — o frame do vídeo
     // (aminosan-catalogo.png, 1777×1000) fica só na ponte de transição.
-    image: '/produtos/aminosan-destaque.png',
+    image: '/produtos/aminosan.webp',
   },
   {
     name: 'ACORDA ULTRA',
@@ -111,7 +111,7 @@ const PRODUCTS: ProductEntry[] = [
     accent: '#2c96c8',
     sizes: ['1L', '10L'],
     href: '/produtos/acorda-ultra',
-    image: '/produtos/acorda-ultra-destaque.png',
+    image: '/produtos/acorda-ultra.webp',
   },
   {
     name: 'KMEP ULTRA',
@@ -124,7 +124,7 @@ const PRODUCTS: ProductEntry[] = [
     accent: '#f0463a',
     sizes: ['10L', '20L'],
     href: '/produtos/kmep-ultra',
-    image: '/produtos/kmep-ultra-destaque.png',
+    image: '/produtos/kmep-ultra.webp',
   },
   {
     name: 'REVIGOPHOS AMINO',
@@ -136,7 +136,7 @@ const PRODUCTS: ProductEntry[] = [
     accent: '#f2c94c',
     sizes: ['10L', '20L'],
     href: '/produtos/revigophos-amino',
-    image: '/produtos/revigophos-amino-destaque.png',
+    image: '/produtos/revigophos-amino.webp',
   },
 ]
 
