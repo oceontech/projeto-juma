@@ -512,7 +512,17 @@ export function HeroJornada() {
       const onTouchMove  = (e: TouchEvent) => {
         const video = getVideo()
         if (!video) return
-        if (phaseRef.current !== 'done') e.preventDefault()
+        if (phaseRef.current === 'done') return
+        if (e.touches.length > 0) {
+          const currentY = e.touches[0].clientY
+          const dy = touchY - currentY
+          // Se estiver na fase final (Gota) e arrastar para cima (scroll para baixo), libera o scroll para continuar a navegação
+          if (dy > 10 && stepRef.current >= targetsLength && !playingRef.current) {
+            release()
+            return
+          }
+        }
+        e.preventDefault()
       }
       const onTouchEnd   = (e: TouchEvent) => {
         const video = getVideo()
@@ -531,7 +541,13 @@ export function HeroJornada() {
         }
         if (ph === 'rest') { if (dy > 30) startJourney() }
         else if (ph === 'animating') {
-          if (dy > 30) handleForward()
+          if (dy > 30) {
+            if (stepRef.current >= targetsLength && !playingRef.current) {
+              release()
+            } else {
+              handleForward()
+            }
+          }
           else if (dy < -30) handleBackward()
         }
       }
