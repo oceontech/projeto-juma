@@ -320,16 +320,23 @@ function getRoleProps(role: Role, isMobile: boolean, index: number): RoleProps {
   }
 }
 
-/* Todos os frascos usam a mesma caixa (68vh, contido): os quatro assets são
-   1000×1000 com a arte recortada justa, então o tamanho na tela sai igual
-   sem fator de correção por produto. */
+/* Todos os frascos usam a mesma caixa: os quatro assets são 1000×1000 com a
+   arte recortada justa, então o tamanho na tela sai igual sem fator de
+   correção por produto.
+   No mobile a caixa é medida em % do PALCO (que vale a altura visível da tela),
+   não em vh — `vh` no mobile é a viewport GRANDE e não encolhe quando a barra
+   de endereço aparece, então o frasco descia por cima dos stats. Estes valores
+   espelham o `.pcs-theater-bottle` do bloco `@media (max-width: 767px)` em
+   globals.css; como o inline vence a folha, quem manda de fato é este objeto.
+   `top`/`bottom` vêm declarados nos dois ramos porque o matchMedia re-executa
+   ao trocar de breakpoint e o gsap.set só limpa o que ele mesmo escreve. */
 function getCatalogBottleProps(index: number, active: number, isMobile: boolean): RoleProps {
   const props = getRoleProps(getRole(index, active), isMobile, index)
+  const box: RoleProps = isMobile
+    ? { top: '50%', bottom: 'auto', width: '100%', height: '26%', y: 0 }
+    : { top: 'auto', bottom: '8vh', width: 'auto', height: '68vh', y: -20 }
   return {
-    bottom: '8vh',
-    width: 'auto',
-    height: '68vh',
-    y: -20,
+    ...box,
     ...props,
     autoAlpha: props.opacity ?? 1,
   }

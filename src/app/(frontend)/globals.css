@@ -442,9 +442,16 @@ html.lenis body { height: auto; }
   width: 100%;
   max-width: 100%;
   overflow: hidden;
+  /* dvh, não svh: no mobile a barra de endereço muda a altura VISÍVEL da tela.
+     Com svh (viewport pequena, barra à mostra) a seção ficava mais curta que a
+     tela sempre que a barra estava escondida — era a faixa preta embaixo, com
+     o conteúdo comprimido num palco menor do que o que o usuário enxerga.
+     A altura só muda o box do elemento pinado (fixed); o pin-spacer tem altura
+     inline do GSAP, então nada disso mexe no scroll das outras seções. */
   height: 100vh;
-  height: 100svh;
-  min-height: 100svh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
   /* Fundo sólido de segurança — evita flash branco antes do .pcs-bg renderizar */
   background: var(--pcs-mid, #030817);
   /* Shared color vars (atualizadas via JS) — bg + podium herdam */
@@ -463,9 +470,10 @@ html.lenis body { height: auto; }
   width: 100% !important;
   max-width: 100% !important;
   overflow: hidden !important;
-  height: 100% !important;
-  height: 100svh !important;
-  min-height: 100svh !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
 }
 
 /* Illuminated background (driven by --pcs-base / --pcs-mid / --pcs-accent) */
@@ -529,20 +537,21 @@ html.lenis body { height: auto; }
 }
 
 /* Pinned slideshow */
+/* Palco e showcase seguem a altura REAL do root (que é quem sabe quanto da
+   tela está visível). Repetir unidade de viewport aqui dessincronizava os dois
+   no mobile: o root media uma coisa e o conteúdo se distribuía em outra. */
 .pcs-showcase {
   position: relative;
   z-index: 10;
-  height: 100vh !important;
-  height: 100svh !important;
-  min-height: 100svh !important;
+  height: 100% !important;
+  min-height: 0 !important;
   overflow: hidden;
 }
 .pcs-stage {
   position: relative;
   width: 100%;
-  height: 100vh !important;
-  height: 100svh !important;
-  min-height: 100svh !important;
+  height: 100% !important;
+  min-height: 0 !important;
 }
 
 /* Bottle theater — shared overlay for all product images */
@@ -937,15 +946,21 @@ html.lenis body { height: auto; }
   .pcs-ring-3    { width: min(145px, 37vw); height: min(145px, 37vw); }
   .pcs-backlight { width: min(270px, 69vw); height: min(270px, 69vw); }
 
+  /* Caixa do frasco em % do PALCO, não em vh: o palco é a altura visível
+     (dvh) e `vh` no mobile é a viewport grande, sempre maior — era isso que
+     esticava o frasco pra dentro da faixa dos stats. A mesma caixa está no
+     `getCatalogBottleProps` (inline do GSAP vence esta regra); as duas
+     precisam andar juntas. Arte útil do PNG = 71% da caixa, centrada:
+     50% + 3,7% ≈ 54% até ~72% do palco — a faixa livre entre o texto e os
+     chips de stats. */
   .pcs-theater-bottle {
     bottom: auto;
-    top: 33vh;
-    height: 48vh; /* termina antes da faixa dos stats — sem sobreposição */
+    top: 50%;
+    height: 26%;
     width: 100%;
     max-width: 100%;
     transform-origin: center center;
   }
-  /* bottle-wrap preenche o theater-bottle (52vh) */
   .pcs-bottle-wrap    { height: 100%; width: 100%; }
   .pcs-bottle         { max-width: 100%; }
 
@@ -955,7 +970,9 @@ html.lenis body { height: auto; }
     justify-content: space-between;
     align-items: flex-start;
     text-align: left;
-    padding: 5.5rem 1.5rem 2rem;
+    /* env(): reserva a barra de gestos/home indicator quando ela existe
+       (0 nos aparelhos sem ela) — sem isso os stats encostam nela. */
+    padding: 5.5rem 1.5rem calc(2rem + env(safe-area-inset-bottom, 0px));
     gap: 0;
   }
   .pcs-panel-text {
@@ -1046,7 +1063,7 @@ html.lenis body { height: auto; }
   }
   /* Dots descem para o lugar do hint; skip encolhe no canto */
   .pcs-nav {
-    bottom: 1.35rem;
+    bottom: calc(1.35rem + env(safe-area-inset-bottom, 0px));
     left: 1.5rem;
     transform: none;
   }
