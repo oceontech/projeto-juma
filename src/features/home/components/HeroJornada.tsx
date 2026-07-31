@@ -205,7 +205,7 @@ export function HeroJornada() {
         }
       }
       const fadeRest = (show: boolean) =>
-        gsap.to(restEls(), { autoAlpha: show ? 1 : 0, duration: show ? 0.3 : 0.2, ease: 'power2.out' })
+        gsap.to(restEls(), { autoAlpha: show ? 1 : 0, duration: show ? 0.3 : 0.4, ease: 'power2.out' })
 
       const updateActivePhase = (time: number) => {
         if (isMobile) {
@@ -352,7 +352,9 @@ export function HeroJornada() {
         stepRef.current = 1
         setCap(0)
         setIsPaused(false)
-        try { video.currentTime = 0 } catch {}
+        if (video.currentTime > 0.05) {
+          try { video.currentTime = 0 } catch {}
+        }
         startPlayback('forward', getTargets()[1])
       }
 
@@ -662,26 +664,27 @@ export function HeroJornada() {
       <div className="relative h-[100dvh] w-full overflow-hidden">
 
         {/* Desktop Poster Image */}
-        <div data-rest className="absolute inset-0 z-0 h-full w-full hidden lg:block">
+        <div className="absolute inset-0 z-0 h-full w-full hidden lg:block">
           <Image
             src="/hero/desktop/journey-poster.webp"
             alt="" aria-hidden fill sizes="100vw" quality={60}
             className="object-cover"
           />
         </div>
-        {/* z-0 — Vídeo desktop */}
+        {/* z-[1] — Vídeo desktop */}
         <video
           ref={isMobile ? null : videoRef}
           data-hero-video="desktop"
+          poster="/hero/desktop/journey-poster.webp"
           muted playsInline preload="none"
           aria-label={tj('videoAlt')}
-          className="absolute inset-0 z-0 h-full w-full object-cover hidden lg:block"
+          className="absolute inset-0 z-[1] h-full w-full object-cover hidden lg:block"
         >
           <source src="/hero/desktop/journey.mp4" type="video/mp4" />
         </video>
 
         {/* Mobile Poster Image */}
-        <div data-rest className="absolute inset-0 z-[1] h-full w-full block lg:hidden mix-blend-multiply">
+        <div className="absolute inset-0 z-0 h-full w-full block lg:hidden mix-blend-multiply">
           <Image
             src="/hero/mobile/journey-poster.webp"
             alt="" aria-hidden fill sizes="100vw" quality={60}
@@ -692,6 +695,7 @@ export function HeroJornada() {
         <video
           ref={isMobile ? videoRef : null}
           data-hero-video="mobile"
+          poster="/hero/mobile/journey-poster.webp"
           muted playsInline preload="none"
           aria-label={tj('videoAlt')}
           className="absolute inset-0 z-[1] h-full w-full object-cover max-lg:object-bottom block lg:hidden mix-blend-multiply"
