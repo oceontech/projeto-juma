@@ -1513,16 +1513,22 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           {t('oldBottleCaption')}
         </BottleCallout>
         {/* UI da linha completa - aparece so depois que o frasco vira portfolio. */}
-        <Container className="pointer-events-none absolute inset-x-0 top-[10dvh] z-30 flex justify-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
+        {/* +10px: afasta o bloco da navbar (estava encostando). Em dvh, não vh,
+            para não pular quando a barra do navegador mobile recolhe. */}
+        <Container className="pointer-events-none absolute inset-x-0 top-[calc(10dvh+10px)] z-30 flex justify-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
           <div ref={linePanelRef} className="max-w-[92vw] text-center md:max-w-[68rem] xl:max-w-[74rem]">
             <span data-line-copy className="text-eyebrow mb-sm block text-[10px] uppercase tracking-[0.18em] text-primary xl:text-xs">
               {t('lineEyebrow')}
             </span>
-            <BicolorTitle data-line-title title={t('lineTitle')} titleHi={t('lineTitleHi')} className="text-[clamp(1.75rem,5vw,4rem)] md:text-[clamp(2.15rem,3.45vw,4.15rem)]" />
+            <BicolorTitle data-line-title title={t('lineTitle')} titleHi={t('lineTitleHi')} className="text-[clamp(1.75rem,5vw,4rem)] md:text-[clamp(1.9rem,2.6vw,2.75rem)] min-[1600px]:text-[clamp(2.15rem,3.45vw,4.15rem)]" />
           </div>
         </Container>
-        <Container className="pointer-events-none absolute inset-x-0 bottom-[4dvh] z-30 flex justify-center min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
-          <p ref={lineBodyRef} className="text-subtitle mx-auto max-w-[50rem] text-center text-sm text-foreground/75 md:text-base xl:text-lg">
+        {/* Abaixo de 1600px (notebooks) o texto desce para mais perto do rodapé
+            da tela: o título/parágrafo menores (ver acima) deixaram sobrar
+            espaço vertical, e sem isso o parágrafo ficava colado na base dos
+            frascos. Em dvh para acompanhar a barra do navegador no mobile. */}
+        <Container className="pointer-events-none absolute inset-x-0 bottom-[1.5dvh] z-30 flex justify-center min-[1600px]:bottom-[4dvh] min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
+          <p ref={lineBodyRef} className="text-subtitle mx-auto max-w-[50rem] text-center text-sm text-foreground/75 md:text-base min-[1600px]:text-lg">
             {t('lineBody')}
           </p>
         </Container>

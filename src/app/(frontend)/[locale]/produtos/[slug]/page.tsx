@@ -15,7 +15,7 @@ export async function generateMetadata(props: {
   params: Promise<{ locale: string; slug: string }>
 }) {
   const { slug } = await props.params
-  return { title: `${slug.replace(/-/g, ' ')} · Produtos · Juma Agro` }
+  return { title: `${slug.replace(/-/g, ' ')} · Produtos · Juma-Agro` }
 }
 
 export default async function ProdutoPage(props: {

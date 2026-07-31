@@ -624,7 +624,7 @@ export function AboutPage() {
           {/* Foto grande: acervo da família; demais do banco de imagens até chegar o acervo completo */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-[60vh] md:h-[80vh]">
             {[
-              { src: '/heritage/fundador-e-filhos.png', span: 'col-span-2 row-span-2', sizes: '(min-width: 768px) 50vw, 100vw' },
+              { src: '/heritage/familia-matino.webp', span: 'col-span-2 row-span-2', sizes: '(min-width: 768px) 50vw, 100vw' },
               { src: 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?q=80&w=800&auto=format&fit=crop', span: '', sizes: '(min-width: 768px) 25vw, 50vw' },
               { src: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?q=80&w=800&auto=format&fit=crop', span: '', sizes: '(min-width: 768px) 25vw, 50vw' },
               { src: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1200&auto=format&fit=crop', span: 'col-span-2', sizes: '(min-width: 768px) 50vw, 100vw' },

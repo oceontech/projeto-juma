@@ -9,7 +9,7 @@ export async function generateMetadata(props: { params: Promise<{ locale: string
 
   // Por enquanto usando strings diretas, conforme acordado (hardcoded na etapa visual),
   // mas deixando a estrutura de metadados pronta.
-  const title = locale === 'pt-BR' ? 'Produtos · Juma Agro' : locale === 'en' ? 'Products · Juma Agro' : 'Productos · Juma Agro'
+  const title = locale === 'pt-BR' ? 'Produtos · Juma-Agro' : locale === 'en' ? 'Products · Juma-Agro' : 'Productos · Juma-Agro'
   
   return {
     title,

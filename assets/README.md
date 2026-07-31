@@ -13,7 +13,7 @@ Nomes em kebab-case, sem espaços nem acentos. Estrutura espelhada em `desktop/`
 - Detalhes de aplicação: `docs/05-design-direction/03-assets-e-implementacao-hero.md`.
 
 ## heritage/ (fundador + morph do Aminosan, depois da água)
-- `fundador-e-filhos.png` — foto do fundador com os dois filhos, fundo transparente. Usada na home e na página Sobre.
+- `familia-matino.webp` — foto da Família Matino (fundador, os dois filhos e o neto), fundo transparente. Usada na home e na página Sobre.
 - `desktop/` e `mobile/`:
   - `morph-aminosan-1-antigo.png` — frame inicial do morph (frasco antigo, recortado, centralizado).
   - `morph-aminosan-2-novo.png` — frame final do morph (frasco novo 1L, mesma posição).
@@ -22,6 +22,12 @@ Nomes em kebab-case, sem espaços nem acentos. Estrutura espelhada em `desktop/`
 
 ## produtos/
 - `placeholder-produto.png` — montagem padrão (Revigo CaB) usada só como protótipo. Trocar pela foto real de cada produto.
+
+## cta-final/ (última seção da home — fecha o filme repetindo a declaração do hero)
+- `globo-terra.webp` — globo terrestre, fundo transparente (só a curva da Terra com brilho, sem retângulo). Ancorado no rodapé da seção, atrás do título "Juntos alimentamos o mundo.".
+
+## experience/ (seção "Juma Experience" da home)
+- `juma-experience-still.webp` — still de visita guiada na fábrica, usado como capa do card de vídeo (com botão de play por cima) até o vídeo real entrar.
 
 ## Pendências de asset
 - **Tamanhos do Aminosan recortados** (1L, 10L, 20L em PNGs separados) para a revelação de tamanhos depois do morph e nas páginas de produto.

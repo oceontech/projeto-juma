@@ -183,9 +183,12 @@ export function Navbar() {
         hidden && !open ? '-translate-y-[150%]' : ''
       }`}
     >
-      {/* 1344px em notebooks, 1600px em telas ≥1600px, 1920px em monitores grandes (≥2000px) */}
-      <Container className="!px-lg lg:!px-[2rem] xl:!px-[3rem] 2xl:!px-[6rem] min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
-        <div className="flex items-stretch justify-end xl:justify-start gap-sm mx-auto w-full max-w-[1344px] lg:max-w-[1440px] 2xl:max-w-[1344px] min-[1600px]:max-w-[1600px] min-[2000px]:max-w-[1920px]">
+      {/* 1440px em notebooks, 1600px em telas ≥1600px, 1920px em monitores grandes (≥2000px).
+          Padding espelha a escala do Container (ver doc lá): enxuto até 1599px
+          para a pílula acompanhar a largura maior do conteúdo, cheio a partir
+          de 1600px. */}
+      <Container className="!px-lg lg:!px-[1.5rem] xl:!px-[2rem] min-[1600px]:!px-[6rem] min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
+        <div className="flex items-stretch justify-end xl:justify-start gap-sm mx-auto w-full max-w-[1344px] lg:max-w-[1440px] min-[1600px]:max-w-[1600px] min-[2000px]:max-w-[1920px]">
           {/* Pílula principal — flex-1 para ocupar toda a largura disponível */}
           <div id="main-nav-pill" className={`xl:flex-1 rounded-full border backdrop-blur-xl border-t shadow-[0_8px_32px_rgba(0,0,0,0.06),_0_0_0_1px_rgba(0,0,0,0.08),_inset_0_1px_2px_rgba(255,255,255,0.5)] origin-center overflow-hidden transition-colors duration-500 ${pillTheme}`}>
               <div className="flex justify-center xl:justify-between items-center xl:gap-lg mx-auto w-full p-1.5 xl:px-sm xl:py-1.5">

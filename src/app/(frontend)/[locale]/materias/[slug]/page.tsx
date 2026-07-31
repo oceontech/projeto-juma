@@ -15,11 +15,11 @@ export async function generateMetadata(props: {
 }) {
   const { locale, slug } = await props.params
   const article = ARTICLES_DATA.find((a) => a.id === slug)
-  if (!article) return { title: 'Juma Agro' }
+  if (!article) return { title: 'Juma-Agro' }
 
   const trans = article.translations[locale as 'pt-BR' | 'en' | 'es'] || article.translations['pt-BR']
   return {
-    title: `${trans.title} · Juma Agro`,
+    title: `${trans.title} · Juma-Agro`,
     description: trans.subtitle,
   }
 }

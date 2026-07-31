@@ -5,9 +5,9 @@ export async function generateMetadata(props: { params: Promise<{ locale: string
   const { locale } = await props.params
   
   const titles: Record<string, string> = {
-    'pt-BR': 'Programa Desata · Juma Agro',
-    'en': 'Desata Program · Juma Agro',
-    'es': 'Programa Desata · Juma Agro',
+    'pt-BR': 'Programa Desata · Juma-Agro',
+    'en': 'Desata Program · Juma-Agro',
+    'es': 'Programa Desata · Juma-Agro',
   }
   
   return {
