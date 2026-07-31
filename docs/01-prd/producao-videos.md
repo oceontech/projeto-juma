@@ -53,6 +53,36 @@ O clipe 6 entrega para a seção WebGL (gota/branco ondulado), que é shader com
 - **Performance:** cada clipe roda uma vez ao entrar na viewport (lazy-load por proximidade), só transform e opacity. `prefers-reduced-motion` mostra o poster estático.
 - **Mobile:** versão mais curta da sequência (menos clipes) e arrasto em vez de scroll preso.
 
+## Encode dos vídeos rebobináveis (regra obrigatória)
+
+Três vídeos da home são **rebobinados na mão**: o loop de rAF escreve `video.currentTime` para trás a cada quadro (`HeroJornada.tsx`, `AminosanStory.tsx`). São eles:
+
+- `public/hero/desktop/journey.mp4`
+- `public/hero/mobile/journey.mp4`
+- `public/heritage/desktop/full-transition-aminosan.mp4`
+
+Cada seek para trás obriga o decoder a voltar ao keyframe anterior e redecodificar tudo até o quadro alvo. Com GOP longo (o padrão de qualquer preset "web otimizado") isso vira o vídeo inteiro por quadro de rewind, e a rebobinação cai para poucos FPS. O peso do arquivo não tem nada a ver com o travamento; **quem manda é a densidade de keyframes**.
+
+Ao re-otimizar esses três, o encode tem que manter **1 keyframe a cada ~0,17s** e **zero B-frames**:
+
+```bash
+# 24 fps -> -g 4   |   30 fps -> -g 5
+ffmpeg -i fonte.mp4 -an -c:v libx264 -preset veryslow -crf 22 \
+  -g 4 -keyint_min 4 -bf 0 -sc_threshold 0 \
+  -pix_fmt yuv420p -profile:v high -movflags +faststart saida.mp4
+```
+
+`-sc_threshold 0` impede o x264 de ignorar o `-g` em cenas paradas. O `full-transition-aminosan.mp4` usa `-crf 20`: o fundo branco com gradiente suave marca banding antes dos outros.
+
+Verificar depois de qualquer re-encode (keyframes tem que ser ~duração ÷ 0,17, não 1 ou 2):
+
+```bash
+ffprobe -v error -select_streams v:0 -skip_frame nokey \
+  -show_entries frame=pts_time -of csv=p=0 arquivo.mp4 | wc -l
+```
+
+Duração e contagem de frames também precisam ficar idênticas: o código tem tempos fixos por fase (`targets = [0, 2.64, 4.07, 5.90]` na AminosanStory, `getTargets()` na HeroJornada).
+
 ## Ordem de produção sugerida
 
 1. Aprovar o KF1 (define a paleta e a luz de tudo).
