@@ -276,7 +276,12 @@ export function Solution() {
                     n === 2 ? 'justify-center items-end' : 
                     'justify-end items-start'
                   } pointer-events-none`}>
-                    <div data-step-card className="bg-black/35 backdrop-blur-md border border-white/20 p-6 lg:p-10 rounded-2xl flex flex-col max-w-[95%] lg:max-w-[65%] pointer-events-auto shadow-xl">
+                    {/* Sem backdrop-blur no celular: estes cards ficam por cima
+                        do fundo que o ScrollTrigger escala e desfoca durante o
+                        scrub da seção, então o desfoque de fundo era recalculado
+                        a cada passo do scroll. `bg-black/60` mantém a legibilidade
+                        do texto branco sem reler o que está atrás. */}
+                    <div data-step-card className="bg-black/60 md:bg-black/35 md:backdrop-blur-md border border-white/20 p-6 lg:p-10 rounded-2xl flex flex-col max-w-[95%] lg:max-w-[65%] pointer-events-auto shadow-xl">
                       <span className="font-tech text-xs lg:text-sm font-semibold tracking-widest text-white/80 uppercase mb-3">
                         {String(t('stepsTitle')).split(',')[0]} {String(n).padStart(2, '0')}
                       </span>

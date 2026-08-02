@@ -6,7 +6,7 @@ import { Globe2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 import { gsap, ScrollTrigger, SplitText, useGSAP } from '@/features/animation/gsap'
-import { DUR, EASE, STAGGER } from '@/features/animation/motion'
+import { DUR, EASE, STAGGER, blurPx } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
 import { FlagBR, FlagUS, type FlagComp } from '@/components/icons/flags'
@@ -86,7 +86,7 @@ export function GlobalPresence({ variant = 'section' }: { variant?: 'section' | 
       const split = title ? new SplitText(title, { type: 'chars,lines' }) : null
 
       if (eyebrow) gsap.set(eyebrow, { y: 15, opacity: 0 })
-      if (split) gsap.set(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
+      if (split) gsap.set(split.chars, { x: 20, opacity: 0, filter: blurPx(10) })
       if (body) gsap.set(body, { y: 20, opacity: 0 })
       if (support) gsap.set(support, { y: 16, opacity: 0 })
       if (globeWrap) gsap.set(globeWrap, { scale: 0.9, opacity: 0 })

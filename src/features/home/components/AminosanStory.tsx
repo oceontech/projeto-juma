@@ -19,7 +19,7 @@ import { useTranslations } from 'next-intl'
 
 import { gsap, ScrollTrigger, SplitText, useGSAP } from '@/features/animation/gsap'
 import { useLenis } from '@/features/animation/SmoothScroll'
-import { DUR, EASE, STAGGER } from '@/features/animation/motion'
+import { DUR, EASE, STAGGER, blurPx } from '@/features/animation/motion'
 import { StaggerGroup } from '@/features/animation/StaggerGroup'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
@@ -361,6 +361,23 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const lineImg = lineImgRef.current
       const trioImg = trioImgRef.current
 
+      /* ── `bl()` — blur só onde ele cabe no orçamento de frame ───────────
+         Esta seção animava `filter: blur()` em ~25 pontos: título quebrado em
+         caracteres (cada char é um elemento), parágrafos, painéis, o frasco. No
+         desktop é o que dá o ar de foco/desfoque da cena. No celular é a conta
+         mais cara da home inteira: blur animado obriga o navegador a repintar e
+         re-desfocar o elemento a cada frame, e aqui isso acontece com dezenas de
+         elementos ao mesmo tempo, no meio de um clipe de vídeo tocando.
+
+         Apelido local do token `blurPx` só para não repetir a chamada longa em
+         23 pontos. A regra em si mora em features/animation/motion.ts.
+
+         Nem `bl` nem `blurPx` olham para o `isMobile` que chega por prop: este
+         useGSAP roda uma vez só, no mount, quando o estado do pai ainda é
+         `false`. Por isso a largura é lida na hora da tween — mesmo motivo pelo
+         qual o `stageZoom()` logo abaixo lê `window.innerWidth` direto. */
+      const bl = blurPx
+
       const titleEl      = act1Ref.current?.querySelector<HTMLElement>('[data-a1-title]') ?? null
       const act1Items    = act1Ref.current ? gsap.utils.toArray<HTMLElement>('[data-a1]', act1Ref.current) : []
       const calloutLine  = oldCalloutRef.current?.querySelector<HTMLElement>('[data-line]') ?? null
@@ -372,8 +389,21 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         : null
       const titleChars = titleSplit?.chars ?? (titleEl ? [titleEl] : [])
 
+      /* ── O vídeo nunca é escondido por `visibility` ────────────────────
+         `autoAlpha` desliga a visibility quando a opacidade zera, e no mobile
+         isso derruba a superfície de composição do <video>: um seek feito com
+         ele escondido não chega a ser renderizado, e ao reexibi-lo o primeiro
+         frame vem vazio. Como o palco é branco, essa lacuna aparecia como uma
+         piscada bem no começo de cada transição.
+         Daqui em diante o vídeo fica SEMPRE pintado, em z-0 atrás dos stills
+         (z-10) e exibindo o mesmo frame que o still de cima mostra — a
+         transição vira só o still saindo de cena, sem troca de camada. */
+      const keepVideoPainted = (zIndex = 0) => {
+        gsap.set(video, { opacity: 1, visibility: 'visible', zIndex, yPercent: 0 })
+      }
+
       // ── Estado inicial: Ato 1 visível por padrão (sem tela branca)
-      gsap.set(allVideos,    { autoAlpha: 0, zIndex: 0 })
+      gsap.set(allVideos,    { opacity: 0, visibility: 'visible', zIndex: 0, yPercent: 80 })
       gsap.set(video, { zIndex: 1 })
       gsap.set([newImg, lineImg, trioImg], { autoAlpha: 0 })
       gsap.set(brandMarkRef.current, { autoAlpha: 1, y: 0, filter: 'blur(0px)' })
@@ -398,16 +428,16 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const lineItems = stageTrigger ? gsap.utils.toArray<HTMLElement>('[data-line-copy]', stageTrigger) : []
 
       gsap.set(leftPanelRef.current, { autoAlpha: 1 }) // O painel em si fica visível, os filhos animam
-      gsap.set(a3Eyebrow, { autoAlpha: 0, y: -20, filter: 'blur(10px)' })
+      gsap.set(a3Eyebrow, { autoAlpha: 0, y: -20, filter: bl(10) })
       gsap.set(a3Title, { autoAlpha: 0, y: 30 })
-      gsap.set(a3Body, { autoAlpha: 0, filter: 'blur(10px)' })
+      gsap.set(a3Body, { autoAlpha: 0, filter: bl(10) })
       gsap.set(a3Line, { scaleX: 0 })
       gsap.set(newCalloutLine, { scaleX: 0 })
       gsap.set(newCalloutDot, { scale: 0, autoAlpha: 0 })
       gsap.set(newCalloutLabel, { autoAlpha: 0, x: 12 })
-      gsap.set([linePanelRef.current, lineBodyRef.current], { autoAlpha: 0, y: 24, filter: 'blur(10px)' })
-      gsap.set(lineTitleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)' })
-      gsap.set(lineItems, { autoAlpha: 0, y: 18, filter: 'blur(10px)' })
+      gsap.set([linePanelRef.current, lineBodyRef.current], { autoAlpha: 0, y: 24, filter: bl(10) })
+      gsap.set(lineTitleChars, { x: 20, autoAlpha: 0, filter: bl(10) })
+      gsap.set(lineItems, { autoAlpha: 0, y: 18, filter: bl(10) })
 
       // ── Helpers de animação
       let currentTl: gsap.core.Timeline | null = null
@@ -513,6 +543,15 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         { yPercent: 0, autoAlpha: 1, scale: () => stageZoom().bottle, filter: 'blur(0px)', duration: 0.95, ease: 'power3.out' },
         0
       )
+      /* O vídeo sobe junto com o still do frasco antigo, no mesmo movimento:
+         como ele fica permanentemente pintado (ver `keepVideoPainted`), sem
+         isto o frame 0 — o mesmo frasco, já assentado — apareceria parado
+         atrás do frasco que entra. */
+      introTl.fromTo(video,
+        { yPercent: 80, opacity: 0 },
+        { yPercent: 0, opacity: 1, duration: 0.95, ease: 'power3.out' },
+        0
+      )
       introTl.to(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.7, ease: 'power3.out' }, 0.1)
       introTl.to(titleChars,       { x: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.72, stagger: STAGGER.char, ease: 'power2.out' }, 0.16)
       introTl.to(act1Items,        { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.72, stagger: 0.12, ease: 'power2.out' }, 0.28)
@@ -532,7 +571,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const reverseIntro = () => {
         if (phase !== 'act1' || direction) return
         allVideos.forEach((v) => v.pause())
-        gsap.set(allVideos, { autoAlpha: 0, zIndex: 0 })
+        // O vídeo sai de cena pelo reverso da própria intro (ele é alvo dela),
+        // e não por um set que apagaria a camada.
+        gsap.set(video, { zIndex: 0 })
         gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: stageZoom().bottle, filter: 'blur(0px)' })
         introTl.progress(1).timeScale(1.9).reverse()
       }
@@ -574,9 +615,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         tl.to(newCalloutLine, { scaleX: 0, duration: 0.14, ease: 'power2.in' }, 0.04)
         if (newCalloutRef.current) tl.to(newCalloutRef.current, { autoAlpha: 0, duration: 0.16, ease: 'power2.in' }, 0.04)
         tl.to(a3Line, { scaleX: 0, duration: 0.14, ease: 'power2.in' }, 0.07)
-        tl.to(a3Body, { autoAlpha: 0, filter: 'blur(10px)', duration: 0.16, ease: 'power2.in' }, 0.08)
+        tl.to(a3Body, { autoAlpha: 0, filter: bl(10), duration: 0.16, ease: 'power2.in' }, 0.08)
         tl.to(a3Title, { y: 30, autoAlpha: 0, duration: 0.16, ease: 'power2.in' }, 0.1)
-        tl.to(a3Eyebrow, { y: -20, autoAlpha: 0, filter: 'blur(10px)', duration: 0.16, ease: 'power2.in' }, 0.12)
+        tl.to(a3Eyebrow, { y: -20, autoAlpha: 0, filter: bl(10), duration: 0.16, ease: 'power2.in' }, 0.12)
       }
 
       const showLineUI = (delay = 0) => {
@@ -595,10 +636,10 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         gsap.killTweensOf([linePanelRef.current, lineBodyRef.current, ...lineItems, ...lineTitleChars])
         const tl = lineTl = gsap.timeline({ delay })
 
-        tl.to(lineBodyRef.current, { y: 16, autoAlpha: 0, filter: 'blur(8px)', duration: 0.2, ease: 'power2.in' }, 0)
-        tl.to(lineItems, { y: -12, autoAlpha: 0, filter: 'blur(8px)', duration: 0.22, stagger: 0.03, ease: 'power2.in' }, 0)
-        tl.to(lineTitleChars, { x: 16, autoAlpha: 0, filter: 'blur(8px)', duration: 0.22, stagger: 0.002, ease: 'power2.in' }, 0.02)
-        tl.to(linePanelRef.current, { y: 20, autoAlpha: 0, filter: 'blur(10px)', duration: 0.2, ease: 'power2.in' }, 0.08)
+        tl.to(lineBodyRef.current, { y: 16, autoAlpha: 0, filter: bl(8), duration: 0.2, ease: 'power2.in' }, 0)
+        tl.to(lineItems, { y: -12, autoAlpha: 0, filter: bl(8), duration: 0.22, stagger: 0.03, ease: 'power2.in' }, 0)
+        tl.to(lineTitleChars, { x: 16, autoAlpha: 0, filter: bl(8), duration: 0.22, stagger: 0.002, ease: 'power2.in' }, 0.02)
+        tl.to(linePanelRef.current, { y: 20, autoAlpha: 0, filter: bl(10), duration: 0.2, ease: 'power2.in' }, 0.08)
       }
 
       /* Fim da cadeia: entrega o bastão pro catálogo. Sem isto o usuário fica
@@ -629,8 +670,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           // `hideAct1UI(false)`/intro ainda correndo continuaria escrevendo por
           // cima do estado que acabamos de fixar.
           gsap.killTweensOf([...titleChars, ...act1Items, calloutLine, calloutDot, calloutLabel, scrimRef.current, oldCalloutRef.current].filter(Boolean))
-          gsap.set(titleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)' })
-          gsap.set(act1Items, { y: 20, autoAlpha: 0, filter: 'blur(10px)' })
+          gsap.set(titleChars, { x: 20, autoAlpha: 0, filter: bl(10) })
+          gsap.set(act1Items, { y: 20, autoAlpha: 0, filter: bl(10) })
           gsap.set(calloutLine, { scaleX: 0 })
           gsap.set(calloutDot, { scale: 0, autoAlpha: 0 })
           gsap.set(calloutLabel, { x: 12, autoAlpha: 0 })
@@ -638,8 +679,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           if (oldCalloutRef.current) gsap.set(oldCalloutRef.current, { autoAlpha: 0 })
         } else {
           gsap.killTweensOf([...titleChars, ...act1Items, calloutLine, calloutDot, calloutLabel, scrimRef.current, oldCalloutRef.current].filter(Boolean))
-          gsap.to(titleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)', duration: 0.6, stagger: STAGGER.char, ease: 'power1.inOut', overwrite: 'auto' })
-          gsap.to(act1Items, { y: 20, autoAlpha: 0, filter: 'blur(10px)', duration: 0.6, stagger: 0.05, ease: 'power1.inOut', overwrite: 'auto' })
+          gsap.to(titleChars, { x: 20, autoAlpha: 0, filter: bl(10), duration: 0.6, stagger: STAGGER.char, ease: 'power1.inOut', overwrite: 'auto' })
+          gsap.to(act1Items, { y: 20, autoAlpha: 0, filter: bl(10), duration: 0.6, stagger: 0.05, ease: 'power1.inOut', overwrite: 'auto' })
           gsap.to(calloutLabel, { x: 12, autoAlpha: 0, duration: 0.36, ease: 'power1.inOut', overwrite: 'auto' })
           gsap.to(calloutDot, { scale: 0, autoAlpha: 0, duration: 0.33, ease: 'power1.inOut', overwrite: 'auto' })
           gsap.to(calloutLine, { scaleX: 0, duration: 0.45, ease: 'power1.inOut', overwrite: 'auto' })
@@ -670,9 +711,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           lineTl?.kill()
           lineTl = null
           gsap.killTweensOf([linePanelRef.current, lineBodyRef.current, ...lineItems, ...lineTitleChars])
-          gsap.set([linePanelRef.current, lineBodyRef.current], { autoAlpha: 0, y: 24, filter: 'blur(10px)' })
-          gsap.set(lineTitleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)' })
-          gsap.set(lineItems, { autoAlpha: 0, y: 18, filter: 'blur(10px)' })
+          gsap.set([linePanelRef.current, lineBodyRef.current], { autoAlpha: 0, y: 24, filter: bl(10) })
+          gsap.set(lineTitleChars, { x: 20, autoAlpha: 0, filter: bl(10) })
+          gsap.set(lineItems, { autoAlpha: 0, y: 18, filter: bl(10) })
         } else {
           hideLineUI(0)
         }
@@ -872,7 +913,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         updateVideoScale(video)
 
         if (dir === 'forward') {
-          gsap.set(video, { autoAlpha: 1, zIndex: 1 })
+          keepVideoPainted(1)
           if (step === 1) {
             if (midFlight) {
               // O morph já está em andamento: o frasco antigo saiu de cena e o
@@ -882,14 +923,19 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
               gsap.set(oldImg, { autoAlpha: 0 })
             } else {
               gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: stageZoom().bottle, yPercent: 0, filter: 'blur(0px)' })
-              gsap.to(oldImg, { autoAlpha: 0, scale: stageZoom().bottle, filter: 'blur(4px)', duration: 0.24, ease: 'power1.inOut', overwrite: 'auto' })
+              gsap.to(oldImg, { autoAlpha: 0, scale: stageZoom().bottle, filter: bl(4), duration: 0.24, ease: 'power1.inOut', overwrite: 'auto' })
             }
             hideAct1UI(false)
             showAct3UI(0.6)
           } else if (step === 2) {
             gsap.killTweensOf([oldImg, newImg, lineImg, trioImg])
-            gsap.set([oldImg, newImg, lineImg, trioImg], { autoAlpha: 0 })
-            gsap.to(brandMarkRef.current, { y: -18, autoAlpha: 0, filter: 'blur(8px)', duration: 0.32, ease: 'power2.out', overwrite: true })
+            gsap.set([oldImg, lineImg, trioImg], { autoAlpha: 0 })
+            /* O still do Ato 3 sai em fade sobre o vídeo (que já está no mesmo
+               frame), e não num corte seco: cortar deixava o palco à mercê do
+               primeiro frame do clipe, e qualquer atraso dele — comum no
+               mobile — virava branco na tela. */
+            gsap.to(newImg, { autoAlpha: 0, duration: 0.24, ease: 'power1.inOut', overwrite: 'auto' })
+            gsap.to(brandMarkRef.current, { y: -18, autoAlpha: 0, filter: bl(8), duration: 0.32, ease: 'power2.out', overwrite: true })
             hideAct3UI(0)
             showLineUI(0.4)
           } else if (step === 3) {
@@ -899,7 +945,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           }
           void video.play().catch(() => {})
         } else {
-          gsap.set(video, { autoAlpha: 1, zIndex: 1 })
+          keepVideoPainted(1)
           video.pause()
           const duration = safeDur(video)
           if (video.currentTime >= duration - 0.05) {
@@ -934,7 +980,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           try { video.currentTime = 0 } catch(e) {}
           updateVideoScale(video)
           gsap.killTweensOf(video)
-          gsap.set(video, { autoAlpha: 0, zIndex: 0 })
+          keepVideoPainted(0)
         }
         // Idem `hideAct1UI(true)`: um `gsap.to` do morph ainda em voo ganharia
         // do `set` abaixo e apagaria o frasco antigo que acabamos de repor.
@@ -955,14 +1001,14 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const restAct3 = (immediate = false) => {
         const video = videoRef.current
         if (video) {
-          gsap.set(video, { autoAlpha: 0, zIndex: 0 })
+          keepVideoPainted(0)
           try { video.currentTime = targets[1] } catch(e) {}
           updateVideoScale(video)
         }
         gsap.killTweensOf([oldImg, newImg, lineImg, trioImg, brandMarkRef.current].filter(Boolean))
         gsap.set(newImg, { autoAlpha: 1, scale: stageZoom().bottle })
         gsap.set([lineImg, trioImg], { autoAlpha: 0 })
-        gsap.set(oldImg, { autoAlpha: 0, scale: stageZoom().bottle, filter: 'blur(8px)' })
+        gsap.set(oldImg, { autoAlpha: 0, scale: stageZoom().bottle, filter: bl(8) })
         gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
         /* As camadas que NÃO são deste ato são assertadas aqui, nunca herdadas
            do `hideAct1UI`/`hideLineUI` que o `startPlayback` disparou lá atrás:
@@ -981,15 +1027,15 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const restLine = (immediate = false) => {
         const video = videoRef.current
         if (video) {
-          gsap.set(video, { autoAlpha: 0, zIndex: 0 })
+          keepVideoPainted(0)
           try { video.currentTime = targets[2] } catch(e) {}
           updateVideoScale(video)
         }
         gsap.killTweensOf([oldImg, newImg, lineImg, trioImg, brandMarkRef.current].filter(Boolean))
         gsap.set(lineImg, { autoAlpha: 1, scale: stageZoom().line })
         gsap.set([newImg, trioImg], { autoAlpha: 0 })
-        gsap.set(oldImg, { autoAlpha: 0, scale: stageZoom().bottle, filter: 'blur(8px)' })
-        gsap.set(brandMarkRef.current, { autoAlpha: 0, y: -18, filter: 'blur(8px)' })
+        gsap.set(oldImg, { autoAlpha: 0, scale: stageZoom().bottle, filter: bl(8) })
+        gsap.set(brandMarkRef.current, { autoAlpha: 0, y: -18, filter: bl(8) })
         hideAct1UI(true)
         hideAct3All(true)
         if (immediate) showLineStatic()
@@ -1000,7 +1046,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const restExit = () => {
         const video = videoRef.current
         if (video) {
-          gsap.set(video, { autoAlpha: 0, zIndex: 0 })
+          keepVideoPainted(0)
           try { video.currentTime = targets[3] } catch(e) {}
           updateVideoScale(video)
         }
@@ -1389,13 +1435,32 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       }
       document.addEventListener('visibilitychange', onVisibility)
 
-      // Decodifica o primeiro frame de cada vídeo sem exibi-lo (evita flash ao iniciar o play real).
-      allVideos.forEach((v) => {
-        v.play().then(() => { if (!playing) { v.pause(); v.currentTime = 0 } }).catch(() => {})
-      })
+      /* Sobe o vídeo para `preload="auto"` e decodifica o primeiro frame quando
+         a seção fica a uma tela de distância — não no mount.
+
+         O aquecimento (dar play e pausar no frame 0) evita o flash branco no
+         primeiro play de verdade, mas ele obriga o aparelho a alocar decodificador
+         e decodificar. O iPhone tem um número pequeno de decodificadores de
+         hardware, e o hero já está segurando um: disputar o segundo enquanto o
+         hero ainda toca fazia o decodificador ser trocado no meio da jornada.
+         A margem de uma tela (rootMargin) é folga de sobra — o usuário ainda
+         precisa atravessar a seção "Nossa História" inteira para chegar aqui. */
+      const warmup = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((e) => e.isIntersecting)) return
+          warmup.disconnect()
+          allVideos.forEach((v) => {
+            if (v.preload !== 'auto') { v.preload = 'auto'; v.load() }
+            v.play().then(() => { if (!playing) { v.pause(); v.currentTime = 0 } }).catch(() => {})
+          })
+        },
+        { rootMargin: '100% 0px' },
+      )
+      if (root.current) warmup.observe(root.current)
 
       return () => {
         observer.disconnect()
+        warmup.disconnect()
         window.clearInterval(watchdog)
         document.removeEventListener('visibilitychange', onVisibility)
         stIntro?.kill()
@@ -1437,9 +1502,15 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
             escrito pelo `updateVideoScale` (transform do GSAP), porque ele
             interpola entre o zoom do frasco e o da linha durante o clipe. Os
             stills usam a custom property; somar os dois duplicava o zoom. */}
+        {/* `preload="metadata"`, promovido a "auto" pelo IntersectionObserver
+            logo abaixo. O clipe tem 2,1 MB e esta seção é a TERCEIRA da home:
+            com "auto" no HTML, o navegador começava a baixá-lo junto com o
+            primeiro byte da página, competindo com o hero (que já tem 4,4 MB de
+            vídeo próprio) pela banda que decide o LCP. Com metadata ele só
+            reserva o cabeçalho até o usuário chegar perto. */}
         <video
           ref={videoRef}
-          muted playsInline preload="auto"
+          muted playsInline preload="metadata"
           poster="/heritage/desktop/morph-aminosan-1-antigo.webp"
           aria-label={t('videoAlt')}
           className={STAGE_VIDEO_CLASS}
@@ -1593,7 +1664,11 @@ function Callout({ className = '', labelClassName = 'max-w-[12rem] xl:max-w-[14r
 }) {
   return (
     <div ref={refEl} className={`absolute flex flex-col ${className}`}>
-      <span data-label className={`text-subtitle rounded-2xl bg-white/70 px-4 py-3 text-xs xl:text-sm text-foreground/80 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.04)] text-left block ${labelClassName}`}>
+      {/* O callout é animado (entra e sai junto com o frasco) e fica sobre o
+          vídeo da transição — backdrop-blur aqui é reamostrado a cada frame do
+          clipe no celular. `bg-white/90` cobre o mesmo papel de dar fundo ao
+          texto sem depender do que está atrás. */}
+      <span data-label className={`text-subtitle rounded-2xl bg-white/90 md:bg-white/70 md:backdrop-blur-md px-4 py-3 text-xs xl:text-sm text-foreground/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] text-left block ${labelClassName}`}>
         {children}
       </span>
     </div>

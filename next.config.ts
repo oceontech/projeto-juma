@@ -14,7 +14,15 @@ const nextConfig: NextConfig = {
     deviceSizes: [320, 420, 480, 640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     // Next 16 só serve as qualidades listadas (padrão [75]) — sem o 90 aqui o
     // otimizador responde 400 para os frascos do catálogo da home.
-    qualities: [60, 75, 90],
+    //
+    // 80 e 85 entram na lista porque o componente PEDE esses valores
+    // (AminosanStory, HomeProductShowcase, HomeExperience em 85; HomeCultures
+    // em 80). Quando o valor pedido não está na lista, o Next não falha: ele
+    // arredonda para a qualidade listada mais próxima — e arredondava PARA
+    // CIMA, servindo tudo isso a 90. Os stills do Aminosan, os frascos do
+    // catálogo e o still do Experience (292 KB no original) estavam saindo mais
+    // pesados do que o código pediu, em todo aparelho.
+    qualities: [60, 75, 80, 85, 90],
     localPatterns: [
       {
         pathname: '/api/media/file/**',

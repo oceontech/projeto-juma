@@ -5,7 +5,7 @@ import { CheckCircle2 } from 'lucide-react'
 import React, { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
 import { gsap, SplitText } from '@/features/animation/gsap'
-import { DUR, EASE, STAGGER } from '@/features/animation/motion'
+import { DUR, EASE, STAGGER, blurPx } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { useGSAP } from '@/features/animation/gsap'
 import { Container } from '@/components/layout/Container'
@@ -40,7 +40,7 @@ export function HomeTestimonials() {
       split = title ? new SplitText(title, { type: 'chars,words' }) : null
 
       if (kicker) gsap.set(kicker, { y: 14, opacity: 0 })
-      if (split) gsap.set(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
+      if (split) gsap.set(split.chars, { x: 20, opacity: 0, filter: blurPx(10) })
       if (line) gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
 
       const tl = gsap.timeline({
@@ -138,6 +138,24 @@ export const TestimonialsColumn = (props: {
     return () => document.removeEventListener('click', handleOutsideClick);
   }, []);
 
+  /* O marquee é uma lista triplicada rolando em loop infinito, numa camada
+     promovida (`will-change: transform`). Ele fica quase no fim da home, mas a
+     animação começa no primeiro frame e nunca para — ou seja, o aparelho compõe
+     essa camada durante a visita inteira, inclusive enquanto o usuário está no
+     hero, dez telas acima. Fora de vista ele fica pausado; a única coisa que se
+     perde é o avanço do loop enquanto ninguém olha. */
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { rootMargin: '200px 0px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   const items = [...props.testimonials, ...props.testimonials, ...props.testimonials];
 
   return (
@@ -146,7 +164,7 @@ export const TestimonialsColumn = (props: {
         className="home-testimonials-marquee flex flex-col gap-6 pb-6"
         style={{
           animationDuration: `${props.duration || 10}s`,
-          animationPlayState: hoveredIdx !== null ? 'paused' : 'running',
+          animationPlayState: hoveredIdx !== null || !inView ? 'paused' : 'running',
         }}
       >
         {items.map((item, idx) => {

@@ -8,7 +8,7 @@ import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 
 import { gsap, SplitText, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
-import { DUR, EASE, STAGGER } from '@/features/animation/motion'
+import { DUR, EASE, STAGGER, blurPx } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
 
@@ -42,7 +42,7 @@ export function Lines() {
       const chars = split?.chars ?? []
 
       if (title) gsap.set(title, { opacity: 0 })
-      if (chars.length) gsap.set(chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
+      if (chars.length) gsap.set(chars, { x: 20, opacity: 0, filter: blurPx(10) })
 
       const tlHead = gsap.timeline({
         scrollTrigger: {
@@ -71,13 +71,13 @@ export function Lines() {
 
         // Desktop e Tablet (sm em diante) - Stagger no grupo
         mm.add('(min-width: 640px)', () => {
-          gsap.set(cards, { opacity: 0, filter: 'blur(12px)' })
+          gsap.set(cards, { opacity: 0, filter: blurPx(12) })
 
           // Para Desktop, usar triggers individuais mas agrupar a entrada com batching seria ideal.
           // Como temos cards, vamos usar ScrollTrigger individual para que saiam visíveis na tela.
           // Isso resolve o problema de saírem muito tarde quando o grid todo já passou da tela.
           cards.forEach((card, index) => {
-            gsap.set(card, { opacity: 0, filter: 'blur(12px)' })
+            gsap.set(card, { opacity: 0, filter: blurPx(12) })
 
             gsap.to(card, {
               scrollTrigger: {

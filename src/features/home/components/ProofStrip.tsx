@@ -6,7 +6,7 @@ import { useRef } from 'react'
 import { useTranslations } from 'next-intl'
 
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
-import { EASE } from '@/features/animation/motion'
+import { EASE, blurPx } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
 
@@ -47,7 +47,7 @@ export function ProofStrip() {
 
         // Estado inicial
         gsap.set(card, { opacity: 0 })
-        if (numWrap) gsap.set(numWrap, { clipPath: 'inset(0 0 100% 0)', filter: 'blur(10px)' })
+        if (numWrap) gsap.set(numWrap, { clipPath: 'inset(0 0 100% 0)', filter: blurPx(10) })
         if (barEl)   gsap.set(barEl,   { scaleX: 0, transformOrigin: 'left center' })
         if (metaEl)  gsap.set(metaEl,  { y: 14, opacity: 0 })
 

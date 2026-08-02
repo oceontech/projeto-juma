@@ -235,6 +235,16 @@ type RoleProps = {
 function getRoleProps(role: Role, isMobile: boolean, index: number): RoleProps {
   const mod = 1
   if (isMobile) {
+    /* Profundidade no mobile fica por conta de escala + opacidade, sem blur.
+       Os frascos laterais entram a 0.34 de escala com 35% de opacidade e os
+       ocultos a 0.28 com 0% — nesse tamanho, num painel de celular, 6px de blur
+       não são perceptíveis. O que eles custam é caro: a troca de produto anima
+       QUATRO frascos ao mesmo tempo, e um `filter: blur` animado força o
+       navegador a repintar e re-desfocar cada imagem a cada frame, dentro de uma
+       seção que está pinada (o scroll inteiro depende desse frame sair no prazo).
+       `blur(0px)` em vez de remover a propriedade: todos os caminhos que
+       escrevem estes frascos precisam declarar o mesmo conjunto de props, senão
+       um frasco fica preso com o blur escrito por outro caminho. */
     switch (role) {
       case 'center':
         return {
@@ -255,7 +265,7 @@ function getRoleProps(role: Role, isMobile: boolean, index: number): RoleProps {
           x: '-30vw',
           yPercent: 0,
           scale: 0.34 * mod,
-          filter: 'blur(6px)',
+          filter: 'blur(0px)',
           opacity: 0.35,
           zIndex: 10,
           transformOrigin: 'center center',
@@ -267,7 +277,7 @@ function getRoleProps(role: Role, isMobile: boolean, index: number): RoleProps {
           x: '30vw',
           yPercent: 0,
           scale: 0.34 * mod,
-          filter: 'blur(6px)',
+          filter: 'blur(0px)',
           opacity: 0.35,
           zIndex: 10,
           transformOrigin: 'center center',
@@ -279,7 +289,7 @@ function getRoleProps(role: Role, isMobile: boolean, index: number): RoleProps {
           x: 0,
           yPercent: 0,
           scale: 0.28 * mod,
-          filter: 'blur(8px)',
+          filter: 'blur(0px)',
           opacity: 0,
           zIndex: 1,
           transformOrigin: 'center center',

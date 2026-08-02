@@ -1163,6 +1163,22 @@ html.lenis body { height: auto; }
   50% { transform: scale(1.22); box-shadow: 0 0 0 11px rgba(0, 76, 38, 0.015); }
 }
 
+/* `box-shadow` é propriedade de PINTURA: animá-la obriga o navegador a
+   repintar o elemento a cada frame, para sempre — e este ponto vive dentro da
+   seção Aminosan, que é justamente onde o scroll fica travado com um clipe
+   tocando. No aparelho de toque sobra só o `transform` do keyframe (que é
+   composto, custo zero) com a sombra parada no valor de repouso. O ponto
+   continua pulsando; o que para é o anel respirando junto. */
+@media (hover: none) and (pointer: coarse) {
+  .aminosan-bottle-callout__dot {
+    animation-name: aminosan-callout-pulse-transform;
+  }
+}
+@keyframes aminosan-callout-pulse-transform {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.22); }
+}
+
 /* 1023.98px e não 767px: o corte da seção Aminosan inteira é `lg` (1024) —
    é onde os stills trocam de enquadramento e a escala 2.8x do frasco cai. */
 @media (max-width: 1023.98px) {
@@ -1253,4 +1269,109 @@ html.lenis body { height: auto; }
     right: 7rem;
     width: min(420px, calc(100% - 14rem));
   }
+}
+
+/* ============================================================
+   Orbit dos cards das fases da jornada (HeroJornada > OrbitalCards).
+   Vivia num <style> dentro do componente, então era reinjetado uma vez
+   por instância de PhaseLayout. Aqui é uma regra só, parseada uma vez.
+
+   `animation-play-state: paused` quando a fase está oculta: os três cards
+   ficam SEMPRE no DOM (as fases trocam por opacity, não por montagem), e
+   uma animação de transform rodando em elemento invisível continua custando
+   composição a cada frame — no iPhone, três camadas promovidas girando 24h
+   por dia atrás de um `opacity: 0`.
+   ============================================================ */
+@keyframes orbit-path {
+  0%   { transform: rotate(0deg)   translateY(var(--orbit-radius)) rotate(0deg); }
+  100% { transform: rotate(360deg) translateY(var(--orbit-radius)) rotate(-360deg); }
+}
+.animate-orbit-path {
+  animation: orbit-path 20s linear infinite;
+}
+.group:hover .animate-orbit-path,
+[data-phase-visible='false'] .animate-orbit-path {
+  animation-play-state: paused;
+}
+
+/* ============================================================
+   PERFORMANCE EM APARELHO DE TOQUE (iPhone/Android)
+   ============================================================
+   Bloco único, no fim do arquivo de propósito: precisa vencer por ordem de
+   fonte as regras equivalentes declaradas acima.
+
+   O alvo é uma classe só de custo: efeito que obriga o compositor a reler o
+   que já foi pintado atrás do elemento — `backdrop-filter` e `mix-blend-mode`.
+   No desktop isso é absorvido pela GPU; no iOS Safari cada camada dessas
+   derruba o elemento (e a subárvore inteira) do caminho acelerado, e o preço é
+   pago A CADA FRAME enquanto a cena se mexe. Como quase todas essas camadas na
+   home ficam sobre conteúdo que está animando (frasco atravessando a tela,
+   cards em órbita, vídeo tocando), o custo é contínuo, não pontual.
+
+   Em todos os casos a transparência é compensada com mais opacidade no fundo
+   sólido, então o contraste do texto por cima não muda.
+   ============================================================ */
+/* Chips de stats do catálogo — ficam POR CIMA do frasco que atravessa a tela na
+   troca de produto: era backdrop-blur recalculado a cada frame do carrossel.
+   A largura entra na condição porque o fundo sólido só existe no layout de
+   celular (bloco `max-width: 767px`); num tablet de toque o chip é transparente
+   por design e pintar um fundo aqui seria regressão visual. */
+@media (hover: none) and (pointer: coarse) and (max-width: 767px) {
+  .pcs-stat-row {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(4, 12, 30, 0.82);
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  /* Grão de filme: camada fullscreen em `mix-blend-mode: overlay` dentro da
+     seção pinada. O blend fullscreen é o pior caso possível — força o
+     compositor a reler o gradiente de fundo inteiro a cada frame do pin.
+     Sem o blend a textura continua lá, só que composta direto. */
+  .pcs-grain {
+    mix-blend-mode: normal;
+    opacity: 0.14;
+  }
+
+  /* `inset 0 0 90px` repintado toda vez que --pcs-accent muda (uma vez por
+     produto). A borda sozinha já entrega o anel. */
+  .pcs-ring {
+    box-shadow: none;
+  }
+
+  /* No mobile o blur dos frascos laterais é desligado no JS
+     (getRoleProps), então prometer `filter` ao compositor só reserva
+     memória de GPU que nunca é usada. */
+  .pcs-theater-bottle,
+  .pcs-bottle-wrap {
+    will-change: transform, opacity;
+  }
+
+  /* Botão "pular seção" — estático, mas o backdrop-filter mantém a camada
+     viva por cima da cena animada mesmo parado. */
+  .pcs-skip {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(255, 255, 255, 0.14);
+  }
+}
+
+/* ============================================================
+   Hero fora da tela — congela o que é decorativo e infinito.
+   A classe entra pelo IntersectionObserver que o HeroJornada já mantém.
+   As folhas são duas imagens de tela cheia com `will-change: transform`:
+   promovidas, elas seguiam sendo recompostas a 60fps enquanto o usuário lia
+   uma seção 5 telas abaixo.
+   ============================================================ */
+.hero-idle .leaf-sway-1,
+.hero-idle .leaf-sway-2,
+.hero-idle .scroll-indicator-bob {
+  animation-play-state: paused;
+}
+/* Solta a memória de GPU das duas camadas promovidas enquanto o hero
+   não está em cena. */
+.hero-idle .leaf-sway-1,
+.hero-idle .leaf-sway-2 {
+  will-change: auto;
 }

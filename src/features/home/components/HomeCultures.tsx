@@ -6,7 +6,7 @@ import { useRef } from 'react'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
-import { DUR, EASE, STAGGER } from '@/features/animation/motion'
+import { DUR, EASE, STAGGER, blurPx } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
@@ -42,7 +42,7 @@ export function HomeCultures() {
       split = title ? new SplitText(title, { type: 'chars,words' }) : null
 
       if (kicker) gsap.set(kicker, { y: 14, opacity: 0 })
-      if (split) gsap.set(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
+      if (split) gsap.set(split.chars, { x: 20, opacity: 0, filter: blurPx(10) })
       if (line) gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
 
       const tl = gsap.timeline({
@@ -62,7 +62,7 @@ export function HomeCultures() {
     const mm = gsap.matchMedia()
 
     mm.add('(min-width: 640px)', () => {
-      gsap.set(cards, { y: 40, opacity: 0, filter: 'blur(12px)' })
+      gsap.set(cards, { y: 40, opacity: 0, filter: blurPx(12) })
       gsap.to(cards, {
         y: 0,
         opacity: 1,

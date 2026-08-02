@@ -71,24 +71,53 @@ export function HeroJornada() {
     // que decide o layout antes do JS rodar). Sem isto os dois iniciam o download
     // com preload="auto" ao mesmo tempo — aqui só o vídeo do viewport atual é
     // promovido a preload="auto", o outro fica parado em "none".
+    /* O clipe da jornada tem 4,4 MB no mobile (6,2 MB no desktop). Promover para
+       `preload="auto"` já no mount põe esse download para disputar banda e
+       conexões com o que pinta a primeira tela — o poster, o frame do campo, as
+       folhas e a fonte. Num iPhone em rede de celular é o vídeo que ganha a
+       disputa, e o LCP paga.
+
+       O download continua sendo o mesmo e continua começando cedo; ele só entra
+       na fila DEPOIS do evento `load`, quando o que é visível já foi buscado. A
+       jornada só começa no primeiro gesto de scroll do usuário, então na prática
+       o vídeo tem a mesma folga de antes para ficar pronto. */
+    let idleHandle: number | undefined
     const loadActiveVideo = (mobile: boolean) => {
       const active = root.current?.querySelector<HTMLVideoElement>(
         `video[data-hero-video="${mobile ? 'mobile' : 'desktop'}"]`,
       )
-      if (active && active.preload !== 'auto') {
-        active.preload = 'auto'
-        active.load()
+      if (!active || active.preload === 'auto') return
+      active.preload = 'auto'
+      active.load()
+    }
+    const scheduleLoad = (mobile: boolean) => {
+      const run = () => loadActiveVideo(mobile)
+      // requestIdleCallback não existe no Safari <17 — o timeout cobre.
+      if (typeof window.requestIdleCallback === 'function') {
+        idleHandle = window.requestIdleCallback(run, { timeout: 1500 })
+      } else {
+        idleHandle = window.setTimeout(run, 300)
       }
     }
+    const afterLoad = (mobile: boolean) => {
+      if (document.readyState === 'complete') scheduleLoad(mobile)
+      else window.addEventListener('load', () => scheduleLoad(mobile), { once: true })
+    }
+
     const checkMobile = () => {
       const mobile = window.innerWidth < 1024
       setIsMobile(mobile)
       setEnhanced(!reduced)
-      loadActiveVideo(mobile)
+      afterLoad(mobile)
     }
     checkMobile()
     window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
+    return () => {
+      window.removeEventListener('resize', checkMobile)
+      if (idleHandle === undefined) return
+      if (typeof window.cancelIdleCallback === 'function') window.cancelIdleCallback(idleHandle)
+      else window.clearTimeout(idleHandle)
+    }
   }, [])
 
   const getVideo = () => {
@@ -275,22 +304,41 @@ export function HeroJornada() {
         safeSetCap(nextCap)
       }
 
+      /* Esta função roda DENTRO do rAF do vídeo, uma vez por frame durante toda
+         a jornada — no mesmo frame em que o iPhone está decodificando vídeo.
+         `transform-origin` nunca muda, então sai do laço e é escrito uma vez
+         só aqui fora: dentro do gsap.set ele era reprocessado e reescrito a
+         cada frame de graça. */
+      if (leafContainerRef.current) {
+        gsap.set(leafContainerRef.current, { transformOrigin: 'bottom center' })
+      }
+      let lastLeafKey = ''
+
       const updateLeavesParallax = (time: number) => {
         const leaves = leafContainerRef.current
         if (!leaves) return
-        
+
         // Progress for parallax (0 to 1 as current goes 0 to 1.5)
         const progress = Math.min(time / 1.5, 1)
         const yOffset = progress * 150 // move down 150px
         const scale = 1 + progress * 0.3 // scale up 30%
-        
+
         // Opacity: 1 until 1.5, then fade to 0 between 1.5 and 2.0
         let opacity = 1
         if (time > 1.5) {
           opacity = Math.max(0, 1 - (time - 1.5) / 0.5)
         }
-        
-        gsap.set(leaves, { y: yOffset, scale: scale, opacity: opacity, transformOrigin: 'bottom center' })
+
+        /* Depois de 2s o parallax está saturado (progress = 1, opacity = 0) e os
+           valores param de mudar, mas o rAF continua correndo até o fim do
+           clipe — e o rewind repete tudo de novo. Sem esta guarda, a maior parte
+           da jornada gasta um gsap.set por frame para reescrever exatamente os
+           mesmos valores num elemento que já está invisível. */
+        const key = `${yOffset.toFixed(2)}|${scale.toFixed(3)}|${opacity.toFixed(3)}`
+        if (key === lastLeafKey) return
+        lastLeafKey = key
+
+        gsap.set(leaves, { y: yOffset, scale: scale, opacity: opacity })
       }
 
       const getTargets = () => {
@@ -642,6 +690,16 @@ export function HeroJornada() {
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
+            /* `hero-idle` congela as animações CSS infinitas decorativas
+               (as duas camadas de folhas e o indicador de scroll) e devolve a
+               memória de GPU do `will-change` delas. As folhas são duas
+               imagens de tela cheia promovidas a camada própria: sem isto,
+               seguiam sendo recompostas a cada frame com o usuário lendo uma
+               seção muito abaixo — custo permanente pelo resto da visita.
+               Só afeta o que é decorativo; a máquina da jornada não olha
+               para esta classe. */
+            root.current?.classList.toggle('hero-idle', !entry.isIntersecting)
+
             if (!entry.isIntersecting) {
               const video = videoRef.current
               if (video) { try { video.pause() } catch {} }
@@ -780,8 +838,16 @@ export function HeroJornada() {
         </video>
 
         {/* Mobile Poster Image */}
+        {/* Sem `mix-blend-multiply` aqui: esta é a camada MAIS BAIXA do palco
+            (z-0), então o backdrop dela é só o branco da seção — e multiply
+            contra branco é identidade, não muda um pixel. O que ela fazia era
+            ligar o caminho de composição por blend numa segunda camada de tela
+            cheia, do lado do frame que o iPhone também usa para decodificar o
+            vídeo. O multiply que REALMENTE faz trabalho é o do <video> logo
+            abaixo (z-1), que precisa dele para revelar o selo por trás do
+            branco do clipe — esse fica. */}
         {isMobile && (
-          <div data-rest className="absolute inset-0 z-0 h-full w-full block lg:hidden mix-blend-multiply">
+          <div data-rest className="absolute inset-0 z-0 h-full w-full block lg:hidden">
             <Image
               src="/hero/mobile/journey-poster.webp"
               alt="" aria-hidden fill sizes="100vw" quality={60}
@@ -883,9 +949,14 @@ export function HeroJornada() {
         <div data-rest className="absolute inset-x-0 -top-8 lg:top-25 z-40">
           {/* pr extra no desktop: os traços do SectionNav ficam colados na borda direita */}
           <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] flex lg:justify-end justify-start pt-[16rem] md:pt-[20rem] lg:pt-[6rem] min-[1600px]:pt-[10.5rem] !px-8 lg:!px-[4rem] xl:!px-[6rem] lg:!pr-14 min-[1600px]:!pr-md">
+              {/* O `backdrop-blur-[2px]` daqui era EXCLUSIVO do mobile
+                  (`md:backdrop-blur-none` desligava no desktop): 2px de blur
+                  sobre um fundo já transparente, invisível na prática, mas
+                  suficiente para manter uma camada do tamanho da coluna sendo
+                  reamostrada enquanto o vídeo da jornada toca atrás. */}
               <div
                 ref={supportRef}
-                className={`lg:w-1/3 flex flex-col lg:gap-md rounded-2xl bg-transparent backdrop-blur-[2px] md:bg-transparent md:backdrop-blur-none items-start lg:items-end text-left lg:text-right`}
+                className={`lg:w-1/3 flex flex-col lg:gap-md rounded-2xl bg-transparent items-start lg:items-end text-left lg:text-right`}
               >
                 <span ref={accentLineRef} aria-hidden className="block h-1 w-12 rounded-full bg-primary" />
                 <p className="text-subtitle mt-5 mb-6 text-balance text-base text-foreground/70 sm:text-lg">{t('subtitle')}</p>
@@ -1045,6 +1116,10 @@ function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, alig
   return (
     <div
       ref={ref}
+      /* As fases trocam por opacity, nunca por montagem: as três coexistem no
+         DOM o tempo todo. Sem este data-attr a órbita dos cards continua
+         girando (e sendo composta) dentro das duas fases invisíveis. */
+      data-phase-visible={show ? 'true' : 'false'}
       className={`absolute inset-0 w-full h-full transition-opacity duration-200 ease-out ${
         show ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
       }`}
@@ -1264,21 +1339,11 @@ function OrbitalCards({ items, mobile = false }: { items: PhaseItem[], mobile?: 
   // Container ainda menor para que os cards passem uns sobre os outros e sobre a esfera
   const containerSize = mobile ? 'w-[140px]' : 'w-[200px]';
 
+  // O @keyframes e a regra .animate-orbit-path saíram daqui para o globals.css:
+  // este <style> era reinjetado uma vez por instância de PhaseLayout, e a pausa
+  // da órbita precisa enxergar o `data-phase-visible` do ancestral.
   return (
     <div className={`group relative flex items-center justify-center aspect-square ${containerSize} mx-auto lg:mx-0 mt-8`}>
-      <style>{`
-        @keyframes orbit-path {
-          0% { transform: rotate(0deg) translateY(var(--orbit-radius)) rotate(0deg); }
-          100% { transform: rotate(360deg) translateY(var(--orbit-radius)) rotate(-360deg); }
-        }
-        .animate-orbit-path {
-          animation: orbit-path 20s linear infinite;
-        }
-        .group:hover .animate-orbit-path {
-          animation-play-state: paused;
-        }
-      `}</style>
-
       {/* Central Sphere - Menor */}
       <div className="absolute inset-0 flex items-center justify-center z-10">
         <div className={`rounded-full bg-gradient-to-br from-primary-light via-primary to-primary-dark shadow-[0_0_20px_rgba(0,166,80,0.6)] ${mobile ? 'w-10 h-10' : 'w-16 h-16 xl:w-20 xl:h-20'}`} />
@@ -1301,8 +1366,13 @@ function OrbitalCards({ items, mobile = false }: { items: PhaseItem[], mobile?: 
                 '--orbit-radius': mobile ? '-70px' : '-100px' 
               } as React.CSSProperties}
             >
-              <div 
-                className={`transition-all duration-300 ease-out hover:-translate-y-4 hover:-rotate-6 hover:scale-110 flex flex-col items-center gap-2 p-3 lg:p-4 rounded-xl bg-white/30 backdrop-blur-md border border-white/40 shadow-xl text-center cursor-default ${mobile ? 'w-[100px]' : 'w-[140px] xl:w-[160px]'}`}
+              {/* `max-md:bg-white/75` + `max-md:backdrop-blur-none`: no celular
+                  estes três cards estão em órbita permanente, e um backdrop-blur
+                  em elemento que se move obriga o compositor a reamostrar o
+                  fundo a cada frame — o pior caso de custo no iOS. O fundo mais
+                  opaco entrega a mesma leitura sem reler o que está atrás. */}
+              <div
+                className={`transition-all duration-300 ease-out hover:-translate-y-4 hover:-rotate-6 hover:scale-110 flex flex-col items-center gap-2 p-3 lg:p-4 rounded-xl bg-white/30 max-md:bg-white/75 backdrop-blur-md max-md:backdrop-blur-none border border-white/40 shadow-xl text-center cursor-default ${mobile ? 'w-[100px]' : 'w-[140px] xl:w-[160px]'}`}
               >
                 <div className={`flex items-center justify-center rounded-full bg-primary/10 text-primary ${mobile ? 'h-8 w-8' : 'h-10 w-10 xl:h-12 xl:w-12'}`}>
                   <PhaseIcon name={it.icon} className={mobile ? 'h-4 w-4' : 'h-5 w-5 xl:h-6 xl:w-6'} />

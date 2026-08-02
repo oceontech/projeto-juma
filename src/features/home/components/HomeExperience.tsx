@@ -88,9 +88,12 @@ export function HomeExperience() {
             />
             <div aria-hidden className="absolute inset-0 bg-black/25" />
             {/* Tag overlay */}
+            {/* O backdrop-blur fica só onde há hover (desktop). No celular a tag
+                entra na tela junto com o bloco visual, que é animado em `x` — e
+                backdrop-filter num elemento que se move é reamostrado a cada
+                frame do reveal. O fundo vai a 78% para compensar o desfoque. */}
             <div
-              className="absolute bottom-5 left-5 flex items-center gap-3 rounded-[14px] px-4 py-3"
-              style={{ backgroundColor: 'rgba(0,0,0,.6)', backdropFilter: 'blur(12px)' }}
+              className="absolute bottom-5 left-5 flex items-center gap-3 rounded-[14px] px-4 py-3 bg-black/[.78] md:bg-black/60 md:backdrop-blur-[12px]"
             >
               <div
                 className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
