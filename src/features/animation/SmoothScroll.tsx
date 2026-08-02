@@ -34,6 +34,67 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
   const [lenis, setLenis] = useState<Lenis | null>(null)
   const lenisRef = useRef<Lenis | null>(null)
 
+  /**
+   * `--vh-stable` — altura de viewport que NÃO muda quando a barra do navegador
+   * do celular recolhe ou volta.
+   *
+   * No mobile o `100dvh` é recalculado a cada vez que a barra some/aparece. O
+   * hero mede a altura da viewport, então todo o resto da página descia ou
+   * subia de uma vez junto com ele — medido em 96px (Chrome Android e iOS
+   * Safari), sem nenhuma compensação de scroll do browser. Como o hero trava o
+   * scroll durante a jornada, a primeira vez que a barra recolhe é exatamente
+   * no gesto que leva o usuário para a seção seguinte ("Nossa História"): daí o
+   * corte seco para cima ou para baixo só ali. Num arrasto lento, com a barra
+   * indo e voltando, o deslocamento anula o gesto e a página parece presa.
+   *
+   * A altura é congelada na primeira medida e só recalculada quando a LARGURA
+   * muda (rotação ou redimensionamento real) — nunca no vai-e-vem da barra. Só
+   * vale para ponteiro grosso; no desktop a variável não é definida e o CSS cai
+   * no `100dvh` nativo, que lá acompanha a janela como deve.
+   */
+  useEffect(() => {
+    const coarse = window.matchMedia('(pointer: coarse)')
+    const root = document.documentElement
+    let lastWidth = window.innerWidth
+
+    const apply = () => {
+      if (coarse.matches) root.style.setProperty('--vh-stable', `${window.innerHeight}px`)
+      else root.style.removeProperty('--vh-stable')
+    }
+
+    const onResize = () => {
+      if (window.innerWidth === lastWidth) return // só a barra mexeu: ignora
+      lastWidth = window.innerWidth
+      apply()
+      ScrollTrigger.refresh()
+    }
+
+    // O iOS só entrega o innerHeight novo alguns frames depois do evento.
+    const onOrientation = () => {
+      setTimeout(() => {
+        lastWidth = -1
+        onResize()
+      }, 300)
+    }
+
+    apply()
+    window.addEventListener('resize', onResize)
+    window.addEventListener('orientationchange', onOrientation)
+    coarse.addEventListener('change', apply)
+
+    // A troca de fonte (FOUT) reposiciona texto depois que os triggers já
+    // mediram start/end. No mobile o Lenis não monta, então este refresh vive
+    // aqui fora para valer nos dois casos.
+    document.fonts?.ready.then(() => ScrollTrigger.refresh())
+
+    return () => {
+      window.removeEventListener('resize', onResize)
+      window.removeEventListener('orientationchange', onOrientation)
+      coarse.removeEventListener('change', apply)
+      root.style.removeProperty('--vh-stable')
+    }
+  }, [])
+
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     // Previne que o navegador tente restaurar o scroll em recarregamentos (F5)

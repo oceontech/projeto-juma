@@ -235,19 +235,38 @@ export function HeroJornada() {
         }
       }
 
+      /* Fonte única da fase da jornada. Antes quem escrevia a fase era o
+         `fadeRest`, e era isso que quebrava o `release()`: ele marcava 'done'
+         e, na linha seguinte, `fadeRest(false)` via que a fase não era
+         'animating' e a puxava de volta para 'animating'. Com a fase presa em
+         'animating' o hero nunca soltava o gesto — `onTouchMove` dava
+         preventDefault em qualquer ponto da página (tela travada) e
+         `onTouchEnd` chamava `handleBackward()`, rebobinando o vídeo com o
+         usuário já na seção seguinte. `skipToDone` caía no mesmo buraco. */
+      const setJourneyPhase = (next: 'rest' | 'animating' | 'done') => {
+        if (phaseRef.current === next) return
+        phaseRef.current = next
+        setPhase(next)
+      }
+
+      /** Só o visual dos elementos de repouso — não mexe na fase. */
       const fadeRest = (show: boolean) => {
-        const targetPhase = show ? 'rest' : 'animating'
-        if (phaseRef.current !== targetPhase) {
-          phaseRef.current = targetPhase
-          setPhase(targetPhase)
-        }
         gsap.to(restEls(), { autoAlpha: show ? 1 : 0, duration: show ? 0.3 : 0.4, ease: 'power2.out' })
       }
 
+      /* A mecânica da jornada (travar o gesto, avançar ou rebobinar o vídeo) só
+         pode agir enquanto o hero ainda ocupa a tela. O hero começa em y=0 e
+         tem exatamente uma viewport de altura, então "mais da metade da tela
+         ainda é hero" é só `scrollY < metade da viewport` — sem ler layout, que
+         aqui rodaria dentro de wheel/touchmove. Fora disso o gesto é do
+         documento: nada de preventDefault, nada de mexer no vídeo. É a rede de
+         segurança para o hero nunca mais sequestrar o scroll de outra seção,
+         mesmo que algum estado interno saia do lugar. */
+      const heroOwnsGesture = () => window.scrollY < window.innerHeight * 0.5
+
       const updateActivePhase = (time: number) => {
         if (time > 0.05 && phaseRef.current === 'rest') {
-          phaseRef.current = 'animating'
-          setPhase('animating')
+          setJourneyPhase('animating')
           fadeRest(false)
         }
         const nextCap = isMobile
@@ -368,8 +387,7 @@ export function HeroJornada() {
         const i = stepRef.current
         if (i >= 1 && i <= capAtPause.length) setCap(capAtPause[i - 1])
         if (target <= 0.05) {
-          phaseRef.current = 'rest'
-          setPhase('rest')
+          setJourneyPhase('rest')
           stepRef.current  = -1
           lockScroll(false)
           setCap(0)
@@ -377,6 +395,10 @@ export function HeroJornada() {
           autoRewindRef.current = false
           return
         } else {
+          // Parada no meio da jornada = 'animating'. Mas se ela já foi liberada,
+          // não puxa a fase de volta — era esse caminho de volta que prendia o
+          // usuário fora do hero.
+          if (phaseRef.current !== 'done') setJourneyPhase('animating')
           fadeRest(false)
         }
       }
@@ -384,8 +406,7 @@ export function HeroJornada() {
       const startJourney = () => {
         const video = getVideo()
         if (!video) return
-        phaseRef.current = 'animating'
-        setPhase('animating')
+        setJourneyPhase('animating')
         lockScroll(true)
         fadeRest(false)
         stepRef.current = 1
@@ -401,8 +422,7 @@ export function HeroJornada() {
         const video = getVideo()
         if (video) { try { video.pause() } catch {} }
         if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
-        phaseRef.current  = 'done'
-        setPhase('done')
+        setJourneyPhase('done')
         playingRef.current = false
         directionRef.current = null
         targetRef.current  = null
@@ -457,11 +477,12 @@ export function HeroJornada() {
       const onWheel = (e: WheelEvent) => {
         const video = getVideo()
         if (!video) return
+        if (!heroOwnsGesture()) return
         const ph = phaseRef.current
         if (ph === 'done') {
           if (e.deltaY < 0 && window.scrollY <= 10) {
             e.preventDefault()
-            phaseRef.current = 'animating'
+            setJourneyPhase('animating')
             stepRef.current  = targetsLength
             lockScroll(true)
             handleBackward()
@@ -480,6 +501,7 @@ export function HeroJornada() {
       const onKey = (e: KeyboardEvent) => {
         const video = getVideo()
         if (!video) return
+        if (!heroOwnsGesture()) return
         const ph   = phaseRef.current
         const down = downKeys.includes(e.key)
         const up   = upKeys.includes(e.key)
@@ -487,7 +509,7 @@ export function HeroJornada() {
         if (ph === 'done') {
           if (up && window.scrollY <= 10) {
             e.preventDefault()
-            phaseRef.current = 'animating'
+            setJourneyPhase('animating')
             stepRef.current  = targetsLength
             lockScroll(true)
             handleBackward()
@@ -512,6 +534,7 @@ export function HeroJornada() {
       const onTouchMove  = (e: TouchEvent) => {
         const video = getVideo()
         if (!video) return
+        if (!heroOwnsGesture()) return
         if (phaseRef.current === 'done') return
         if (e.touches.length > 0) {
           const currentY = e.touches[0].clientY
@@ -527,12 +550,13 @@ export function HeroJornada() {
       const onTouchEnd   = (e: TouchEvent) => {
         const video = getVideo()
         if (!video) return
+        if (!heroOwnsGesture()) return
         const ph  = phaseRef.current
         const endY = e.changedTouches[0] ? e.changedTouches[0].clientY : touchY
         const dy   = touchY - endY
         if (ph === 'done') {
           if (dy < -30 && window.scrollY <= 10) {
-            phaseRef.current = 'animating'
+            setJourneyPhase('animating')
             stepRef.current  = targetsLength
             lockScroll(true)
             handleBackward()
@@ -588,8 +612,7 @@ export function HeroJornada() {
         targetRef.current = null
         autoRewindRef.current = false
         stepRef.current = targetsLength
-        phaseRef.current = 'done'
-        setPhase('done')
+        setJourneyPhase('done')
         setCap(4)
         setIsPaused(true)
         updateLeavesParallax(end)
@@ -605,8 +628,7 @@ export function HeroJornada() {
         targetRef.current = null
         autoRewindRef.current = false
         stepRef.current = -1
-        phaseRef.current = 'rest'
-        setPhase('rest')
+        setJourneyPhase('rest')
         setCap(0)
         setIsPaused(true)
         updateLeavesParallax(0)
@@ -724,7 +746,15 @@ export function HeroJornada() {
   // ── Versão animada ────────────────────────────────────────────────
   return (
     <section ref={root} className="bg-white overflow-x-hidden">
-      <div className="relative h-[100dvh] w-full overflow-hidden">
+      {/* Altura em `--vh-stable` (não em 100dvh): no mobile o dvh muda quando a
+          barra do navegador recolhe, e o hero inteiro crescia/encolhia ~96px
+          empurrando toda a página abaixo dele de uma vez. A variável é
+          congelada na primeira medida pelo SmoothScroll; no desktop ela não
+          existe e o fallback 100dvh vale normalmente. */}
+      <div
+        className="relative w-full overflow-hidden"
+        style={{ height: 'var(--vh-stable, 100dvh)' }}
+      >
 
         {/* Desktop Poster Image */}
         {!isMobile && (

@@ -155,47 +155,58 @@ export function OurStory() {
         },
       })
 
-      // ── Container Scroll 3D Effect ──────────────────────
-      let tiltTriggers: ScrollTrigger[] = []
-      
-      const startScale = 1.05
+      // ── Inclinação 3D do card (só desktop) ──────────────────────────
+      // No mobile ela saía cara e recortada: o card tem ~950px de altura por
+      // 90% da largura, e girado sob `perspective` a projeção passa dos dois
+      // lados da tela (medido: -74px à esquerda e +74px à direita num aparelho
+      // de 390px). Fora o recorte, é uma rasterização do tamanho da página a
+      // cada frame de scroll — é ela que faz o gesto engasgar dentro da seção
+      // em aparelho intermediário.
+      const tiltTriggers: ScrollTrigger[] = []
 
-      const enterTilt = gsap.fromTo(
-        card,
-        { rotateX: 20, scale: startScale },
-        {
-          rotateX: 0,
-          scale: 1,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: section,
-            start: 'top bottom',
-            end: 'top 10%',
-            scrub: 0.5,
+      if (isDesktop) {
+        const startScale = 1.05
+
+        const enterTilt = gsap.fromTo(
+          card,
+          { rotateX: 20, scale: startScale },
+          {
+            rotateX: 0,
+            scale: 1,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top bottom',
+              end: 'top 10%',
+              scrub: 0.5,
+            },
           },
-        },
-      )
+        )
 
-      const leaveTilt = gsap.fromTo(
-        card,
-        { rotateX: 0, scale: 1 },
-        {
-          rotateX: -20,
-          scale: startScale,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: section,
-            start: 'bottom 90%',
-            end: 'bottom top',
-            scrub: 0.5,
+        const leaveTilt = gsap.fromTo(
+          card,
+          { rotateX: 0, scale: 1 },
+          {
+            rotateX: -20,
+            scale: startScale,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: section,
+              start: 'bottom 90%',
+              end: 'bottom top',
+              scrub: 0.5,
+            },
           },
-        },
-      )
+        )
 
-      tiltTriggers = [
-        enterTilt.scrollTrigger as ScrollTrigger,
-        leaveTilt.scrollTrigger as ScrollTrigger,
-      ]
+        tiltTriggers.push(
+          enterTilt.scrollTrigger as ScrollTrigger,
+          leaveTilt.scrollTrigger as ScrollTrigger,
+        )
+      } else {
+        // Se veio de uma largura de desktop, limpa o transform que ficou.
+        gsap.set(card, { clearProps: 'transform' })
+      }
 
       return () => {
         trigger.kill()
@@ -212,7 +223,17 @@ export function OurStory() {
     <div
       ref={sectionRef}
       className="w-full relative z-10 py-10 md:py-20"
-      style={{ perspective: '1000px' }}
+      style={{
+        // `overflow-anchor: none`: o browser não pode "corrigir" o scroll por
+        // conta própria dentro desta seção. A ancoragem automática, quando algo
+        // acima muda de altura, mexe no scrollTop sem aviso — e é justamente
+        // isso que aparecia como salto seco no mobile.
+        overflowAnchor: 'none',
+        // A perspectiva só existe onde a inclinação 3D roda (desktop): no
+        // mobile ela criaria um contexto 3D para nada, e todo o card viraria
+        // uma camada composta do tamanho da página.
+        ...(isDesktop ? { perspective: '1000px' } : null),
+      }}
     >
       {/* ── Fundo branco com bordas superior e inferior esfumaçadas (blur) ── */}
       <div className="pointer-events-none absolute inset-0 -z-10 flex flex-col">
@@ -238,7 +259,7 @@ export function OurStory() {
 
       <section
         ref={cardRef}
-        className="relative overflow-hidden rounded-[2.5rem] w-[90%] min-[1600px]:w-[95%] max-w-[100rem] min-[2000px]:max-w-[120rem] mx-auto border border-black/[0.06] bg-white isolate transform-gpu"
+        className="relative overflow-hidden rounded-[2.5rem] w-[90%] min-[1600px]:w-[95%] max-w-[100rem] min-[2000px]:max-w-[120rem] mx-auto border border-black/[0.06] bg-white isolate lg:transform-gpu"
         style={{
           transformOrigin: 'top center',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(0, 0, 0, 0.1)',
@@ -248,7 +269,11 @@ export function OurStory() {
             peso — assim a família cresce mesmo com o card menor. O padding
             lateral não é mais forçado aqui: o Container já entrega a escala
             enxuta nessa faixa (ver doc do Container). */}
-        <Container className="grid min-h-[100dvh] grid-cols-1 items-center gap-2xl py-xl lg:py-2xl xl:py-3xl lg:grid-cols-[1.35fr_1fr] lg:gap-xl min-[1600px]:grid-cols-[1.15fr_1fr] min-[1600px]:gap-3xl">
+        {/* min-h em `--vh-stable`, não em 100dvh: hoje o conteúdo do mobile já
+            passa da altura da tela e o mínimo nem entra em jogo, mas num
+            aparelho maior (ou em paisagem) ele entraria — e aí a seção mudaria
+            de altura toda vez que a barra do navegador recolhesse. */}
+        <Container className="grid min-h-[var(--vh-stable,100dvh)] grid-cols-1 items-center gap-2xl py-xl lg:py-2xl xl:py-3xl lg:grid-cols-[1.35fr_1fr] lg:gap-xl min-[1600px]:grid-cols-[1.15fr_1fr] min-[1600px]:gap-3xl">
           {/* ── Coluna esquerda: família ──────────────────────────────── */}
           {/* pt no desktop: os rótulos ficam ACIMA da foto (top negativo) e
               precisam desse respiro, senão o card (overflow-hidden) os corta.
