@@ -114,7 +114,6 @@ const DEFAULT_PRODUCT_GALLERY = PRODUCT_GALLERIES['aminosan']
 
 type Problem = { title: string; desc: string; icon: 'seed' | 'sun' | 'drop' | 'leaf' | 'shield' | 'chart' }
 type Benefit = { title: string; desc: string }
-type Stage = { num: string; label: string; title: string; desc: string }
 type Result = { value: string; unit: string; desc: string }
 type Related = { slug: string; name: string; tag: string; desc: string; labelColor: string; image?: string }
 type GalleryPhoto = { src: string; span: string; sizes: string }
@@ -123,10 +122,26 @@ type GalleryPhoto = { src: string; span: string; sizes: string }
  *  só apagaria essa distinção. */
 type CropGroup = { label: string; crops: string[] }
 
+/**
+ * Aplicação por cultura, direto do rótulo 2026.
+ *
+ * O texto de `when` é literal do rótulo, sem resumir e sem converter para
+ * código de fase padronizado: a soja fala "20 dias após a germinação", a
+ * batata "iniciando na amontoa", o café "chumbinho"/"granação". Nem toda
+ * cultura usa estágio "V" — padronizar geraria erro técnico.
+ *
+ * Como o momento já vem embutido na linha de cada cultura, não existe campo
+ * de fase separado: esta tabela substituiu a antiga seção de etapas.
+ *
+ * `crop` é opcional porque o Supermix é adjuvante e se organiza por tipo de
+ * aplicação (terrestre / aérea / calda concentrada), não por cultura.
+ */
+type ApplicationRow = { crop?: string; dose: string; when: string }
+type ApplicationGroup = { label: string; note?: string; rows: ApplicationRow[] }
+
 export type ProductMeta = {
   labelColor: string
   problemsMeta: ('seed' | 'sun' | 'drop' | 'leaf' | 'shield' | 'chart')[]
-  resultsMeta: { value: string; unit: string }[]
   relatedMeta: { slug: string; labelColor: string }[]
   image?: string
   /** Embalagens de fábrica, na ordem do menor para o maior. Lista fechada
@@ -138,7 +153,6 @@ const META: Record<string, ProductMeta> = {
   'aminosan': {
     labelColor: '#659357',
     problemsMeta: ['seed', 'sun', 'drop'],
-    resultsMeta: [{ value: '+14', unit: 'sc/ha' }, { value: '+10', unit: 'sc/ha' }, { value: '+38', unit: '%' }],
     relatedMeta: [{ slug: 'fitofert', labelColor: '#659357' }, { slug: 'revigo-comoni', labelColor: '#302783' }, { slug: 'revigophos-amino', labelColor: '#302783' }],
     image: '/produtos/aminosan.webp',
     sizes: ['1L', '10L', '20L']
@@ -146,7 +160,6 @@ const META: Record<string, ProductMeta> = {
   'fitofert': {
     labelColor: '#659357',
     problemsMeta: ['leaf', 'chart', 'sun'],
-    resultsMeta: [],
     relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'revigophos-amino', labelColor: '#302783' }],
     image: '/produtos/fitofert.webp',
     sizes: ['20L']
@@ -154,7 +167,6 @@ const META: Record<string, ProductMeta> = {
   'revigo-comoni': {
     labelColor: '#302783',
     problemsMeta: ['leaf', 'sun', 'drop'],
-    resultsMeta: [],
     relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'fitofert', labelColor: '#659357' }],
     image: '/produtos/revigo-comoni.webp',
     sizes: ['1L']
@@ -162,7 +174,6 @@ const META: Record<string, ProductMeta> = {
   'revigophos-amino': {
     labelColor: '#302783',
     problemsMeta: ['sun', 'drop', 'seed'],
-    resultsMeta: [],
     relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'fitofert', labelColor: '#659357' }],
     image: '/produtos/revigophos-amino.webp',
     sizes: ['10L', '20L']
@@ -170,7 +181,6 @@ const META: Record<string, ProductMeta> = {
   'revigo-cobre-ultra': {
     labelColor: '#302783',
     problemsMeta: ['leaf', 'shield'],
-    resultsMeta: [],
     relatedMeta: [{ slug: 'revigo-comoni', labelColor: '#302783' }, { slug: 'aminosan', labelColor: '#659357' }],
     image: '/produtos/revigo-cobre-ultra.webp',
     sizes: ['1L', '10L']
@@ -178,7 +188,6 @@ const META: Record<string, ProductMeta> = {
   'acorda-cana': {
     labelColor: '#79ab34',
     problemsMeta: ['seed', 'drop'],
-    resultsMeta: [],
     relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'redutan-sili-4', labelColor: '#7d252a' }],
     image: '/produtos/acorda-cana.webp',
     sizes: ['20L']
@@ -186,7 +195,6 @@ const META: Record<string, ProductMeta> = {
   'acorda-ultra': {
     labelColor: '#008dc2',
     problemsMeta: ['chart', 'drop'],
-    resultsMeta: [],
     relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'aduban', labelColor: '#ad1115' }],
     image: '/produtos/acorda-ultra.webp',
     sizes: ['1L', '10L']
@@ -194,7 +202,6 @@ const META: Record<string, ProductMeta> = {
   'aduban': {
     labelColor: '#ad1115',
     problemsMeta: ['drop', 'seed'],
-    resultsMeta: [],
     relatedMeta: [{ slug: 'acorda-ultra', labelColor: '#008dc2' }, { slug: 'aminosan', labelColor: '#659357' }],
     image: '/produtos/aduban.webp',
     sizes: ['20L']
@@ -202,7 +209,6 @@ const META: Record<string, ProductMeta> = {
   'kmep-ultra': {
     labelColor: '#ad1115',
     problemsMeta: ['shield', 'chart'],
-    resultsMeta: [],
     relatedMeta: [{ slug: 'redutan-sili-4', labelColor: '#7d252a' }, { slug: 'supermix', labelColor: '#388123' }],
     image: '/produtos/kmep-ultra.webp',
     sizes: ['10L', '20L']
@@ -211,7 +217,6 @@ const META: Record<string, ProductMeta> = {
   'redutan-sili-4': {
     labelColor: '#006838',
     problemsMeta: ['sun', 'drop'],
-    resultsMeta: [],
     relatedMeta: [{ slug: 'redutan-sili-5', labelColor: '#7d252a' }, { slug: 'supermix', labelColor: '#388123' }],
     image: '/produtos/redutan-sili-4.webp',
     sizes: ['1L']
@@ -221,7 +226,6 @@ const META: Record<string, ProductMeta> = {
   'redutan-sili-5': {
     labelColor: '#7d252a',
     problemsMeta: ['sun', 'drop'],
-    resultsMeta: [],
     relatedMeta: [{ slug: 'redutan-sili-4', labelColor: '#006838' }, { slug: 'supermix', labelColor: '#388123' }],
     image: '/produtos/redutan-sili-5.webp',
     sizes: ['1L']
@@ -229,7 +233,6 @@ const META: Record<string, ProductMeta> = {
   'supermix': {
     labelColor: '#388123',
     problemsMeta: ['drop', 'chart'],
-    resultsMeta: [],
     relatedMeta: [{ slug: 'redutan-sili-4', labelColor: '#7d252a' }, { slug: 'kmep-ultra', labelColor: '#ad1115' }],
     image: '/produtos/supermix.webp',
     sizes: ['1L', '10L', '20L']
@@ -237,7 +240,6 @@ const META: Record<string, ProductMeta> = {
   'revigo-milho': {
     labelColor: '#302783',
     problemsMeta: ['chart', 'sun'],
-    resultsMeta: [],
     relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'fitofert', labelColor: '#659357' }],
     image: '/produtos/revigo-milho.webp',
     sizes: ['20L']
@@ -245,7 +247,6 @@ const META: Record<string, ProductMeta> = {
   'revigo-pasto': {
     labelColor: '#302783',
     problemsMeta: ['leaf', 'chart'],
-    resultsMeta: [],
     relatedMeta: [{ slug: 'aminosan', labelColor: '#659357' }, { slug: 'redutan-sili-4', labelColor: '#7d252a' }],
     image: '/produtos/revigo-pasto.webp',
     sizes: ['20L']
@@ -262,7 +263,9 @@ type ProductData = ProductMeta & {
   cropsNote: string
   problems: Problem[]
   benefits: Benefit[]
-  stages: Stage[]
+  applications: ApplicationGroup[]
+  /** Só o Supermix: ordem de preparo da calda, que não cabe na tabela. */
+  applicationsNote: string
   results: Result[]
   related: Related[]
   gallery: GalleryPhoto[]
@@ -363,7 +366,10 @@ function SectionHead({ eyebrow, icon, title, lede }: { eyebrow: string; icon?: R
  *  acima de VISIBLE a lista colapsa atrás de um "+N". */
 const VISIBLE_CROPS = 12
 
-function CropPills({ crops, color, moreLabel }: { crops: string[]; color: string; moreLabel: string }) {
+/** `moreLabel` recebe a contagem em vez de vir pronto: a string tem o
+ *  placeholder ICU {count}, que o next-intl exige resolver na chamada de
+ *  tradução — só quem monta a lista sabe quantas culturas sobraram. */
+function CropPills({ crops, color, moreLabel }: { crops: string[]; color: string; moreLabel: (count: number) => string }) {
   const [expanded, setExpanded] = React.useState(false)
   const overflow = crops.length - VISIBLE_CROPS
   const shown = expanded || overflow <= 0 ? crops : crops.slice(0, VISIBLE_CROPS)
@@ -386,7 +392,7 @@ function CropPills({ crops, color, moreLabel }: { crops: string[]; color: string
           className="inline-flex items-center text-[13px] font-semibold px-3.5 py-[7px] rounded-full border transition-colors hover:bg-black/[0.03]"
           style={{ color, borderColor: `${color}59` }}
         >
-          {moreLabel.replace('{count}', String(overflow))}
+          {moreLabel(overflow)}
         </button>
       )}
     </div>
@@ -410,8 +416,13 @@ export function ProductPage({ slug }: { slug: string }) {
     cropsNote: tData.has(`${slug}.cropsNote`) ? tData(`${slug}.cropsNote`) : '',
     problems: Object.values(tData.raw(`${slug}.problems`) as Record<string, {title: string, desc: string}>).map((p, i) => ({ ...p, icon: meta.problemsMeta[i] })),
     benefits: Object.values(tData.raw(`${slug}.benefits`) as Record<string, {title: string, desc: string}>),
-    stages: Object.entries(tData.raw(`${slug}.stages`) as Record<string, {label: string, title: string, desc: string}>).map(([k, s], i) => ({ ...s, num: `0${i+1}` })),
-    results: Object.values(tData.raw(`${slug}.results`) as Record<string, {desc: string}>).map((r, i) => ({ ...r, ...meta.resultsMeta[i] })),
+    applications: Object.values(
+      (tData.raw(`${slug}.applications`) ?? {}) as Record<string, { label: string; note?: string; rows: Record<string, ApplicationRow> }>,
+    ).map((g) => ({ ...g, rows: Object.values(g.rows) })),
+    applicationsNote: tData.has(`${slug}.applicationsNote`) ? tData(`${slug}.applicationsNote`) : '',
+    // value/unit vivem no i18n (e não no META) porque o separador decimal muda
+    // por idioma: "+6,87 t/ha" em pt-BR e es, "+6.87 t/ha" em en.
+    results: Object.values(tData.raw(`${slug}.results`) as Record<string, Result>),
     related: Object.entries(tData.raw(`${slug}.related`) as Record<string, {name: string, tag: string, desc: string}>).map(([relSlug, r], i) => ({ slug: relSlug, ...r, labelColor: meta.relatedMeta[i]?.labelColor || '#000', image: META[relSlug]?.image })),
     gallery: PRODUCT_GALLERIES[slug] ?? DEFAULT_PRODUCT_GALLERY,
   } : null;
@@ -594,12 +605,12 @@ export function ProductPage({ slug }: { slug: string }) {
                           <span className="text-[11px] font-semibold text-[#5A5A57] block mb-2">
                             {group.label}
                           </span>
-                          <CropPills crops={group.crops} color={product.labelColor} moreLabel={tPage('cropsMore')} />
+                          <CropPills crops={group.crops} color={product.labelColor} moreLabel={(count) => tPage('cropsMore', { count })} />
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <CropPills crops={product.crops} color={product.labelColor} moreLabel={tPage('cropsMore')} />
+                    <CropPills crops={product.crops} color={product.labelColor} moreLabel={(count) => tPage('cropsMore', { count })} />
                   )}
                 </div>
               )}
@@ -721,35 +732,84 @@ export function ProductPage({ slug }: { slug: string }) {
           </section>
         )}
 
-        {/* Modo de uso */}
-        {product.stages.length > 0 && (
+        {/* Aplicações por cultura — dosagem e momento direto do rótulo 2026 */}
+        {product.applications.length > 0 && (
           <section data-section className="pt-0 pb-[clamp(80px,9vw,140px)]">
             <Container>
               <SectionHead
                 icon={ListChecks}
-                eyebrow={tPage("stagesEyebrow")}
-                title={tPage.rich("stagesTitle", { name: nameShort, br: () => <br /> })}
-                lede={tPage("stagesLede")}
+                eyebrow={tPage('applicationsEyebrow')}
+                title={tPage.rich('applicationsTitle', { name: nameShort, br: () => <br /> })}
+                lede={tPage('applicationsLede')}
               />
-              <div
-                className="grid gap-[2px] mt-8 rounded-[14px] overflow-hidden"
-                style={{ gridTemplateColumns: `repeat(${product.stages.length}, 1fr)` }}
-              >
-                {product.stages.map((s, i) => (
-                  <div
-                    key={i}
-                    data-animate-content
-                    className="flex flex-col gap-2.5 p-[24px_20px] min-h-[140px]"
-                    style={{ backgroundColor: i % 2 === 0 ? '#DDE6C8' : '#E2EAD3' }}
-                  >
-                    <span className="text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[#004B26] opacity-60">
-                      {s.num} · {s.label}
-                    </span>
-                    <h4 className="m-0 text-[17px] font-[650] tracking-[-0.01em] text-[#1A1A1A] leading-[1.15]">{s.title}</h4>
-                    <p className="m-0 text-[13.5px] text-[#5A5A57] leading-[1.45]">{s.desc}</p>
-                  </div>
-                ))}
+
+              <div className="mt-8 flex flex-col gap-7">
+                {product.applications.map((group) => {
+                  const hasCrop = group.rows.some((r) => r.crop)
+                  const cols = hasCrop ? 'md:grid-cols-[1.1fr_0.85fr_2fr]' : 'md:grid-cols-[0.9fr_2fr]'
+                  return (
+                    <div key={group.label} data-animate-content>
+                      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
+                        <span
+                          className="inline-flex items-center gap-[7px] text-[12px] font-bold uppercase tracking-[0.08em] px-3.5 py-[6px] rounded-full"
+                          style={{ color: product.labelColor, border: `1.5px solid ${product.labelColor}59` }}
+                        >
+                          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: product.labelColor }} />
+                          {group.label}
+                        </span>
+                        {group.note && (
+                          <span className="text-[12.5px] text-[#5A5A57] leading-snug">{group.note}</span>
+                        )}
+                      </div>
+
+                      <div className="rounded-[14px] border border-black/10 overflow-hidden">
+                        {/* Cabeçalho só no desktop; no mobile cada linha vira card rotulado */}
+                        <div className={`hidden ${cols} md:grid gap-4 px-5 py-3 bg-[#DDE6C8] text-[11px] font-bold uppercase tracking-[0.07em] text-[#004B26]`}>
+                          {hasCrop && <span>{tPage('appCropCol')}</span>}
+                          <span>{tPage('appDoseCol')}</span>
+                          <span>{tPage('appWhenCol')}</span>
+                        </div>
+
+                        {group.rows.map((row, i) => (
+                          <div
+                            key={i}
+                            className={`grid grid-cols-1 ${cols} gap-1.5 md:gap-4 px-5 py-4 ${i % 2 === 1 ? 'bg-[#F7FAF3]' : 'bg-white'} ${i > 0 ? 'border-t border-black/[0.06]' : ''}`}
+                          >
+                            {hasCrop && (
+                              <span className="text-[14.5px] font-semibold text-[#1A1A1A] leading-snug">
+                                {row.crop}
+                              </span>
+                            )}
+                            <span className="text-[13.5px] text-[#1A1A1A] leading-snug">
+                              <span className="md:hidden text-[#5A5A57] font-semibold">{tPage('appDoseCol')}: </span>
+                              {row.dose}
+                            </span>
+                            <span className="text-[13.5px] text-[#5A5A57] leading-[1.5]">
+                              <span className="md:hidden font-semibold">{tPage('appWhenCol')}: </span>
+                              {row.when}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
+
+              {product.applicationsNote && (
+                <div data-animate-content className="mt-6 rounded-[14px] border border-black/10 bg-[#F7FAF3] p-5">
+                  <span className="block text-[11px] font-bold uppercase tracking-[0.07em] text-[#004B26] mb-2">
+                    {tPage('appPrepLabel')}
+                  </span>
+                  <p className="m-0 text-[13.5px] text-[#5A5A57] leading-[1.6] max-w-none">
+                    {product.applicationsNote}
+                  </p>
+                </div>
+              )}
+
+              <p data-animate-content className="mt-5 text-[12.5px] text-[#7C7C78] leading-snug m-0">
+                {tPage('appDisclaimer')}
+              </p>
             </Container>
           </section>
         )}

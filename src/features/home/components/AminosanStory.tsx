@@ -50,7 +50,13 @@ const STAGE_IMAGE_CLASS =
    1024, a faixa de 768 a 1023 juntava coluna de texto centralizada com o frasco
    ampliado 2,8× — a assinatura AMINOSAN caía na tampa e a copy atravessava o
    rótulo. Agora a seção inteira vira num número só. */
-const ACT_COLUMN_TOP = 'lg:pt-[clamp(6rem,30dvh,22rem)]'
+/* Âncora vertical compartilhada pelos Atos 1 e 3 (ver comentário no JSX do
+   Ato 1). Precisa ser a MESMA nos dois: é ela que faz o título cair no mesmo
+   pixel na virada de um ato para o outro. Subiu de 30dvh para 36dvh quando o
+   bloco de número saiu do Ato 3 e a coluna ficou visivelmente acima do centro.
+   O teto (24rem) segura o Ato 1, que é mais alto (dois parágrafos + tag de
+   rodapé), dentro da tela em notebooks de pouca altura. */
+const ACT_COLUMN_TOP = 'lg:pt-[clamp(6rem,36dvh,24rem)]'
 
 export function AminosanStory() {
   const t = useTranslations('aminosanStory')
@@ -302,11 +308,6 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
             <span className="text-eyebrow text-[10px] uppercase tracking-[0.18em] text-primary">{t('a3Eyebrow')}</span>
             <BicolorTitle title={t('a3Title')} titleHi={t('a3TitleHi')} className="text-[clamp(1.75rem,7vw,3rem)] leading-tight" />
             <p className="text-subtitle max-w-[22rem] text-sm text-foreground/80">{t('a3Body')}</p>
-            <div className="flex flex-col items-center gap-xs">
-              <span className="text-highlight text-2xl text-primary">{t('a3StatPrefix')}14 {t('a3StatUnit')}</span>
-              <span className="text-subtitle text-sm text-foreground/80">{t('a3StatLabel')}</span>
-              <span className="text-[11px] text-foreground/50">{t('a3StatSource')}</span>
-            </div>
           </div>
         </Container>
       </div>
@@ -342,9 +343,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
   const leftPanelRef    = useRef<HTMLDivElement>(null)
   const linePanelRef    = useRef<HTMLDivElement>(null)
   const lineBodyRef     = useRef<HTMLParagraphElement>(null)
-  const counterRef      = useRef<HTMLSpanElement>(null)
   const brandMarkRef    = useRef<HTMLDivElement>(null)
-  const counterPrefix   = t('a3StatPrefix')
 
   const lenis    = useLenis()
   const lenisRef = useRef(lenis)
@@ -390,7 +389,6 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const a3Title = leftPanelRef.current?.querySelector<HTMLElement>('[data-a3-title]') ?? null
       const a3Body = leftPanelRef.current?.querySelector<HTMLElement>('[data-a3-body]') ?? null
       const a3Line = leftPanelRef.current?.querySelector<HTMLElement>('[data-a3-line]') ?? null
-      const a3Stat = leftPanelRef.current?.querySelector<HTMLElement>('[data-a3-stat]') ?? null
       const newCalloutLine = newCalloutRef.current?.querySelector<HTMLElement>('[data-line]') ?? null
       const newCalloutLabel = newCalloutRef.current?.querySelector<HTMLElement>('[data-label]') ?? null
       const newCalloutDot = newCalloutRef.current?.querySelector<HTMLElement>('[data-dot]') ?? null
@@ -404,14 +402,12 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       gsap.set(a3Title, { autoAlpha: 0, y: 30 })
       gsap.set(a3Body, { autoAlpha: 0, filter: 'blur(10px)' })
       gsap.set(a3Line, { scaleX: 0 })
-      gsap.set(a3Stat, { autoAlpha: 0, y: 20, filter: 'blur(10px)' })
       gsap.set(newCalloutLine, { scaleX: 0 })
       gsap.set(newCalloutDot, { scale: 0, autoAlpha: 0 })
       gsap.set(newCalloutLabel, { autoAlpha: 0, x: 12 })
       gsap.set([linePanelRef.current, lineBodyRef.current], { autoAlpha: 0, y: 24, filter: 'blur(10px)' })
       gsap.set(lineTitleChars, { x: 20, autoAlpha: 0, filter: 'blur(10px)' })
       gsap.set(lineItems, { autoAlpha: 0, y: 18, filter: 'blur(10px)' })
-      if (counterRef.current) counterRef.current.innerText = `${counterPrefix}10`
 
       // ── Helpers de animação
       let currentTl: gsap.core.Timeline | null = null
@@ -559,21 +555,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         tl.to(a3Title, { y: 0, autoAlpha: 1, duration: 0.6, ease: 'power2.out' }, 0.1)
         tl.to(a3Body, { autoAlpha: 1, filter: 'blur(0px)', duration: 0.6, ease: 'power2.out' }, 0.2)
         tl.to(a3Line, { scaleX: 1, duration: 0.5, ease: 'power2.out' }, 0.3)
-        tl.to(a3Stat, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.6, ease: 'power2.out' }, 0.35)
         tl.to(newCalloutLine, { scaleX: 1, duration: 0.45, transformOrigin: 'left', ease: 'power2.out' }, 0.52)
         tl.to(newCalloutDot, { scale: 1, autoAlpha: 1, duration: 0.3, ease: 'back.out(1.8)' }, 0.72)
         tl.to(newCalloutLabel, { x: 0, autoAlpha: 1, duration: 0.42, ease: 'power2.out' }, 0.76)
-
-        tl.to({ val: 10 }, {
-          val: 14,
-          duration: 1.0,
-          ease: 'power2.out',
-          onUpdate: function() {
-            if (counterRef.current) {
-              counterRef.current.innerText = `${counterPrefix}${Math.round(this.targets()[0].val)}`
-            }
-          }
-        }, 0.45)
       }
 
       const hideAct3UI = (delay = 0) => {
@@ -584,17 +568,10 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         tl.to(newCalloutDot, { scale: 0, autoAlpha: 0, duration: 0.12, ease: 'power2.in' }, 0.03)
         tl.to(newCalloutLine, { scaleX: 0, duration: 0.14, ease: 'power2.in' }, 0.04)
         if (newCalloutRef.current) tl.to(newCalloutRef.current, { autoAlpha: 0, duration: 0.16, ease: 'power2.in' }, 0.04)
-        tl.to(a3Stat, { y: 20, autoAlpha: 0, filter: 'blur(10px)', duration: 0.16, ease: 'power2.in' }, 0.04)
         tl.to(a3Line, { scaleX: 0, duration: 0.14, ease: 'power2.in' }, 0.07)
         tl.to(a3Body, { autoAlpha: 0, filter: 'blur(10px)', duration: 0.16, ease: 'power2.in' }, 0.08)
         tl.to(a3Title, { y: 30, autoAlpha: 0, duration: 0.16, ease: 'power2.in' }, 0.1)
         tl.to(a3Eyebrow, { y: -20, autoAlpha: 0, filter: 'blur(10px)', duration: 0.16, ease: 'power2.in' }, 0.12)
-
-        tl.set({}, {
-          onComplete: () => {
-            if (counterRef.current) counterRef.current.innerText = `${counterPrefix}10`
-          }
-        })
       }
 
       const showLineUI = (delay = 0) => {
@@ -674,11 +651,10 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
              para +14 numa fase onde o número nem está na tela. */
           currentTl?.kill()
           currentTl = null
-          gsap.killTweensOf([a3Eyebrow, a3Title, a3Body, a3Line, a3Stat, newCalloutLine, newCalloutDot, newCalloutLabel, newCalloutRef.current].filter(Boolean))
-          gsap.set([a3Eyebrow, a3Title, a3Body, a3Stat, newCalloutLabel, newCalloutRef.current], { autoAlpha: 0 })
+          gsap.killTweensOf([a3Eyebrow, a3Title, a3Body, a3Line, newCalloutLine, newCalloutDot, newCalloutLabel, newCalloutRef.current].filter(Boolean))
+          gsap.set([a3Eyebrow, a3Title, a3Body, newCalloutLabel, newCalloutRef.current], { autoAlpha: 0 })
           gsap.set([a3Line, newCalloutLine], { scaleX: 0 })
           gsap.set(newCalloutDot, { scale: 0, autoAlpha: 0 })
-          if (counterRef.current) counterRef.current.innerText = `${counterPrefix}10`
         } else {
           hideAct3UI(0)
         }
@@ -715,12 +691,11 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const showAct3Static = () => {
         currentTl?.kill()
         currentTl = null
-        gsap.killTweensOf([a3Eyebrow, a3Title, a3Body, a3Line, a3Stat, newCalloutLine, newCalloutDot, newCalloutLabel, newCalloutRef.current].filter(Boolean))
-        gsap.set([a3Eyebrow, a3Title, a3Body, a3Stat, newCalloutRef.current], { autoAlpha: 1, y: 0, filter: 'blur(0px)' })
+        gsap.killTweensOf([a3Eyebrow, a3Title, a3Body, a3Line, newCalloutLine, newCalloutDot, newCalloutLabel, newCalloutRef.current].filter(Boolean))
+        gsap.set([a3Eyebrow, a3Title, a3Body, newCalloutRef.current], { autoAlpha: 1, y: 0, filter: 'blur(0px)' })
         gsap.set([a3Line, newCalloutLine], { scaleX: 1, transformOrigin: 'left' })
         gsap.set(newCalloutDot, { scale: 1, autoAlpha: 1 })
         gsap.set(newCalloutLabel, { autoAlpha: 1, x: 0 })
-        if (counterRef.current) counterRef.current.innerText = `${counterPrefix}14`
       }
 
       const showLineStatic = () => {
@@ -1582,11 +1557,6 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
             </p>
             <div className="mt-auto lg:mt-0 flex flex-col items-start">
               <div data-a3-line className="my-2 md:my-lg h-px w-10 md:w-12 bg-primary/40" style={{ transformOrigin: 'left' }} />
-              <div data-a3-stat className="flex flex-col gap-0.5">
-                <span className="text-highlight text-xl md:text-3xl xl:text-4xl text-primary"><span ref={counterRef}>{t('a3StatPrefix')}10</span> {t('a3StatUnit')}</span>
-                <span className="text-subtitle text-xs md:text-sm text-foreground/80">{t('a3StatLabel')}</span>
-                <span className="text-[10px] md:text-[11px] text-foreground/50">{t('a3StatSource')}</span>
-              </div>
             </div>
           </div>
         </Container>

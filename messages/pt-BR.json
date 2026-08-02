@@ -104,10 +104,6 @@
     "a3Title": "O mesmo aminoácido.",
     "a3TitleHi": "aminoácido.",
     "a3Body": "O frasco mudou com o tempo. O aminoácido que ele carrega trabalha no campo desde 1988.",
-    "a3StatPrefix": "+10 a +",
-    "a3StatUnit": "sc/ha",
-    "a3StatLabel": "Sacas a mais por hectare na soja, em ensaios de campo.",
-    "a3StatSource": "Fonte: ensaios DETEC (Taquarivaí/SP) e Terras Gerais (Lavras/MG).",
     "newBottleCaption": "O Aminosan de hoje.",
     "lineEyebrow": "Linha completa",
     "lineTitle": "Produto certo para cada fase da lavoura.",
@@ -136,7 +132,7 @@
       },
       "joao_vitor": {
         "name": "João Vitor Matino",
-        "role": "Gerente de Logística"
+        "role": "Diretor de Inovações"
       }
     },
     "stat1": "Gestão familiar com propósito",
@@ -1515,9 +1511,6 @@
     "benefitsEyebrow": "Benefícios",
     "benefitsTitle": "O que o {name}<br></br>entrega na prática.",
     "benefitsLede": "Resultados fisiológicos e agronômicos que aparecem na produtividade.",
-    "stagesEyebrow": "Posicionamento",
-    "stagesTitle": "Quando aplicar o<br></br>{name}.",
-    "stagesLede": "Fases críticas do ciclo onde a aplicação entrega o melhor resultado.",
     "resultsEyebrow": "Resultados de campo",
     "resultsTitle": "Performance do {name}<br></br>na colheita.",
     "resultsLede": "Ganhos reais medidos em áreas comerciais e ensaios com parceiros.",
@@ -1527,7 +1520,15 @@
     "galleryTitle": "{name} em ação.",
     "galleryLede": "Fotos de talhões e ensaios reais conduzidos com produtores parceiros.",
     "sizesLabel": "Embalagens disponíveis",
-    "cropsMore": "+{count} culturas"
+    "cropsMore": "+{count} culturas",
+    "applicationsEyebrow": "Aplicações",
+    "applicationsTitle": "Como aplicar o {name}<br></br>em cada cultura.",
+    "applicationsLede": "Dosagem e momento de aplicação conforme o rótulo 2026.",
+    "appCropCol": "Cultura",
+    "appDoseCol": "Dosagem",
+    "appWhenCol": "Quando aplicar",
+    "appPrepLabel": "Modo de usar (preparo da calda)",
+    "appDisclaimer": "Para toda aplicação, consultar sempre um Engenheiro Agrônomo ou Responsável Técnico."
   },
   "productData": {
     "aminosan": {
@@ -1608,42 +1609,16 @@
           "desc": "Mais flores fixadas e grãos formados — diretamente refletido na produtividade."
         }
       },
-      "stages": {
-        "0": {
-          "label": "V1–V3",
-          "title": "Estabelecimento",
-          "desc": "Estimula o desenvolvimento inicial e enraizamento."
-        },
-        "1": {
-          "label": "V4–V6",
-          "title": "Crescimento vegetativo",
-          "desc": "Mais vigor e produção de massa foliar."
-        },
-        "2": {
-          "label": "Pré-florada",
-          "title": "Pré-reprodutivo",
-          "desc": "Prepara a planta para florescimento uniforme."
-        },
-        "3": {
-          "label": "Florada",
-          "title": "Reprodutivo",
-          "desc": "Favorece pegamento e fixação de flores."
-        },
-        "4": {
-          "label": "Enchimento",
-          "title": "Granação",
-          "desc": "Sustenta produtividade até a colheita."
-        }
-      },
       "results": {
         "0": {
-          "desc": "Soja em Taquarivaí/SP, em ensaio de safra completa com Aminosan no manejo."
+          "value": "+14",
+          "unit": "sc/ha",
+          "desc": "Soja em Taquarivaí/SP, em ensaio com ganhos de 11 a 14 sc/ha. Fonte: DETEC."
         },
         "1": {
-          "desc": "Soja em Lavras/MG, em parcela testemunha vs Aminosan em pulverização foliar."
-        },
-        "2": {
-          "desc": "Mais resistência à seca, medida pela manutenção da área foliar em déficit hídrico."
+          "value": "+10",
+          "unit": "sc/ha",
+          "desc": "Soja em Lavras/MG. Fonte: avaliação Terras Gerais."
         }
       },
       "related": {
@@ -1661,6 +1636,98 @@
           "name": "RevigoPhos Amino",
           "tag": "Nutrição e Fisiologia",
           "desc": "Energia rápida e recuperação após estresses."
+        }
+      },
+      "applications": {
+        "0": {
+          "label": "Foliar",
+          "rows": {
+            "0": {
+              "crop": "Algodão",
+              "dose": "1,0 a 1,5 L/ha",
+              "when": "1 aplicação no início da floração, mais 3 a 4 aplicações com intervalos de 10 a 15 dias."
+            },
+            "1": {
+              "crop": "Arroz / Trigo / Cevada",
+              "dose": "1,0 a 1,5 L/ha",
+              "when": "1 aplicação antes do perfilhamento e 1 no emborrachamento."
+            },
+            "2": {
+              "crop": "Feijão",
+              "dose": "1,0 a 1,5 L/ha",
+              "when": "1 aplicação aos 25-30 dias de germinado, 1 aplicação antes da florada, 1 aplicação na formação de grãos."
+            },
+            "3": {
+              "crop": "Soja",
+              "dose": "1,0 a 1,5 L/ha",
+              "when": "1 aplicação aos 25-30 dias de germinado e 1 aplicação antes da florada."
+            },
+            "4": {
+              "crop": "Ervilha / Amendoim",
+              "dose": "1,0 a 1,5 L/ha",
+              "when": "1 aplicação aos 25-30 dias de germinado, 1 aplicação antes da florada, 1 na formação de grãos."
+            },
+            "5": {
+              "crop": "Batata",
+              "dose": "1,5 L/ha",
+              "when": "1 aplicação após o chegamento de terra, mais 2 a 3 aplicações com intervalos de 7 a 10 dias."
+            },
+            "6": {
+              "crop": "Tomate Envarado",
+              "dose": "0,5 a 1,0 L/ha",
+              "when": "Semanalmente."
+            },
+            "7": {
+              "crop": "Tomate Rasteiro",
+              "dose": "1,0 a 1,5 L/ha",
+              "when": "Iniciar após o transplante com intervalos de 7 a 10 dias."
+            },
+            "8": {
+              "crop": "Cenoura / Beterraba",
+              "dose": "1,0 L/ha",
+              "when": "Aplicar ao atingir 10 a 15 cm de altura, mais 4 a 5 aplicações com intervalos de 7 a 10 dias."
+            },
+            "9": {
+              "crop": "Morango / Pepino / Vagem / Hortaliças",
+              "dose": "1,0 L/ha",
+              "when": "5 a 6 aplicações com intervalos de 7 a 10 dias."
+            },
+            "10": {
+              "crop": "Alho / Cebola",
+              "dose": "1,0 L/ha",
+              "when": "4 a 5 aplicações com intervalos de 15 dias."
+            },
+            "11": {
+              "crop": "Milho / Sorgo",
+              "dose": "1,0 a 1,5 L/ha",
+              "when": "1 aplicação antes das plantas atingirem 8 folhas."
+            },
+            "12": {
+              "crop": "Pêssego / Maçã / Manga / Frutíferas",
+              "dose": "1,0 L/ha",
+              "when": "1 aplicação pós colheita, 1 após a florada e 1 na fase de desenvolvimento fruto."
+            },
+            "13": {
+              "crop": "Uva",
+              "dose": "1,0 a 1,5 L/ha",
+              "when": "1 aplicação pós colheita, 1 com brotos de 15 cm de comprimento e 5 a 6 aplicações com intervalos de 15 dias."
+            },
+            "14": {
+              "crop": "Citros",
+              "dose": "2,0 L/ha",
+              "when": "1 aplicação pré-florada, 1 após a florada, 1 na fase \"bolinha de gude\" e 1 na fase \"bolinha de ping-pong\". Aplicar sempre em mistura com micro-nutrientes. (REVIGO®)"
+            },
+            "15": {
+              "crop": "Café",
+              "dose": "2,0 L/ha",
+              "when": "1 aplicação em pré-florada, 1 após a florada \"chumbinho\", 1 na fase de formação dos grãos e 1 na granação. Aplicar sempre em mistura com micro-nutrientes. (REVIGO®)"
+            },
+            "16": {
+              "crop": "Rosa / Crisântemo / Cravo / Gladíolo / Ornamentais",
+              "dose": "0,5 a 1,0 L/ha",
+              "when": "Aplicar com intervalos de 7 a 10 dias até a formação do botão floral."
+            }
+          }
         }
       }
     },
@@ -1706,19 +1773,13 @@
           "desc": "Resultado mensurável em campo, safra após safra."
         }
       },
-      "stages": {
+      "results": {
         "0": {
-          "label": "Florada",
-          "title": "Reprodutivo",
-          "desc": "Aplicação foliar para suporte ao pegamento."
-        },
-        "1": {
-          "label": "Enchimento",
-          "title": "Granação",
-          "desc": "Segunda aplicação para maximizar o peso de grãos."
+          "value": "+4,6",
+          "unit": "sc/ha",
+          "desc": "Soja em Paragominas/PA: 66,30 sc/ha contra 61,70 da testemunha, com melhor engalhamento e pegamento observados em campo. Fonte: Centro de Pesquisa e Desenvolvimento JP Agrícola."
         }
       },
-      "results": {},
       "related": {
         "aminosan": {
           "name": "Aminosan®",
@@ -1729,6 +1790,53 @@
           "name": "RevigoPhos Amino",
           "tag": "Nutrição e Fisiologia",
           "desc": "Energia e recuperação rápida."
+        }
+      },
+      "applications": {
+        "0": {
+          "label": "Foliar",
+          "rows": {
+            "0": {
+              "crop": "Soja",
+              "dose": "0,5 a 1,0 L/ha",
+              "when": "Iniciar a 1ª aplicação antes do florescimento, a 2ª aplicação no início da formação de vagens (R3) e a 3ª aplicação no enchimento das vagens (R6)."
+            },
+            "1": {
+              "crop": "Feijão",
+              "dose": "0,5 a 1,0 L/ha",
+              "when": "Iniciar a 1ª aplicação aos 25 DAE – dias após a emergência; fazer a 2ª aplicação no início da formação de vagens e a 3ª aplicação no enchimento e granação das vagens."
+            },
+            "2": {
+              "crop": "Café",
+              "dose": "1,0 L/ha",
+              "when": "Iniciar as aplicações na florada, fazer a 2ª aplicação na fase \"chumbinho\" e a 3ª aplicação no enchimento e maturação dos grãos de café."
+            },
+            "3": {
+              "crop": "Citros",
+              "dose": "1,0 L/ha",
+              "when": "Iniciar as aplicações na florada, fazer a 2ª aplicação na fase \"bolinha de gude\" e a 3ª aplicação na maturação do fruto."
+            },
+            "4": {
+              "crop": "Alho e Cebola",
+              "dose": "0,5 a 1,0 L/ha",
+              "when": "Fazer aplicações semanais."
+            },
+            "5": {
+              "crop": "Tomate envarado",
+              "dose": "0,5 a 1,0 L/ha",
+              "when": "Iniciar pulverizações no 1º amarelo, com intervalos de aplicações semanais, concluir 10 aplicações no ciclo da cultura."
+            },
+            "6": {
+              "crop": "Tomate rasteiro",
+              "dose": "0,5 a 1,0 L/ha",
+              "when": "Iniciar aos 10 dias após o transplante, fazer 7 a 8 aplicações com intervalos semanais."
+            },
+            "7": {
+              "crop": "Ornamentais",
+              "dose": "0,5 a 1,0 L/ha",
+              "when": "Fazer aplicações semanais."
+            }
+          }
         }
       }
     },
@@ -1778,7 +1886,6 @@
           "desc": "Pode ser aplicado em calda junto com defensivos e outros foliares."
         }
       },
-      "stages": {},
       "results": {},
       "related": {
         "aminosan": {
@@ -1805,7 +1912,7 @@
           ]
         },
         "1": {
-          "label": "Aplicação foliar",
+          "label": "Foliar",
           "crops": [
             "Soja",
             "Feijão",
@@ -1820,6 +1927,73 @@
             "Cana-de-açúcar",
             "Hortaliças"
           ]
+        }
+      },
+      "applications": {
+        "0": {
+          "label": "Tratamento de sementes",
+          "rows": {
+            "0": {
+              "crop": "Soja / Feijão / Arroz",
+              "dose": "1 a 2 ml/kg Semente",
+              "when": "Tratamento de sementes."
+            },
+            "1": {
+              "crop": "Trigo / Aveia",
+              "dose": "1 a 2 ml/kg Semente",
+              "when": "Tratamento de sementes."
+            },
+            "2": {
+              "crop": "Cana-de-Açúcar",
+              "dose": "350 ml",
+              "when": "Sulco de plantio."
+            }
+          }
+        },
+        "1": {
+          "label": "Foliar",
+          "rows": {
+            "0": {
+              "crop": "Soja / Feijão",
+              "dose": "0,20 L/ha",
+              "when": "20 a 25 dias após a emergência."
+            },
+            "1": {
+              "crop": "Trigo / Aveia / Arroz",
+              "dose": "0,20 L/ha",
+              "when": "20 a 25 dias após a emergência."
+            },
+            "2": {
+              "crop": "Milho / Sorgo",
+              "dose": "0,15 L/ha",
+              "when": "15 a 25 dias após a emergência."
+            },
+            "3": {
+              "crop": "Algodão",
+              "dose": "0,20 L/ha",
+              "when": "20 a 30 dias após a emergência."
+            },
+            "4": {
+              "crop": "Café",
+              "dose": "0,25 L/ha",
+              "when": "Pré e pós florada."
+            },
+            "5": {
+              "crop": "Citros",
+              "dose": "0,20 L/ha",
+              "when": "Pré e pós florada."
+            },
+            "6": {
+              "crop": "Cana-de-Açúcar",
+              "dose": "0,30 L/ha",
+              "when": "30 a 40 dias após emergência."
+            },
+            "7": {
+              "crop": "Hortaliças",
+              "dose": "0,10 L/ha",
+              "when": "3 aplicações no vegetativo, intervalo semanal."
+            }
+          }
         }
       }
     },
@@ -1877,7 +2051,6 @@
           "desc": "Aplicação precisa em momentos decisivos do ciclo produtivo."
         }
       },
-      "stages": {},
       "results": {},
       "related": {
         "aminosan": {
@@ -1893,7 +2066,7 @@
       },
       "cropGroups": {
         "0": {
-          "label": "Aplicação foliar",
+          "label": "Foliar",
           "crops": [
             "Soja",
             "Feijão",
@@ -1922,6 +2095,103 @@
             "Morango",
             "Rosa/Ornamentais"
           ]
+        }
+      },
+      "applications": {
+        "0": {
+          "label": "Foliar",
+          "rows": {
+            "0": {
+              "crop": "Soja",
+              "dose": "0,5 a 1,0 L/ha",
+              "when": "4 aplicações 20 dias após a germinação e repetir quinzenalmente. (Enchimento de grãos)."
+            },
+            "1": {
+              "crop": "Feijão",
+              "dose": "0,5 a 1,0 L/ha",
+              "when": "4 aplicações 20 dias após a germinação e repetir quinzenalmente. (Enchimento de grãos)."
+            },
+            "2": {
+              "crop": "Batata",
+              "dose": "0,5 a 1,0 L/ha",
+              "when": "3 aplicações, iniciando na amontoa com intervalos semanais."
+            },
+            "3": {
+              "crop": "Arroz / Trigo",
+              "dose": "0,5 a 1,0 L/ha",
+              "when": "2 aplicações, uma no perfilhamento e outra no emborrachamento."
+            },
+            "4": {
+              "crop": "Milho / Sorgo",
+              "dose": "0,5 a 1,0 L/ha",
+              "when": "1 aplicação no pendoamento."
+            },
+            "5": {
+              "crop": "Café",
+              "dose": "1,0 a 2,0 L/ha",
+              "when": "3 a 4 aplicações anuais, iniciando na pós-florada, com intervalos de 40 – 45 dias."
+            },
+            "6": {
+              "crop": "Citros",
+              "dose": "1,0 a 2,0 L/ha",
+              "when": "1 aplicação no início da vegetação, 01 em pré-florada, 1 na fase \"bolinha de gude\" e 01 na maturação."
+            },
+            "7": {
+              "crop": "Tomate estaqueado / Rasteiro",
+              "dose": "0,5 a 1,0 L/ha",
+              "when": "4 a 5 aplicações quinzenais, iniciando 20 dias após o transplante."
+            },
+            "8": {
+              "crop": "Cebola / Alho",
+              "dose": "0,5 a 1,0 L/ha",
+              "when": "Aplicações mensais, 15 dias após transplante."
+            },
+            "9": {
+              "crop": "Hortaliças",
+              "dose": "0,5 a 1,0 L/ha",
+              "when": "3 a 4 aplicações quinzenais, iniciando 20 dias após o transplante."
+            },
+            "10": {
+              "crop": "Frutíferas",
+              "dose": "1,0 a 2,0 L/ha",
+              "when": "Aplicações mensais."
+            },
+            "11": {
+              "crop": "Plantas ornamentais",
+              "dose": "0,5 a 1,0 L/ha",
+              "when": "Aplicações mensais."
+            },
+            "12": {
+              "crop": "Pastagem",
+              "dose": "0,5 a 1,0 L/ha",
+              "when": "1ª aplicação início das chuvas, repetir após pastejo."
+            }
+          }
+        },
+        "1": {
+          "label": "Fertirrigação",
+          "rows": {
+            "0": {
+              "crop": "Café",
+              "dose": "3,0 a 5,0 L/ha",
+              "when": "3 aplicações no início da florada, repetir com intervalo de 45 dias."
+            },
+            "1": {
+              "crop": "Tomate / Pimentão",
+              "dose": "3,0 a 5,0 L/ha",
+              "when": "1ª aplicação 15 dias após transplante, repetir a cada 10 dias. Total de 12 aplicações."
+            },
+            "2": {
+              "crop": "Morango",
+              "dose": "3,0 a 5,0 L/ha",
+              "when": "1ª aplicação após transplante, repetir a cada 20 dias."
+            },
+            "3": {
+              "crop": "Rosa / Ornamentais",
+              "dose": "3,0 a 5,0 L/ha",
+              "when": "1ª aplicação após transplante, repetir a cada 20 dias."
+            }
+          }
         }
       }
     },
@@ -1963,7 +2233,6 @@
           "desc": "Cobre ativa enzimas essenciais para resistência e fotossíntese."
         }
       },
-      "stages": {},
       "results": {},
       "related": {
         "revigo-comoni": {
@@ -1975,6 +2244,58 @@
           "name": "Aminosan®",
           "tag": "Nutrição e Fisiologia",
           "desc": "Vigor e resistência para todo o ciclo."
+        }
+      },
+      "applications": {
+        "0": {
+          "label": "Foliar",
+          "rows": {
+            "0": {
+              "crop": "Soja",
+              "dose": "0,2 a 0,5 L/ha",
+              "when": "5 aplicações com intervalo de 7 a 10 dias, início 25 dias após emergência."
+            },
+            "1": {
+              "crop": "Feijão",
+              "dose": "0,2 a 0,5 L/ha",
+              "when": "4 aplicações com intervalo de 7 dias. Início 20 dias após emergência."
+            },
+            "2": {
+              "crop": "Milho / Sorgo",
+              "dose": "0,2 a 0,5 L/ha",
+              "when": "20 dias após emergência, repetindo aos 30 e 40 DAE."
+            },
+            "3": {
+              "crop": "Trigo / Aveia / Arroz",
+              "dose": "0,2 a 0,5 L/ha",
+              "when": "25 dias após emergência, repetido aos 35 e 45 DAE."
+            },
+            "4": {
+              "crop": "Tomate",
+              "dose": "0,2 a 0,5 L/ha",
+              "when": "Aplicações semanais."
+            },
+            "5": {
+              "crop": "Batata",
+              "dose": "0,2 a 1,0 L/ha",
+              "when": "30 dias após emergência, repetindo aos 40, 50 e 60 DAE."
+            },
+            "6": {
+              "crop": "Hortaliças",
+              "dose": "0,2 a 0,5 L/ha",
+              "when": "Aplicações semanais."
+            },
+            "7": {
+              "crop": "Café",
+              "dose": "1,0 a 1,5 L/ha",
+              "when": "Plantas Adultas, aplicações em Nov/Jan/Mar e pós colheita. Plantas em formação, aplicações com intervalo quinzenal."
+            },
+            "8": {
+              "crop": "Citros",
+              "dose": "1,0 a 2,0 L/ha",
+              "when": "Plantas Adultas, aplicações em Nov/Jan/Mar. Plantas em formação, aplicações com intervalo quinzenal."
+            }
+          }
         }
       }
     },
@@ -2005,14 +2326,13 @@
           "desc": "Plantas com maior vigor inicial respondem melhor à adubação de base."
         }
       },
-      "stages": {
+      "results": {
         "0": {
-          "label": "Plantio",
-          "title": "Tratamento de muda",
-          "desc": "Aplicação antes ou durante o plantio para arranque imediato."
+          "value": "+6,87",
+          "unit": "t/ha",
+          "desc": "Colmos de cana contra testemunha, com aumento de massa verde ao longo do ciclo. Fonte: ensaios internos e pesquisas de campo Juma-Agro. Varia com variedade, solo e regime de chuva."
         }
       },
-      "results": {},
       "related": {
         "aminosan": {
           "name": "Aminosan®",
@@ -2023,6 +2343,28 @@
           "name": "Redutan NPK Sili-4",
           "tag": "Tecnologia de Aplicação",
           "desc": "Qualidade de calda para aplicações em cana."
+        }
+      },
+      "applications": {
+        "0": {
+          "label": "Foliar",
+          "rows": {
+            "0": {
+              "crop": "Cana-de-açúcar",
+              "dose": "1,0 a 2,0 L/ha",
+              "when": "Fazer uma aplicação quando as plantas estiverem com altura média superior a 50 cm."
+            }
+          }
+        },
+        "1": {
+          "label": "Tratamento de sulco",
+          "rows": {
+            "0": {
+              "crop": "Cana-de-açúcar",
+              "dose": "2,0 a 4,0 L/ha",
+              "when": "Fazer a pulverização sobre as mudas, no sulco de plantio, antes do fechamento do mesmo com terra."
+            }
+          }
         }
       }
     },
@@ -2071,19 +2413,18 @@
           "desc": "Sistema radicular robusto para melhor aproveitamento de água e nutrientes."
         }
       },
-      "stages": {
+      "results": {
         "0": {
-          "label": "TS",
-          "title": "Tratamento de sementes",
-          "desc": "Aplicado na semente antes do plantio."
+          "value": "+13,4",
+          "unit": "sc/ha",
+          "desc": "Milho: 196,8 sc/ha contra 183,4 da testemunha. Fonte: ensaios de campo com avaliação agronômica. Médias de ensaio; em campo variam com clima e manejo."
         },
         "1": {
-          "label": "V2",
-          "title": "Fase vegetativa",
-          "desc": "Aplicação via folha na fase vegetativa."
+          "value": "+5,8",
+          "unit": "sc/ha",
+          "desc": "Soja: 64,7 sc/ha contra 58,9 da testemunha. Fonte: ensaios de campo com avaliação agronômica."
         }
       },
-      "results": {},
       "related": {
         "aminosan": {
           "name": "Aminosan®",
@@ -2094,6 +2435,83 @@
           "name": "Aduban",
           "tag": "Tratamento de Sementes",
           "desc": "Solo equilibrado para planta jovem."
+        }
+      },
+      "applications": {
+        "0": {
+          "label": "Foliar / Semente",
+          "rows": {
+            "0": {
+              "crop": "Algodão",
+              "dose": "1,0 ml/kg de semente; 200 ml/ha drench; 200 ml/ha via foliar",
+              "when": "Fazer o tratamento antes do plantio. Via drench sobre a semente no sulco de plantio. Via foliar aplicação de 15 a 25 dias após germinação e em pré-florada."
+            },
+            "1": {
+              "crop": "Arroz",
+              "dose": "1,0 ml/kg de semente",
+              "when": "Fazer tratamento antes do plantio."
+            },
+            "2": {
+              "crop": "Alho",
+              "dose": "1,0 a 2,0 ml/kg de bulbinho",
+              "when": "Diluir o Acorda Ultra no tanque de tratamento por imersão. Pulverizar após 7 dias da emergência."
+            },
+            "3": {
+              "crop": "Batata",
+              "dose": "1,0 L/ha",
+              "when": "Pulverizar os tubérculos no sulco de plantio antes de cobrir."
+            },
+            "4": {
+              "crop": "Café",
+              "dose": "1,0 a 1,5 L/ha",
+              "when": "Regar na formação de mudas com intervalo semanal. Aplicar após plantio e/ou podas (recepa, decote ou esqueletamento)."
+            },
+            "5": {
+              "crop": "Citros",
+              "dose": "0,5 a 1,0 L/ha",
+              "when": "Regar na formação de mudas com intervalo semanal."
+            },
+            "6": {
+              "crop": "Cebola / Cenoura",
+              "dose": "1 a 2 L/ha",
+              "when": "Via foliar aplicar quando a planta estiver com 10 a 15 cm de altura."
+            },
+            "7": {
+              "crop": "Soja / Feijão",
+              "dose": "2,0 ml/kg de semente; 100 a 200 ml/ha drench; 200 ml/ha via foliar",
+              "when": "Fazer o tratamento antes do plantio. Via drench sobre a semente no sulco de plantio. Via foliar aplicação de 15 a 25 dias após germinação."
+            },
+            "8": {
+              "crop": "Frutíferas / Hortaliças",
+              "dose": "0,5 a 1,0 L/ha",
+              "when": "Aplicar na formação de mudas (viveiro), regar 7 a 15 dias após transplante."
+            },
+            "9": {
+              "crop": "Milho",
+              "dose": "2,0 ml/kg de semente; 100 a 200 ml/ha drench; 200 ml/ha via foliar",
+              "when": "Fazer o tratamento antes do plantio. Via drench sobre a semente no sulco de plantio. Via foliar aplicação de 10 a 15 dias após germinação."
+            },
+            "10": {
+              "crop": "Sorgo",
+              "dose": "2,0 ml/kg de semente; 200 ml/ha via foliar",
+              "when": "Fazer o tratamento antes do plantio. Via foliar aplicação de 10 a 15 dias após germinação."
+            },
+            "11": {
+              "crop": "Tomate / Pimentão",
+              "dose": "1,0 a 1,5 L/ha",
+              "when": "Aplicar de 5 a 10 dias após transplante, repetir aos 30 dias."
+            },
+            "12": {
+              "crop": "Trigo / Cevada",
+              "dose": "1,0 ml/kg de semente",
+              "when": "Fazer o tratamento antes do plantio."
+            },
+            "13": {
+              "crop": "Viveiros / Bandejas",
+              "dose": "0,5 a 1,0 L/ha",
+              "when": "Aplicar na formação de mudas com intervalo semanal."
+            }
+          }
         }
       }
     },
@@ -2165,23 +2583,6 @@
           "desc": "Planta jovem com melhor acesso aos nutrientes desde a germinação."
         }
       },
-      "stages": {
-        "0": {
-          "label": "Solo",
-          "title": "Fertirrigação",
-          "desc": "Aplicado via água de irrigação."
-        },
-        "1": {
-          "label": "Plantio",
-          "title": "Sulco de plantio",
-          "desc": "Aplicado no sulco, junto à adubação de base."
-        },
-        "2": {
-          "label": "Folha",
-          "title": "Pulverização foliar",
-          "desc": "Aplicado via foliar durante o ciclo."
-        }
-      },
       "results": {},
       "related": {
         "acorda-ultra": {
@@ -2197,7 +2598,7 @@
       },
       "cropGroups": {
         "0": {
-          "label": "Aplicação foliar",
+          "label": "Foliar",
           "crops": [
             "Algodão",
             "Arroz",
@@ -2257,6 +2658,124 @@
             "Feijão"
           ]
         }
+      },
+      "applications": {
+        "0": {
+          "label": "Foliar",
+          "rows": {
+            "0": {
+              "crop": "Algodão",
+              "dose": "1,0 a 1,5 L/ha",
+              "when": "1 aplicação no início da floração, mais 3 a 4 aplicações com intervalos de 10 a 15 dias."
+            },
+            "1": {
+              "crop": "Arroz / Trigo / Cevada",
+              "dose": "1,0 a 1,5 L/ha",
+              "when": "1 aplicação antes do perfilhamento e 1 no emborrachamento."
+            },
+            "2": {
+              "crop": "Feijão / Soja / Ervilha / Amendoim",
+              "dose": "1,0 a 1,5 L/ha",
+              "when": "1 aplicação aos 25-30 dias de germinado, 1 aplicação antes da florada e 1 na formação de grãos."
+            },
+            "3": {
+              "crop": "Batata",
+              "dose": "10 a 15 L/ha",
+              "when": "1 aplicação durante o plantio, sobre as batatas sementes, antes do fechamento do sulco."
+            },
+            "4": {
+              "crop": "Tomate / Envarado / Rasteiro",
+              "dose": "0,5 a 1,0 L/ha",
+              "when": "Semanalmente."
+            },
+            "5": {
+              "crop": "Cenoura / Beterraba / Alho / Cebola",
+              "dose": "1,0 a 1,5 L/ha",
+              "when": "Iniciar a aplicação ao atingir 10 a 15 cm de altura, mais 4 a 5 aplicações com intervalos de 7 a 10 dias."
+            },
+            "6": {
+              "crop": "Morango / Pepino / Vagem / Hortaliças",
+              "dose": "1,0 a 1,5 L/ha",
+              "when": "5 a 6 aplicações com intervalos de 7 a 10 dias."
+            },
+            "7": {
+              "crop": "Milho / Sorgo",
+              "dose": "1,0 a 1,5 L/ha",
+              "when": "1 aplicação antes das plantas atingirem 8 folhas."
+            },
+            "8": {
+              "crop": "Pêssego / Maçã / Uva / Frutíferas Anuais",
+              "dose": "1,0 L/ha",
+              "when": "1 aplicação pós colheita, 1 após a florada e 1 na fase de desenvolvimento do fruto."
+            },
+            "9": {
+              "crop": "Citros",
+              "dose": "2 L/Bomba de 2000 L",
+              "when": "1 aplicação pré-florada, 1 após a florada, 1 na fase \"bolinha de gude\" e 1 na fase \"bolinha de ping-pong\". Aplicar sempre em mistura com micro-nutrientes. (REVIGO®)"
+            },
+            "10": {
+              "crop": "Café",
+              "dose": "1,0 a 1,5 L/ha",
+              "when": "1 aplicação em pré-florada, 1 após a florada \"chumbinho\", 1 na fase de formação dos grãos e 1 na granação. Aplicar sempre em mistura com micro-nutrientes. (REVIGO®)"
+            },
+            "11": {
+              "crop": "Rosa / Crisântemo / Cravo / Gladíolo / Ornamentais",
+              "dose": "0,5 a 1,5 L/ha",
+              "when": "Aplicar com intervalos de 7 a 10 dias até a formação do botão floral."
+            }
+          }
+        },
+        "1": {
+          "label": "Fertirrigação",
+          "note": "Usado diluído em água.",
+          "rows": {
+            "0": {
+              "crop": "Tomate / Pimentão",
+              "dose": "3,0 a 4,0 L/ha",
+              "when": "1 aplicação após transplante durante a frutificação do primeiro ramo a cada 25 dias."
+            },
+            "1": {
+              "crop": "Morango",
+              "dose": "3,0 a 5,0 L/ha",
+              "when": "1 aplicação após transplante, e crescimento vegetativo após frutificação."
+            },
+            "2": {
+              "crop": "Alface / Escarola / Hortaliças Folhosas",
+              "dose": "4,0 a 5,0 L/ha",
+              "when": "1 aplicação após transplante após 10 a 15 dias do primeiro tratamento."
+            },
+            "3": {
+              "crop": "Abóbora / Melão / Berinjela / Pepino",
+              "dose": "2,0 a 4,0 L/ha",
+              "when": "1 aplicação após o transplante durante a frutificação do primeiro ramo a cada 25 dias."
+            },
+            "4": {
+              "crop": "Rosa / Ornamentais",
+              "dose": "4,0 a 5,0 L/ha",
+              "when": "1 aplicação depois da poda, pré-florada dos botões florais e 20 a 25 dias do segundo tratamento."
+            },
+            "5": {
+              "crop": "Viveiros",
+              "dose": "500 ml / 100 L água",
+              "when": "1 aplicação na floração e outra após a frutificação."
+            },
+            "6": {
+              "crop": "Citros / Uva / Pera / Kiwi",
+              "dose": "8,0 L/ha",
+              "when": "1 aplicação na floração e outra após a frutificação."
+            },
+            "7": {
+              "crop": "Café",
+              "dose": "5,0 a 8,0 L/ha",
+              "when": "1 aplicação na pré-floração e outra no crescimento dos frutos."
+            },
+            "8": {
+              "crop": "Soja / Milho / Feijão",
+              "dose": "2,0 L/ha a 4,0 L/ha",
+              "when": "Aplicação no sulco de plantio."
+            }
+          }
+        }
       }
     },
     "kmep-ultra": {
@@ -2304,8 +2823,18 @@
           "desc": "Potássio na formulação contribui para o enchimento de grãos."
         }
       },
-      "stages": {},
-      "results": {},
+      "results": {
+        "0": {
+          "value": "+9,33",
+          "unit": "sc/ha",
+          "desc": "Milho com manejo de cigarrinha: 231,45 sc/ha contra 222,12 do padrão. Fonte: ensaios técnicos Rehagro."
+        },
+        "1": {
+          "value": "74",
+          "unit": "%",
+          "desc": "Controle de bicho-mineiro no café. Fonte: ensaios técnicos Rehagro e áreas experimentais."
+        }
+      },
       "related": {
         "redutan-sili-4": {
           "name": "Redutan NPK Sili-4",
@@ -2316,6 +2845,78 @@
           "name": "Supermix",
           "tag": "Tecnologia de Aplicação",
           "desc": "Calda uniforme, sem entupimentos."
+        }
+      },
+      "applications": {
+        "0": {
+          "label": "Foliar",
+          "rows": {
+            "0": {
+              "crop": "Algodão",
+              "dose": "1,0 a 2,0 L/ha",
+              "when": "4 a 6 aplicações com intervalos semanais 40 dias após a emergência."
+            },
+            "1": {
+              "crop": "Batata",
+              "dose": "1,0 a 2,0 L/ha",
+              "when": "Aplicações semanais aos 50 dias após a emergência."
+            },
+            "2": {
+              "crop": "Cebola / Alho",
+              "dose": "1,0 a 2,0 L/ha",
+              "when": "Aplicações semanais iniciando 50 dias após o transplante."
+            },
+            "3": {
+              "crop": "Cenoura / Beterraba",
+              "dose": "1,0 a 2,0 L/ha",
+              "when": "Semanalmente iniciando aos 40 dias após a emergência."
+            },
+            "4": {
+              "crop": "Feijão",
+              "dose": "1,0 a 2,0 L/ha",
+              "when": "Aplicações após a florada com intervalos de 10 a 15 dias."
+            },
+            "5": {
+              "crop": "Milho",
+              "dose": "1,0 a 2,0 L/ha",
+              "when": "Iniciar as aplicações nas fases V4 e V6. Aplicar na formação das espigas."
+            },
+            "6": {
+              "crop": "Soja",
+              "dose": "1,0 a 2,0 L/ha",
+              "when": "Iniciar as aplicações no vegetativo V6/V7, repetir com intervalo de 10 a 15 dias."
+            },
+            "7": {
+              "crop": "Tomate",
+              "dose": "1,0 a 2,0 L/ha",
+              "when": "Aplicações semanais iniciando aos 40 dias após o transplante."
+            },
+            "8": {
+              "crop": "Café",
+              "dose": "1,0 a 2,0 L/ha",
+              "when": "2 aplicações na fase de granação e maturação."
+            },
+            "9": {
+              "crop": "Pimentão",
+              "dose": "1,0 a 2,0 L/ha",
+              "when": "Aplicações semanais iniciando aos 40 dias após o transplante."
+            },
+            "10": {
+              "crop": "Frutíferas em geral",
+              "dose": "1,0 a 2,0 L/ha",
+              "when": "3 a 4 aplicações anuais, iniciando após o florescimento."
+            },
+            "11": {
+              "crop": "Hortaliças em geral",
+              "dose": "1,0 a 2,0 L/ha",
+              "when": "Aplicações quinzenais iniciando 30 dias após a germinação ou transplante."
+            },
+            "12": {
+              "crop": "Citros",
+              "dose": "2,0 L/ha",
+              "when": "Aplicações quinzenais na fase de frutificação."
+            }
+          }
         }
       }
     },
@@ -2353,7 +2954,6 @@
           "desc": "Melhora a compatibilidade entre produtos na calda para aplicações seguras."
         }
       },
-      "stages": {},
       "results": {},
       "related": {
         "redutan-sili-5": {
@@ -2365,6 +2965,43 @@
           "name": "Supermix",
           "tag": "Tecnologia de Aplicação",
           "desc": "Adjuvante para calda uniforme."
+        }
+      },
+      "applications": {
+        "0": {
+          "label": "Foliar",
+          "rows": {
+            "0": {
+              "crop": "Milho / Soja / Feijão",
+              "dose": "0,050 a 0,150 L/ha",
+              "when": "Aplicações quinzenais após a germinação."
+            },
+            "1": {
+              "crop": "Citros",
+              "dose": "0,50 a 1,0 L/ha",
+              "when": "Aplicações mensais após florescimento."
+            },
+            "2": {
+              "crop": "Café",
+              "dose": "0,050 a 0,150 L/ha",
+              "when": "Aplicações mensais, iniciar após florescimento (usar vazão de 400L/ha)."
+            },
+            "3": {
+              "crop": "Hortaliças",
+              "dose": "0,050 a 0,150 L/ha",
+              "when": "Aplicações quinzenais."
+            },
+            "4": {
+              "crop": "Cana-de-açúcar",
+              "dose": "0,50 a 1,0 L/ha",
+              "when": "Aplicar após a germinação e no perfilhamento (usar vazão de 500L/ha)."
+            },
+            "5": {
+              "crop": "Demais culturas",
+              "dose": "0,050 a 0,150 L/ha",
+              "when": "Aplicações quinzenais."
+            }
+          }
         }
       }
     },
@@ -2393,7 +3030,6 @@
           "desc": "Evita a precipitação de produtos na calda, protegendo o equipamento."
         }
       },
-      "stages": {},
       "results": {},
       "related": {
         "redutan-sili-4": {
@@ -2407,7 +3043,28 @@
           "desc": "Potencializa inseticidas."
         }
       },
-      "cropsNote": "Adjuvante para diluição e dispersão de defensivos. A dosagem é por volume de calda (ml por 100 L), não por cultura."
+      "cropsNote": "Adjuvante para diluição e dispersão de defensivos. A dosagem é por volume de calda (ml por 100 L), não por cultura.",
+      "applications": {
+        "0": {
+          "label": "Dosagem por tipo de aplicação",
+          "note": "Adjuvante: não tem cultura nem fase fenológica. O momento de uso é no preparo da calda.",
+          "rows": {
+            "0": {
+              "dose": "200 a 400 ml por 100 L de calda",
+              "when": "Aplicação terrestre."
+            },
+            "1": {
+              "dose": "200 a 400 ml por hectare",
+              "when": "Aplicação aérea."
+            },
+            "2": {
+              "dose": "2,0 a 8,0 L por 100 L de calda",
+              "when": "Calda super concentrada."
+            }
+          }
+        }
+      },
+      "applicationsNote": "Adicionar água no tanque do pulverizador (no mínimo 2/3 da capacidade), acionar a agitação, adicionar o Supermix na dose recomendada e então os produtos a serem diluídos, na ordem recomendada. Manter a agitação em todo o processo, da montagem da calda até o fim da aplicação."
     },
     "revigo-milho": {
       "name": "Revigo + Milho",
@@ -2438,23 +3095,6 @@
           "desc": "Ganhos medidos em ensaios conduzidos em parceria com produtores."
         }
       },
-      "stages": {
-        "0": {
-          "label": "V3–V5",
-          "title": "Estabelecimento",
-          "desc": "Aplicação precoce para arranque sólido."
-        },
-        "1": {
-          "label": "V8–V10",
-          "title": "Crescimento",
-          "desc": "Nutrição foliar para vigor e massa foliar."
-        },
-        "2": {
-          "label": "Pendoamento",
-          "title": "Pré-reprodutivo",
-          "desc": "Preparação para o florescimento."
-        }
-      },
       "results": {},
       "related": {
         "aminosan": {
@@ -2466,6 +3106,23 @@
           "name": "Fitofert",
           "tag": "Nutrição e Fisiologia",
           "desc": "Pegamento e enchimento."
+        }
+      },
+      "applications": {
+        "0": {
+          "label": "Via foliar, solo ou fertirrigação",
+          "rows": {
+            "0": {
+              "crop": "Milho",
+              "dose": "1,5 a 3,0 L/ha",
+              "when": "1° aplicação V2/V3; 2° aplicação V6/V7; 3° aplicação no pré-pendoamento."
+            },
+            "1": {
+              "crop": "Sorgo / Milheto",
+              "dose": "2,0 a 3,0 L/ha",
+              "when": "1ª aplicação perfilhamento; 2ª aplicação emborrachamento."
+            }
+          }
         }
       }
     },
@@ -2500,7 +3157,6 @@
           "desc": "Pastagem mais produtiva com maior capacidade de suporte por hectare."
         }
       },
-      "stages": {},
       "results": {},
       "related": {
         "aminosan": {
@@ -2512,6 +3168,34 @@
           "name": "Redutan NPK Sili-4",
           "tag": "Tecnologia de Aplicação",
           "desc": "Eficiência nas aplicações."
+        }
+      },
+      "applications": {
+        "0": {
+          "label": "Via foliar, solo ou fertirrigação",
+          "note": "Nas dosagens em L/ha, usar vazão mínima de 100 L/ha.",
+          "rows": {
+            "0": {
+              "crop": "Capins / Pastagem",
+              "dose": "2,0 a 5,0 L/ha",
+              "when": "Aplicações de acordo com a necessidade da planta. Iniciar 30 dias após plantio e repetir após pastejo."
+            },
+            "1": {
+              "crop": "Capins para Sementes",
+              "dose": "2,0 a 4,0 L/ha",
+              "when": "Iniciar aos 45 dias após plantio repetir no emborrachamento."
+            },
+            "2": {
+              "crop": "Milho",
+              "dose": "3,0 a 5,0 L/ha",
+              "when": "1ª aplicação V8 e 2ª aplicação emborrachamento."
+            },
+            "3": {
+              "crop": "Sorgo / Milheto",
+              "dose": "2,0 a 3,0 L/ha",
+              "when": "1ª aplicação perfilhamento; 2ª aplicação emborrachamento."
+            }
+          }
         }
       }
     },
@@ -2553,7 +3237,6 @@
           "desc": "Carrega NPK, somando efeito nutricional à mesma pulverização."
         }
       },
-      "stages": {},
       "results": {},
       "related": {
         "redutan-sili-4": {
@@ -2565,6 +3248,44 @@
           "name": "Supermix",
           "tag": "Tecnologia de Aplicação",
           "desc": "Adjuvante para calda uniforme."
+        }
+      },
+      "applications": {
+        "0": {
+          "label": "Foliar",
+          "note": "Texto de aplicação idêntico ao Sili-4; muda apenas a formulação química.",
+          "rows": {
+            "0": {
+              "crop": "Milho / Soja / Feijão",
+              "dose": "0,050 a 0,150 L/ha",
+              "when": "Aplicações quinzenais após a germinação."
+            },
+            "1": {
+              "crop": "Citros",
+              "dose": "0,50 a 1,0 L/ha",
+              "when": "Aplicações mensais após florescimento."
+            },
+            "2": {
+              "crop": "Café",
+              "dose": "0,050 a 0,150 L/ha",
+              "when": "Aplicações mensais, iniciar após florescimento (usar vazão de 400L/ha)."
+            },
+            "3": {
+              "crop": "Hortaliças",
+              "dose": "0,050 a 0,150 L/ha",
+              "when": "Aplicações quinzenais."
+            },
+            "4": {
+              "crop": "Cana-de-açúcar",
+              "dose": "0,50 a 1,0 L/ha",
+              "when": "Aplicar após a germinação e no perfilhamento (usar vazão de 500L/ha)."
+            },
+            "5": {
+              "crop": "Demais culturas",
+              "dose": "0,050 a 0,150 L/ha",
+              "when": "Aplicações quinzenais."
+            }
+          }
         }
       }
     }
