@@ -40,10 +40,39 @@ const FOUNDERS: Founder[] = [
 /** Topo de cada faixa, em % da altura da foto (negativo = acima da imagem). */
 const TIER_TOP: Record<Founder['tier'], number> = { high: -32, low: -15 }
 
+/**
+ * Geometria da inclinação 3D do card (entrada e saída).
+ *
+ * Os dois tamanhos rodam a MESMA animação; só a geometria muda, porque o card
+ * tem proporção muito diferente em cada um: no desktop ele é 1296x902 (mais
+ * largo que alto), no mobile 351x948 — quase três vezes mais alto que largo.
+ * Girando pelo topo, é a ALTURA que joga a base do card para longe em z, então
+ * a mesma perspectiva do desktop distorce muito mais no mobile.
+ *
+ * O limite não é a caixa do card inteiro estourar a tela — no desktop ela
+ * estoura 286px de cada lado e ninguém vê, porque no pico da entrada a parte
+ * larga está bem abaixo da dobra (e o `overflow-x: clip` do html corta). O que
+ * importa é o card nunca ENCOSTAR na borda da tela dentro da área visível.
+ *
+ * Estes valores são o ponto em que isso ainda não acontece, medido com
+ * varredura de borda (elementFromPoint) ao longo de toda a faixa de scroll em
+ * 320, 360, 390, 412, 430, paisagem e tablet: folga mínima de 8px. Com a
+ * perspectiva do desktop crua, as telas ALTAS (430x932, tablet) encostam — é
+ * nelas que mais card aparece de uma vez. Não adianta estreitar o card para
+ * ganhar espaço: estreitar aumenta a altura (numa tela de 320px, 90% de
+ * largura dá 981px de altura e 74% dá 1112px), e altura é justamente o que
+ * causa a distorção.
+ */
+const TILT = {
+  desktop: { perspective: 1000, rotate: 20, scale: 1.05 },
+  mobile: { perspective: 1300, rotate: 17, scale: 1.04 },
+} as const
+
 export function OurStory() {
   const t = useTranslations('ourStory')
   const reduced = useReducedMotion()
   const [isDesktop, setIsDesktop] = useState(false)
+  const tilt = isDesktop ? TILT.desktop : TILT.mobile
 
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 1024px)')
@@ -155,58 +184,46 @@ export function OurStory() {
         },
       })
 
-      // ── Inclinação 3D do card (só desktop) ──────────────────────────
-      // No mobile ela saía cara e recortada: o card tem ~950px de altura por
-      // 90% da largura, e girado sob `perspective` a projeção passa dos dois
-      // lados da tela (medido: -74px à esquerda e +74px à direita num aparelho
-      // de 390px). Fora o recorte, é uma rasterização do tamanho da página a
-      // cada frame de scroll — é ela que faz o gesto engasgar dentro da seção
-      // em aparelho intermediário.
-      const tiltTriggers: ScrollTrigger[] = []
+      // ── Inclinação 3D do card (entrada e saída) ─────────────────────
+      // Roda nos dois tamanhos; a geometria vem de TILT (ver comentário lá).
+      const { rotate, scale: startScale } = tilt
 
-      if (isDesktop) {
-        const startScale = 1.05
-
-        const enterTilt = gsap.fromTo(
-          card,
-          { rotateX: 20, scale: startScale },
-          {
-            rotateX: 0,
-            scale: 1,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: section,
-              start: 'top bottom',
-              end: 'top 10%',
-              scrub: 0.5,
-            },
+      const enterTilt = gsap.fromTo(
+        card,
+        { rotateX: rotate, scale: startScale },
+        {
+          rotateX: 0,
+          scale: 1,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top bottom',
+            end: 'top 10%',
+            scrub: 0.5,
           },
-        )
+        },
+      )
 
-        const leaveTilt = gsap.fromTo(
-          card,
-          { rotateX: 0, scale: 1 },
-          {
-            rotateX: -20,
-            scale: startScale,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: section,
-              start: 'bottom 90%',
-              end: 'bottom top',
-              scrub: 0.5,
-            },
+      const leaveTilt = gsap.fromTo(
+        card,
+        { rotateX: 0, scale: 1 },
+        {
+          rotateX: -rotate,
+          scale: startScale,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: section,
+            start: 'bottom 90%',
+            end: 'bottom top',
+            scrub: 0.5,
           },
-        )
+        },
+      )
 
-        tiltTriggers.push(
-          enterTilt.scrollTrigger as ScrollTrigger,
-          leaveTilt.scrollTrigger as ScrollTrigger,
-        )
-      } else {
-        // Se veio de uma largura de desktop, limpa o transform que ficou.
-        gsap.set(card, { clearProps: 'transform' })
-      }
+      const tiltTriggers: ScrollTrigger[] = [
+        enterTilt.scrollTrigger as ScrollTrigger,
+        leaveTilt.scrollTrigger as ScrollTrigger,
+      ]
 
       return () => {
         trigger.kill()
@@ -229,10 +246,7 @@ export function OurStory() {
         // acima muda de altura, mexe no scrollTop sem aviso — e é justamente
         // isso que aparecia como salto seco no mobile.
         overflowAnchor: 'none',
-        // A perspectiva só existe onde a inclinação 3D roda (desktop): no
-        // mobile ela criaria um contexto 3D para nada, e todo o card viraria
-        // uma camada composta do tamanho da página.
-        ...(isDesktop ? { perspective: '1000px' } : null),
+        perspective: `${tilt.perspective}px`,
       }}
     >
       {/* ── Fundo branco com bordas superior e inferior esfumaçadas (blur) ── */}
@@ -259,7 +273,7 @@ export function OurStory() {
 
       <section
         ref={cardRef}
-        className="relative overflow-hidden rounded-[2.5rem] w-[90%] min-[1600px]:w-[95%] max-w-[100rem] min-[2000px]:max-w-[120rem] mx-auto border border-black/[0.06] bg-white isolate lg:transform-gpu"
+        className="relative overflow-hidden rounded-[2.5rem] w-[90%] min-[1600px]:w-[95%] max-w-[100rem] min-[2000px]:max-w-[120rem] mx-auto border border-black/[0.06] bg-white isolate transform-gpu"
         style={{
           transformOrigin: 'top center',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(0, 0, 0, 0.1)',

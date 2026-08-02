@@ -377,7 +377,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       gsap.set(video, { zIndex: 1 })
       gsap.set([newImg, lineImg, trioImg], { autoAlpha: 0 })
       gsap.set(brandMarkRef.current, { autoAlpha: 1, y: 0, filter: 'blur(0px)' })
-      gsap.set(oldImg,       { zIndex: 10, scale: stageZoom().bottle, autoAlpha: 1, yPercent: 0, filter: 'blur(0px)' })
+      gsap.set(oldImg,       { zIndex: 10, scale: stageZoom().bottle, autoAlpha: 0, yPercent: 80, filter: 'blur(0px)' })
       gsap.set(scrimRef.current, { autoAlpha: 1 })
       gsap.set(titleChars,   { x: 0, autoAlpha: 1, filter: 'blur(0px)' })
       gsap.set(act1Items,    { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
@@ -508,7 +508,11 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
       const introTl = gsap.timeline({ paused: true })
       introTl.to(scrimRef.current, { autoAlpha: 1, duration: 0.5, ease: 'power1.out' }, 0)
-      introTl.to(oldImg,           { scale: () => stageZoom().bottle, yPercent: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.95, ease: 'power3.out' }, 0)
+      introTl.fromTo(oldImg,
+        { yPercent: 80, autoAlpha: 0, filter: 'blur(0px)' },
+        { yPercent: 0, autoAlpha: 1, scale: () => stageZoom().bottle, filter: 'blur(0px)', duration: 0.95, ease: 'power3.out' },
+        0
+      )
       introTl.to(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.7, ease: 'power3.out' }, 0.1)
       introTl.to(titleChars,       { x: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.72, stagger: STAGGER.char, ease: 'power2.out' }, 0.16)
       introTl.to(act1Items,        { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.72, stagger: 0.12, ease: 'power2.out' }, 0.28)
@@ -519,6 +523,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const playIntro = (restart = false) => {
         if (phase !== 'act1' || direction) return
         if (oldCalloutRef.current) gsap.set(oldCalloutRef.current, { autoAlpha: 1 })
+        gsap.set(oldImg, { zIndex: 10, scale: stageZoom().bottle })
         introTl.timeScale(1)
         if (restart) introTl.restart()
         else if (introTl.progress() < 1) introTl.play()
@@ -528,7 +533,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         if (phase !== 'act1' || direction) return
         allVideos.forEach((v) => v.pause())
         gsap.set(allVideos, { autoAlpha: 0, zIndex: 0 })
-        gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: 1, yPercent: 0, filter: 'blur(0px)' })
+        gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: stageZoom().bottle, filter: 'blur(0px)' })
         introTl.progress(1).timeScale(1.9).reverse()
       }
 
@@ -877,7 +882,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
               gsap.set(oldImg, { autoAlpha: 0 })
             } else {
               gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: stageZoom().bottle, yPercent: 0, filter: 'blur(0px)' })
-              gsap.to(oldImg, { autoAlpha: 0, scale: stageZoom().bottle * 0.992, filter: 'blur(4px)', duration: 0.24, ease: 'power1.inOut', overwrite: 'auto' })
+              gsap.to(oldImg, { autoAlpha: 0, scale: stageZoom().bottle, filter: 'blur(4px)', duration: 0.24, ease: 'power1.inOut', overwrite: 'auto' })
             }
             hideAct1UI(false)
             showAct3UI(0.6)
@@ -957,7 +962,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         gsap.killTweensOf([oldImg, newImg, lineImg, trioImg, brandMarkRef.current].filter(Boolean))
         gsap.set(newImg, { autoAlpha: 1, scale: stageZoom().bottle })
         gsap.set([lineImg, trioImg], { autoAlpha: 0 })
-        gsap.set(oldImg, { autoAlpha: 0, scale: stageZoom().bottle * 0.985, filter: 'blur(8px)' })
+        gsap.set(oldImg, { autoAlpha: 0, scale: stageZoom().bottle, filter: 'blur(8px)' })
         gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
         /* As camadas que NÃO são deste ato são assertadas aqui, nunca herdadas
            do `hideAct1UI`/`hideLineUI` que o `startPlayback` disparou lá atrás:
@@ -983,7 +988,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         gsap.killTweensOf([oldImg, newImg, lineImg, trioImg, brandMarkRef.current].filter(Boolean))
         gsap.set(lineImg, { autoAlpha: 1, scale: stageZoom().line })
         gsap.set([newImg, trioImg], { autoAlpha: 0 })
-        gsap.set(oldImg, { autoAlpha: 0, scale: stageZoom().bottle * 0.985, filter: 'blur(8px)' })
+        gsap.set(oldImg, { autoAlpha: 0, scale: stageZoom().bottle, filter: 'blur(8px)' })
         gsap.set(brandMarkRef.current, { autoAlpha: 0, y: -18, filter: 'blur(8px)' })
         hideAct1UI(true)
         hideAct3All(true)
