@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic'
 
 import { HeroJornada }      from '@/features/home/components/HeroJornada'
 import { SectionNav }       from '@/features/home/components/SectionNav'
-import { GlobalPresence }   from '@/features/home/components/GlobalPresence'
+
 // Seções abaixo da dobra do "filme contínuo": code-split em chunks separados
 // (continuam com SSR normal — só tiram peso do bundle inicial de hidratação).
 const OurStory            = dynamic(() => import('@/features/home/components/OurStory').then(m => m.OurStory))
@@ -16,6 +16,7 @@ const Solution        = dynamic(() => import('@/features/home/components/Solutio
 const Lines           = dynamic(() => import('@/features/home/components/Lines').then(m => m.Lines))
 // HomeCalculator removida temporariamente (dados de ganho/hectare ainda não confirmados) — componente preservado em @/features/home/components/HomeCalculator
 const HomeExperience  = dynamic(() => import('@/features/home/components/HomeExperience').then(m => m.HomeExperience))
+const GlobalPresence  = dynamic(() => import('@/features/home/components/GlobalPresence').then(m => m.GlobalPresence))
 const HomeTestimonials = dynamic(() => import('@/features/home/components/HomeTestimonials').then(m => m.HomeTestimonials))
 const HomeBlog        = dynamic(() => import('@/features/home/components/HomeBlog').then(m => m.HomeBlog))
 const HomeCtaFinal    = dynamic(() => import('@/features/home/components/HomeCtaFinal').then(m => m.HomeCtaFinal))

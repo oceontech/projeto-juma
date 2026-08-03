@@ -81,7 +81,6 @@ export function Globe({ markers, focus, className = '', onDragChange }: GlobePro
     const host = canvas.parentElement
     let globe: ReturnType<typeof createGlobe> | null = null
     let ro: ResizeObserver | null = null
-    let io: IntersectionObserver | null = null
     let rafId = 0
 
     const init = () => {
@@ -114,15 +113,6 @@ export function Globe({ markers, focus, className = '', onDragChange }: GlobePro
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
       let idleWeight = 1
 
-      let isVisible = false
-      io = new IntersectionObserver(
-        (entries) => {
-          isVisible = entries[0].isIntersecting
-        },
-        { rootMargin: '400px' }
-      )
-      io.observe(canvas)
-
       const tick = (now: number) => {
         if (pointerStart.current) {
           idleWeight = Math.max(0, idleWeight - 0.06)
@@ -132,21 +122,18 @@ export function Globe({ markers, focus, className = '', onDragChange }: GlobePro
           rest.current.theta *= 0.94
           idleWeight = Math.min(1, idleWeight + 0.015)
         }
-        
-        if (isVisible) {
-          const t = now / 1000
-          const idlePhi = reduced ? 0 : Math.sin(t * 0.55) * 0.07 * idleWeight
-          const idleTheta = reduced ? 0 : Math.sin(t * 0.34 + 1.3) * 0.014 * idleWeight
-          globe?.update({
-            phi: homePhi + rest.current.phi + drag.current.phi + idlePhi,
-            theta: homeTheta + rest.current.theta + drag.current.theta + idleTheta,
-          })
-          // px na tela por radiano de giro: raio visível (~0,39·largura) vezes a
-          // profundidade média dos pins no enquadramento (~0,86)
-          if (host) {
-            const sway = idlePhi * canvas.offsetWidth * 0.39 * 0.86
-            host.style.setProperty('--globe-sway-px', `${sway.toFixed(2)}px`)
-          }
+        const t = now / 1000
+        const idlePhi = reduced ? 0 : Math.sin(t * 0.55) * 0.07 * idleWeight
+        const idleTheta = reduced ? 0 : Math.sin(t * 0.34 + 1.3) * 0.014 * idleWeight
+        globe?.update({
+          phi: homePhi + rest.current.phi + drag.current.phi + idlePhi,
+          theta: homeTheta + rest.current.theta + drag.current.theta + idleTheta,
+        })
+        // px na tela por radiano de giro: raio visível (~0,39·largura) vezes a
+        // profundidade média dos pins no enquadramento (~0,86)
+        if (host) {
+          const sway = idlePhi * canvas.offsetWidth * 0.39 * 0.86
+          host.style.setProperty('--globe-sway-px', `${sway.toFixed(2)}px`)
         }
         rafId = requestAnimationFrame(tick)
       }
@@ -169,7 +156,6 @@ export function Globe({ markers, focus, className = '', onDragChange }: GlobePro
     }
 
     return () => {
-      io?.disconnect()
       ro?.disconnect()
       cancelAnimationFrame(rafId)
       globe?.destroy()
