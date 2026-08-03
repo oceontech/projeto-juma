@@ -591,15 +591,13 @@ export function HomeProductShowcase() {
           gsap.set(handoffStillRef.current, { autoAlpha: 0, scale: 1, filter: 'blur(0px)' })
 
           // Spotlight: fade-in inicial — desktop
-          if (!isMobile) {
-            gsap.set(spotlightRef.current, { opacity: 0 })
-            gsap.to(spotlightRef.current, {
-              opacity: 0.5,
-              duration: 0.75,
-              delay: 0.75,
-              ease: 'power2.out',
-            })
-          }
+          gsap.set(spotlightRef.current, { opacity: 0 })
+          gsap.to(spotlightRef.current, {
+            opacity: 0.5,
+            duration: 0.75,
+            delay: 0.75,
+            ease: 'power2.out',
+          })
 
           // Visibilidade inicial dos painéis de texto
           products.forEach((el, i) => {
@@ -762,10 +760,8 @@ export function HomeProductShowcase() {
             )
 
             // Spotlight: dim rápido, volta devagar — só desktop (mobile é estático)
-            if (!isMobile) {
-              tl.to(spotlightRef.current, { opacity: 0.2, duration: 0.15, ease: 'power2.in' }, 0)
-                .to(spotlightRef.current, { opacity: 0.5, duration: 0.35, ease: 'power2.out' }, 0.35)
-            }
+            tl.to(spotlightRef.current, { opacity: 0.2, duration: 0.15, ease: 'power2.in' }, 0)
+              .to(spotlightRef.current, { opacity: 0.5, duration: 0.35, ease: 'power2.out' }, 0.35)
 
             // Carrossel de frascos
             if (from === 0 && index !== 0) {
@@ -907,9 +903,7 @@ export function HomeProductShowcase() {
               '--pcs-accent': PRODUCTS[i].accent,
               '--pcs-accent-bg': PRODUCTS[i].accent,
             })
-            if (!isMobile) {
-              gsap.to(spotlightRef.current, { opacity: 0.5, duration: 0.4, overwrite: 'auto' })
-            }
+            gsap.to(spotlightRef.current, { opacity: 0.5, duration: 0.4, overwrite: 'auto' })
             bottles.forEach((b, bi) => gsap.set(b, getCatalogBottleProps(bi, i, isMobile)))
             gsap.set(handoffStillRef.current, { autoAlpha: 0 })
             const p = parts(products[i])
@@ -941,7 +935,7 @@ export function HomeProductShowcase() {
               zIndex: 30,
             })
             gsap.set([p0.text, p0.cta, ...p0.stats], { autoAlpha: 0 })
-            if (!isMobile) gsap.set(spotlightRef.current, { opacity: 0 })
+            gsap.set(spotlightRef.current, { opacity: 0 })
             bottles.forEach((bottle, i) =>
               gsap.set(bottle, {
                 ...getCatalogBottleProps(i, 0, isMobile),
@@ -974,36 +968,6 @@ export function HomeProductShowcase() {
             const y = window.scrollY
             return y >= t.start - 1 && y <= t.end + 1
           }
-          const PIN_EDGE_INSET = 8
-          const indexToY = (i: number) => {
-            const t = pinBox.current
-            if (!t) return window.scrollY
-            const raw = t.start + ((t.end - t.start) * i) / (COUNT - 1)
-            if (i <= 0) return raw + PIN_EDGE_INSET
-            if (i >= COUNT - 1) return raw - PIN_EDGE_INSET
-            return raw
-          }
-          const snapToIndexNow = (i = currentIndexRef.current) => {
-            const y = indexToY(i)
-            if (Math.abs(window.scrollY - y) < 2) return
-            lenisRef.current?.scrollTo(y, { immediate: true, force: true } as never)
-            window.scrollTo(0, y)
-            ScrollTrigger.update()
-          }
-          const killMomentumScroll = () => {
-            if (!isMobile) return
-            const de = document.documentElement
-            const body = document.body
-            const prevHtml = de.style.overflow
-            const prevBody = body.style.overflow
-            de.style.overflow = 'hidden'
-            body.style.overflow = 'hidden'
-            requestAnimationFrame(() => {
-              de.style.overflow = prevHtml
-              body.style.overflow = prevBody
-              snapToIndexNow()
-            })
-          }
 
           const pinTrigger = ScrollTrigger.create({
             trigger: root,
@@ -1023,7 +987,6 @@ export function HomeProductShowcase() {
                ou o gesto cancelado do pin), então não há flicker a evitar. */
             onEnter: () => {
               if (!insidePin()) return
-              killMomentumScroll()
               leavingDown = false
               lockLenis()
               window.dispatchEvent(new CustomEvent('nav:hide', { detail: { lock: true } }))
@@ -1051,12 +1014,10 @@ export function HomeProductShowcase() {
               if (!isTransitioning && !stepLocked) {
                 if (currentIndexRef.current !== 0) applyIndex(0)
                 if (!handingOff) restoreVisual()
-                if (isMobile) snapToIndexNow(0)
               }
             },
             onEnterBack: () => {
               if (!insidePin()) return
-              killMomentumScroll()
               leavingDown = false
               lockLenis()
               window.dispatchEvent(new CustomEvent('nav:hide', { detail: { lock: true } }))
@@ -1074,9 +1035,14 @@ export function HomeProductShowcase() {
                    sem correção nenhuma (o `settle` ignora de propósito o
                    último produto no mobile), o que lia como "não pina
                    direito" no último produto. */
-                if (isMobile) snapToIndexNow(COUNT - 1)
-              } else if (isMobile && !isTransitioning && !stepLocked) {
-                snapToIndexNow(COUNT - 1)
+                if (isMobile) {
+                  const safeY = indexToY(COUNT - 1)
+                  if (Math.abs(window.scrollY - safeY) > 1) {
+                    lenisRef.current?.scrollTo(safeY, { immediate: true, force: true })
+                    window.scrollTo(0, safeY)
+                    ScrollTrigger.update()
+                  }
+                }
               }
             },
             onToggle: (self) => {
@@ -1116,6 +1082,14 @@ export function HomeProductShowcase() {
              não deslocam NADA na tela: o ajuste é invisível.
              8px (> os 4px de tolerância do `settle`) pra que o próprio settle
              corrija uma chegada que tenha pousado em cima da borda. */
+          const PIN_EDGE_INSET = 8
+          const indexToY = (i: number) => {
+            const raw = pinTrigger.start + ((pinTrigger.end - pinTrigger.start) * i) / (COUNT - 1)
+            if (i <= 0) return raw + PIN_EDGE_INSET
+            if (i >= COUNT - 1) return raw - PIN_EDGE_INSET
+            return raw
+          }
+
           const isTopHandoffZone = () => {
             const scroll = window.scrollY
             return (
@@ -1194,7 +1168,7 @@ export function HomeProductShowcase() {
               '--pcs-accent-bg': PRODUCTS[0].accent,
             })
             gsap.set([p0.text, p0.cta, ...p0.stats], { autoAlpha: 0 })
-            if (!isMobile) gsap.set(spotlightRef.current, { opacity: 0 })
+            gsap.set(spotlightRef.current, { opacity: 0 })
             // Durante o handoff o frame 16:9 cobre o produto 0; depois o teatro assume.
             products.forEach((el, i) => {
               if (i === 0) return
@@ -1275,9 +1249,7 @@ export function HomeProductShowcase() {
               },
               0,
             )
-            if (!isMobile) {
-              tl.to(spotlightRef.current, { opacity: 0.5, duration: 0.85, ease: 'power2.out' }, 0.18)
-            }
+            tl.to(spotlightRef.current, { opacity: 0.5, duration: 0.85, ease: 'power2.out' }, 0.18)
             if (isMotion) {
               tl.fromTo(
                 p0.text,
@@ -1409,13 +1381,11 @@ export function HomeProductShowcase() {
               },
               0,
             )
-            if (!isMobile) {
-              tl.to(
-                spotlightRef.current,
-                { opacity: 0, duration: 0.32, ease: 'power2.inOut' },
-                0,
-              )
-            }
+            tl.to(
+              spotlightRef.current,
+              { opacity: 0, duration: 0.32, ease: 'power2.inOut' },
+              0,
+            )
             tl.to(
               [p0.text, p0.cta, ...p0.stats],
               { autoAlpha: 0, duration: 0.26, ease: 'power2.in' },
@@ -1658,7 +1628,7 @@ export function HomeProductShowcase() {
               lockLenis()
             }
             clearTimeout(idleTimer)
-            idleTimer = setTimeout(settle, isMobile && insidePin() ? 80 : 180)
+            idleTimer = setTimeout(settle, 180)
           }
           window.addEventListener('scroll', onScroll, { passive: true })
           window.addEventListener('wheel', onWheelStep, { passive: false, capture: true })
