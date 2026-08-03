@@ -140,10 +140,29 @@ export function AminosanStory() {
     <div className="w-full overflow-x-hidden aminosan-wrapper">
       {reduced ? (
         <SimpleVersion key="simple" t={t} isMobile={isMobile} reduced={reduced} />
-      ) : isMobile ? (
-        <MobileVersion key="mobile" t={t} />
       ) : (
-        <CinematicVersion key="cinematic" t={t} isMobile={isMobile} />
+        /* As duas versões ficam sempre no DOM, escolhidas por CSS (`hidden
+           lg:block` / `block lg:hidden`) — mesmo padrão que a HeroJornada já
+           usa para o par de vídeos desktop/mobile. Antes essa escolha era
+           feita em JS (`isMobile ? <Mobile/> : <Cinematic/>`), e como o SSR
+           não sabe a largura real do aparelho, o servidor sempre manda a
+           marcação da CinematicVersion — no celular o usuário chegava a ver,
+           por um instante antes da hidratação corrigir, o vídeo 1920×1080
+           do desktop (sem a contenção calculada por `stageZoom()`, que só
+           existe depois do useGSAP montar): daí o vídeo "vazando" da largura,
+           os flashes e o toque sem resposta logo na entrada — a seção inteira
+           estava sendo desmontada e remontada bem no momento em que o usuário
+           tentava interagir. Cada versão decide sozinha, lendo
+           `window.innerWidth` dentro do próprio useGSAP (não por prop), se
+           deve montar o próprio pin — nunca os dois ao mesmo tempo. */
+        <>
+          <div className="hidden lg:block">
+            <CinematicVersion key="cinematic" t={t} isMobile={isMobile} />
+          </div>
+          <div className="block lg:hidden">
+            <MobileVersion key="mobile" t={t} />
+          </div>
+        </>
       )}
     </div>
   )
@@ -181,6 +200,9 @@ function MobileVersion({ t }: { t: TFn }) {
 
   useGSAP(
     () => {
+      // A seção existe sempre no DOM (visibilidade decidida por CSS); só o
+      // lado certo do breakpoint cria pin e liga os listeners de gesto.
+      if (window.innerWidth >= 1024) return
       const video = videoRef.current
       const stageTrigger = stageRef.current
       if (!video || !stageTrigger) return
@@ -715,6 +737,13 @@ function MobileVersion({ t }: { t: TFn }) {
       }
       document.addEventListener('visibilitychange', onVisibility)
 
+      /* Margem maior que a da CinematicVersion (100%): aquele clipe compartilha
+         banda com o resto da cadeia de decisão do desktop; este é um arquivo
+         único e pequeno (2MB), então vale começar a baixar mais cedo — dá
+         mais tempo de sobra pra terminar antes do primeiro gesto do usuário
+         chegar. Sem isso, o primeiro avanço (fase 1→2) podia ficar esperando
+         buffer em rede de celular mais lenta, e a seção "travava" bem na
+         entrada, exatamente onde o usuário reclamou. */
       const warmup = new IntersectionObserver(
         (entries) => {
           if (!entries.some((e) => e.isIntersecting)) return
@@ -722,7 +751,7 @@ function MobileVersion({ t }: { t: TFn }) {
           if (video.preload !== 'auto') { video.preload = 'auto'; video.load() }
           video.play().then(() => { if (!playing) { video.pause(); video.currentTime = 0 } }).catch(() => {})
         },
-        { rootMargin: '100% 0px' },
+        { rootMargin: '200% 0px' },
       )
       if (root.current) warmup.observe(root.current)
 
@@ -1039,6 +1068,10 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
   useGSAP(
     () => {
+      // A seção existe sempre no DOM (visibilidade decidida por CSS); só o
+      // lado certo do breakpoint cria pin e liga os listeners de gesto — o
+      // celular usa a MobileVersion, que faz este mesmo bail-out ao contrário.
+      if (window.innerWidth < 1024) return
       const video = videoRef.current
       const stageTrigger = stageRef.current
       const oldImg = oldImgRef.current
