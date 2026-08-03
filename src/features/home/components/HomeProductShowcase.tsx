@@ -406,6 +406,12 @@ function getCatalogBottleProps(index: number, active: number, isMobile: boolean)
 export function HomeProductShowcase() {
   const t = useTranslations('homeProductShowcase')
 
+  /* Compartilhado entre o efeito de `scheduleRefresh` abaixo e o `useGSAP`
+     principal (que marca true/false em volta de cada passo) — ver comentário
+     em `scheduleRefresh` sobre por que um `ScrollTrigger.refresh()` não pode
+     rodar em cima de uma transição em andamento. */
+  const catalogBusyRef = useRef(false)
+
   // Mesmo corte de 1024px do `isNarrowStage()`/`stillFullFrameProps` — decide
   // qual still de handoff (retrato mobile x paisagem desktop) o <Image> carrega.
   const [narrowStill, setNarrowStill] = useState(false)
@@ -421,12 +427,27 @@ export function HomeProductShowcase() {
     const rafs: number[] = []
 
     let pendingRaf = 0
+    /* Rodar `ScrollTrigger.refresh()` com o pin do catálogo ATIVO (usuário no
+       meio de um passo entre produtos) recalcula o spacer/posição do pin
+       tocando o layout medido — e como o próprio gatilho mais comum daqui é
+       uma imagem de frasco (lazy) terminando de carregar EXATAMENTE durante o
+       swipe pra ela, o refresh cai bem no meio da transição. Se o resultado
+       mudar por um pixel, o scroll (ainda em voo pro próximo produto) é
+       corrigido pra bater com a nova medição — daí o "pulo pra cima/baixo
+       antes de trocar de produto" reportado. `catalogBusyRef` (setado pelo
+       useGSAP principal em volta de cada passo) faz este refresh esperar a
+       transição atual terminar em vez de rodar em cima dela. */
+    const runRefresh = () => {
+      pendingRaf = 0
+      if (catalogBusyRef.current) {
+        pendingRaf = window.requestAnimationFrame(runRefresh)
+        return
+      }
+      ScrollTrigger.refresh()
+    }
     const scheduleRefresh = () => {
       if (pendingRaf) return
-      pendingRaf = window.requestAnimationFrame(() => {
-        pendingRaf = 0
-        ScrollTrigger.refresh()
-      })
+      pendingRaf = window.requestAnimationFrame(runRefresh)
     }
 
     scheduleRefresh()
@@ -626,12 +647,14 @@ export function HomeProductShowcase() {
             clearStepLockTimers()
             isTransitioning = false
             stepLocked = false
+            catalogBusyRef.current = false
           }
           /** Trava os passos e agenda a liberação de emergência. */
           const holdStepLock = (maxMs = 2200) => {
             clearStepLockTimers()
             isTransitioning = true
             stepLocked = true
+            catalogBusyRef.current = true
             stepLockWatchdog = setTimeout(releaseStepLock, maxMs)
           }
 
@@ -1582,6 +1605,7 @@ export function HomeProductShowcase() {
             settleTimers.forEach(window.clearTimeout)
             clearTimeout(idleTimer)
             clearStepLockTimers()
+            catalogBusyRef.current = false
             // Nunca deixar o Lenis parado atrás de nós (troca de breakpoint,
             // navegação): o resto da página ficaria sem scroll.
             unlockLenis()
