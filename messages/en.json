@@ -3297,26 +3297,26 @@
   },
   "desataPage": {
     "hero": {
-      "title": "PROGRAMA <highlight>DESATA</highlight>",
-      "description": "Um projeto inovador que nasce da parceria público-privada, entre a Juma-Agro, empresa com mais de 30 anos no agronegócio brasileiro e Universidade Estadual do Norte do Paraná (UENP) e seu Núcleo de Investigação em Tecnologia de Aplicação e Máquinas Agrícolas (NITEC)."
+      "title": "PROGRAM <highlight>DESATA</highlight>",
+      "description": "An innovative project born from a public-private partnership between Juma-Agro, a company with over 40 years in Brazilian agribusiness, and the State University of Northern Paraná (UENP) and its Center for Research in Application Technology and Agricultural Machinery (NITEC)."
     },
     "topics": {
-      "t1Title": "QUEM SOMOS",
-      "t1Desc": "Um projeto inovador que nasce da parceria público-privada, entre a Juma-Agro, empresa com mais de 30 anos no agronegócio brasileiro e Universidade Estadual do Norte do Paraná (UENP) e seu Núcleo de Investigação em Tecnologia de Aplicação e Máquinas Agrícolas (NITEC).",
-      "t2Title": "NOSSO PROPÓSITO",
-      "t2Desc": "Transformar a forma como as pessoas entendem e utilizam a tecnologia de aplicação.",
-      "t3Title": "POR QUE NASCEMOS",
-      "t3Desc": "Observando a necessidade de auxiliar o homem do campo, em entender como utilizar a tecnologia de aplicação, no controle fitossanitário e aproveitamento nutricional, aliando a preservação ambiental e econômica de uma forma que as informações técnicas fossem assimiladas por todos."
+      "t1Title": "WHO WE ARE",
+      "t1Desc": "An innovative project born from a public-private partnership between Juma-Agro, a company with over 40 years in Brazilian agribusiness, and the State University of Northern Paraná (UENP) and its Center for Research in Application Technology and Agricultural Machinery (NITEC).",
+      "t2Title": "OUR PURPOSE",
+      "t2Desc": "To transform the way people understand and use application technology.",
+      "t3Title": "WHY WE WERE BORN",
+      "t3Desc": "Observing the need to help farmers understand how to use application technology for phytosanitary control and nutritional efficiency, combining environmental and economic preservation in a way that technical information can be assimilated by everyone."
     },
     "team": {
-      "title": "EQUIPE DO PROJETO",
-      "member1Name": "Eng. Agrônomo Anderson Souza de Jesus",
-      "member1Role": "Gestor do Projeto Juma-Agro",
+      "title": "PROJECT TEAM",
+      "member1Name": "Agronomist Anderson Souza de Jesus",
+      "member1Role": "Juma-Agro Project Manager",
       "member2Name": "Dr. Rone Batista de Oliveira",
-      "member2Role": "Coordenador do Projeto UENP"
+      "member2Role": "UENP Project Coordinator"
     },
     "partners": {
-      "title": "PARCEIROS"
+      "title": "PARTNERS"
     }
   }
 }
