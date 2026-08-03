@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import Image from 'next/image'
 import {
@@ -151,11 +151,21 @@ const COUNT = PRODUCTS.length
    dois, porque as caixas têm proporções diferentes e a arte nunca cai no
    mesmo lugar. Medidas sobre o alpha dos PNGs; refazer se o asset mudar. */
 const HANDOFF_ART = {
-  /** /produtos/aminosan-catalogo.png — frame final do vídeo */
-  still: { x: 0.3292, y: 0.344, w: 0.3455, h: 0.489 },
+  /** /produtos/aminosan-catalogo.png (1777×1000, desktop) — frame final do vídeo */
+  stillDesktop: { x: 0.3292, y: 0.344, w: 0.3455, h: 0.489 },
+  /** /heritage/mobile/aminosan-catalogo-mobile.webp (1080×1920, mobile) — medido
+   *  com `ffmpeg ... alphaextract,bbox` sobre o canal alfa do arquivo. Composição
+   *  diferente da desktop (retrato nativo, sem a margem 16:9), então a caixa não
+   *  pode ser a mesma — refazer esta medida se o asset mudar. */
+  stillMobile: { x: 0.2046, y: 0.3948, w: 0.5907, h: 0.2682 },
   /** /produtos/aminosan-destaque.png — frasco do catálogo */
   bottle: { x: 0.055, y: 0.144, w: 0.891, h: 0.711 },
 } as const
+
+/** O corte aqui é 1024px (mesmo de `stillFullFrameProps`), não os 768px do
+ *  `isMobile` do gsap.matchMedia deste componente — ver comentário longo
+ *  em `stillFullFrameProps`. */
+const isNarrowStage = () => typeof window !== 'undefined' && window.innerWidth < 1024
 
 type ArtBox = { x: number; y: number; w: number; h: number }
 
@@ -189,17 +199,11 @@ function artRect(img: HTMLImageElement | null, art: ArtBox) {
  *  telas de 768–1023px abrirem a transição num tamanho que o vídeo nunca
  *  mostrou, e o corte aparecia logo no primeiro frame. */
 function stillFullFrameProps(): gsap.TweenVars {
-  const narrow = window.innerWidth < 1024
-  return {
-    left: 0,
-    top: narrow ? '22dvh' : 0,
-    width: '100%',
-    height: narrow ? '60dvh' : '100%',
-    scale: narrow ? 1.45 : 1,
-    x: 0,
-    y: 0,
-    filter: 'blur(0px)',
-  }
+  // A caixa 22dvh/60dvh/1.45 valia para o still 1777×1000 (composição 16:9 com
+  // muita margem branca) encolhido no formato retrato do celular. O still
+  // mobile novo (1080×1920) já nasce em pé — é `object-cover` full-bleed, sem
+  // caixa nem escala, igual ao vídeo que ele substitui.
+  return { left: 0, top: 0, width: '100%', height: isNarrowStage() ? '100dvh' : '100%', scale: 1, x: 0, y: 0, filter: 'blur(0px)' }
 }
 
 /* ── Carrossel de frascos — funções de posição ────────────────── */
@@ -368,6 +372,16 @@ function getCatalogBottleProps(index: number, active: number, isMobile: boolean)
 
 export function HomeProductShowcase() {
   const t = useTranslations('homeProductShowcase')
+
+  // Mesmo corte de 1024px do `isNarrowStage()`/`stillFullFrameProps` — decide
+  // qual still de handoff (retrato mobile x paisagem desktop) o <Image> carrega.
+  const [narrowStill, setNarrowStill] = useState(false)
+  useEffect(() => {
+    const update = () => setNarrowStill(window.innerWidth < 1024)
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
 
   useEffect(() => {
     const timeouts: number[] = []
@@ -832,7 +846,7 @@ export function HomeProductShowcase() {
             gsap.set(bottle, { ...catalogCenter, autoAlpha: 0, opacity: 0 })
             const rest = artRect(bottleImg, HANDOFF_ART.bottle)
             gsap.set(still, stillFullFrameProps())
-            const frame = artRect(still, HANDOFF_ART.still)
+            const frame = artRect(still, isNarrowStage() ? HANDOFF_ART.stillMobile : HANDOFF_ART.stillDesktop)
             if (!rest || !frame || rest.h < 1) return fallback
 
             const baseX = typeof catalogCenter.x === 'number' ? catalogCenter.x : 0
@@ -1579,26 +1593,23 @@ export function HomeProductShowcase() {
         />
 
         <div className="pcs-stage">
-          {/* Still de ponte entre o vídeo branco e o catálogo — mesmo asset e
-              mesmo `sizes` do trio na seção Aminosan (1777×1000), para o
-              browser reaproveitar o arquivo já baixado lá e a ponte começar
-              exatamente no frame em que o vídeo parou.
-              O object-fit repete token por token o do trio lá
-              (`STAGE_IMAGE_CLASS`): entre 768 e 1023px o `md:!object-cover`
-              vence o `max-lg:!object-contain` (vem depois na folha, mesma
-              especificidade), então usar só `object-cover max-lg:object-contain`
-              deixava essa faixa começando com um recorte que o vídeo nunca
-              mostrou. A ponte lê o object-fit computado, então acompanha. */}
+          {/* Still de ponte entre o vídeo branco e o catálogo — mesmo asset (e
+              mesmo `object-fit: cover` full-bleed) que a seção Aminosan usa no
+              breakpoint correspondente, para a ponte começar exatamente no
+              frame em que o vídeo parou. Desktop: still 1777×1000 (paisagem,
+              `/produtos/aminosan-catalogo.png`). Mobile (<1024px, `narrowStill`):
+              still 1080×1920 (retrato nativo, `HANDOFF_ART.stillMobile`) — a
+              caixa alfa é diferente da desktop, ver `HANDOFF_ART`. */}
           <Image
             ref={handoffStillRef as any}
-            src="/produtos/aminosan-catalogo.png"
+            src={narrowStill ? '/heritage/mobile/aminosan-catalogo-mobile.webp' : '/produtos/aminosan-catalogo.png'}
             alt=""
             aria-hidden="true"
             draggable={false}
-            width={1777}
-            height={1000}
+            width={narrowStill ? 1080 : 1777}
+            height={narrowStill ? 1920 : 1000}
             sizes="100vw"
-            className="pointer-events-none absolute inset-0 z-[3] h-full w-full max-lg:top-[22dvh] max-lg:h-[60dvh] object-cover md:!object-cover max-lg:!object-contain opacity-0"
+            className="pointer-events-none absolute inset-0 z-[3] h-full w-full object-cover opacity-0"
           />
 
           {/* Teatro de frascos — todos os produtos posicionados, GSAP anima */}

@@ -61,7 +61,21 @@ const ACT_COLUMN_TOP = 'lg:pt-[clamp(6rem,36dvh,24rem)]'
 export function AminosanStory() {
   const t = useTranslations('aminosanStory')
   const reduced = useReducedMotion()
-  const [isMobile, setIsMobile] = useState(false)
+  /* Lazy initializer (não `useState(false)` + effect): precisa nascer com o
+     valor CERTO já no primeiro render do cliente. Se nascesse `false` e só
+     corrigisse depois, todo mundo — mobile incluído — montaria CinematicVersion
+     por um commit inteiro antes de trocar para MobileVersion. O problema não é
+     só o desperdício: o `#sec-produtos` (HomeProductShowcase, a seção seguinte)
+     mede o PRÓPRIO pin nesse meio-tempo, com a altura do Aminosan ainda
+     incompleta (zero, ou a de uma versão que vai ser trocada) — e como o pin
+     dele guarda esse `start`/`end` errado sem nunca ser recalculado depois
+     (mesmo com `ScrollTrigger.refresh()` global chamado na sequência), o
+     carrossel de produtos passa a renderizar com o palco fora do lugar
+     (`top` != 0) — a seção inteira em branco. Nascendo com o valor certo,
+     nenhuma versão errada chega a montar, e a altura do Aminosan já está
+     certa no primeiro layout que o resto da página mede. Verificado revertendo
+     a mudança com `git stash` e comparando o mesmo teste lado a lado. */
+  const [isMobile, setIsMobile] = useState(() => (typeof window === 'undefined' ? false : window.innerWidth < 1024))
 
   useEffect(() => {
     const timeouts: number[] = []
@@ -117,10 +131,7 @@ export function AminosanStory() {
     }
   }, [])
   useEffect(() => {
-    const update = () => {
-      setIsMobile(window.innerWidth < 1024)
-    }
-    update()
+    const update = () => setIsMobile(window.innerWidth < 1024)
     window.addEventListener('resize', update)
     return () => window.removeEventListener('resize', update)
   }, [])
@@ -129,9 +140,686 @@ export function AminosanStory() {
     <div className="w-full overflow-x-hidden aminosan-wrapper">
       {reduced ? (
         <SimpleVersion key="simple" t={t} isMobile={isMobile} reduced={reduced} />
+      ) : isMobile ? (
+        <MobileVersion key="mobile" t={t} />
       ) : (
         <CinematicVersion key="cinematic" t={t} isMobile={isMobile} />
       )}
+    </div>
+  )
+}
+
+/* ── MobileVersion — celular, vídeo único em retrato nativo ─────────────
+ * Substitui o compartilhamento do clipe 1920×1080 do desktop (que exigia
+ * `object-contain` + reescala via JS para caber no celular — ver `stageZoom`
+ * na CinematicVersion, fonte da maior parte dos travamentos relatados em
+ * mobile). Aqui o vídeo já nasce 1080×1920 e não precisa de nenhuma
+ * reescala: só `object-cover`.
+ *
+ * Mesmo contrato de gesto do HeroJornada/CinematicVersion — a DIREÇÃO do
+ * gesto manda (play() nativo pra frente, passo manual de currentTime pra
+ * trás), nunca scrub contínuo ligado à posição do scroll/ponteiro. 4 fases
+ * de repouso: 'bottle1988' → 'bottleHoje' → 'linha' → 'catalogo' (handoff
+ * pro catálogo pelos mesmos eventos `aminosan:*` que a CinematicVersion já
+ * usa, então o HomeProductShowcase não precisa saber qual versão rodou).
+ */
+function MobileVersion({ t }: { t: TFn }) {
+  const root         = useRef<HTMLDivElement>(null)
+  const stageRef      = useRef<HTMLElement>(null)
+  const videoRef       = useRef<HTMLVideoElement>(null)
+  const catalogImgRef  = useRef<HTMLImageElement>(null)
+  const act1Ref        = useRef<HTMLDivElement>(null)
+  const act3Ref        = useRef<HTMLDivElement>(null)
+  const lineRef        = useRef<HTMLDivElement>(null)
+  const oldCalloutRef  = useRef<HTMLDivElement>(null)
+  const newCalloutRef  = useRef<HTMLDivElement>(null)
+  const brandMarkRef   = useRef<HTMLDivElement>(null)
+
+  const lenis    = useLenis()
+  const lenisRef = useRef(lenis)
+  useEffect(() => { lenisRef.current = lenis }, [lenis])
+
+  useGSAP(
+    () => {
+      const video = videoRef.current
+      const stageTrigger = stageRef.current
+      if (!video || !stageTrigger) return
+
+      const act1Items = act1Ref.current ? gsap.utils.toArray<HTMLElement>('[data-anim]', act1Ref.current) : []
+      const act3Items = act3Ref.current ? gsap.utils.toArray<HTMLElement>('[data-anim]', act3Ref.current) : []
+      const lineItems = lineRef.current ? gsap.utils.toArray<HTMLElement>('[data-anim]', lineRef.current) : []
+
+      gsap.set(video, { autoAlpha: 1 })
+      gsap.set(catalogImgRef.current, { autoAlpha: 0 })
+      gsap.set(act1Items, { y: 0, autoAlpha: 1 })
+      gsap.set(act3Items, { y: 16, autoAlpha: 0 })
+      gsap.set(lineItems, { y: 16, autoAlpha: 0 })
+      gsap.set(oldCalloutRef.current, { autoAlpha: 1 })
+      gsap.set(newCalloutRef.current, { autoAlpha: 0 })
+      gsap.set(brandMarkRef.current, { autoAlpha: 1 })
+
+      type Phase = 'bottle1988' | 'bottleHoje' | 'linha' | 'catalogo'
+      const PHASES: Phase[] = ['bottle1988', 'bottleHoje', 'linha', 'catalogo']
+      const LAST = PHASES.length - 1
+
+      let phase: Phase = 'bottle1988'
+      let visualPhase: Phase | null = 'bottle1988'
+      let inView = false
+      let direction: 'forward' | 'backward' | null = null
+      let playing = false
+      let releasing = false
+      let targetTime: number | null = null
+      let step = 0
+      let lastTime = 0
+      let animFrame = 0
+      let lastTickAt = 0
+      let lastProgressAt = 0
+      let lastSeenTime = -1
+      const cooldownRef = { current: 0 }
+      let wasOutside = false
+      let handoffBackPending = false
+      let handoffBackTimer: ReturnType<typeof setTimeout> | undefined
+
+      /* Duração real do clipe: 5,78s. Os pontos 2 e 3 vieram no briefing como
+         "01:15"/"03:10", mas isso é notação segundo:frame (30fps) do editor,
+         não minuto:segundo — confirmado extraindo os frames em 1,5s e 3,33s e
+         comparando com as artes de referência (frasco atual / linha completa).
+         `getTargets()` lê a duração real do elemento assim que ela existe, com
+         o valor medido como fallback antes do metadata carregar. */
+      const FALLBACK_DURATION = 5.78
+      const getTargets = () => {
+        const d = video.duration > 0 && isFinite(video.duration) ? video.duration : FALLBACK_DURATION
+        const safeEnd = Math.max(3.6, d - 0.08)
+        return [0, 1.5, 10 / 3, safeEnd]
+      }
+
+      const clearHandoffBack = () => {
+        handoffBackPending = false
+        clearTimeout(handoffBackTimer)
+      }
+      const onPrepareHandoffBackward = () => {
+        handoffBackPending = true
+        clearTimeout(handoffBackTimer)
+        handoffBackTimer = setTimeout(clearHandoffBack, 2500)
+      }
+      window.addEventListener('aminosan:prepare-handoff-backward', onPrepareHandoffBackward)
+
+      let pinTrigger: ScrollTrigger | null = null
+
+      const phaseY = (i: number) => {
+        if (!pinTrigger) return window.scrollY
+        return Math.round(pinTrigger.start + ((pinTrigger.end - pinTrigger.start) * i) / LAST)
+      }
+      const snapToPhase = () => {
+        if (!pinTrigger) return
+        const y = phaseY(PHASES.indexOf(phase))
+        if (Math.abs(window.scrollY - y) < 2) return
+        lenisRef.current?.scrollTo(y, { immediate: true, force: true } as never)
+        window.scrollTo(0, y)
+      }
+
+      const safeDur = (v: HTMLVideoElement) => (v.duration > 0 && isFinite(v.duration)) ? v.duration : FALLBACK_DURATION
+
+      const lockScroll = (on: boolean) => {
+        // No mobile o Lenis não existe (SmoothScroll não instancia abaixo de
+        // 1024px) — quem trava de verdade é o preventDefault do touchmove lá
+        // embaixo. Aqui é só para o caso raro de teclado/trackpad externo.
+        if (on) lenisRef.current?.stop()
+        else lenisRef.current?.start()
+      }
+
+      const showPhaseText = (items: HTMLElement[], delay = 0) => {
+        gsap.killTweensOf(items)
+        gsap.to(items, { y: 0, autoAlpha: 1, duration: 0.5, stagger: 0.07, delay, ease: EASE.reveal, overwrite: 'auto' })
+      }
+      const hidePhaseText = (items: HTMLElement[]) => {
+        gsap.killTweensOf(items)
+        gsap.to(items, { y: -16, autoAlpha: 0, duration: 0.28, stagger: 0.02, ease: 'power1.in', overwrite: 'auto' })
+      }
+      const setPhaseTextStatic = (items: HTMLElement[], visible: boolean) => {
+        gsap.killTweensOf(items)
+        gsap.set(items, visible ? { y: 0, autoAlpha: 1 } : { y: 16, autoAlpha: 0 })
+      }
+
+      /* Ponte fixa pro catálogo: cobre a viewport inteira (z-80) exatamente
+         como o trioImg da CinematicVersion — é o que evita o flash do salto
+         de scroll entre o fim desta seção e o still que o HomeProductShowcase
+         assume em seguida. */
+      const showCatalogOverlay = () => {
+        gsap.set(catalogImgRef.current, {
+          autoAlpha: 1, display: 'block', position: 'fixed',
+          top: 0, left: 0, right: 'auto', bottom: 'auto',
+          width: '100%', height: '100dvh', zIndex: 80, pointerEvents: 'none',
+        })
+      }
+      const clearCatalogOverlay = () => {
+        gsap.set(catalogImgRef.current, {
+          autoAlpha: 0,
+          clearProps: 'display,position,top,right,bottom,left,width,height,zIndex,pointerEvents',
+        })
+      }
+
+      const releaseForward = () => {
+        releasing = true
+        lockScroll(false)
+        const fallback = pinTrigger ? pinTrigger.end + window.innerHeight : window.scrollY
+        const next = document.getElementById('sec-produtos')
+        const measured = next ? Math.round(next.getBoundingClientRect().top + window.scrollY) : null
+        const y = measured !== null && measured >= fallback - 2 ? measured : Math.round(fallback)
+        lenisRef.current?.scrollTo(y, { immediate: true, force: true } as never)
+        window.scrollTo(0, y)
+        ScrollTrigger.refresh()
+        requestAnimationFrame(() => { releasing = false })
+      }
+
+      const finishExit = () => {
+        window.dispatchEvent(new CustomEvent('aminosan:prepare-handoff-forward'))
+        releaseForward()
+        clearCatalogOverlay()
+        window.dispatchEvent(new CustomEvent('aminosan:handoff-forward'))
+        window.dispatchEvent(new CustomEvent('aminosan:video-handoff-end'))
+      }
+
+      // ── Estados estáticos: cada fase de repouso descrita por inteiro ──────
+      const showStaticBottle1988 = () => {
+        const v = videoRef.current
+        if (v) { try { v.pause(); v.currentTime = 0 } catch {} }
+        clearCatalogOverlay()
+        gsap.set(video, { autoAlpha: 1 })
+        setPhaseTextStatic(act1Items, true)
+        setPhaseTextStatic(act3Items, false)
+        setPhaseTextStatic(lineItems, false)
+        gsap.set(oldCalloutRef.current, { autoAlpha: 1 })
+        gsap.set(newCalloutRef.current, { autoAlpha: 0 })
+        gsap.set(brandMarkRef.current, { autoAlpha: 1 })
+        visualPhase = 'bottle1988'
+      }
+      const showStaticBottleHoje = () => {
+        const v = videoRef.current
+        if (v) { try { v.currentTime = getTargets()[1] } catch {} }
+        clearCatalogOverlay()
+        gsap.set(video, { autoAlpha: 1 })
+        setPhaseTextStatic(act1Items, false)
+        setPhaseTextStatic(act3Items, true)
+        setPhaseTextStatic(lineItems, false)
+        gsap.set(oldCalloutRef.current, { autoAlpha: 0 })
+        gsap.set(newCalloutRef.current, { autoAlpha: 1 })
+        gsap.set(brandMarkRef.current, { autoAlpha: 1 })
+        visualPhase = 'bottleHoje'
+      }
+      const showStaticLinha = () => {
+        const v = videoRef.current
+        if (v) { try { v.currentTime = getTargets()[2] } catch {} }
+        clearCatalogOverlay()
+        gsap.set(video, { autoAlpha: 1 })
+        setPhaseTextStatic(act1Items, false)
+        setPhaseTextStatic(act3Items, false)
+        setPhaseTextStatic(lineItems, true)
+        gsap.set(oldCalloutRef.current, { autoAlpha: 0 })
+        gsap.set(newCalloutRef.current, { autoAlpha: 0 })
+        gsap.set(brandMarkRef.current, { autoAlpha: 0 })
+        visualPhase = 'linha'
+      }
+      const showStaticCatalogo = () => {
+        const v = videoRef.current
+        if (v) { try { v.pause() } catch {} }
+        setPhaseTextStatic(act1Items, false)
+        setPhaseTextStatic(act3Items, false)
+        setPhaseTextStatic(lineItems, false)
+        gsap.set([oldCalloutRef.current, newCalloutRef.current, brandMarkRef.current], { autoAlpha: 0 })
+        showCatalogOverlay()
+        visualPhase = 'catalogo'
+      }
+      const applyPhaseVisuals = (p: Phase) => {
+        if (p === 'bottle1988') showStaticBottle1988()
+        else if (p === 'bottleHoje') showStaticBottleHoje()
+        else if (p === 'linha') showStaticLinha()
+        else showStaticCatalogo()
+      }
+      const enforceVisuals = () => {
+        if (playing || releasing) return
+        if (visualPhase === phase) return
+        applyPhaseVisuals(phase)
+      }
+      const abortPlayback = (snap = false) => {
+        const v = videoRef.current
+        if (v) { try { v.pause() } catch {} }
+        if (animFrame) cancelAnimationFrame(animFrame)
+        animFrame = 0
+        playing = false
+        direction = null
+        targetTime = null
+        releasing = false
+        lockScroll(false)
+        const i = Math.min(Math.max(step, 0), LAST)
+        phase = PHASES[i] === 'catalogo' ? 'linha' : PHASES[i]
+        step = PHASES.indexOf(phase)
+        applyPhaseVisuals(phase)
+        if (snap) snapToPhase()
+        cooldownRef.current = performance.now() + 350
+      }
+
+      const updateActivePhase = (time: number) => {
+        const targets = getTargets()
+        if (time < targets[1] - 0.15) phase = 'bottle1988'
+        else if (time < targets[2] - 0.15) phase = 'bottleHoje'
+        else if (time < targets[3] - 0.15) phase = 'linha'
+        else phase = 'catalogo'
+      }
+
+      /* Checagem de "chegou no alvo" independente do rAF: `timeupdate` é
+         disparado pelo próprio pipeline de mídia (não pelo compositor), então
+         continua chegando mesmo se o rAF atrasar (aba ocupada, GC, o que for)
+         — sem isto, um rAF atrasado deixa o vídeo tocar direto até o fim
+         antes de o próximo tick notar que já passou do alvo. `tick()` chama a
+         mesma função; os dois caminhos convergem no mesmo `stopPlayback()`. */
+      const checkForwardLimit = () => {
+        if (!playing || direction !== 'forward') return
+        const v = videoRef.current
+        if (!v || targetTime === null) return
+        const limit = targetTime >= v.duration - 0.1 ? v.duration - 0.05 : targetTime - 0.02
+        if (v.currentTime >= limit || v.ended) {
+          try { v.pause() } catch {}
+          stopPlayback()
+        }
+      }
+
+      const tick = (now: number) => {
+        const v = videoRef.current
+        if (!v) { stopPlayback(); return }
+        if (!playing) return
+        const target = targetTime
+        if (target === null) return
+
+        lastTickAt = now
+        const seen = v.currentTime
+        if (Math.abs(seen - lastSeenTime) > 0.001) {
+          lastSeenTime = seen
+          lastProgressAt = now
+        } else if (now - lastProgressAt > 1600) {
+          try { v.pause() } catch {}
+          try { v.currentTime = target } catch {}
+          stopPlayback()
+          return
+        }
+
+        if (direction === 'forward') {
+          lastTime = now
+          checkForwardLimit()
+          if (!playing) return
+          if (v.paused && !v.ended) void v.play().catch(() => {})
+        } else if (direction === 'backward') {
+          if (!v.paused) v.pause()
+          if (v.seeking) { animFrame = requestAnimationFrame(tick); return }
+          const elapsed = (now - lastTime) / 1000
+          lastTime = now
+          const current = v.currentTime
+          const nextTime = Math.max(0, current - elapsed)
+          try { v.currentTime = nextTime } catch {}
+          if (nextTime <= target + 0.02) { stopPlayback(); return }
+        }
+        updateActivePhase(v.currentTime)
+        animFrame = requestAnimationFrame(tick)
+      }
+
+      const startPlayback = (dir: 'forward' | 'backward', target: number, midFlight = false) => {
+        const v = videoRef.current
+        if (!v) return
+        if (animFrame) cancelAnimationFrame(animFrame)
+        direction = dir
+        targetTime = target
+        playing = true
+        visualPhase = null
+        lastTickAt = performance.now()
+        lastProgressAt = lastTickAt
+        lastSeenTime = -1
+        lockScroll(true)
+
+        if (dir === 'forward') {
+          if (step === 1) {
+            hidePhaseText(act1Items)
+            gsap.to(oldCalloutRef.current, { autoAlpha: 0, duration: 0.2, overwrite: 'auto' })
+            showPhaseText(act3Items, midFlight ? 0 : 0.15)
+            gsap.to(newCalloutRef.current, { autoAlpha: 1, duration: 0.3, delay: 0.3, overwrite: 'auto' })
+          } else if (step === 2) {
+            hidePhaseText(act3Items)
+            gsap.to([newCalloutRef.current, brandMarkRef.current], { autoAlpha: 0, duration: 0.2, overwrite: 'auto' })
+            showPhaseText(lineItems, midFlight ? 0 : 0.15)
+          } else if (step === 3) {
+            hidePhaseText(lineItems)
+            window.dispatchEvent(new CustomEvent('aminosan:video-handoff-start'))
+          }
+          void v.play().catch(() => {})
+        } else {
+          v.pause()
+          const duration = safeDur(v)
+          if (v.currentTime >= duration - 0.05) { try { v.currentTime = duration - 0.1 } catch {} }
+          if (step === 0) {
+            hidePhaseText(act3Items)
+            gsap.to(newCalloutRef.current, { autoAlpha: 0, duration: 0.15, overwrite: 'auto' })
+            showPhaseText(act1Items, 0.1)
+            gsap.to(oldCalloutRef.current, { autoAlpha: 1, duration: 0.3, delay: 0.2, overwrite: 'auto' })
+            gsap.set(brandMarkRef.current, { autoAlpha: 1 })
+          } else if (step === 1) {
+            hidePhaseText(lineItems)
+            gsap.set(brandMarkRef.current, { autoAlpha: 1 })
+            showPhaseText(act3Items, 0.1)
+            gsap.to(newCalloutRef.current, { autoAlpha: 1, duration: 0.3, delay: 0.2, overwrite: 'auto' })
+          } else if (step === 2) {
+            gsap.to(catalogImgRef.current, { autoAlpha: 0, duration: 0.18, ease: 'power1.out', overwrite: true })
+            showPhaseText(lineItems, 0.15)
+          }
+        }
+        lastTime = performance.now()
+        animFrame = requestAnimationFrame(tick)
+      }
+
+      const stopPlayback = () => {
+        // `checkForwardLimit` roda tanto no rAF quanto no `timeupdate` — os
+        // dois podem chegar a discordar sobre o exato mesmo alvo (um evento
+        // por trás do outro), e sem esta guarda o segundo re-executa toda a
+        // troca de fase/scroll em cima de um estado que já parou.
+        if (!playing) return
+        if (animFrame) cancelAnimationFrame(animFrame)
+        playing = false
+        direction = null
+
+        if (step === 1) {
+          phase = 'bottleHoje'
+          showStaticBottleHoje()
+          snapToPhase()
+        } else if (step === 2) {
+          phase = 'linha'
+          window.dispatchEvent(new CustomEvent('aminosan:video-handoff-end'))
+          showStaticLinha()
+          snapToPhase()
+        } else if (step === 3) {
+          phase = 'catalogo'
+          showStaticCatalogo()
+          finishExit()
+        } else {
+          phase = 'bottle1988'
+          showStaticBottle1988()
+          snapToPhase()
+        }
+        lockScroll(false)
+        cooldownRef.current = performance.now() + 350
+      }
+
+      pinTrigger = ScrollTrigger.create({
+        trigger: root.current,
+        start: 'top top',
+        end: `+=${LAST * 100}%`,
+        pin: stageTrigger,
+        pinSpacing: true,
+        anticipatePin: 1,
+      })
+
+      const canStep = () => !playing && !releasing && performance.now() >= cooldownRef.current
+
+      const stepForward = () => {
+        if (releasing) return
+        const targets = getTargets()
+        if (playing) {
+          if (direction !== 'backward') return
+          const next = step + 1
+          if (next > LAST) return
+          step = next
+          startPlayback('forward', targets[next], true)
+          return
+        }
+        if (!canStep()) return
+        const i = PHASES.indexOf(phase)
+        if (i >= LAST) return
+        step = i + 1
+        startPlayback('forward', targets[step])
+      }
+
+      const stepBackward = () => {
+        if (releasing) return
+        const targets = getTargets()
+        if (playing) {
+          if (direction !== 'forward') return
+          const prev = step - 1
+          if (prev < 0) return
+          step = prev
+          startPlayback('backward', targets[prev], true)
+          return
+        }
+        if (!canStep()) return
+        const i = PHASES.indexOf(phase)
+        if (i <= 0) return
+        step = i - 1
+        startPlayback('backward', targets[step])
+      }
+
+      const escapes = (down: boolean) =>
+        !playing && ((down && phase === 'catalogo') || (!down && phase === 'bottle1988'))
+
+      const active = () => {
+        if (!pinTrigger || releasing) return false
+        const y = window.scrollY
+        return y >= pinTrigger.start - 1 && y <= pinTrigger.end + 1
+      }
+
+      const onWheel = (e: WheelEvent) => {
+        if (!active() || Math.abs(e.deltaY) < 2) return
+        if (escapes(e.deltaY > 0)) return
+        if (e.cancelable) e.preventDefault()
+        if (Math.abs(e.deltaY) < 8) return
+        if (e.deltaY > 0) stepForward()
+        else stepBackward()
+      }
+
+      const downKeys = ['ArrowDown', 'PageDown', ' ', 'Spacebar']
+      const upKeys = ['ArrowUp', 'PageUp']
+      const onKey = (e: KeyboardEvent) => {
+        if (!active()) return
+        const down = downKeys.includes(e.key)
+        const up = upKeys.includes(e.key)
+        if (!down && !up) return
+        if (escapes(down)) return
+        e.preventDefault()
+        if (down) stepForward()
+        else stepBackward()
+      }
+
+      let touchY = 0
+      const onTouchStart = (e: TouchEvent) => { touchY = e.touches[0]?.clientY ?? 0 }
+      const onTouchMove = (e: TouchEvent) => {
+        if (!active()) return
+        const y = e.touches[0]?.clientY ?? touchY
+        const dy = touchY - y
+        if (Math.abs(dy) > 4 && escapes(dy > 0)) return
+        if (e.cancelable) e.preventDefault()
+      }
+      const onTouchEnd = (e: TouchEvent) => {
+        if (!active()) return
+        const endY = e.changedTouches[0]?.clientY ?? touchY
+        const dy = touchY - endY
+        if (Math.abs(dy) < 30) return
+        if (dy > 0) stepForward()
+        else stepBackward()
+      }
+
+      let idleTimer: ReturnType<typeof setTimeout> | undefined
+      const onScroll = () => {
+        clearTimeout(idleTimer)
+        idleTimer = setTimeout(() => {
+          if (!active() || playing) return
+          enforceVisuals()
+          snapToPhase()
+        }, 200)
+      }
+
+      window.addEventListener('wheel', onWheel, { passive: false, capture: true })
+      window.addEventListener('keydown', onKey)
+      window.addEventListener('touchstart', onTouchStart, { passive: true })
+      window.addEventListener('touchmove', onTouchMove, { passive: false, capture: true })
+      window.addEventListener('touchend', onTouchEnd, { passive: true })
+      window.addEventListener('scroll', onScroll, { passive: true })
+      video.addEventListener('timeupdate', checkForwardLimit)
+
+      const onHandoffBackward = () => {
+        clearHandoffBack()
+        if (playing) return
+        phase = 'catalogo'
+        wasOutside = false
+        showStaticCatalogo()
+        snapToPhase()
+        step = 2
+        window.dispatchEvent(new CustomEvent('aminosan:video-handoff-start'))
+        startPlayback('backward', getTargets()[2])
+      }
+      window.addEventListener('aminosan:handoff-backward', onHandoffBackward)
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            inView = entry.isIntersecting
+            if (!entry.isIntersecting) {
+              if (playing) abortPlayback(false)
+              else { try { videoRef.current?.pause() } catch {} }
+              wasOutside = true
+              return
+            }
+            if (wasOutside && !playing && !handoffBackPending && (phase !== 'bottle1988' || visualPhase !== 'bottle1988')) {
+              step = 0
+              phase = 'bottle1988'
+              showStaticBottle1988()
+              snapToPhase()
+            }
+            wasOutside = false
+          })
+        },
+        { threshold: 0.05 },
+      )
+      if (root.current) observer.observe(root.current)
+
+      const watchdog = window.setInterval(() => {
+        if (!inView) return
+        if (playing) {
+          if (performance.now() - lastTickAt > 1500) abortPlayback(active())
+          return
+        }
+        enforceVisuals()
+      }, 600)
+
+      const onVisibility = () => {
+        if (document.visibilityState !== 'visible') {
+          if (playing) { try { videoRef.current?.pause() } catch {} }
+          return
+        }
+        if (playing) abortPlayback(active())
+        else enforceVisuals()
+      }
+      document.addEventListener('visibilitychange', onVisibility)
+
+      const warmup = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((e) => e.isIntersecting)) return
+          warmup.disconnect()
+          if (video.preload !== 'auto') { video.preload = 'auto'; video.load() }
+          video.play().then(() => { if (!playing) { video.pause(); video.currentTime = 0 } }).catch(() => {})
+        },
+        { rootMargin: '100% 0px' },
+      )
+      if (root.current) warmup.observe(root.current)
+
+      return () => {
+        observer.disconnect()
+        warmup.disconnect()
+        window.clearInterval(watchdog)
+        document.removeEventListener('visibilitychange', onVisibility)
+        pinTrigger?.kill()
+        pinTrigger = null
+        if (animFrame) cancelAnimationFrame(animFrame)
+        clearTimeout(idleTimer)
+        lockScroll(false)
+
+        window.dispatchEvent(new CustomEvent('aminosan:video-handoff-end'))
+        clearHandoffBack()
+        window.removeEventListener('aminosan:prepare-handoff-backward', onPrepareHandoffBackward)
+        window.removeEventListener('aminosan:handoff-backward', onHandoffBackward)
+        window.removeEventListener('wheel', onWheel, { capture: true })
+        window.removeEventListener('keydown', onKey)
+        window.removeEventListener('touchstart', onTouchStart)
+        window.removeEventListener('touchmove', onTouchMove, { capture: true })
+        window.removeEventListener('touchend', onTouchEnd)
+        window.removeEventListener('scroll', onScroll)
+        video.removeEventListener('timeupdate', checkForwardLimit)
+      }
+    },
+    { scope: root },
+  )
+
+  return (
+    <div ref={root} className="relative w-full bg-white">
+      <section ref={stageRef} className="relative z-10 h-[100dvh] w-full overflow-hidden bg-white">
+        <video
+          ref={videoRef}
+          muted playsInline preload="metadata"
+          poster="/heritage/mobile/aminosan-transformacao-poster.webp"
+          aria-label={t('videoAlt')}
+          className="absolute inset-0 z-0 h-full w-full object-cover object-bottom opacity-0"
+        >
+          <source src="/heritage/mobile/aminosan-transformacao.mp4" type="video/mp4" />
+        </video>
+
+        {/* Frame final do vídeo, servido como imagem (canal alfa) — vira a
+            ponte fixa pro catálogo assim que o clipe termina (ver
+            `showCatalogOverlay`). Mesmo papel do trioImg da CinematicVersion. */}
+        <Image
+          ref={catalogImgRef}
+          src="/heritage/mobile/aminosan-catalogo-mobile.webp"
+          alt=""
+          aria-hidden
+          fill sizes="100vw"
+          quality={85}
+          className="absolute inset-0 z-0 h-full w-full object-cover object-bottom opacity-0"
+        />
+
+        <AminosanBrandMark refEl={brandMarkRef} />
+
+        <div ref={act1Ref} className="absolute inset-x-0 top-0 z-30 pointer-events-none">
+          <Container className="pointer-events-auto flex flex-col items-center px-md pt-[15vh] pb-4 text-center">
+            <span data-anim className="text-eyebrow text-[10px] uppercase tracking-[0.18em] text-primary">{t('eyebrow')}</span>
+            <div data-anim>
+              <BicolorTitle title={t('title')} titleHi={t('titleHi')} className="text-[clamp(1.75rem,7vw,3rem)] leading-tight" />
+            </div>
+            <p data-anim className="text-subtitle mt-2 max-w-[22rem] text-sm text-foreground/80">{t('body1')}</p>
+            <p data-anim className="text-subtitle max-w-[22rem] text-sm text-foreground/80">{t('body2')}</p>
+            <span data-anim className="text-eyebrow mt-3 text-[10px] uppercase tracking-[0.16em] text-foreground/45">{t('footerTag')}</span>
+          </Container>
+        </div>
+
+        <div ref={act3Ref} className="absolute inset-x-0 top-0 z-30 pointer-events-none">
+          <Container className="pointer-events-auto flex flex-col items-center px-md pt-[15vh] pb-4 text-center">
+            <span data-anim className="text-eyebrow text-[10px] uppercase tracking-[0.18em] text-primary">{t('a3Eyebrow')}</span>
+            <div data-anim>
+              <BicolorTitle title={t('a3Title')} titleHi={t('a3TitleHi')} className="text-[clamp(1.75rem,7vw,3rem)] leading-tight" />
+            </div>
+            <p data-anim className="text-subtitle max-w-[22rem] text-sm text-foreground/80">{t('a3Body')}</p>
+          </Container>
+        </div>
+
+        <div ref={lineRef} className="absolute inset-x-0 top-0 z-30 pointer-events-none">
+          <Container className="pointer-events-auto flex flex-col items-center px-md pt-[15vh] pb-4 text-center">
+            <span data-anim className="text-eyebrow text-[10px] uppercase tracking-[0.18em] text-primary">{t('lineEyebrow')}</span>
+            <div data-anim>
+              <BicolorTitle title={t('lineTitle')} titleHi={t('lineTitleHi')} className="text-[clamp(1.75rem,7vw,3rem)] leading-tight" />
+            </div>
+            <p data-anim className="text-subtitle max-w-[24rem] text-sm text-foreground/80">{t('lineBody')}</p>
+          </Container>
+        </div>
+
+        <BottleCallout refEl={oldCalloutRef} eyebrow={t('eyebrow')}>
+          {t('oldBottleCaption')}
+        </BottleCallout>
+        <BottleCallout refEl={newCalloutRef} eyebrow={t('a3Eyebrow')}>
+          {t('newBottleCaption')}
+        </BottleCallout>
+      </section>
     </div>
   )
 }
