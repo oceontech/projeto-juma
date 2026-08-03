@@ -19,7 +19,7 @@ const ARTICLES = [
     readTime: '6 min de leitura',
     title: 'Como reduzir o estresse da lavoura na seca',
     bg: 'linear-gradient(135deg, #2d4a1a 0%, #4a7a2a 100%)',
-    image: '/materias/capa-destaque.png',
+    image: '/materias/capa-destaque.webp',
   },
   {
     slug: 'nutricao-fase-certa',
