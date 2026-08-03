@@ -877,6 +877,43 @@ export function HomeProductShowcase() {
             y: typeof props.y === 'number' ? props.y : 0,
           })
 
+          /* Ponte medida com ANTECEDÊNCIA, fora do instante do handoff.
+             `measureBridge` faz três leituras de layout forçadas (write→read
+             repetido) — reportaram o encolhimento de entrada como um tranco/
+             piscada mesmo depois de trocar `ScrollTrigger.refresh()` por
+             `.update()` no releaseForward do Aminosan. A saída (runHandoffOut)
+             já mede a ponte bem ANTES do próprio salto de scroll (que só
+             acontece no onComplete da timeline, ~0,6-0,9s depois) — o custo do
+             reflow tem uma timeline inteira pela frente para ser absorvido
+             sem competir com nada. A entrada (runHandoffIn) media na hora
+             exata do salto, empilhando esse custo em cima do próprio salto E
+             do início de várias animações simultâneas (cor de fundo,
+             spotlight, texto, os outros três frascos) — é essa pilha, não o
+             alinhamento (que mede certo quadro a quadro), o tranco relatado.
+             Medir ociosamente de antemão e só LER o cache no handoff resolve
+             os dois lados com a mesma medição, sem reflow no frame crítico. */
+          let bridgeCache: ReturnType<typeof measureBridge> | null = null
+          const warmBridgeCache = () => {
+            // measureBridge desloca o frasco 0 pra medir — nunca durante uma
+            // transição/handoff em andamento, senão o deslocamento aparece.
+            if (handingOff || isTransitioning) return
+            bridgeCache = measureBridge()
+            if (bottles[0]) {
+              gsap.set(bottles[0], getCatalogBottleProps(0, currentIndexRef.current, isMobile))
+            }
+          }
+          warmBridgeCache()
+          // Só recalcula em resize de LARGURA — mudança de altura sozinha no
+          // mobile é a barra de endereço escondendo/aparecendo (mesma guarda
+          // usada em todo o resto do arquivo), não uma mudança real de layout.
+          let bridgeWidth = window.innerWidth
+          const onBridgeResize = () => {
+            if (window.innerWidth === bridgeWidth) return
+            bridgeWidth = window.innerWidth
+            warmBridgeCache()
+          }
+          window.addEventListener('resize', onBridgeResize)
+
           const prepareHandoffIn = () => {
             handingOff = true
             leavingUp = false
@@ -1077,9 +1114,12 @@ export function HomeProductShowcase() {
               gsap.set([p.text, p.cta, ...p.stats], { autoAlpha: 0 })
             })
 
-            // measureBridge deixa o still no frame do vídeo e devolve o
-            // transform em que a arte do frasco 0 cai exatamente sobre ele.
-            const { catalogCenter, start } = measureBridge()
+            // Lê a ponte já medida ociosamente (ver `warmBridgeCache` acima)
+            // — medir de novo aqui, na hora exata do salto, é o que empilhava
+            // o reflow em cima do próprio salto e das animações que começam
+            // juntas. Sem cache pronto (entrada direta, ainda sem idle
+            // passado), mede na hora como antes.
+            const { catalogCenter, start } = bridgeCache ?? measureBridge()
             bottles.forEach((bottle, i) => {
               if (i === 0) return
               gsap.set(bottle, {
@@ -1107,6 +1147,10 @@ export function HomeProductShowcase() {
                   zIndex: 3,
                 })
                 handingOff = false
+                // Reaquece com folga (handoff já terminou, nada compete por
+                // frame agora) — mantém o cache correto para o próximo ciclo
+                // ida/volta sem depender só do resize.
+                warmBridgeCache()
               },
             })
             transitionTl = tl
@@ -1262,7 +1306,9 @@ export function HomeProductShowcase() {
             })
             transitionTl = tl
 
-            const { catalogCenter, start } = measureBridge()
+            // Mesmo cache da entrada — aqui o ganho é menor (a saída já mede
+            // antes do salto de scroll), mas evita um reflow redundante.
+            const { catalogCenter, start } = bridgeCache ?? measureBridge()
             gsap.set(bottles[0], { ...catalogCenter, autoAlpha: 1, opacity: 1 })
             gsap.set(handoffStillRef.current, {
               ...stillFullFrameProps(),
@@ -1543,6 +1589,7 @@ export function HomeProductShowcase() {
             window.removeEventListener('wheel', onWheelStep, { capture: true })
             window.removeEventListener('touchstart', onTouchStart)
             window.removeEventListener('touchmove', onTouchMoveStep, { capture: true })
+            window.removeEventListener('resize', onBridgeResize)
             if (onPointerMove) window.removeEventListener('pointermove', onPointerMove)
             settleTimers.forEach(window.clearTimeout)
             clearTimeout(idleTimer)
