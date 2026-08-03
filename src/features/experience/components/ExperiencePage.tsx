@@ -207,7 +207,7 @@ export function ExperiencePage() {
     { scope: containerRef, dependencies: [reduced] }
   )
 
-  const DAYS = ['day1', 'day2', 'day3'] as const
+  const STEPS = ['step1', 'step2', 'step3', 'step4'] as const
   const BENEFITS = ['b1', 'b2', 'b3', 'b4'] as const
 
   return (
@@ -261,25 +261,45 @@ export function ExperiencePage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {DAYS.map((dayKey) => (
-            <div key={dayKey} data-prog-card className="p-10 rounded-3xl bg-white border border-foreground/10 shadow-sm relative overflow-hidden group hover:shadow-xl transition-shadow duration-300">
-              <div className="absolute -top-4 -right-4 text-9xl font-montserrat font-black text-foreground/[0.03] group-hover:text-primary/[0.05] transition-colors duration-500">
-                {t(`days.${dayKey}.num`)}
-              </div>
-              <div className="relative z-10">
-                <span className="text-primary font-mono text-sm font-bold tracking-widest mb-6 block">
-                  {t(`days.${dayKey}.num`)}
+        {/* Timeline de um único dia: linha conectora horizontal no desktop,
+            vertical no mobile — os 4 momentos acontecem em sequência, não em
+            dias separados. */}
+        <div className="relative">
+          {/* Trilho de números — desktop. Mesmo grid-cols-4/gap-6 do conteúdo
+              abaixo, para o número cair exatamente acima do próprio card. */}
+          <div className="hidden md:grid grid-cols-4 gap-6 mb-10">
+            {STEPS.map((stepKey, i) => (
+              <div key={stepKey} className="flex items-center">
+                <span className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary font-mono text-sm font-bold text-white shadow-lg">
+                  {t(`steps.${stepKey}.num`)}
                 </span>
-                <h3 className="font-montserrat text-xl font-bold text-foreground mb-4">
-                  {t(`days.${dayKey}.title`)}
-                </h3>
-                <p className="text-foreground/70 leading-relaxed">
-                  {t(`days.${dayKey}.desc`)}
-                </p>
+                {i < STEPS.length - 1 && (
+                  <span aria-hidden className="ml-3 h-px flex-1 bg-foreground/15" />
+                )}
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+
+          {/* Trilho vertical — mobile */}
+          <div aria-hidden className="md:hidden absolute left-6 top-6 bottom-6 w-px -translate-x-1/2 bg-foreground/15" />
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-6">
+            {STEPS.map((stepKey) => (
+              <div key={stepKey} data-prog-card className="relative flex items-start gap-5 md:block md:gap-0">
+                <span className="md:hidden relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary font-mono text-sm font-bold text-white shadow-lg">
+                  {t(`steps.${stepKey}.num`)}
+                </span>
+                <div className="pt-1.5 md:pt-0">
+                  <h3 className="font-montserrat text-lg font-bold text-foreground mb-2">
+                    {t(`steps.${stepKey}.title`)}
+                  </h3>
+                  <p className="text-foreground/70 leading-relaxed text-[15px]">
+                    {t(`steps.${stepKey}.desc`)}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

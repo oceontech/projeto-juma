@@ -358,7 +358,15 @@ function MobileVersion({ t }: { t: TFn }) {
         const y = measured !== null && measured >= fallback - 2 ? measured : Math.round(fallback)
         lenisRef.current?.scrollTo(y, { immediate: true, force: true } as never)
         window.scrollTo(0, y)
-        ScrollTrigger.refresh()
+        /* `.refresh()` (não `.update()`) recalcula com reflow forçado a
+           posição de TODOS os ScrollTriggers da página — pesado demais para
+           rodar no mesmo frame em que a ponte para o catálogo aparece e o
+           encolhimento do frasco começa (HomeProductShowcase). É essa
+           combinação que derruba frame em aparelho real e lê como uma
+           piscada na transição. `.update()` só reflete o scroll já aplicado
+           nos triggers existentes, sem remedir layout — mesma correção já
+           aplicada no releaseForward do desktop (ver linha ~1573). */
+        ScrollTrigger.update()
         requestAnimationFrame(() => { releasing = false })
       }
 

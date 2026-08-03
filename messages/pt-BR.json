@@ -398,24 +398,29 @@
     "intro": "Um programa de imersão exclusivo para clientes Juma-Agro, feito para conhecer na prática como nossas soluções funcionam no campo. Lado a lado com nosso time agronômico — do laboratório à colheita. Seja um cliente e garanta seu acesso.",
     "btnParticipate": "Quero ser cliente",
     "btnProgram": "Ver programa",
-    "programEyebrow": "O que é",
-    "programTitle": "Três dias dentro da operação Juma-Agro.",
-    "programIntro": "Imersão completa: pesquisa, formulação, ensaios em campo e visitas a propriedades de produtores parceiros.",
-    "days": {
-      "day1": {
+    "programEyebrow": "Como é o dia",
+    "programTitle": "Um dia inteiro dentro da operação Juma-Agro.",
+    "programIntro": "Um programa completo em um único dia: história, cultura, tour pelas áreas e uma conversa com quem fundou a Juma-Agro.",
+    "steps": {
+      "step1": {
         "num": "01",
-        "title": "Dia 1 · Pesquisa e formulação",
-        "desc": "Visita ao laboratório e à unidade de produção. Como nasce um produto Juma-Agro, da molécula à embalagem."
+        "title": "Recepção e história",
+        "desc": "A diretoria recebe o grupo e apresenta a trajetória da empresa, com fotos de época e vídeo institucional."
       },
-      "day2": {
+      "step2": {
         "num": "02",
-        "title": "Dia 2 · Ensaios em campo",
-        "desc": "Dia inteiro em parcelas experimentais, lendo manejo, comparando talhões e conversando com agrônomos."
+        "title": "A cultura da casa",
+        "desc": "Como a Juma trabalha, no que acredita e para onde está indo. O propósito \"Juntos alimentamos o mundo\" vira rotina visível."
       },
-      "day3": {
+      "step3": {
         "num": "03",
-        "title": "Dia 3 · Propriedades parceiras",
-        "desc": "Visita a fazendas onde a Juma-Agro já entrega resultado — conversa direta entre produtor e produtor."
+        "title": "Tour pelas áreas",
+        "desc": "Produção, laboratório, comercial e logística, em estações, com tempo para perguntas em cada uma."
+      },
+      "step4": {
+        "num": "04",
+        "title": "Conversa com o fundador",
+        "desc": "Sr. Julio Matino conta como criou o Aminosan e como enxerga o agro daqui para frente."
       }
     },
     "benefitsEyebrow": "O que você vivencia",
