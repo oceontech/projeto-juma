@@ -203,9 +203,9 @@ function computeStillHandoff(isMobile: boolean): { scale: number; x: number; y: 
   let boxW: number, boxH: number, boxLeft: number, boxTop: number
   if (isMobile) {
     boxW = W
-    boxH = H * 0.26
+    boxH = H * 0.35
     boxLeft = 0
-    boxTop = H * 0.5
+    boxTop = H * 0.34
   } else {
     boxH = H * 0.68
     boxW = boxH // frasco 1000×1000 (quadrado), largura auto = altura
@@ -270,16 +270,18 @@ type RoleProps = {
 function getRoleProps(role: Role, isMobile: boolean, index: number): RoleProps {
   const mod = 1
   if (isMobile) {
-    /* Profundidade no mobile fica por conta de escala + opacidade, sem blur.
-       Os frascos laterais entram a 0.34 de escala com 35% de opacidade e os
-       ocultos a 0.28 com 0% — nesse tamanho, num painel de celular, 6px de blur
-       não são perceptíveis. O que eles custam é caro: a troca de produto anima
-       QUATRO frascos ao mesmo tempo, e um `filter: blur` animado força o
-       navegador a repintar e re-desfocar cada imagem a cada frame, dentro de uma
-       seção que está pinada (o scroll inteiro depende desse frame sair no prazo).
-       `blur(0px)` em vez de remover a propriedade: todos os caminhos que
-       escrevem estes frascos precisam declarar o mesmo conjunto de props, senão
-       um frasco fica preso com o blur escrito por outro caminho. */
+    /* Frascos laterais desfocados de propósito (pedido explícito) — a 0.78
+       de escala (subiu de 0.34) eles são grandes o bastante pra um blur raso
+       se notar e ajudar a profundidade. Isso tem um custo real: a troca de
+       produto anima QUATRO frascos ao mesmo tempo, e um `filter: blur`
+       animado força reprocessar o blur a cada frame enquanto o valor muda,
+       dentro de uma seção pinada (o scroll inteiro depende desse frame sair
+       no prazo) — por isso o valor é raso (3px, não os 5/11px do desktop) e
+       `hidden` (invisível, opacity:0) continua em blur(0px): desfocar algo
+       que não se vê é custo puro, sem ganho visual. `blur(0px)` em vez de
+       remover a propriedade nos outros papéis: todos os caminhos que
+       escrevem estes frascos precisam declarar o mesmo conjunto de props,
+       senão um frasco fica preso com o blur escrito por outro caminho. */
     switch (role) {
       case 'center':
         return {
@@ -297,10 +299,10 @@ function getRoleProps(role: Role, isMobile: boolean, index: number): RoleProps {
         return {
           left: '50%',
           xPercent: -50,
-          x: '-30vw',
+          x: '-18vw',
           yPercent: 0,
-          scale: 0.34 * mod,
-          filter: 'blur(0px)',
+          scale: 0.78 * mod,
+          filter: 'blur(3px)',
           opacity: 0.35,
           zIndex: 10,
           transformOrigin: 'center center',
@@ -309,10 +311,10 @@ function getRoleProps(role: Role, isMobile: boolean, index: number): RoleProps {
         return {
           left: '50%',
           xPercent: -50,
-          x: '30vw',
+          x: '18vw',
           yPercent: 0,
-          scale: 0.34 * mod,
-          filter: 'blur(0px)',
+          scale: 0.78 * mod,
+          filter: 'blur(3px)',
           opacity: 0.35,
           zIndex: 10,
           transformOrigin: 'center center',
@@ -392,7 +394,7 @@ function getRoleProps(role: Role, isMobile: boolean, index: number): RoleProps {
 function getCatalogBottleProps(index: number, active: number, isMobile: boolean): RoleProps {
   const props = getRoleProps(getRole(index, active), isMobile, index)
   const box: RoleProps = isMobile
-    ? { top: '50%', bottom: 'auto', width: '100%', height: '26%', y: 0 }
+    ? { top: '34%', bottom: 'auto', width: '100%', height: '35%', y: 0 }
     : { top: 'auto', bottom: '8vh', width: 'auto', height: '68vh', y: -20 }
   return {
     ...box,
@@ -403,6 +405,12 @@ function getCatalogBottleProps(index: number, active: number, isMobile: boolean)
 
 export function HomeProductShowcase() {
   const t = useTranslations('homeProductShowcase')
+
+  /* Compartilhado entre o efeito de `scheduleRefresh` abaixo e o `useGSAP`
+     principal (que marca true/false em volta de cada passo) — ver comentário
+     em `scheduleRefresh` sobre por que um `ScrollTrigger.refresh()` não pode
+     rodar em cima de uma transição em andamento. */
+  const catalogBusyRef = useRef(false)
 
   // Mesmo corte de 1024px do `isNarrowStage()`/`stillFullFrameProps` — decide
   // qual still de handoff (retrato mobile x paisagem desktop) o <Image> carrega.
@@ -419,12 +427,27 @@ export function HomeProductShowcase() {
     const rafs: number[] = []
 
     let pendingRaf = 0
+    /* Rodar `ScrollTrigger.refresh()` com o pin do catálogo ATIVO (usuário no
+       meio de um passo entre produtos) recalcula o spacer/posição do pin
+       tocando o layout medido — e como o próprio gatilho mais comum daqui é
+       uma imagem de frasco (lazy) terminando de carregar EXATAMENTE durante o
+       swipe pra ela, o refresh cai bem no meio da transição. Se o resultado
+       mudar por um pixel, o scroll (ainda em voo pro próximo produto) é
+       corrigido pra bater com a nova medição — daí o "pulo pra cima/baixo
+       antes de trocar de produto" reportado. `catalogBusyRef` (setado pelo
+       useGSAP principal em volta de cada passo) faz este refresh esperar a
+       transição atual terminar em vez de rodar em cima dela. */
+    const runRefresh = () => {
+      pendingRaf = 0
+      if (catalogBusyRef.current) {
+        pendingRaf = window.requestAnimationFrame(runRefresh)
+        return
+      }
+      ScrollTrigger.refresh()
+    }
     const scheduleRefresh = () => {
       if (pendingRaf) return
-      pendingRaf = window.requestAnimationFrame(() => {
-        pendingRaf = 0
-        ScrollTrigger.refresh()
-      })
+      pendingRaf = window.requestAnimationFrame(runRefresh)
     }
 
     scheduleRefresh()
@@ -483,6 +506,7 @@ export function HomeProductShowcase() {
   const rootRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLElement>(null)
   const bgRef = useRef<HTMLDivElement>(null)
+  const bgNextRef = useRef<HTMLDivElement>(null)
   const bottlesRef = useRef<(HTMLDivElement | null)[]>([])
   const dotsRef = useRef<(HTMLButtonElement | null)[]>([])
   const spotlightRef = useRef<SVGSVGElement>(null)
@@ -552,10 +576,14 @@ export function HomeProductShowcase() {
           // Índice atual sobrevive a mudanças de breakpoint (o mm re-executa)
           const startIndex = Math.min(Math.max(currentIndexRef.current, 0), COUNT - 1)
 
-          // Cores iniciais
+          // Cores iniciais. `--pcs-accent-bg` é a cópia que o gradiente de
+          // fundo (`.pcs-bg`/`.pcs-bg-next`) lê — ver comentário em
+          // `applyIndex` sobre por que ele não pode ler o `--pcs-accent` ao
+          // vivo (o mesmo que os rings/textos usam, esse sim animado suave).
           root.style.setProperty('--pcs-base', PRODUCTS[startIndex].base)
           root.style.setProperty('--pcs-mid', PRODUCTS[startIndex].mid)
           root.style.setProperty('--pcs-accent', PRODUCTS[startIndex].accent)
+          root.style.setProperty('--pcs-accent-bg', PRODUCTS[startIndex].accent)
 
           // Estado inicial dos frascos (carrossel)
           bottles.forEach((bottle, i) => {
@@ -619,12 +647,14 @@ export function HomeProductShowcase() {
             clearStepLockTimers()
             isTransitioning = false
             stepLocked = false
+            catalogBusyRef.current = false
           }
           /** Trava os passos e agenda a liberação de emergência. */
           const holdStepLock = (maxMs = 2200) => {
             clearStepLockTimers()
             isTransitioning = true
             stepLocked = true
+            catalogBusyRef.current = true
             stepLockWatchdog = setTimeout(releaseStepLock, maxMs)
           }
 
@@ -685,17 +715,34 @@ export function HomeProductShowcase() {
             })
             transitionTl = tl
 
-            // Fundo: anima as CSS vars direto (parte do valor atual, sem saltos)
-            tl.to(
+            /* Fundo: crossfade de opacidade entre `.pcs-bg` (cor atual, parada)
+               e `.pcs-bg-next` (cor do PRÓXIMO produto, já escrita sem
+               transição antes do fade começar) — não mais um `tl.to` direto
+               em `--pcs-base`/`--pcs-mid`. Interpolar essas vars forçava o
+               navegador a recalcular o gradiente radial de TELA INTEIRA a
+               cada frame por 0,8s, numa seção onde já rodam 4 frascos +
+               texto + spotlight ao mesmo tempo — o maior custo de repaint
+               isolado da troca de produto. Opacity é compositor puro: o
+               custo de repintar o gradiente vira um evento ÚNICO (o
+               `gsap.set`/`tl.set` abaixo), não um por frame.
+               `--pcs-accent-bg` (não `--pcs-accent`) é o que os dois
+               gradientes leem: `--pcs-accent` continua animado suave logo
+               abaixo pros consumidores pequenos (rings, textos), mas se
+               `.pcs-bg`/`.pcs-bg-next` lessem essa MESMA var ao vivo, o
+               fundo inteiro voltaria a repintar a cada frame por causa dela
+               — só que agora por 0,35s em vez de 0,8s. */
+            gsap.set(root, {
+              '--pcs-base-next': next.base,
+              '--pcs-mid-next': next.mid,
+              '--pcs-accent-next': next.accent,
+            })
+            tl.to(bgNextRef.current, { opacity: 1, duration: 0.8, ease: 'power2.inOut' }, 0)
+            tl.set(
               root,
-              {
-                '--pcs-base': next.base,
-                '--pcs-mid': next.mid,
-                duration: 0.8,
-                ease: 'power2.inOut',
-              },
-              0,
+              { '--pcs-base': next.base, '--pcs-mid': next.mid, '--pcs-accent-bg': next.accent },
+              0.8,
             )
+            tl.set(bgNextRef.current, { opacity: 0 }, 0.8)
             tl.to(
               root,
               {
@@ -736,10 +783,18 @@ export function HomeProductShowcase() {
               )
             }
             bottles.forEach((bottle, i) => {
+              // `filter` sai do tween e vai num `.set()` à parte: interpolar
+              // um blur (reprocessar o raio a cada frame) é caro, e aqui
+              // rodam até 4 ao mesmo tempo. O papel (centro/lado/oculto) já
+              // decide o valor final — só precisa ser aplicado uma vez, não
+              // suavizado quadro a quadro. Aplicado no INÍCIO: quem perde o
+              // centro desfoca já saindo, quem chega já entra nítido.
+              const { filter, ...animatedProps } = getCatalogBottleProps(i, index, isMobile)
+              tl.set(bottle, { filter }, 0)
               tl.to(
                 bottle,
                 {
-                  ...getCatalogBottleProps(i, index, isMobile),
+                  ...animatedProps,
                   duration: isMotion ? 0.6 : 0.4,
                   ease: 'power2.inOut',
                 },
@@ -850,6 +905,7 @@ export function HomeProductShowcase() {
               '--pcs-base': PRODUCTS[i].base,
               '--pcs-mid': PRODUCTS[i].mid,
               '--pcs-accent': PRODUCTS[i].accent,
+              '--pcs-accent-bg': PRODUCTS[i].accent,
             })
             gsap.to(spotlightRef.current, { opacity: 0.5, duration: 0.4, overwrite: 'auto' })
             gsap.to(mobileSpotlightRef.current, { opacity: 0.85, duration: 0.4, overwrite: 'auto' })
@@ -875,6 +931,7 @@ export function HomeProductShowcase() {
               '--pcs-base': '#ffffff',
               '--pcs-mid': '#ffffff',
               '--pcs-accent': PRODUCTS[0].accent,
+              '--pcs-accent-bg': PRODUCTS[0].accent,
             })
             gsap.set(handoffStillRef.current, {
               ...stillFullFrameProps(),
@@ -941,15 +998,38 @@ export function HomeProductShowcase() {
               // Rede de segurança: qualquer entrada por cima cancela um
               // "saindo pra cima" que tenha ficado pendente.
               leavingUp = false
-              if (currentIndexRef.current !== 0) applyIndex(0)
-              if (!handingOff) restoreVisual()
+              /* `isTransitioning`/`stepLocked`: o `onEnter` pode refirar sem o
+                 usuário ter saído e voltado de verdade — o `scheduleRefresh`
+                 (mais acima, ligado a `load` das imagens dos frascos) chama
+                 `ScrollTrigger.refresh()` sempre que um frasco lazy termina de
+                 carregar, e isso acontece bem NO MEIO de um swipe (é exatamente
+                 quando o frasco do próximo produto aparece pela primeira vez).
+                 O refresh recalcula start/end de TODOS os triggers da página; se
+                 o resultado mudar por um pixel que seja, o scrollY (ainda em
+                 voo, a caminho do próximo produto) pode ler como "saiu e voltou
+                 a entrar" — e sem esta guarda o reset pra produto 0 cancelava o
+                 passo que o usuário tinha acabado de dar, no meio do gesto.
+                 `restoreVisual()` precisa da MESMA guarda: ela dá `gsap.set`
+                 instantâneo (sem animação) nos 4 frascos e nos textos pro
+                 estado de repouso do índice atual — se isso dispara em cima de
+                 uma transição com essas MESMAS propriedades ainda em voo
+                 (frasco a meio caminho, opacidade subindo), o `.set()` trava
+                 tudo na posição final na hora, cortando a animação e lendo
+                 como um pulo — mesmo sem o índice ter sido resetado. */
+              if (!isTransitioning && !stepLocked) {
+                if (currentIndexRef.current !== 0) applyIndex(0)
+                if (!handingOff) restoreVisual()
+              }
             },
             onEnterBack: () => {
               if (!insidePin()) return
               leavingDown = false
               lockLenis()
               window.dispatchEvent(new CustomEvent('nav:hide'))
-              if (currentIndexRef.current !== COUNT - 1) applyIndex(COUNT - 1)
+              // Mesma guarda do onEnter acima (índice E restoreVisual).
+              if (currentIndexRef.current !== COUNT - 1 && !isTransitioning && !stepLocked) {
+                applyIndex(COUNT - 1)
+              }
             },
             onToggle: (self) => {
               if (self.isActive) {
@@ -1049,6 +1129,7 @@ export function HomeProductShowcase() {
               '--pcs-base': '#ffffff',
               '--pcs-mid': '#ffffff',
               '--pcs-accent': PRODUCTS[0].accent,
+              '--pcs-accent-bg': PRODUCTS[0].accent,
             })
             gsap.set([p0.text, p0.cta, ...p0.stats], { autoAlpha: 0 })
             gsap.set([spotlightRef.current, mobileSpotlightRef.current], { opacity: 0 })
@@ -1343,7 +1424,18 @@ export function HomeProductShowcase() {
               return
             }
             if (Math.abs(e.deltaY) < 2) return
-            if (!pinTrigger.isActive) {
+            /* `pinTrigger.isActive` sozinho falha bem no instante de chegar
+               vindo do handoff do vídeo: o salto de scroll pousa o scrollY
+               DENTRO da faixa do pin, mas o ScrollTrigger ainda não rodou o
+               ciclo que atualiza esse flag — e o primeiro gesto do usuário
+               (chegar e já continuar rolando) caía neste `if`, sem achar
+               "isCatalogPeeking" nem "isTopHandoffZone" (nenhum dos dois
+               cobre "já estou dentro, só que o flag não sabe ainda"), e sem
+               `preventDefault` a rolagem nativa da página seguia o dedo por
+               aquele gesto — a sensação de "parte do catálogo sobe junto
+               com o dedo". `insidePin()` confere a posição real (mesmo
+               remédio já usado no onEnter do pin, ver comentário lá). */
+            if (!pinTrigger.isActive && !insidePin()) {
               const scroll = window.scrollY
               const isCatalogPeeking =
                 scroll < pinTrigger.start && scroll > pinTrigger.start - window.innerHeight
@@ -1383,7 +1475,10 @@ export function HomeProductShowcase() {
             }
             if (e.touches.length === 0) return
             const delta = touchStartY - e.touches[0].clientY
-            if (!pinTrigger.isActive) {
+            // Mesmo remédio do onWheelStep: `insidePin()` cobre o instante em
+            // que o scrollY já está dentro da faixa do pin (chegando do
+            // handoff do vídeo) mas `isActive` ainda não foi atualizado.
+            if (!pinTrigger.isActive && !insidePin()) {
               if (Math.abs(delta) < 18) return
               const scroll = window.scrollY
               const isCatalogPeeking =
@@ -1510,6 +1605,7 @@ export function HomeProductShowcase() {
             settleTimers.forEach(window.clearTimeout)
             clearTimeout(idleTimer)
             clearStepLockTimers()
+            catalogBusyRef.current = false
             // Nunca deixar o Lenis parado atrás de nós (troca de breakpoint,
             // navegação): o resto da página ficaria sem scroll.
             unlockLenis()
@@ -1531,8 +1627,15 @@ export function HomeProductShowcase() {
 
   return (
     <div ref={rootRef} className="pcs-root">
-      {/* Fundo animado (cores via CSS vars, animadas pelo GSAP) */}
+      {/* Fundo — `.pcs-bg` é o gradiente do produto ATUAL (estático entre
+          trocas); `.pcs-bg-next` é uma cópia que nasce em opacity:0 e só
+          entra em cena na troca de produto, com as cores do PRÓXIMO produto
+          já escritas sem transição. Trocar de produto passa a animar só
+          `opacity` (puro compositor) em vez de interpolar `--pcs-base`/
+          `--pcs-mid` direto — que forçava recalcular o gradiente radial de
+          tela inteira a cada frame por ~0,8s a cada troca (ver `applyIndex`). */}
       <div ref={bgRef} className="pcs-bg" aria-hidden>
+        <div ref={bgNextRef} className="pcs-bg-next" />
         <div className="pcs-backlight" />
         <div className="pcs-ring pcs-ring-1" />
         <div className="pcs-ring pcs-ring-2" />
@@ -1570,15 +1673,22 @@ export function HomeProductShowcase() {
               breakpoint correspondente, para a ponte começar exatamente no
               frame em que o vídeo parou. Desktop: still 1777×1000 (paisagem,
               `/produtos/aminosan-catalogo.png`). Mobile (<1024px, `narrowStill`):
-              still 1080×1920 (retrato nativo). Handoff é um crossfade simples
-              (still apaga, frasco de verdade nasce no lugar de repouso) — sem
-              tentar casar o tamanho exato do trio no still com o frasco. */}
+              still 1080×1920 (retrato nativo). Handoff sem fade (ver
+              `runHandoffIn`): o still só muda de escala/posição (cálculo
+              analítico, `computeStillHandoff`) até cair sobre o frasco real,
+              que só aparece depois, em repouso. `priority` força o
+              carregamento adiantado — sem ela, o Next só busca a imagem
+              quando ela entra perto do viewport, e como esta seção fica
+              abaixo da dobra o tempo todo, o handoff podia chegar antes da
+              imagem estar decodificada (um branco/pop-in de um frame, fácil
+              de confundir com o tranco de performance que já resolvemos). */}
           <Image
             ref={handoffStillRef as any}
             src={narrowStill ? '/heritage/mobile/aminosan-catalogo-mobile.webp' : '/produtos/aminosan-catalogo.png'}
             alt=""
             aria-hidden="true"
             draggable={false}
+            priority
             width={narrowStill ? 1080 : 1777}
             height={narrowStill ? 1920 : 1000}
             sizes="100vw"

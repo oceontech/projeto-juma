@@ -476,19 +476,43 @@ html.lenis body { height: auto; }
   min-height: 100dvh !important;
 }
 
-/* Illuminated background (driven by --pcs-base / --pcs-mid / --pcs-accent) */
+/* Illuminated background (driven by --pcs-base / --pcs-mid / --pcs-accent-bg).
+   Lê `--pcs-accent-bg`, NÃO `--pcs-accent`: `--pcs-accent` é animado suave
+   (tl.to) pra rings/textos, e se o fundo em tela cheia lesse essa MESMA var
+   ao vivo, repintaria a cada frame por causa dela — mesmo problema que
+   `--pcs-base`/`--pcs-mid` tinham antes do crossfade de opacity (ver
+   `applyIndex`). `--pcs-accent-bg` só muda em `set`s instantâneos. */
 .pcs-bg {
   position: absolute;
   inset: 0;
   z-index: 0;
   background: radial-gradient(
     120% 95% at 50% 30%,
-    color-mix(in srgb, var(--pcs-accent) 30%, transparent) 0%,
+    color-mix(in srgb, var(--pcs-accent-bg, var(--pcs-accent)) 30%, transparent) 0%,
     var(--pcs-base) 44%,
     var(--pcs-mid) 100%
   );
   pointer-events: none;
   overflow: hidden;
+}
+
+/* Cópia do gradiente acima, presa em opacity:0 fora da troca de produto —
+   ver comentário no JSX (`.pcs-bg-next`) e em `applyIndex`. `--pcs-base-next`/
+   `--pcs-mid-next`/`--pcs-accent-next` só existem durante uma troca; o
+   fallback evita flash de cor errada antes da primeira troca escrever esses
+   vars. */
+.pcs-bg-next {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(
+    120% 95% at 50% 30%,
+    color-mix(in srgb, var(--pcs-accent-next, var(--pcs-accent-bg, var(--pcs-accent))) 30%, transparent) 0%,
+    var(--pcs-base-next, var(--pcs-base)) 44%,
+    var(--pcs-mid-next, var(--pcs-mid)) 100%
+  );
+  pointer-events: none;
+  will-change: opacity;
 }
 
 /* Subtle film grain for texture */
@@ -931,9 +955,11 @@ html.lenis body { height: auto; }
 
 /* ======================== Mobile ======================== */
 @media (max-width: 767px) {
-  /* Rings e backlight: usar vw para não exceder largura, descer top */
-  .pcs-ring      { top: 62%; }
-  .pcs-backlight { top: 62%; }
+  /* Rings e backlight: usar vw para não exceder largura. Subiram mais uma
+     vez (57% → 52%) junto com a caixa do frasco logo abaixo — o catálogo
+     ganhou ainda mais espaço vertical (logo saiu, padding do topo encolheu). */
+  .pcs-ring      { top: 52%; }
+  .pcs-backlight { top: 52%; }
   .pcs-ring-1    { width: min(320px, 82vw); height: min(320px, 82vw); }
   .pcs-ring-2    { width: min(225px, 58vw); height: min(225px, 58vw); }
   .pcs-ring-3    { width: min(145px, 37vw); height: min(145px, 37vw); }
@@ -942,16 +968,16 @@ html.lenis body { height: auto; }
   /* Caixa do frasco em % do PALCO, não em vh: o palco é a altura visível
      (dvh) e `vh` no mobile é a viewport grande, sempre maior — era isso que
      esticava o frasco pra dentro da faixa dos stats. A mesma caixa está no
-     `getCatalogBottleProps` (inline do GSAP vence esta regra); as duas
-     precisam andar juntas. Arte útil do PNG = 71% da caixa, centrada:
-     50% + 3,7% ≈ 54% até ~72% do palco — a faixa livre entre o texto e os
-     chips de stats. Tentei subir pra 34%: o fundo da caixa (709px numa tela
-     de 844px) invade o link "Ver produto" (topo em 642px) — 26% já é
-     praticamente o máximo que cabe sem também mover texto/CTA. */
+     `getCatalogBottleProps` E em `computeStillHandoff` (a ponte com o vídeo
+     do Aminosan) — as TRÊS precisam andar juntas, senão o still (frame do
+     vídeo) e o frasco de verdade caem em tamanhos diferentes bem no instante
+     da troca (repouso, sem fade, então qualquer descompasso de tamanho
+     aparece na hora). 34%→35% de altura ("aumente um pouquinho"), top
+     mantido em 34% (não desloca o produto, só cresce um pouco pra baixo). */
   .pcs-theater-bottle {
     bottom: auto;
-    top: 50%;
-    height: 26%;
+    top: 34%;
+    height: 35%;
     width: 100%;
     max-width: 100%;
     transform-origin: center center;
@@ -965,9 +991,14 @@ html.lenis body { height: auto; }
     justify-content: space-between;
     align-items: flex-start;
     text-align: left;
-    /* env(): reserva a barra de gestos/home indicator quando ela existe
-       (0 nos aparelhos sem ela) — sem isso os stats encostam nela. */
-    padding: 5.5rem 1.5rem calc(2rem + env(safe-area-inset-bottom, 0px));
+    /* Topo encolheu (a logo saiu, a badge "produtos em destaque" ocupa o
+       lugar dela — ver `.pcs-featured-label` abaixo). Fundo cresceu pra
+       subir o CTA e os 3 cards de stats (o `justify-content: space-between`
+       distribui a partir desta caixa; aumentar o padding-bottom sobra menos
+       altura útil, empurrando os itens de baixo pra cima). env(): reserva a
+       barra de gestos/home indicator quando ela existe (0 nos aparelhos sem
+       ela) — sem isso os stats encostam nela. */
+    padding: 5.6rem 1.5rem calc(5.4rem + env(safe-area-inset-bottom, 0px));
     gap: 0;
   }
   .pcs-panel-text {
@@ -1004,11 +1035,20 @@ html.lenis body { height: auto; }
     margin-right: 0;
     max-width: 100%;
   }
-  .pcs-panel-sizes { margin-top: 1.2rem; }
+  /* Catálogo mobile simplificado: tamanhos de embalagem (1L/10L/20L) saem
+     — informação de detalhe que só cabia empurrando o frasco pra caixa
+     pequena; continua disponível na página do produto. */
+  .pcs-panel-sizes { display: none; }
   .pcs-panel-cta {
     align-self: center;
     margin-top: auto;
-    margin-bottom: 1.5rem;
+    /* Só o CTA sobe — o `margin-bottom` (não o padding-bottom do
+       `.pcs-product`) é o que cria essa folga extra em relação aos stats,
+       sem empurrar os 3 cards junto (eles ficam grudados no fundo da caixa,
+       que não mudou). A arte visível do frasco (71% da caixa, centrada)
+       termina bem antes do fim da caixa — o CTA sobe até logo abaixo dela,
+       não da borda invisível. */
+    margin-bottom: 4rem;
     font-size: 0.68rem;
     padding: 0;
   }
@@ -1028,8 +1068,17 @@ html.lenis body { height: auto; }
     text-align: center;
     gap: 0.45rem;
     padding: 0.5rem 0.25rem;
-    /* chip translúcido: mantém o número legível mesmo sobre o frasco */
-    background: rgba(4, 12, 30, 0.55);
+    /* Chip translúcido em gradiente — tom da própria cor de fundo do
+       produto ativo (--pcs-mid, mesma var do `.pcs-bg`), não mais um
+       azul-marinho fixo: os cards se camuflam no fundo em vez de destacar
+       como um retângulo escuro por cima do frasco. Funde pra transparente
+       embaixo (não pra uma segunda cor) — o fade fecha sozinho, sem faixa
+       clara aparecendo na base do card. */
+    background: linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--pcs-mid) 82%, transparent) 0%,
+      transparent 100%
+    );
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border-radius: 14px;
@@ -1054,31 +1103,23 @@ html.lenis body { height: auto; }
   .pcs-scroll-hint {
     display: none;
   }
-  /* Dots descem para o lugar do hint; skip encolhe no canto */
+  /* Dots centralizados embaixo — sem o botão de pular disputando o mesmo
+     canto, ganham o centro inteiro pra si. */
   .pcs-nav {
     bottom: calc(1.35rem + env(safe-area-inset-bottom, 0px));
-    left: 1.5rem;
-    transform: none;
-  }
-  .pcs-skip {
-    top: 1.5rem;
-    bottom: auto;
     left: 50%;
-    right: auto;
     transform: translateX(-50%);
-    padding: 0.4rem 0.85rem;
-    font-size: 0.58rem;
   }
+  /* Botão de pular seção sai no mobile: catálogo mais curto (4 produtos,
+     scroll rápido) não precisa de atalho pra pular — e some mais um
+     elemento competindo por espaço no topo da tela. */
+  .pcs-skip {
+    display: none;
+  }
+  /* Logo sai do catálogo mobile — a badge "produtos em destaque" ocupa o
+     lugar dela (ver `.pcs-featured-label` mais abaixo). */
   .pcs-panel-brand {
-    width: 85px;
-    margin-bottom: 1rem;
-  }
-  .pcs-featured-anchor {
-    right: 1.5rem;
-  }
-  .pcs-featured-label {
-    top: 5.6rem;
-    font-size: 0.75rem;
+    display: none;
   }
 }
 
@@ -1291,6 +1332,40 @@ html.lenis body { height: auto; }
   }
 }
 
+/* Badge pequena no mobile, no lugar do texto "Produtos em destaque" por
+   extenso — catálogo mais enxuto. Precisa vir DEPOIS da regra base acima
+   (mesma especificidade — media query não empurra especificidade — só a
+   ordem no arquivo decide quem vence). */
+@media (max-width: 767px) {
+  .pcs-featured-anchor {
+    left: 1.5rem;
+    right: auto;
+    top: 0;
+    width: auto;
+    height: auto;
+  }
+  .pcs-featured-label {
+    position: static;
+    display: inline-flex;
+    gap: 0.35em;
+    top: auto;
+    /* Só margin-top: a âncora (`.pcs-featured-anchor`) já tem `left: 1.5rem`
+       — somar mais 1.5rem aqui duplicava o deslocamento e jogava a badge
+       mais à direita que o título/texto abaixo, que só têm o padding-left
+       do `.pcs-product`. */
+    margin: 3.1rem 0 0 0;
+    padding: 0.32rem 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    font-size: 0.6rem;
+    letter-spacing: 0.09em;
+    pointer-events: none;
+  }
+}
+
 /* ============================================================
    Orbit dos cards das fases da jornada (HeroJornada > OrbitalCards).
    Vivia num <style> dentro do componente, então era reinjetado uma vez
@@ -1340,7 +1415,11 @@ html.lenis body { height: auto; }
   .pcs-stat-row {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    background: rgba(4, 12, 30, 0.82);
+    background: linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--pcs-mid) 92%, transparent) 0%,
+      transparent 100%
+    );
   }
 }
 
@@ -1360,12 +1439,13 @@ html.lenis body { height: auto; }
     box-shadow: none;
   }
 
-  /* No mobile o blur dos frascos laterais é desligado no JS
-     (getRoleProps), então prometer `filter` ao compositor só reserva
-     memória de GPU que nunca é usada. */
+  /* Frascos laterais no mobile agora desfocam (getRoleProps) — promover
+     `filter` também, senão o navegador promove/despromove a camada NA HORA
+     da troca de produto (o próprio custo que `will-change` existe pra
+     evitar). */
   .pcs-theater-bottle,
   .pcs-bottle-wrap {
-    will-change: transform, opacity;
+    will-change: transform, opacity, filter;
   }
 
   /* Botão "pular seção" — estático, mas o backdrop-filter mantém a camada
