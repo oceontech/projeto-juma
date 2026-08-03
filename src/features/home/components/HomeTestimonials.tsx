@@ -53,7 +53,7 @@ export function HomeTestimonials() {
         defaults: { ease: EASE.reveal }
       })
       if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub })
-      if (split) tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, '-=0.4')
+      if (split) tl.to(split.chars, { x: 0, opacity: 1, filter: blurPx(0), duration: DUR.title, stagger: STAGGER.char }, '-=0.4')
       if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: DUR.sub }, '-=0.4')
     }
     

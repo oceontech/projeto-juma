@@ -1008,16 +1008,18 @@ function MobileVersion({ t }: { t: TFn }) {
 
         <AminosanBrandMark refEl={brandMarkRef} />
 
-        <div ref={act1Ref} className="absolute inset-x-0 top-0 z-30 pointer-events-none">
-          <Container className="pointer-events-auto flex flex-col items-center px-md pt-[15vh] pb-4 text-center">
+        <div ref={act1Ref} className="absolute inset-0 z-30 pointer-events-none flex flex-col justify-between">
+          <Container className="pointer-events-auto flex flex-col items-center px-md pt-[13dvh] pb-4 text-center">
             <span data-anim className="text-eyebrow text-[10px] uppercase tracking-[0.18em] text-primary">{t('eyebrow')}</span>
             <div data-anim>
               <BicolorTitle title={t('title')} titleHi={t('titleHi')} className="text-[clamp(1.75rem,7vw,3rem)] leading-tight" />
             </div>
             <p data-anim className="text-subtitle mt-2 max-w-[22rem] text-sm text-foreground/80">{t('body1')}</p>
             <p data-anim className="text-subtitle max-w-[22rem] text-sm text-foreground/80">{t('body2')}</p>
-            <span data-anim className="text-eyebrow mt-3 text-[10px] uppercase tracking-[0.16em] text-foreground/45">{t('footerTag')}</span>
           </Container>
+          <div className="pointer-events-auto pb-[5dvh] flex justify-center px-md">
+            <span data-anim className="text-eyebrow text-[10px] uppercase tracking-[0.16em] text-foreground/45 text-center">{t('footerTag')}</span>
+          </div>
         </div>
 
         <div ref={act3Ref} className="absolute inset-x-0 top-0 z-30 pointer-events-none">
@@ -1030,14 +1032,16 @@ function MobileVersion({ t }: { t: TFn }) {
           </Container>
         </div>
 
-        <div ref={lineRef} className="absolute inset-x-0 top-0 z-30 pointer-events-none">
+        <div ref={lineRef} className="absolute inset-0 z-30 pointer-events-none flex flex-col justify-between">
           <Container className="pointer-events-auto flex flex-col items-center px-md pt-[15vh] pb-4 text-center">
             <span data-anim className="text-eyebrow text-[10px] uppercase tracking-[0.18em] text-primary">{t('lineEyebrow')}</span>
             <div data-anim>
               <BicolorTitle title={t('lineTitle')} titleHi={t('lineTitleHi')} className="text-[clamp(1.75rem,7vw,3rem)] leading-tight" />
             </div>
-            <p data-anim className="text-subtitle max-w-[24rem] text-sm text-foreground/80">{t('lineBody')}</p>
           </Container>
+          <div className="pointer-events-auto pb-[5dvh] flex justify-center px-md">
+            <p data-anim className="text-subtitle max-w-[24rem] text-sm text-foreground/80 text-center">{t('lineBody')}</p>
+          </div>
         </div>
 
         <BottleCallout refEl={oldCalloutRef} eyebrow={t('eyebrow')}>
@@ -1325,11 +1329,11 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       gsap.set(allVideos,    { opacity: 0, visibility: 'visible', zIndex: 0, yPercent: 80 })
       gsap.set(video, { zIndex: 1 })
       gsap.set([newImg, lineImg, trioImg], { autoAlpha: 0 })
-      gsap.set(brandMarkRef.current, { autoAlpha: 1, y: 0, filter: 'blur(0px)' })
-      gsap.set(oldImg,       { zIndex: 10, scale: stageZoom().bottle, autoAlpha: 0, yPercent: 80, filter: 'blur(0px)' })
+      gsap.set(brandMarkRef.current, { autoAlpha: 1, y: 0, filter: bl(0) })
+      gsap.set(oldImg,       { zIndex: 10, scale: stageZoom().bottle, autoAlpha: 0, yPercent: 80, filter: bl(0) })
       gsap.set(scrimRef.current, { autoAlpha: 1 })
-      gsap.set(titleChars,   { x: 0, autoAlpha: 1, filter: 'blur(0px)' })
-      gsap.set(act1Items,    { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
+      gsap.set(titleChars,   { x: 0, autoAlpha: 1, filter: bl(0) })
+      gsap.set(act1Items,    { y: 0, autoAlpha: 1, filter: bl(0) })
       gsap.set(calloutLine,  { scaleX: 1, transformOrigin: 'left' })
       gsap.set(calloutDot,   { scale: 1, autoAlpha: 1 })
       gsap.set(calloutLabel, { autoAlpha: 1, x: 0 })
@@ -1458,8 +1462,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const introTl = gsap.timeline({ paused: true })
       introTl.to(scrimRef.current, { autoAlpha: 1, duration: 0.5, ease: 'power1.out' }, 0)
       introTl.fromTo(oldImg,
-        { yPercent: 80, autoAlpha: 0, filter: 'blur(0px)' },
-        { yPercent: 0, autoAlpha: 1, scale: () => stageZoom().bottle, filter: 'blur(0px)', duration: 0.95, ease: 'power3.out' },
+        { yPercent: 80, autoAlpha: 0, filter: bl(0) },
+        { yPercent: 0, autoAlpha: 1, scale: () => stageZoom().bottle, filter: bl(0), duration: 0.95, ease: 'power3.out' },
         0
       )
       /* O vídeo sobe junto com o still do frasco antigo, no mesmo movimento:
@@ -1471,9 +1475,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         { yPercent: 0, opacity: 1, duration: 0.95, ease: 'power3.out' },
         0
       )
-      introTl.to(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.7, ease: 'power3.out' }, 0.1)
-      introTl.to(titleChars,       { x: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.72, stagger: STAGGER.char, ease: 'power2.out' }, 0.16)
-      introTl.to(act1Items,        { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.72, stagger: 0.12, ease: 'power2.out' }, 0.28)
+      introTl.to(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: bl(0), duration: 0.7, ease: 'power3.out' }, 0.1)
+      introTl.to(titleChars,       { x: 0, autoAlpha: 1, filter: bl(0), duration: 0.72, stagger: STAGGER.char, ease: 'power2.out' }, 0.16)
+      introTl.to(act1Items,        { y: 0, autoAlpha: 1, filter: bl(0), duration: 0.72, stagger: 0.12, ease: 'power2.out' }, 0.28)
       introTl.to(calloutLine,      { scaleX: 1, duration: 0.55, transformOrigin: 'left', ease: 'power2.out' }, 0.62)
       introTl.to(calloutDot,       { scale: 1, autoAlpha: 1, duration: 0.35, ease: 'back.out(1.8)' }, 0.92)
       introTl.to(calloutLabel,     { x: 0, autoAlpha: 1, duration: 0.48, ease: 'power2.out' }, 0.98)
@@ -1493,7 +1497,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         // O vídeo sai de cena pelo reverso da própria intro (ele é alvo dela),
         // e não por um set que apagaria a camada.
         gsap.set(video, { zIndex: 0 })
-        gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: stageZoom().bottle, filter: 'blur(0px)' })
+        gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: stageZoom().bottle, filter: bl(0) })
         introTl.progress(1).timeScale(1.9).reverse()
       }
 
@@ -1516,9 +1520,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         if (newCalloutRef.current) gsap.set(newCalloutRef.current, { autoAlpha: 1 })
         const tl = currentTl = gsap.timeline({ delay })
 
-        tl.to(a3Eyebrow, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.6, ease: 'power2.out' }, 0)
+        tl.to(a3Eyebrow, { y: 0, autoAlpha: 1, filter: bl(0), duration: 0.6, ease: 'power2.out' }, 0)
         tl.to(a3Title, { y: 0, autoAlpha: 1, duration: 0.6, ease: 'power2.out' }, 0.1)
-        tl.to(a3Body, { autoAlpha: 1, filter: 'blur(0px)', duration: 0.6, ease: 'power2.out' }, 0.2)
+        tl.to(a3Body, { autoAlpha: 1, filter: bl(0), duration: 0.6, ease: 'power2.out' }, 0.2)
         tl.to(a3Line, { scaleX: 1, duration: 0.5, ease: 'power2.out' }, 0.3)
         tl.to(newCalloutLine, { scaleX: 1, duration: 0.45, transformOrigin: 'left', ease: 'power2.out' }, 0.52)
         tl.to(newCalloutDot, { scale: 1, autoAlpha: 1, duration: 0.3, ease: 'back.out(1.8)' }, 0.72)
@@ -1646,8 +1650,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         introTl.timeScale(1).progress(1).pause()
         gsap.killTweensOf([act1Ref.current, scrimRef.current, oldCalloutRef.current, ...titleChars, ...act1Items, calloutLine, calloutDot, calloutLabel].filter(Boolean))
         gsap.set([act1Ref.current, scrimRef.current, oldCalloutRef.current], { autoAlpha: 1 })
-        gsap.set(titleChars, { x: 0, autoAlpha: 1, filter: 'blur(0px)' })
-        gsap.set(act1Items, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
+        gsap.set(titleChars, { x: 0, autoAlpha: 1, filter: bl(0) })
+        gsap.set(act1Items, { y: 0, autoAlpha: 1, filter: bl(0) })
         gsap.set(calloutLine, { scaleX: 1, transformOrigin: 'left' })
         gsap.set(calloutDot, { scale: 1, autoAlpha: 1 })
         gsap.set(calloutLabel, { x: 0, autoAlpha: 1 })
@@ -1657,7 +1661,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         currentTl?.kill()
         currentTl = null
         gsap.killTweensOf([a3Eyebrow, a3Title, a3Body, a3Line, newCalloutLine, newCalloutDot, newCalloutLabel, newCalloutRef.current].filter(Boolean))
-        gsap.set([a3Eyebrow, a3Title, a3Body, newCalloutRef.current], { autoAlpha: 1, y: 0, filter: 'blur(0px)' })
+        gsap.set([a3Eyebrow, a3Title, a3Body, newCalloutRef.current], { autoAlpha: 1, y: 0, filter: bl(0) })
         gsap.set([a3Line, newCalloutLine], { scaleX: 1, transformOrigin: 'left' })
         gsap.set(newCalloutDot, { scale: 1, autoAlpha: 1 })
         gsap.set(newCalloutLabel, { autoAlpha: 1, x: 0 })
@@ -1667,9 +1671,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         lineTl?.kill()
         lineTl = null
         gsap.killTweensOf([linePanelRef.current, lineBodyRef.current, ...lineItems, ...lineTitleChars])
-        gsap.set([linePanelRef.current, lineBodyRef.current], { autoAlpha: 1, y: 0, filter: 'blur(0px)' })
-        gsap.set(lineTitleChars, { x: 0, autoAlpha: 1, filter: 'blur(0px)' })
-        gsap.set(lineItems, { autoAlpha: 1, y: 0, filter: 'blur(0px)' })
+        gsap.set([linePanelRef.current, lineBodyRef.current], { autoAlpha: 1, y: 0, filter: bl(0) })
+        gsap.set(lineTitleChars, { x: 0, autoAlpha: 1, filter: bl(0) })
+        gsap.set(lineItems, { autoAlpha: 1, y: 0, filter: bl(0) })
       }
 
       /* Zoom do palco abaixo de 1024px. A arte é uma composição 1920×1080 em
@@ -1841,7 +1845,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
               gsap.killTweensOf(oldImg)
               gsap.set(oldImg, { autoAlpha: 0 })
             } else {
-              gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: stageZoom().bottle, yPercent: 0, filter: 'blur(0px)' })
+              gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: stageZoom().bottle, yPercent: 0, filter: bl(0) })
               gsap.to(oldImg, { autoAlpha: 0, scale: stageZoom().bottle, filter: bl(4), duration: 0.24, ease: 'power1.inOut', overwrite: 'auto' })
             }
             hideAct1UI(false)
@@ -1880,7 +1884,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
             gsap.set(newImg, { autoAlpha: 0 })
             hideLineUI(0)
             showAct3UI(0.6)
-            gsap.to(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.4, delay: 0.6, ease: 'power2.out', overwrite: true })
+            gsap.to(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: bl(0), duration: 0.4, delay: 0.6, ease: 'power2.out', overwrite: true })
           } else if (step === 2) {
             gsap.to(trioImg, { autoAlpha: 0, duration: 0.18, ease: 'power1.out', overwrite: true })
             gsap.set(lineImg, { autoAlpha: 0 })
@@ -1907,8 +1911,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         gsap.set([newImg, lineImg, trioImg], { autoAlpha: 0 })
         hideAct3All(true)
         hideLineAll(true)
-        gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: stageZoom().bottle, yPercent: 0, filter: 'blur(0px)' })
-        gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
+        gsap.set(oldImg, { zIndex: 10, autoAlpha: 1, scale: stageZoom().bottle, yPercent: 0, filter: bl(0) })
+        gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: bl(0) })
         if (exitAfter) {
           requestAnimationFrame(() => reverseIntro())
         } else {
@@ -1928,7 +1932,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         gsap.set(newImg, { autoAlpha: 1, scale: stageZoom().bottle })
         gsap.set([lineImg, trioImg], { autoAlpha: 0 })
         gsap.set(oldImg, { autoAlpha: 0, scale: stageZoom().bottle, filter: bl(8) })
-        gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)' })
+        gsap.set(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: bl(0) })
         /* As camadas que NÃO são deste ato são assertadas aqui, nunca herdadas
            do `hideAct1UI`/`hideLineUI` que o `startPlayback` disparou lá atrás:
            se aqueles tweens tivessem sido mortos no meio (aba trocada, gesto

@@ -263,7 +263,7 @@ export function OurStory() {
         <div className="flex-1 w-full bg-white" />
         {/* Base esfumaçada */}
         <div
-          className="h-[6rem] w-full shrink-0 bg-gradient-to-t from-white/0 to-white lg:backdrop-blur-md"
+          className="h-[6rem] w-full shrink-0 bg-white lg:bg-transparent lg:bg-gradient-to-t lg:from-white/0 lg:to-white lg:backdrop-blur-md"
           style={isDesktop ? {
             WebkitMaskImage: 'linear-gradient(to top, transparent, black)',
             maskImage: 'linear-gradient(to top, transparent, black)',

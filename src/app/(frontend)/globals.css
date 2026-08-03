@@ -1226,21 +1226,39 @@ html.lenis body { height: auto; }
    é onde os stills trocam de enquadramento e a escala 2.8x do frasco cai. */
 @media (max-width: 1023.98px) {
   .aminosan-bottle-callout {
-    right: 1.25rem;
-    /* dvh, não vh: o palco da seção é h-[100dvh]. Com vh o callout ficava
-       ancorado na viewport "grande" e deslizava dentro do palco toda vez que a
-       barra de endereço do mobile aparecia ou sumia. */
-    bottom: 8dvh;
-    gap: 0.5rem;
+    top: 50dvh;
+    bottom: auto;
+    left: calc(50% + 76px);
+    right: auto;
+    transform: translateY(-50%);
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.35rem;
+    max-width: 5rem;
   }
   .aminosan-bottle-callout__line {
-    width: 2.5rem;
+    width: 1px;
+    height: 2.2rem;
+    background: linear-gradient(to bottom, transparent, rgba(0, 76, 38, 0.68));
+    transform-origin: top center;
   }
   .aminosan-bottle-callout__card {
-    width: min(9rem, 42vw);
+    width: 100%;
+    padding-left: 0;
+    gap: 0.25rem;
+    align-items: center;
+    border-top: 1px solid rgba(0, 76, 38, 0.34);
+    padding-top: 0.3rem;
+    margin-top: 0.15rem;
+  }
+  .aminosan-bottle-callout__card::before {
+    display: none;
   }
   .aminosan-bottle-callout__text {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
+    line-height: 1.35;
+    width: 100%;
   }
 }
 
