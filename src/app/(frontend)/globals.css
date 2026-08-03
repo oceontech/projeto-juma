@@ -1036,17 +1036,13 @@ html.lenis body { height: auto; }
      em cada produto — visível sobretudo comparando o Aminosan com os outros.
      Fora do flex, o CTA some da equação do texto e sobra só ele + os stats
      (que já têm altura igual entre produtos) — o mesmo pixel em todo mundo.
-     `top`/`left`/`right` replicam o padding do `.pcs-product` (5.6rem/1.5rem)
-     em vez de 0: pra elemento absoluto, o offset conta a partir da borda do
-     padding-box do ancestral posicionado, ou seja `top:0` fica ANTES do
-     padding-top e cola no topo real do container — foi isso que sobrepôs o
-     texto na badge. Usando o valor do padding, o texto volta a nascer no
-     mesmo ponto de quando estava no fluxo normal. */
+     `top`/`left`/`right` reproduzem exatamente a posição que o fluxo normal
+     já dava (primeiro item, ocupando a largura do padding-box). */
   .pcs-panel-text {
     position: absolute;
-    top: 5.6rem;
-    left: 1.5rem;
-    right: 1.5rem;
+    top: 0;
+    left: 0;
+    right: 0;
     align-self: auto;
     display: block;
     justify-self: auto;
