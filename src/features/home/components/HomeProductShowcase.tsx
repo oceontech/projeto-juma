@@ -975,7 +975,18 @@ export function HomeProductShowcase() {
               // Rede de segurança: qualquer entrada por cima cancela um
               // "saindo pra cima" que tenha ficado pendente.
               leavingUp = false
-              if (currentIndexRef.current !== 0) applyIndex(0)
+              /* `isTransitioning`/`stepLocked`: o `onEnter` pode refirar sem o
+                 usuário ter saído e voltado de verdade — o `scheduleRefresh`
+                 (mais acima, ligado a `load` das imagens dos frascos) chama
+                 `ScrollTrigger.refresh()` sempre que um frasco lazy termina de
+                 carregar, e isso acontece bem NO MEIO de um swipe (é exatamente
+                 quando o frasco do próximo produto aparece pela primeira vez).
+                 O refresh recalcula start/end de TODOS os triggers da página; se
+                 o resultado mudar por um pixel que seja, o scrollY (ainda em
+                 voo, a caminho do próximo produto) pode ler como "saiu e voltou
+                 a entrar" — e sem esta guarda o reset pra produto 0 cancelava o
+                 passo que o usuário tinha acabado de dar, no meio do gesto. */
+              if (currentIndexRef.current !== 0 && !isTransitioning && !stepLocked) applyIndex(0)
               if (!handingOff) restoreVisual()
             },
             onEnterBack: () => {
@@ -983,7 +994,10 @@ export function HomeProductShowcase() {
               leavingDown = false
               lockLenis()
               window.dispatchEvent(new CustomEvent('nav:hide'))
-              if (currentIndexRef.current !== COUNT - 1) applyIndex(COUNT - 1)
+              // Mesma guarda do onEnter acima.
+              if (currentIndexRef.current !== COUNT - 1 && !isTransitioning && !stepLocked) {
+                applyIndex(COUNT - 1)
+              }
             },
             onToggle: (self) => {
               if (self.isActive) {
