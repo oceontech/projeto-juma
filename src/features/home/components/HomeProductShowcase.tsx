@@ -147,6 +147,83 @@ const COUNT = PRODUCTS.length
  *  em `stillFullFrameProps`. */
 const isNarrowStage = () => typeof window !== 'undefined' && window.innerWidth < 1024
 
+/* ── Ponte de geometria com a seção Aminosan — só aritmética, sem DOM ──────
+   O vídeo termina num frame full-bleed (still) servido como imagem; o
+   catálogo mostra o MESMO render recortado justo (frasco 1000×1000). As
+   frações abaixo são o retângulo alpha da arte dentro de cada canvas —
+   medidas uma vez sobre os PNGs/WEBPs (`ffmpeg ... alphaextract,bbox`), não
+   mudam a menos que o asset mude. Uma versão anterior lia essas caixas com
+   `getBoundingClientRect()` (measureBridge) — precisa, mas cara: três
+   leituras de layout forçadas na hora exata do handoff competiam com o
+   salto de scroll e as outras animações, e isso lia como tranco em aparelho
+   real. Como o still preenche sempre o PALCO INTEIRO (`stillFullFrameProps`)
+   e o palco vale a viewport quando pinado, e a caixa do frasco no catálogo é
+   uma fração fixa dessa mesma viewport (ver `getCatalogBottleProps`), dá pra
+   calcular a MESMA geometria só com `window.innerWidth/innerHeight` — zero
+   leitura de DOM, zero reflow, mesmo resultado. */
+const HANDOFF_ART = {
+  /** /produtos/aminosan-catalogo.png (1777×1000, desktop) — frame final do vídeo */
+  stillDesktop: { x: 0.3292, y: 0.344, w: 0.3455, h: 0.489 },
+  /** /heritage/mobile/aminosan-catalogo-mobile.webp (1080×1920, mobile) */
+  stillMobile: { x: 0.2046, y: 0.3948, w: 0.5907, h: 0.2682 },
+  /** Qualquer /produtos/*.webp do carrossel — todos 1000×1000, mesmo recorte */
+  bottle: { x: 0.055, y: 0.144, w: 0.891, h: 0.711 },
+} as const
+
+type ArtBox = { x: number; y: number; w: number; h: number }
+type ArtRect = { cx: number; cy: number; h: number }
+
+/** Centro e altura (px) de onde a arte de uma imagem cai dentro de uma caixa
+ *  W×H ancorada em (left,top) — a mesma matemática do object-fit, só que a
+ *  partir de números já conhecidos (nunca de `getBoundingClientRect`). */
+function fitArtRect(natW: number, natH: number, boxW: number, boxH: number, boxLeft: number, boxTop: number, art: ArtBox, mode: 'cover' | 'contain'): ArtRect | null {
+  if (!natW || !natH || boxW < 1 || boxH < 1) return null
+  const fit = mode === 'cover' ? Math.max(boxW / natW, boxH / natH) : Math.min(boxW / natW, boxH / natH)
+  const cw = natW * fit
+  const ch = natH * fit
+  const left = boxLeft + (boxW - cw) / 2
+  const top = boxTop + (boxH - ch) / 2
+  return { cx: left + (art.x + art.w / 2) * cw, cy: top + (art.y + art.h / 2) * ch, h: art.h * ch }
+}
+
+/** Transform (`scale`/`x`/`y`) que faz a arte do still cair exatamente sobre
+ *  a arte do frasco em repouso do catálogo — para o still (que preenche o
+ *  palco inteiro e escala a partir do PRÓPRIO centro) pousar sem nenhum
+ *  ajuste manual quando o handoff troca de still para o frasco de verdade
+ *  em repouso total (sem fade, sem crossfade — ver `runHandoffIn`). */
+function computeStillHandoff(isMobile: boolean): { scale: number; x: number; y: number } | null {
+  const W = window.innerWidth
+  const H = window.innerHeight
+  const stillNat = isMobile ? { w: 1080, h: 1920 } : { w: 1777, h: 1000 }
+  const stillArt = isMobile ? HANDOFF_ART.stillMobile : HANDOFF_ART.stillDesktop
+  const stillRect = fitArtRect(stillNat.w, stillNat.h, W, H, 0, 0, stillArt, 'cover')
+  if (!stillRect || stillRect.h < 1) return null
+
+  // Caixa do frasco 'center' no catálogo — espelha `getCatalogBottleProps`.
+  let boxW: number, boxH: number, boxLeft: number, boxTop: number
+  if (isMobile) {
+    boxW = W
+    boxH = H * 0.26
+    boxLeft = 0
+    boxTop = H * 0.5
+  } else {
+    boxH = H * 0.68
+    boxW = boxH // frasco 1000×1000 (quadrado), largura auto = altura
+    boxLeft = (W - boxW) / 2
+    boxTop = H - H * 0.08 - boxH
+  }
+  const bottleRect = fitArtRect(1000, 1000, boxW, boxH, boxLeft, boxTop, HANDOFF_ART.bottle, 'contain')
+  if (!bottleRect) return null
+
+  const scale = bottleRect.h / stillRect.h
+  // O still escala a partir do PRÓPRIO centro (preenche o palco inteiro).
+  const originX = W / 2
+  const originY = H / 2
+  const scaledCx = originX + (stillRect.cx - originX) * scale
+  const scaledCy = originY + (stillRect.cy - originY) * scale
+  return { scale, x: bottleRect.cx - scaledCx, y: bottleRect.cy - scaledCy }
+}
+
 /** Geometria do still idêntica ao frame final do vídeo do Aminosan.
  *  O breakpoint aqui é 1024px — o `max-lg:` das classes do trio na seção de
  *  cima —, e não o 767px do layout do catálogo: usar o do catálogo fazia
@@ -982,20 +1059,20 @@ export function HomeProductShowcase() {
               gsap.set([p.text, p.cta, ...p.stats], { autoAlpha: 0 })
             })
 
-            /* Crossfade simples — sem medir geometria ao vivo. A versão
-               anterior (`measureBridge`) lia o layout de still e frasco na
-               hora exata do handoff pra calcular um transform que fizesse o
-               frasco "nascer" do tamanho do vídeo e encolher até o repouso
-               do catálogo. Mesmo com a medição cacheada com antecedência,
-               ainda dava piscada em aparelho real: o handoff empilha o salto
-               de scroll com o início de várias animações (cor de fundo,
-               spotlight, texto, os outros frascos), e qualquer coisa que não
-               feche no frame exato lê como tranco. Um crossfade puro — still
-               apaga, frasco já nasce no lugar de repouso e só some opacity —
-               não depende de nenhuma leitura de layout nem de sincronizar
-               tamanho entre dois elementos: é compositor puro (opacity),
-               então não tem uma janela "certa" pra perder. */
+            /* Sem fade em nenhum momento: o still (frame congelado do vídeo)
+               fica em opacidade 1 do início ao fim — só ESCALA e POSIÇÃO
+               mudam (encolhe até o tamanho real do frasco no catálogo),
+               revelando o catálogo (cor, texto, os outros frascos) ao redor.
+               É a mesma imagem "continuando ali", como pedido — nenhum
+               crossfade. `computeStillHandoff` calcula o transform exato só
+               com aritmética (sem medir o DOM), então o frasco real do
+               carrossel (`bottles[0]`, asset diferente — recorte justo, não
+               o still cheio) entra DEPOIS, em repouso total (`onComplete`,
+               nada mais se movendo), caindo exatamente por cima: troca de
+               conteúdo parada e no mesmo lugar não tem janela "certa" pra
+               perder, porque não há movimento nem tamanho pra competir. */
             const catalogCenter = getCatalogBottleProps(0, 0, isMobile)
+            const handoffTransform = computeStillHandoff(isMobile)
             bottles.forEach((bottle, i) => {
               gsap.set(bottle, {
                 ...getCatalogBottleProps(i, 0, isMobile),
@@ -1014,25 +1091,15 @@ export function HomeProductShowcase() {
               defaults: { overwrite: 'auto' },
               onComplete: () => {
                 if (bottles[0]) gsap.set(bottles[0], { ...catalogCenter, autoAlpha: 1, opacity: 1 })
-                gsap.set(handoffStillRef.current, {
-                  ...stillFullFrameProps(),
-                  autoAlpha: 0,
-                  opacity: 0,
-                  zIndex: 3,
-                })
+                gsap.set(handoffStillRef.current, { autoAlpha: 0, opacity: 0, zIndex: 3 })
                 handingOff = false
               },
             })
             transitionTl = tl
 
-            tl.to(handoffStillRef.current, { autoAlpha: 0, duration: 0.35, ease: 'power1.out' }, 0.05)
-            tl.set(handoffStillRef.current, { zIndex: 3 }, 0.4)
-            tl.fromTo(
-              bottles[0],
-              { ...catalogCenter, autoAlpha: 0, opacity: 0 },
-              { ...catalogCenter, autoAlpha: 1, opacity: 1, duration: 0.5, ease: 'power2.out' },
-              0.12,
-            )
+            if (handoffTransform) {
+              tl.to(handoffStillRef.current, { ...handoffTransform, duration: 0.6, ease: 'power2.out' }, 0)
+            }
             bottles.forEach((bottle, i) => {
               if (i === 0) return
               tl.to(
@@ -1162,14 +1229,19 @@ export function HomeProductShowcase() {
             })
             transitionTl = tl
 
-            // Mesmo crossfade da entrada, de trás pra frente — sem medir
-            // geometria (ver comentário em `runHandoffIn`).
-            const catalogCenter = getCatalogBottleProps(0, 0, isMobile)
-            gsap.set(bottles[0], { ...catalogCenter, autoAlpha: 1, opacity: 1 })
+            // Simétrico à entrada (ver comentário em `runHandoffIn`): troca
+            // parada — o frasco real do carrossel some e o still nasce já no
+            // transform exato de repouso (mesmo `computeStillHandoff`), os
+            // dois sem nenhuma animação em andamento — e só então ele CRESCE
+            // de volta pro tamanho do vídeo, sempre em opacidade 1, sem
+            // nenhum fade.
+            const handoffTransform = computeStillHandoff(isMobile)
+            gsap.set(bottles[0], { autoAlpha: 0, opacity: 0 })
             gsap.set(handoffStillRef.current, {
               ...stillFullFrameProps(),
-              autoAlpha: 0,
-              opacity: 0,
+              ...(handoffTransform ?? {}),
+              autoAlpha: 1,
+              opacity: 1,
               zIndex: 30,
             })
 
@@ -1197,15 +1269,10 @@ export function HomeProductShowcase() {
               if (i === 0) return
               tl.to(bottle, { autoAlpha: 0, opacity: 0, duration: 0.28, ease: 'power2.in' }, 0)
             })
-            // Crossfade: o frasco 0 apaga no lugar enquanto o still (frame
-            // congelado do vídeo) assume — só então a página salta para a
-            // seção de cima (ver `onComplete` acima).
-            tl.to(
-              handoffStillRef.current,
-              { autoAlpha: 1, duration: 0.26, ease: 'power1.in' },
-              0.32,
-            )
-            tl.to(bottles[0], { autoAlpha: 0, opacity: 0, duration: 0.26, ease: 'power2.in' }, 0.32)
+            // O still cresce de volta pro tamanho cheio (sem fade) — só
+            // então a página salta para a seção de cima (ver `onComplete`
+            // acima).
+            tl.to(handoffStillRef.current, { scale: 1, x: 0, y: 0, duration: 0.58, ease: 'power2.inOut' }, 0)
           }
 
           // Snap ao parar de rolar (detecção própria de inatividade — o
