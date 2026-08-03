@@ -630,6 +630,8 @@ export function HomeProductShowcase() {
           let isTransitioning = false
           let stepLocked = false
           let touchStartY = 0
+          /** Um passo por gesto de toque — ver `stepFromTouch`. */
+          let steppedThisGesture = false
           let transitionUnlockTimer: ReturnType<typeof setTimeout> | null = null
           /* Rede de segurança da trava: o `onComplete` de uma timeline morta
              nunca roda, e alguns caminhos (saída para cima, handoff) trocam a
@@ -637,9 +639,10 @@ export function HomeProductShowcase() {
              catálogo congelava — a roda continuava cancelada e nenhum produto
              trocava mais. */
           let stepLockWatchdog: ReturnType<typeof setTimeout> | null = null
-          /** Quando o último passo foi aceito — usado só pra segurar a cauda
-           *  do arrasto no último produto (ver `atLastMobile`). */
-          let lastStepAt = 0
+          /** Arrasto (px) necessário pra contar como troca de produto. Era 18;
+           *  12 deixa o gesto mais sensível sem pegar toque parado/tremida —
+           *  os limiares de gesto de sistema ficam na casa dos 8–10px. */
+          const STEP_THRESHOLD = 12
 
           const clearStepLockTimers = () => {
             if (transitionUnlockTimer) clearTimeout(transitionUnlockTimer)
@@ -711,14 +714,23 @@ export function HomeProductShowcase() {
             const tl = gsap.timeline({
               defaults: { overwrite: 'auto' },
               onComplete: () => {
-                // Pequeno buffer (140ms) após o encerramento da animação para
-                // absorver a inércia do gesto e dar sensação de peso ("trava").
                 if (stepLockWatchdog) clearTimeout(stepLockWatchdog)
                 stepLockWatchdog = null
-                transitionUnlockTimer = setTimeout(releaseStepLock, 140)
+                releaseStepLock()
               },
             })
             transitionTl = tl
+
+            /* Destrava os passos assim que o MOVIMENTO principal termina, não
+               quando a timeline inteira acaba. A timeline vai até ~0,9s (a
+               cauda é só texto assentando) e antes ficava travada esse tempo
+               todo + 140ms de buffer — ou seja, ~1s sem aceitar o próximo
+               gesto. Era isso o "comando pouco sensível": o segundo swipe
+               caía no vazio. Encadear é seguro porque um passo novo já mata a
+               timeline anterior (`transitionTl?.kill()`) e todos os tweens
+               são `overwrite: 'auto'`; os painéis que ficarem pelo caminho
+               são zerados pelo `products.forEach` do passo seguinte. */
+            tl.call(releaseStepLock, undefined, 0.2)
 
             /* Fundo: crossfade de opacidade entre `.pcs-bg` (cor atual, parada)
                e `.pcs-bg-next` (cor do PRÓXIMO produto, já escrita sem
@@ -741,13 +753,13 @@ export function HomeProductShowcase() {
               '--pcs-mid-next': next.mid,
               '--pcs-accent-next': next.accent,
             })
-            tl.to(bgNextRef.current, { opacity: 1, duration: 0.8, ease: 'power2.inOut' }, 0)
+            tl.to(bgNextRef.current, { opacity: 1, duration: 0.62, ease: 'power2.inOut' }, 0)
             tl.set(
               root,
               { '--pcs-base': next.base, '--pcs-mid': next.mid, '--pcs-accent-bg': next.accent },
-              0.8,
+              0.62,
             )
-            tl.set(bgNextRef.current, { opacity: 0 }, 0.8)
+            tl.set(bgNextRef.current, { opacity: 0 }, 0.62)
             tl.to(
               root,
               {
@@ -800,7 +812,7 @@ export function HomeProductShowcase() {
                 bottle,
                 {
                   ...animatedProps,
-                  duration: isMotion ? 0.6 : 0.4,
+                  duration: isMotion ? 0.48 : 0.34,
                   ease: 'power2.inOut',
                 },
                 0,
@@ -840,20 +852,20 @@ export function HomeProductShowcase() {
               tl.fromTo(
                 nextParts.text,
                 { autoAlpha: 0, x: 45 * dir },
-                { autoAlpha: 1, x: 0, duration: 0.55, ease: 'power3.out' },
-                0.25,
+                { autoAlpha: 1, x: 0, duration: 0.45, ease: 'power3.out' },
+                0.18,
               )
                 .fromTo(
                   nextParts.cta,
                   { autoAlpha: 0, y: 12 },
-                  { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power3.out' },
-                  0.35,
+                  { autoAlpha: 1, y: 0, duration: 0.38, ease: 'power3.out' },
+                  0.26,
                 )
                 .fromTo(
                   nextParts.stats,
                   { autoAlpha: 0, x: -45 * dir },
-                  { autoAlpha: 1, x: 0, stagger: 0.05, duration: 0.55, ease: 'power3.out' },
-                  0.25,
+                  { autoAlpha: 1, x: 0, stagger: 0.04, duration: 0.45, ease: 'power3.out' },
+                  0.18,
                 )
             } else {
               // Reduced motion: crossfade simples
@@ -1421,6 +1433,23 @@ export function HomeProductShowcase() {
               if (Math.abs(scroll - target) > 4) scrollToY(target, 0.55)
               return
             }
+            /* Último produto no mobile, com o dedo já solto um tico ALÉM da
+               borda do pin: recolhe de volta pro lugar de repouso. É o que
+               antes era feito com `preventDefault` no meio do gesto (e prendia
+               o usuário na tela do produto 4 — ver `atLastMobile`); aqui só
+               acontece DEPOIS que o scroll parou, então nunca disputa nada
+               com o usuário. A faixa é curta de propósito: passou disso, a
+               intenção foi mesmo sair pra próxima seção e ninguém puxa de
+               volta. */
+            if (
+              isMobile &&
+              currentIndexRef.current === COUNT - 1 &&
+              scroll > pinTrigger.end &&
+              scroll < pinTrigger.end + 70
+            ) {
+              scrollToY(indexToY(COUNT - 1), 0.4)
+              return
+            }
             // Zona de entrada (catálogo espiando por baixo da seção anterior)
             if (scroll < pinTrigger.start && scroll > pinTrigger.start - vh) {
               if (lastDir < 0 && currentIndexRef.current === 0) {
@@ -1441,20 +1470,19 @@ export function HomeProductShowcase() {
 
           const stepCatalog = (dir: 1 | -1) => {
             if (leavingUp || handingOff || aminosanVideoHandoff || isTransitioning || stepLocked) return
-            lastStepAt = performance.now()
             holdStepLock()
             hideHint()
 
             const current = currentIndexRef.current
             if (dir > 0) {
               if (current < COUNT - 1) {
-                goToIndex(current + 1, 0.6)
+                goToIndex(current + 1, 0.48)
               } else {
                 skipRef.current?.()
                 transitionUnlockTimer = setTimeout(releaseStepLock, 700)
               }
             } else if (current > 0) {
-              goToIndex(current - 1, 0.6)
+              goToIndex(current - 1, 0.48)
             } else {
               runHandoffOut()
             }
@@ -1508,6 +1536,21 @@ export function HomeProductShowcase() {
 
           const onTouchStart = (e: TouchEvent) => {
             if (e.touches.length > 0) touchStartY = e.touches[0].clientY
+            steppedThisGesture = false
+          }
+          /* UM gesto = UM produto. É esta guarda (e não a duração da trava)
+             que impede um arrasto só de atravessar vários produtos — o que
+             deixa a trava livre pra ser bem curta e o próximo swipe responder
+             na hora. Sem ela, encurtar a trava fazia um arrasto lento avançar
+             2 de uma vez: o dedo continua na tela, acumula o limiar de novo e
+             dispara outro passo. */
+          const stepFromTouch = (dir: 1 | -1) => {
+            if (steppedThisGesture) return
+            const before = currentIndexRef.current
+            stepCatalog(dir)
+            if (currentIndexRef.current !== before || leavingUp || handingOff) {
+              steppedThisGesture = true
+            }
           }
 
           const onTouchMoveStep = (e: TouchEvent) => {
@@ -1545,28 +1588,23 @@ export function HomeProductShowcase() {
             // único caso que ainda espera os 18px.
             const atLastMobile = isMobile && currentIndexRef.current === COUNT - 1
             if (atLastMobile) {
-              if (Math.abs(delta) < 18) return
+              if (Math.abs(delta) < STEP_THRESHOLD) return
               if (delta > 0) {
-                /* Segura só a CAUDA do arrasto que acabou de entrar no último
-                   produto: o dedo continua na tela depois do passo disparar e
-                   a rolagem nativa passava da borda do pin (medido parando
-                   40px além do `end`, `.pcs-root` já em `position: relative`)
-                   — era daí que a volta do produto 4 começava despinada e
-                   escorregava. Janela curta (e não `isTransitioning ||
-                   stepLocked`, que ficam ligados ~0,75s): travar a saída por
-                   todo esse tempo era a "travadinha" pra ir pra próxima seção.
-                   350ms come a cauda do gesto sem atrapalhar quem já soltou o
-                   dedo e quer mesmo sair. */
-                if (performance.now() - lastStepAt < 350) {
-                  if (e.cancelable) e.preventDefault()
-                  touchStartY = e.touches[0].clientY
-                  return
-                }
+                /* Pra FRENTE no último produto: nunca dar `preventDefault`.
+                   Um `preventDefault` num touchmove não cancela só aquele
+                   evento — o navegador (iOS em especial) decide logo no começo
+                   do gesto se ele é rolagem, e um preventDefault ali mata a
+                   rolagem pro RESTO do toque. Era isso que prendia o usuário
+                   na tela do último produto: o gesto era descartado inteiro e
+                   só um novo toque tinha chance de sair. O overscroll que essa
+                   guarda tentava evitar agora é resolvido depois do gesto, no
+                   `settle` (que puxa de volta se o dedo parou coladinho na
+                   borda do pin) — sem nunca disputar o gesto com o usuário. */
                 touchStartY = e.touches[0].clientY
                 return
               }
               if (e.cancelable) e.preventDefault()
-              stepCatalog(-1)
+              stepFromTouch(-1)
               touchStartY = e.touches[0].clientY
               return
             }
@@ -1577,8 +1615,8 @@ export function HomeProductShowcase() {
             // inteiro (era o salto do catálogo direto pro início do Aminosan,
             // sem passar pelos vídeos de transição).
             if (e.cancelable) e.preventDefault()
-            if (Math.abs(delta) < 18) return
-            stepCatalog(delta > 0 ? 1 : -1)
+            if (Math.abs(delta) < STEP_THRESHOLD) return
+            stepFromTouch(delta > 0 ? 1 : -1)
             touchStartY = e.touches[0].clientY
           }
 
