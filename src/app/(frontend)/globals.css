@@ -560,6 +560,31 @@ html.lenis body { height: auto; }
   pointer-events: none;
 }
 
+/* Spotlight do mobile — substitui o <Spotlight/> SVG (blur gaussiano de
+   stdDeviation 700 numa região 10000×8000, caríssimo de rasterizar e sempre
+   em cena dentro da seção pinada). Um gradiente elíptico entrega o mesmo
+   feixe difuso vindo de cima sem nenhum filtro. Só opacity é animada (o
+   GSAP escreve nela a cada troca de produto), então a camada é composta,
+   nunca repintada. */
+.pcs-spotlight-mobile {
+  position: absolute;
+  top: -18%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150%;
+  height: 78%;
+  background: radial-gradient(
+    ellipse 55% 60% at 50% 0%,
+    rgba(255, 255, 255, 0.24) 0%,
+    rgba(255, 255, 255, 0.13) 34%,
+    rgba(255, 255, 255, 0.05) 62%,
+    transparent 82%
+  );
+  pointer-events: none;
+  z-index: 999;
+  will-change: opacity;
+}
+
 /* Pinned slideshow */
 /* Palco e showcase seguem a altura REAL do root (que é quem sabe quanto da
    tela está visível). Repetir unidade de viewport aqui dessincronizava os dois
@@ -1059,6 +1084,12 @@ html.lenis body { height: auto; }
     flex-direction: row;
     gap: 0.75rem;
     width: 100%;
+    /* Sem interação no mobile: os cards são informativos, não levam a lugar
+       nenhum. `pointer-events: none` tira o toque (que só servia pra deixar
+       o :hover grudado depois do tap) e, de quebra, garante que nenhum toque
+       neles seja engolido antes de virar gesto de troca de produto. O link
+       "Ver produto" fica fora deste bloco e continua clicável. */
+    pointer-events: none;
   }
   .pcs-stat-row {
     flex: 1;
@@ -1439,13 +1470,28 @@ html.lenis body { height: auto; }
     box-shadow: none;
   }
 
+  /* Backlight: `mix-blend-mode: plus-lighter` numa camada de 270px BORRADA
+     (blur 20px) bem no centro do palco — exatamente atrás do frasco que
+     atravessa a tela na troca de produto. É o mesmo caso do `.pcs-grain`
+     logo acima (blend obriga o compositor a reler o fundo já pintado), só
+     que somado a um filtro. Sem o blend o brilho continua lá, composto
+     direto; a opacidade menor compensa o `plus-lighter` que clareava. */
+  .pcs-backlight {
+    mix-blend-mode: normal;
+    opacity: 0.5;
+  }
+
   /* Frascos laterais no mobile agora desfocam (getRoleProps) — promover
      `filter` também, senão o navegador promove/despromove a camada NA HORA
      da troca de produto (o próprio custo que `will-change` existe pra
-     evitar). */
-  .pcs-theater-bottle,
-  .pcs-bottle-wrap {
+     evitar). Só no `.pcs-theater-bottle`, que é quem o GSAP anima: prometer
+     no wrap também reservava memória de GPU pra uma camada que nunca muda
+     de filtro. */
+  .pcs-theater-bottle {
     will-change: transform, opacity, filter;
+  }
+  .pcs-bottle-wrap {
+    will-change: transform, opacity;
   }
 
   /* Botão "pular seção" — estático, mas o backdrop-filter mantém a camada

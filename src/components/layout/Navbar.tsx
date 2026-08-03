@@ -84,7 +84,17 @@ export function Navbar() {
     let last = window.scrollY
     let ticking = false
 
+    /* Enquanto uma seção dirige o scroll por conta própria (catálogo de
+       produtos: cada troca de produto é um scroll programático), a heurística
+       de direção abaixo não vale — ela lia o vai-e-vem desses scrolls
+       animados como "usuário subindo/descendo" e ficava mostrando/escondendo
+       a navbar a cada passo (o menu "indo e voltando"). Quem manda nesses
+       trechos é o próprio `nav:hide`/`nav:show` que a seção dispara; um
+       `nav:hide` com `lock` suspende a heurística até o próximo `nav:show`. */
+    let navLocked = false
+
     const handleScrollDirection = (direction: 'up' | 'down', currentY: number) => {
+      if (navLocked) return
       const isLocked = document.documentElement.style.overflow === 'hidden'
       if (direction === 'down' && (currentY > 50 || isLocked)) {
         setHidden(true)
@@ -131,8 +141,22 @@ export function Navbar() {
       }
     }
 
-    const handleNavHide = () => setHidden(true)
-    const handleNavShow = () => setHidden(false)
+    const handleNavHide = (e: Event) => {
+      if ((e as CustomEvent<{ lock?: boolean }>).detail?.lock) navLocked = true
+      setHidden(true)
+    }
+    // Qualquer `nav:show` destrava — serve de válvula de segurança se a seção
+    // que travou sair de cena sem avisar (troca de rota, breakpoint, etc.).
+    const handleNavShow = () => {
+      navLocked = false
+      setHidden(false)
+    }
+    /* Devolve o controle à heurística SEM mexer no estado atual: é o que a
+       seção dispara ao sair de cena rolando pra baixo, onde `nav:show` seria
+       errado (descendo, a navbar tem que continuar escondida). */
+    const handleNavUnlock = () => {
+      navLocked = false
+    }
 
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('wheel', onWheel, { passive: true })
@@ -140,6 +164,7 @@ export function Navbar() {
     window.addEventListener('touchend', onTouchEnd, { passive: true })
     window.addEventListener('nav:hide', handleNavHide)
     window.addEventListener('nav:show', handleNavShow)
+    window.addEventListener('nav:unlock', handleNavUnlock)
 
     return () => {
       window.removeEventListener('scroll', onScroll)
@@ -148,6 +173,7 @@ export function Navbar() {
       window.removeEventListener('touchend', onTouchEnd)
       window.removeEventListener('nav:hide', handleNavHide)
       window.removeEventListener('nav:show', handleNavShow)
+      window.removeEventListener('nav:unlock', handleNavUnlock)
     }
   }, [])
 

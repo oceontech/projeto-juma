@@ -510,7 +510,9 @@ export function HomeProductShowcase() {
   const bottlesRef = useRef<(HTMLDivElement | null)[]>([])
   const dotsRef = useRef<(HTMLButtonElement | null)[]>([])
   const spotlightRef = useRef<SVGSVGElement>(null)
-  const mobileSpotlightRef = useRef<SVGSVGElement>(null)
+  // <div> (não SVG): o spotlight do mobile virou um radial-gradient CSS —
+  // ver comentário no JSX.
+  const mobileSpotlightRef = useRef<HTMLDivElement>(null)
   const handoffStillRef = useRef<HTMLImageElement>(null)
   const hintRef = useRef<HTMLDivElement>(null)
 
@@ -635,6 +637,9 @@ export function HomeProductShowcase() {
              catálogo congelava — a roda continuava cancelada e nenhum produto
              trocava mais. */
           let stepLockWatchdog: ReturnType<typeof setTimeout> | null = null
+          /** Quando o último passo foi aceito — usado só pra segurar a cauda
+           *  do arrasto no último produto (ver `atLastMobile`). */
+          let lastStepAt = 0
 
           const clearStepLockTimers = () => {
             if (transitionUnlockTimer) clearTimeout(transitionUnlockTimer)
@@ -994,7 +999,7 @@ export function HomeProductShowcase() {
               if (!insidePin()) return
               leavingDown = false
               lockLenis()
-              window.dispatchEvent(new CustomEvent('nav:hide'))
+              window.dispatchEvent(new CustomEvent('nav:hide', { detail: { lock: true } }))
               // Rede de segurança: qualquer entrada por cima cancela um
               // "saindo pra cima" que tenha ficado pendente.
               leavingUp = false
@@ -1025,7 +1030,7 @@ export function HomeProductShowcase() {
               if (!insidePin()) return
               leavingDown = false
               lockLenis()
-              window.dispatchEvent(new CustomEvent('nav:hide'))
+              window.dispatchEvent(new CustomEvent('nav:hide', { detail: { lock: true } }))
               // Mesma guarda do onEnter acima (índice E restoreVisual).
               if (currentIndexRef.current !== COUNT - 1 && !isTransitioning && !stepLocked) {
                 applyIndex(COUNT - 1)
@@ -1035,7 +1040,7 @@ export function HomeProductShowcase() {
               if (self.isActive) {
                 if (!insidePin()) return
                 lockLenis()
-                window.dispatchEvent(new CustomEvent('nav:hide'))
+                window.dispatchEvent(new CustomEvent('nav:hide', { detail: { lock: true } }))
                 return
               }
               // Saiu do pin numa rolagem normal: devolve o scroll ao Lenis.
@@ -1045,6 +1050,9 @@ export function HomeProductShowcase() {
               if (leavingUp || handingOff || outroHolding) return
               leavingDown = false
               unlockLenis()
+              // O catálogo não dirige mais o scroll: a navbar volta a decidir
+              // sozinha (sem forçar estado — descendo ela segue escondida).
+              window.dispatchEvent(new CustomEvent('nav:unlock'))
             },
           })
           pinBox.current = pinTrigger
@@ -1433,6 +1441,7 @@ export function HomeProductShowcase() {
 
           const stepCatalog = (dir: 1 | -1) => {
             if (leavingUp || handingOff || aminosanVideoHandoff || isTransitioning || stepLocked) return
+            lastStepAt = performance.now()
             holdStepLock()
             hideHint()
 
@@ -1538,17 +1547,17 @@ export function HomeProductShowcase() {
             if (atLastMobile) {
               if (Math.abs(delta) < 18) return
               if (delta > 0) {
-                /* Exceção: o passo que ACABOU de entrar no último produto
-                   ainda está animando. Sem este preventDefault, o resto do
-                   MESMO arrasto (o dedo continua na tela depois do passo
-                   disparar) rola nativamente por cima da animação e passa da
-                   borda do pin — medido parando 40px além do `end`, com o
-                   `.pcs-root` já em `position: relative` (despinado). Era daí
-                   que vinha o pulo ao voltar do produto 4: a volta começava
-                   de um estado já despinado, e o conteúdo escorregava até o
-                   pin reassumir. Só libera a rolagem nativa pra Cultures
-                   quando o produto está de fato parado. */
-                if (isTransitioning || stepLocked) {
+                /* Segura só a CAUDA do arrasto que acabou de entrar no último
+                   produto: o dedo continua na tela depois do passo disparar e
+                   a rolagem nativa passava da borda do pin (medido parando
+                   40px além do `end`, `.pcs-root` já em `position: relative`)
+                   — era daí que a volta do produto 4 começava despinada e
+                   escorregava. Janela curta (e não `isTransitioning ||
+                   stepLocked`, que ficam ligados ~0,75s): travar a saída por
+                   todo esse tempo era a "travadinha" pra ir pra próxima seção.
+                   350ms come a cauda do gesto sem atrapalhar quem já soltou o
+                   dedo e quer mesmo sair. */
+                if (performance.now() - lastStepAt < 350) {
                   if (e.cancelable) e.preventDefault()
                   touchStartY = e.touches[0].clientY
                   return
@@ -1702,17 +1711,18 @@ export function HomeProductShowcase() {
           fillOpacity={0.6}
           style={{ transform: 'scaleX(-1)' }}
         />
-        {/* Mobile spotlight — feixe de cima para o produto */}
-        <Spotlight
+        {/* Mobile spotlight — feixe de cima para o produto.
+            Era o mesmo <Spotlight/> SVG do desktop com `stdDeviation={700}`
+            numa região de filtro de 10000×8000: um blur gaussiano desse
+            tamanho é dos elementos mais caros de rasterizar que existem, e
+            ele fica em cena o tempo todo dentro da seção pinada, com a
+            opacidade animada a cada troca de produto. Um `radial-gradient`
+            entrega o mesmo brilho difuso sem filtro nenhum — o navegador
+            pinta um gradiente, não roda convolução. */}
+        <div
           ref={mobileSpotlightRef}
-          className="block lg:hidden -top-40 right-0"
-          fill="white"
-          fillOpacity={0.45}
-          stdDeviation={700}
-          filterId="pcs-spotlight-mobile"
-          translateX={2513}
-          translateY={1997}
-          style={{ transform: 'scaleX(-1)' }}
+          aria-hidden
+          className="pcs-spotlight-mobile block lg:hidden"
         />
 
         <div className="pcs-stage">
