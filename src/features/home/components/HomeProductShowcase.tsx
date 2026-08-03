@@ -1117,9 +1117,18 @@ export function HomeProductShowcase() {
             tl.to(handoffStillRef.current, { autoAlpha: 0, duration: 0.26, ease: 'power1.out' }, 0)
             tl.set(handoffStillRef.current, { zIndex: 3 }, 0.26)
             if (start) {
+              /* No mobile, mais curto (0,5s em vez de 0,85s): reportaram esse
+                 encolhimento (de "tamanho do vídeo" pro tamanho do catálogo)
+                 como uma piscada — o alinhamento e o fade em si medem certos
+                 (conferido quadro a quadro), então o mais provável é o
+                 aparelho real perder frames durante essa janela, com várias
+                 animações simultâneas rodando (cor de fundo, spotlight, texto,
+                 os outros frascos). Encurtar dá menos tempo pra esse engasgo
+                 aparecer e faz a transição ler como um "zoom out" decidido,
+                 não como uma imagem grande demorando pra assentar. */
               tl.to(
                 bottles[0],
-                { ...bridgeTransform(catalogCenter), duration: 0.85, ease: 'power2.inOut' },
+                { ...bridgeTransform(catalogCenter), duration: isMobile ? 0.5 : 0.85, ease: 'power2.inOut' },
                 0.06,
               )
             }

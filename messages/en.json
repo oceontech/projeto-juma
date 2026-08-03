@@ -398,24 +398,29 @@
     "intro": "An exclusive immersion program for Juma-Agro clients, designed to see in practice how our solutions work in the field. Side by side with our agronomic team — from the lab to the harvest. Become a client and secure your access.",
     "btnParticipate": "I want to become a client",
     "btnProgram": "See program",
-    "programEyebrow": "What it is",
-    "programTitle": "Three days inside the Juma-Agro operation.",
-    "programIntro": "Full immersion: research, formulation, field trials and visits to partner farms.",
-    "days": {
-      "day1": {
+    "programEyebrow": "What the day looks like",
+    "programTitle": "One full day inside the Juma-Agro operation.",
+    "programIntro": "A complete program in a single day: history, culture, a tour through the operation and a conversation with the founder.",
+    "steps": {
+      "step1": {
         "num": "01",
-        "title": "Day 1 · Research & formulation",
-        "desc": "Visit to the lab and production unit. How a Juma-Agro product is born, from the molecule to the bottle."
+        "title": "Reception and history",
+        "desc": "Leadership welcomes the group and walks through the company's history, with period photos and an institutional video."
       },
-      "day2": {
+      "step2": {
         "num": "02",
-        "title": "Day 2 · Field trials",
-        "desc": "A full day in experimental plots, reading crop management, comparing areas and talking with agronomists."
+        "title": "The Juma culture",
+        "desc": "How Juma works, what it believes in and where it's headed. The purpose \"Together we feed the world\" becomes visible routine here."
       },
-      "day3": {
+      "step3": {
         "num": "03",
-        "title": "Day 3 · Partner farms",
-        "desc": "Visit to farms where Juma-Agro is already delivering results — grower to grower, face to face."
+        "title": "Tour of the operation",
+        "desc": "Production, quality control lab, sales, admin and logistics, station by station, with time for questions at each one."
+      },
+      "step4": {
+        "num": "04",
+        "title": "Conversation with the founder",
+        "desc": "Mr. Julio Matino shares how he created Aminosan and how he sees the future of agriculture."
       }
     },
     "benefitsEyebrow": "What you experience",
