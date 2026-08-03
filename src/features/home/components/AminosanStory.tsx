@@ -1008,16 +1008,18 @@ function MobileVersion({ t }: { t: TFn }) {
 
         <AminosanBrandMark refEl={brandMarkRef} />
 
-        <div ref={act1Ref} className="absolute inset-x-0 top-0 z-30 pointer-events-none">
-          <Container className="pointer-events-auto flex flex-col items-center px-md pt-[15vh] pb-4 text-center">
+        <div ref={act1Ref} className="absolute inset-0 z-30 pointer-events-none flex flex-col justify-between">
+          <Container className="pointer-events-auto flex flex-col items-center px-md pt-[13dvh] pb-4 text-center">
             <span data-anim className="text-eyebrow text-[10px] uppercase tracking-[0.18em] text-primary">{t('eyebrow')}</span>
             <div data-anim>
               <BicolorTitle title={t('title')} titleHi={t('titleHi')} className="text-[clamp(1.75rem,7vw,3rem)] leading-tight" />
             </div>
             <p data-anim className="text-subtitle mt-2 max-w-[22rem] text-sm text-foreground/80">{t('body1')}</p>
             <p data-anim className="text-subtitle max-w-[22rem] text-sm text-foreground/80">{t('body2')}</p>
-            <span data-anim className="text-eyebrow mt-3 text-[10px] uppercase tracking-[0.16em] text-foreground/45">{t('footerTag')}</span>
           </Container>
+          <div className="pointer-events-auto pb-[5dvh] flex justify-center px-md">
+            <span data-anim className="text-eyebrow text-[10px] uppercase tracking-[0.16em] text-foreground/45 text-center">{t('footerTag')}</span>
+          </div>
         </div>
 
         <div ref={act3Ref} className="absolute inset-x-0 top-0 z-30 pointer-events-none">
@@ -1030,14 +1032,16 @@ function MobileVersion({ t }: { t: TFn }) {
           </Container>
         </div>
 
-        <div ref={lineRef} className="absolute inset-x-0 top-0 z-30 pointer-events-none">
+        <div ref={lineRef} className="absolute inset-0 z-30 pointer-events-none flex flex-col justify-between">
           <Container className="pointer-events-auto flex flex-col items-center px-md pt-[15vh] pb-4 text-center">
             <span data-anim className="text-eyebrow text-[10px] uppercase tracking-[0.18em] text-primary">{t('lineEyebrow')}</span>
             <div data-anim>
               <BicolorTitle title={t('lineTitle')} titleHi={t('lineTitleHi')} className="text-[clamp(1.75rem,7vw,3rem)] leading-tight" />
             </div>
-            <p data-anim className="text-subtitle max-w-[24rem] text-sm text-foreground/80">{t('lineBody')}</p>
           </Container>
+          <div className="pointer-events-auto pb-[5dvh] flex justify-center px-md">
+            <p data-anim className="text-subtitle max-w-[24rem] text-sm text-foreground/80 text-center">{t('lineBody')}</p>
+          </div>
         </div>
 
         <BottleCallout refEl={oldCalloutRef} eyebrow={t('eyebrow')}>
