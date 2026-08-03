@@ -905,7 +905,14 @@ function MobileVersion({ t }: { t: TFn }) {
 
         {/* Frame final do vídeo, servido como imagem (canal alfa) — vira a
             ponte fixa pro catálogo assim que o clipe termina (ver
-            `showCatalogOverlay`). Mesmo papel do trioImg da CinematicVersion. */}
+            `showCatalogOverlay`). Mesmo papel do trioImg da CinematicVersion.
+            `hidden` (display:none) na classe, não só `opacity-0`: reportaram
+            essa imagem aparecendo já na fase 1, antes de qualquer vídeo tocar
+            — não reproduzi em teste automatizado, mas `display:none` é a
+            única garantia que não depende de CSS opacity/visibility (que
+            alguns navegadores mobile ainda chegam a pintar por um frame antes
+            de aplicar). `showCatalogOverlay` já seta `display:'block'`
+            explicitamente por inline style, que sempre vence a classe. */}
         <Image
           ref={catalogImgRef}
           src="/heritage/mobile/aminosan-catalogo-mobile.webp"
@@ -913,7 +920,7 @@ function MobileVersion({ t }: { t: TFn }) {
           aria-hidden
           fill sizes="100vw"
           quality={85}
-          className="absolute inset-0 z-0 h-full w-full object-contain opacity-0"
+          className="hidden absolute inset-0 z-0 h-full w-full object-contain opacity-0"
         />
 
         <AminosanBrandMark refEl={brandMarkRef} />
