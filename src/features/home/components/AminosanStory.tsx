@@ -731,16 +731,20 @@ function MobileVersion({ t }: { t: TFn }) {
         pinSpacing: true,
         anticipatePin: 1,
         onEnter: () => {
-          step = 0
-          phase = 'bottle1988'
-          showStaticBottle1988()
-          killMomentumScroll(0)
+          if (!playing && phase === 'bottle1988' && visualPhase !== 'bottle1988') {
+            step = 0
+            showStaticBottle1988()
+          }
+          killMomentumScroll(PHASES.indexOf(phase))
         },
         onEnterBack: () => {
-          step = LAST - 1
-          phase = 'linha'
-          showStaticLinha()
-          killMomentumScroll(LAST - 1)
+          const targetIdx = phase === 'catalogo' ? LAST - 1 : PHASES.indexOf(phase)
+          if (!playing && phase === 'catalogo') {
+            step = LAST - 1
+            phase = 'linha'
+            showStaticLinha()
+          }
+          killMomentumScroll(targetIdx)
         },
       })
 
