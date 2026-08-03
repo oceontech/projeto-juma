@@ -297,6 +297,15 @@ function MobileVersion({ t }: { t: TFn }) {
         if (Math.abs(window.scrollY - y) < 2) return
         lenisRef.current?.scrollTo(y, { immediate: true, force: true } as never)
         window.scrollTo(0, y)
+        /* `window.scrollTo` é síncrono, mas o pin do ScrollTrigger só
+           reage ao evento nativo `scroll` — que o navegador dispara um
+           tick depois, não no mesmo frame. Nesse intervalo o palco pinado
+           ainda está posicionado pra o scrollY ANTERIOR, então o frame que
+           o navegador pinta nesse meio-tempo mostra a seção fora do
+           lugar — expõe o branco por trás por um frame, a piscada
+           reportada bem no instante de estacionar. `ScrollTrigger.update()`
+           força o recálculo na hora, sem esperar o próximo evento. */
+        ScrollTrigger.update()
       }
 
       const safeDur = (v: HTMLVideoElement) => (v.duration > 0 && isFinite(v.duration)) ? v.duration : FALLBACK_DURATION
@@ -830,11 +839,36 @@ function MobileVersion({ t }: { t: TFn }) {
          prioridade maior, com teto de tempo garantido) — não precisa também
          esperar o load completo por cima disso. */
       let warmed = false
+      /* Depois do play()-then-pause() (aquece decodificação SEQUENCIAL, do
+         início), UM seek pro fim e volta pro início (aquece decodificação por
+         ACESSO ALEATÓRIO — o que o sentido de volta faz o tempo todo). Sem
+         isto, a primeira busca por ponto qualquer pagava esse custo sozinha —
+         a piscada/travamento bem na primeira transição de cada sentido. Só
+         dois passos (não vários pontos): quanto mais essa sequência dura,
+         maior a chance de ainda estar em voo quando o gesto REAL do usuário
+         chega — competindo pelo decodificador logo na hora que mais importa
+         responder rápido. `if (playing) return` em cada passo cede lugar na
+         hora pro gesto real, mas só evita samples FUTUROS, não cancela um
+         seek já em andamento — por isso manter a sequência curta. */
+      const warmupSeekPoints = () => {
+        const d = safeDur(video)
+        const advance2 = () => { if (!playing) { try { video.currentTime = 0 } catch {} } }
+        const advance1 = () => {
+          if (playing) return
+          try { video.currentTime = Math.max(0, d - 0.15) } catch {}
+          video.addEventListener('seeked', advance2, { once: true })
+        }
+        advance1()
+      }
       const runWarmup = () => {
         if (warmed) return
         warmed = true
         if (video.preload !== 'auto') { video.preload = 'auto'; video.load() }
-        video.play().then(() => { if (!playing) { video.pause(); video.currentTime = 0 } }).catch(() => {})
+        video.play().then(() => {
+          if (playing) return
+          video.pause()
+          warmupSeekPoints()
+        }).catch(() => {})
       }
       let idleHandle: number | undefined
       if (typeof window.requestIdleCallback === 'function') {
