@@ -15,11 +15,11 @@ import { Container } from '@/components/layout/Container'
 type LineKey = 'nutricao' | 'arranque' | 'protecao' | 'manejos' | 'aplicacao'
 
 const LINE_COLORS: Record<LineKey, { accent: string; text: string; image: string }> = {
-  nutricao: { accent: '#006838', text: '#fff', image: '/assets/linha-produtos/little-leaf.webp' },
-  arranque: { accent: '#008dc2', text: '#fff', image: '/assets/linha-produtos/rabanete.webp' },
-  protecao: { accent: '#ad1115', text: '#fff', image: '/assets/linha-produtos/bug-leaf.webp' },
-  manejos:  { accent: '#312783', text: '#fff', image: '/assets/linha-produtos/big-leaf.webp' },
-  aplicacao: { accent: '#79ab34', text: '#1f2e0a', image: '/assets/linha-produtos/water-leaf.webp' },
+  nutricao: { accent: '#006838', text: '#fff', image: '/linha-produtos/little-leaf.webp' },
+  arranque: { accent: '#008dc2', text: '#fff', image: '/linha-produtos/comecar-safra.webp' },
+  protecao: { accent: '#ad1115', text: '#fff', image: '/linha-produtos/bug-leaf.webp' },
+  manejos:  { accent: '#312783', text: '#fff', image: '/linha-produtos/big-leaf.webp' },
+  aplicacao: { accent: '#79ab34', text: '#1f2e0a', image: '/linha-produtos/water-leaf.webp' },
 }
 
 const LINES: LineKey[] = ['nutricao', 'arranque', 'protecao', 'manejos', 'aplicacao']
