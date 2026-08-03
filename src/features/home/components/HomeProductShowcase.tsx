@@ -1378,7 +1378,18 @@ export function HomeProductShowcase() {
               return
             }
             if (Math.abs(e.deltaY) < 2) return
-            if (!pinTrigger.isActive) {
+            /* `pinTrigger.isActive` sozinho falha bem no instante de chegar
+               vindo do handoff do vídeo: o salto de scroll pousa o scrollY
+               DENTRO da faixa do pin, mas o ScrollTrigger ainda não rodou o
+               ciclo que atualiza esse flag — e o primeiro gesto do usuário
+               (chegar e já continuar rolando) caía neste `if`, sem achar
+               "isCatalogPeeking" nem "isTopHandoffZone" (nenhum dos dois
+               cobre "já estou dentro, só que o flag não sabe ainda"), e sem
+               `preventDefault` a rolagem nativa da página seguia o dedo por
+               aquele gesto — a sensação de "parte do catálogo sobe junto
+               com o dedo". `insidePin()` confere a posição real (mesmo
+               remédio já usado no onEnter do pin, ver comentário lá). */
+            if (!pinTrigger.isActive && !insidePin()) {
               const scroll = window.scrollY
               const isCatalogPeeking =
                 scroll < pinTrigger.start && scroll > pinTrigger.start - window.innerHeight
@@ -1418,7 +1429,10 @@ export function HomeProductShowcase() {
             }
             if (e.touches.length === 0) return
             const delta = touchStartY - e.touches[0].clientY
-            if (!pinTrigger.isActive) {
+            // Mesmo remédio do onWheelStep: `insidePin()` cobre o instante em
+            // que o scrollY já está dentro da faixa do pin (chegando do
+            // handoff do vídeo) mas `isActive` ainda não foi atualizado.
+            if (!pinTrigger.isActive && !insidePin()) {
               if (Math.abs(delta) < 18) return
               const scroll = window.scrollY
               const isCatalogPeeking =
