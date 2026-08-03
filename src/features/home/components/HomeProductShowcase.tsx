@@ -1051,8 +1051,27 @@ export function HomeProductShowcase() {
 
           /* ── Navegação programática (dots, teclado, pular) ──────── */
 
-          const indexToY = (i: number) =>
-            pinTrigger.start + ((pinTrigger.end - pinTrigger.start) * i) / (COUNT - 1)
+          /* Os EXTREMOS (primeiro e último produto) não descansam no pixel
+             exato do `start`/`end` do pin — ficam `PIN_EDGE_INSET` px pra
+             dentro. Parar cravado na borda deixa o pin no limiar de
+             ligar/desligar, e ali ele fica DESLIGADO (medido: `.pcs-root` em
+             `position: relative` em vez de `fixed`, tanto ao chegar no
+             produto 1 quanto ao parar no produto 4). Desligado, o `.pcs-root`
+             volta pro fluxo normal dentro do `pin-spacer` e o conteúdo
+             escorrega junto com o scroll — como o fundo dele é opaco e ocupa
+             a tela toda, não aparece a seção vizinha, só o conteúdo "pulando"
+             (pra cima saindo do produto 1, pra baixo voltando do 4). Dentro
+             da faixa do pin o elemento é `position: fixed`, então esses px
+             não deslocam NADA na tela: o ajuste é invisível.
+             8px (> os 4px de tolerância do `settle`) pra que o próprio settle
+             corrija uma chegada que tenha pousado em cima da borda. */
+          const PIN_EDGE_INSET = 8
+          const indexToY = (i: number) => {
+            const raw = pinTrigger.start + ((pinTrigger.end - pinTrigger.start) * i) / (COUNT - 1)
+            if (i <= 0) return raw + PIN_EDGE_INSET
+            if (i >= COUNT - 1) return raw - PIN_EDGE_INSET
+            return raw
+          }
 
           const isTopHandoffZone = () => {
             const scroll = window.scrollY
@@ -1174,6 +1193,20 @@ export function HomeProductShowcase() {
                 if (bottles[0]) gsap.set(bottles[0], { ...catalogCenter, autoAlpha: 1, opacity: 1 })
                 gsap.set(handoffStillRef.current, { autoAlpha: 0, opacity: 0, zIndex: 3 })
                 handingOff = false
+                /* Sai da borda exata do pin (ver `PIN_EDGE_INSET`): a chegada
+                   do vídeo pousa em `pinTrigger.start` cravado, e ali o pin
+                   fica DESLIGADO (medido: `.pcs-root` em `position: relative`).
+                   O `settle` não resolve sozinho — ele só roda em evento de
+                   scroll, e depois do handoff não acontece nenhum até o
+                   usuário encostar na tela, que é justamente o gesto que sai
+                   torto. Como o pin (re)assume aqui, esses px não movem nada
+                   na tela. */
+                const safeY = indexToY(0)
+                if (Math.abs(window.scrollY - safeY) > 1) {
+                  lenisRef.current?.scrollTo(safeY, { immediate: true, force: true })
+                  window.scrollTo(0, safeY)
+                  ScrollTrigger.update()
+                }
               },
             })
             transitionTl = tl
@@ -1505,6 +1538,21 @@ export function HomeProductShowcase() {
             if (atLastMobile) {
               if (Math.abs(delta) < 18) return
               if (delta > 0) {
+                /* Exceção: o passo que ACABOU de entrar no último produto
+                   ainda está animando. Sem este preventDefault, o resto do
+                   MESMO arrasto (o dedo continua na tela depois do passo
+                   disparar) rola nativamente por cima da animação e passa da
+                   borda do pin — medido parando 40px além do `end`, com o
+                   `.pcs-root` já em `position: relative` (despinado). Era daí
+                   que vinha o pulo ao voltar do produto 4: a volta começava
+                   de um estado já despinado, e o conteúdo escorregava até o
+                   pin reassumir. Só libera a rolagem nativa pra Cultures
+                   quando o produto está de fato parado. */
+                if (isTransitioning || stepLocked) {
+                  if (e.cancelable) e.preventDefault()
+                  touchStartY = e.touches[0].clientY
+                  return
+                }
                 touchStartY = e.touches[0].clientY
                 return
               }
