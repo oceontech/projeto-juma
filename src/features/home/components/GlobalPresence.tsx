@@ -89,7 +89,7 @@ export function GlobalPresence({ variant = 'section' }: { variant?: 'section' | 
       if (split) gsap.set(split.chars, { x: 20, opacity: 0, filter: blurPx(10) })
       if (body) gsap.set(body, { y: 20, opacity: 0 })
       if (support) gsap.set(support, { y: 16, opacity: 0 })
-      if (globeWrap) gsap.set(globeWrap, { scale: 0.9, opacity: 0 })
+      if (globeWrap) gsap.set(globeWrap, { scale: 0.9, opacity: 0.01 })
       if (cards.length) gsap.set(cards, { y: 14, opacity: 0 })
       if (halos.length) gsap.set(halos, { scale: 0, opacity: 0 })
 
