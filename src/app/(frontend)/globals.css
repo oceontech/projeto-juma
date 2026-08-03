@@ -580,9 +580,11 @@ html.lenis body { height: auto; }
     rgba(255, 255, 255, 0.05) 62%,
     transparent 82%
   );
+  /* Sempre ligado — sem GSAP controlando opacidade (era a causa do
+     "piscar" a cada troca de produto). Opacidade fixa. */
+  opacity: 0.85;
   pointer-events: none;
   z-index: 999;
-  will-change: opacity;
 }
 
 /* Pinned slideshow */
@@ -1026,7 +1028,21 @@ html.lenis body { height: auto; }
     padding: 5.6rem 1.5rem calc(5.4rem + env(safe-area-inset-bottom, 0px));
     gap: 0;
   }
+  /* `position: absolute` de propósito — tira o texto do fluxo flex do
+     `.pcs-product`. Antes ele era o PRIMEIRO item do flex, e o CTA (2º item,
+     com `margin-top: auto`) herdava a altura dele: título+descrição mudam de
+     tamanho por produto (nomes e textos diferentes, número de linhas
+     diferente), então o CTA saía numa posição vertical ligeiramente diferente
+     em cada produto — visível sobretudo comparando o Aminosan com os outros.
+     Fora do flex, o CTA some da equação do texto e sobra só ele + os stats
+     (que já têm altura igual entre produtos) — o mesmo pixel em todo mundo.
+     `top`/`left`/`right` reproduzem exatamente a posição que o fluxo normal
+     já dava (primeiro item, ocupando a largura do padding-box). */
   .pcs-panel-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
     align-self: auto;
     display: block;
     justify-self: auto;
@@ -1130,6 +1146,15 @@ html.lenis body { height: auto; }
     line-height: 1.25;
     max-width: none;
     margin-top: 0.1rem;
+    /* Altura travada em 2 linhas — sem isso o card estica pro tamanho do
+       maior label (flex-direction: row estica os irmãos), e como
+       .pcs-panel-stats ainda está no fluxo flex isso empurrava o CTA
+       (margin-top: auto) pra baixo de forma diferente por produto. */
+    min-height: 1.55rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
   .pcs-scroll-hint {
     display: none;

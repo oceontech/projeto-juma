@@ -510,9 +510,6 @@ export function HomeProductShowcase() {
   const bottlesRef = useRef<(HTMLDivElement | null)[]>([])
   const dotsRef = useRef<(HTMLButtonElement | null)[]>([])
   const spotlightRef = useRef<SVGSVGElement>(null)
-  // <div> (não SVG): o spotlight do mobile virou um radial-gradient CSS —
-  // ver comentário no JSX.
-  const mobileSpotlightRef = useRef<HTMLDivElement>(null)
   const handoffStillRef = useRef<HTMLImageElement>(null)
   const hintRef = useRef<HTMLDivElement>(null)
 
@@ -597,14 +594,6 @@ export function HomeProductShowcase() {
           gsap.set(spotlightRef.current, { opacity: 0 })
           gsap.to(spotlightRef.current, {
             opacity: 0.5,
-            duration: 0.75,
-            delay: 0.75,
-            ease: 'power2.out',
-          })
-          // Spotlight: fade-in inicial — mobile
-          gsap.set(mobileSpotlightRef.current, { opacity: 0 })
-          gsap.to(mobileSpotlightRef.current, {
-            opacity: 0.85,
             duration: 0.75,
             delay: 0.75,
             ease: 'power2.out',
@@ -770,19 +759,9 @@ export function HomeProductShowcase() {
               0,
             )
 
-            // Spotlight: dim rápido, volta devagar
+            // Spotlight: dim rápido, volta devagar — só desktop (mobile é estático)
             tl.to(spotlightRef.current, { opacity: 0.2, duration: 0.15, ease: 'power2.in' }, 0)
               .to(spotlightRef.current, { opacity: 0.5, duration: 0.35, ease: 'power2.out' }, 0.35)
-              .to(
-                mobileSpotlightRef.current,
-                { opacity: 0.1, duration: 0.15, ease: 'power2.in' },
-                0,
-              )
-              .to(
-                mobileSpotlightRef.current,
-                { opacity: 0.85, duration: 0.35, ease: 'power2.out' },
-                0.35,
-              )
 
             // Carrossel de frascos
             if (from === 0 && index !== 0) {
@@ -925,7 +904,6 @@ export function HomeProductShowcase() {
               '--pcs-accent-bg': PRODUCTS[i].accent,
             })
             gsap.to(spotlightRef.current, { opacity: 0.5, duration: 0.4, overwrite: 'auto' })
-            gsap.to(mobileSpotlightRef.current, { opacity: 0.85, duration: 0.4, overwrite: 'auto' })
             bottles.forEach((b, bi) => gsap.set(b, getCatalogBottleProps(bi, i, isMobile)))
             gsap.set(handoffStillRef.current, { autoAlpha: 0 })
             const p = parts(products[i])
@@ -957,7 +935,7 @@ export function HomeProductShowcase() {
               zIndex: 30,
             })
             gsap.set([p0.text, p0.cta, ...p0.stats], { autoAlpha: 0 })
-            gsap.set([spotlightRef.current, mobileSpotlightRef.current], { opacity: 0 })
+            gsap.set(spotlightRef.current, { opacity: 0 })
             bottles.forEach((bottle, i) =>
               gsap.set(bottle, {
                 ...getCatalogBottleProps(i, 0, isMobile),
@@ -1046,6 +1024,25 @@ export function HomeProductShowcase() {
               // Mesma guarda do onEnter acima (índice E restoreVisual).
               if (currentIndexRef.current !== COUNT - 1 && !isTransitioning && !stepLocked) {
                 applyIndex(COUNT - 1)
+                /* Reentrada por baixo (Cultures) pousa o scrollY perto de
+                   `pinTrigger.end` — que não é mais o mesmo pixel de
+                   `indexToY(COUNT-1)` desde o `PIN_EDGE_INSET` (o último
+                   produto descansa 8px pra DENTRO da borda, pra não ficar no
+                   limiar de ligar/desligar o pin). O `onEnter`/handoff do
+                   vídeo já ganhou esse ajuste explícito (ver `onComplete` do
+                   `runHandoffIn`); faltava o espelho aqui — sem ele, uma
+                   volta rápida vinda de baixo landava com esse desvio de 8px
+                   sem correção nenhuma (o `settle` ignora de propósito o
+                   último produto no mobile), o que lia como "não pina
+                   direito" no último produto. */
+                if (isMobile) {
+                  const safeY = indexToY(COUNT - 1)
+                  if (Math.abs(window.scrollY - safeY) > 1) {
+                    lenisRef.current?.scrollTo(safeY, { immediate: true, force: true })
+                    window.scrollTo(0, safeY)
+                    ScrollTrigger.update()
+                  }
+                }
               }
             },
             onToggle: (self) => {
@@ -1171,7 +1168,7 @@ export function HomeProductShowcase() {
               '--pcs-accent-bg': PRODUCTS[0].accent,
             })
             gsap.set([p0.text, p0.cta, ...p0.stats], { autoAlpha: 0 })
-            gsap.set([spotlightRef.current, mobileSpotlightRef.current], { opacity: 0 })
+            gsap.set(spotlightRef.current, { opacity: 0 })
             // Durante o handoff o frame 16:9 cobre o produto 0; depois o teatro assume.
             products.forEach((el, i) => {
               if (i === 0) return
@@ -1253,11 +1250,6 @@ export function HomeProductShowcase() {
               0,
             )
             tl.to(spotlightRef.current, { opacity: 0.5, duration: 0.85, ease: 'power2.out' }, 0.18)
-            tl.to(
-              mobileSpotlightRef.current,
-              { opacity: 0.85, duration: 0.85, ease: 'power2.out' },
-              0.18,
-            )
             if (isMotion) {
               tl.fromTo(
                 p0.text,
@@ -1390,7 +1382,7 @@ export function HomeProductShowcase() {
               0,
             )
             tl.to(
-              [spotlightRef.current, mobileSpotlightRef.current],
+              spotlightRef.current,
               { opacity: 0, duration: 0.32, ease: 'power2.inOut' },
               0,
             )
@@ -1749,19 +1741,10 @@ export function HomeProductShowcase() {
           fillOpacity={0.6}
           style={{ transform: 'scaleX(-1)' }}
         />
-        {/* Mobile spotlight — feixe de cima para o produto.
-            Era o mesmo <Spotlight/> SVG do desktop com `stdDeviation={700}`
-            numa região de filtro de 10000×8000: um blur gaussiano desse
-            tamanho é dos elementos mais caros de rasterizar que existem, e
-            ele fica em cena o tempo todo dentro da seção pinada, com a
-            opacidade animada a cada troca de produto. Um `radial-gradient`
-            entrega o mesmo brilho difuso sem filtro nenhum — o navegador
-            pinta um gradiente, não roda convolução. */}
-        <div
-          ref={mobileSpotlightRef}
-          aria-hidden
-          className="pcs-spotlight-mobile block lg:hidden"
-        />
+        {/* Mobile spotlight — feixe de cima para o produto, sempre ligado
+            (sem animação de opacidade via JS: menos código, sem risco de
+            piscar). Opacidade fixa no CSS, ver .pcs-spotlight-mobile. */}
+        <div aria-hidden className="pcs-spotlight-mobile block lg:hidden" />
 
         <div className="pcs-stage">
           {/* Still de ponte entre o vídeo branco e o catálogo — mesmo asset (e
