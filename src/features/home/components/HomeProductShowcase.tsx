@@ -985,16 +985,25 @@ export function HomeProductShowcase() {
                  o resultado mudar por um pixel que seja, o scrollY (ainda em
                  voo, a caminho do próximo produto) pode ler como "saiu e voltou
                  a entrar" — e sem esta guarda o reset pra produto 0 cancelava o
-                 passo que o usuário tinha acabado de dar, no meio do gesto. */
-              if (currentIndexRef.current !== 0 && !isTransitioning && !stepLocked) applyIndex(0)
-              if (!handingOff) restoreVisual()
+                 passo que o usuário tinha acabado de dar, no meio do gesto.
+                 `restoreVisual()` precisa da MESMA guarda: ela dá `gsap.set`
+                 instantâneo (sem animação) nos 4 frascos e nos textos pro
+                 estado de repouso do índice atual — se isso dispara em cima de
+                 uma transição com essas MESMAS propriedades ainda em voo
+                 (frasco a meio caminho, opacidade subindo), o `.set()` trava
+                 tudo na posição final na hora, cortando a animação e lendo
+                 como um pulo — mesmo sem o índice ter sido resetado. */
+              if (!isTransitioning && !stepLocked) {
+                if (currentIndexRef.current !== 0) applyIndex(0)
+                if (!handingOff) restoreVisual()
+              }
             },
             onEnterBack: () => {
               if (!insidePin()) return
               leavingDown = false
               lockLenis()
               window.dispatchEvent(new CustomEvent('nav:hide'))
-              // Mesma guarda do onEnter acima.
+              // Mesma guarda do onEnter acima (índice E restoreVisual).
               if (currentIndexRef.current !== COUNT - 1 && !isTransitioning && !stepLocked) {
                 applyIndex(COUNT - 1)
               }
