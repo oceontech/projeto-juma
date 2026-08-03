@@ -659,6 +659,41 @@ function MobileVersion({ t }: { t: TFn }) {
         cooldownRef.current = performance.now() + 350
       }
 
+      /* Mata o momentum/inércia nativo do touch (iOS/Android) na hora — não
+         espera ele desacelerar sozinho. O problema que isto resolve: o
+         usuário chega nesta seção com um flick vindo de CIMA (rolando a
+         página normal, ainda fora do pin). Assim que o dedo solta, o
+         navegador entra em rolagem por inércia — uma animação PRÓPRIA dele,
+         fora do controle de `touchmove`/`preventDefault` (que só vale
+         enquanto o dedo está na tela). Essa inércia atravessa o começo do
+         pin e continua rolando `window.scrollY` para dentro do range dele
+         (por ser `pin:true`, o palco fica visualmente parado — nada anima,
+         nada muda na tela — mas o scroll interno continua avançando sozinho,
+         sem nenhum `stepForward()` ter sido chamado). O PRIMEIRO gesto real
+         do usuário depois disso cai bem no meio dessa inércia ainda ativa,
+         competindo com ela — é exatamente a sensação de "travado, demora pra
+         sair da fase 1" relatada, e só acontece na ENTRADA porque é o único
+         momento em que o scroll não é 100% controlado por `snapToPhase()`
+         (todo passo seguinte já parte de uma posição exata escrita por nós).
+         `overflow: hidden` por um frame é a técnica padrão pra isso: torna o
+         documento não-rolável por um instante, o que força o navegador a
+         abortar qualquer animação de inércia em andamento; ao devolver o
+         overflow, o scroll já está parado e `snapToPhase()` (chamado logo
+         em seguida) alinha no pixel exato da fase 1 — sem inércia residual
+         pra brigar com o próximo gesto do usuário. */
+      const killMomentumScroll = () => {
+        const de = document.documentElement
+        const body = document.body
+        const prevHtml = de.style.overflow
+        const prevBody = body.style.overflow
+        de.style.overflow = 'hidden'
+        body.style.overflow = 'hidden'
+        requestAnimationFrame(() => {
+          de.style.overflow = prevHtml
+          body.style.overflow = prevBody
+        })
+      }
+
       pinTrigger = ScrollTrigger.create({
         trigger: root.current,
         start: 'top top',
@@ -666,6 +701,8 @@ function MobileVersion({ t }: { t: TFn }) {
         pin: stageTrigger,
         pinSpacing: true,
         anticipatePin: 1,
+        onEnter: () => { killMomentumScroll(); if (!playing) snapToPhase() },
+        onEnterBack: () => { killMomentumScroll(); if (!playing) snapToPhase() },
       })
 
       const canStep = () => !playing && !releasing && performance.now() >= cooldownRef.current
@@ -755,6 +792,9 @@ function MobileVersion({ t }: { t: TFn }) {
         else stepBackward()
       }
 
+      // 80ms (era 200ms): rede de segurança pro `killMomentumScroll` acima —
+      // se sobrar QUALQUER resíduo de inércia mesmo assim, corrige rápido o
+      // bastante pra não disputar posição com o próximo gesto do usuário.
       let idleTimer: ReturnType<typeof setTimeout> | undefined
       const onScroll = () => {
         clearTimeout(idleTimer)
@@ -762,7 +802,7 @@ function MobileVersion({ t }: { t: TFn }) {
           if (!active() || playing) return
           enforceVisuals()
           snapToPhase()
-        }, 200)
+        }, 80)
       }
 
       window.addEventListener('wheel', onWheel, { passive: false, capture: true })
