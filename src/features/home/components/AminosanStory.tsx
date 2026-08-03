@@ -364,14 +364,15 @@ function MobileVersion({ t }: { t: TFn }) {
       // ── Estados estáticos: cada fase de repouso descrita por inteiro ──────
       /* Todo estado de repouso passa por aqui. Só reseekar o vídeo se ele
          estiver visivelmente longe do alvo (a chegada natural do
-         tick/timeupdate já para a ~0,02–0,05s dele) — reseekar de novo por
-         cima de um frame que já está certo é o que causava o flash reportado
-         nas fases 2 e 3: um seek redundante ainda dispara o pipeline de
-         decodificação do navegador. */
+         tick/timeupdate já para a ~0,02–0,05s dele; o passo do reverso tem
+         teto de 150ms, então uma parada um pouco mais folgada ainda é
+         esperada) — reseekar de novo por cima de um frame que já está quase
+         certo é o que causava flash: um seek redundante ainda dispara o
+         pipeline de decodificação do navegador, mesmo pra um pulo pequeno. */
       const restoreForwardVideo = (targetTime2: number | null) => {
         const v = videoRef.current
         if (v) {
-          if (targetTime2 !== null && Math.abs(v.currentTime - targetTime2) > 0.1) {
+          if (targetTime2 !== null && Math.abs(v.currentTime - targetTime2) > 0.25) {
             try { v.currentTime = targetTime2 } catch {}
           }
           try { v.pause() } catch {}
@@ -500,9 +501,9 @@ function MobileVersion({ t }: { t: TFn }) {
           if (s === 0) {
             showPhaseText(act1Items)
             gsap.to(oldCalloutRef.current, { autoAlpha: 1, duration: 0.3, delay: 0.1, overwrite: 'auto' })
-            gsap.set(brandMarkRef.current, { autoAlpha: 1 })
+            gsap.to(brandMarkRef.current, { autoAlpha: 1, duration: 0.3, overwrite: 'auto' })
           } else if (s === 1) {
-            gsap.set(brandMarkRef.current, { autoAlpha: 1 })
+            gsap.to(brandMarkRef.current, { autoAlpha: 1, duration: 0.3, overwrite: 'auto' })
             showPhaseText(act3Items)
             gsap.to(newCalloutRef.current, { autoAlpha: 1, duration: 0.3, delay: 0.1, overwrite: 'auto' })
           } else if (s === 2) {
@@ -818,16 +819,16 @@ function MobileVersion({ t }: { t: TFn }) {
       }
       document.addEventListener('visibilitychange', onVisibility)
 
-      /* Aquecimento por IDLE (igual à HeroJornada), não por proximidade de
-         scroll: esperar o usuário chegar a duas telas de distância ainda
-         deixa pouco tempo pra baixar + decodificar o primeiro frame numa rede
-         de celular mais lenta — era essa espera que travava o primeiro gesto
-         bem na entrada da seção (a fase 1, o primeiro frame). O vídeo é
-         pequeno (2MB) e a seção não é a primeira da página, então esperar o
-         `load` da página e só então usar tempo ocioso do navegador é seguro:
-         não compete com o que decide o LCP, mas começa MUITO mais cedo que
-         "a duas telas de distância" — na prática, cedo o bastante pra estar
-         pronto antes de o usuário rolar até aqui. */
+      /* Aquecimento por IDLE, não por proximidade de scroll nem atrás do
+         `load` da página inteira: esperar o `window.load` (todo recurso de
+         toda seção da home, não só o que está à vista) podia levar vários
+         segundos numa rede mais lenta — e nesse meio-tempo um usuário que já
+         começou a rolar chegava à seção ANTES do aquecimento sequer ter sido
+         agendado. Era essa janela que travava o primeiro gesto bem na entrada
+         (a fase 1, o primeiro frame). `requestIdleCallback` já tem seu próprio
+         mecanismo de não atrapalhar trabalho crítico (cede pra o que tiver
+         prioridade maior, com teto de tempo garantido) — não precisa também
+         esperar o load completo por cima disso. */
       let warmed = false
       const runWarmup = () => {
         if (warmed) return
@@ -836,18 +837,18 @@ function MobileVersion({ t }: { t: TFn }) {
         video.play().then(() => { if (!playing) { video.pause(); video.currentTime = 0 } }).catch(() => {})
       }
       let idleHandle: number | undefined
-      const scheduleWarmup = () => {
-        if (typeof window.requestIdleCallback === 'function') {
-          idleHandle = window.requestIdleCallback(runWarmup, { timeout: 2000 })
-        } else {
-          idleHandle = window.setTimeout(runWarmup, 500)
-        }
+      if (typeof window.requestIdleCallback === 'function') {
+        idleHandle = window.requestIdleCallback(runWarmup, { timeout: 1500 })
+      } else {
+        idleHandle = window.setTimeout(runWarmup, 300)
       }
-      if (document.readyState === 'complete') scheduleWarmup()
-      else window.addEventListener('load', scheduleWarmup, { once: true })
+      // Sinal mais cedo ainda: o primeiro scroll da PÁGINA INTEIRA (não só a
+      // proximidade desta seção) — indica que o usuário já está navegando e
+      // pode chegar aqui em poucos segundos, mesmo antes do idle disparar.
+      window.addEventListener('scroll', runWarmup, { once: true, passive: true })
 
-      // Rede de segurança: se o idle não disparar por algum motivo (aba em
-      // segundo plano no load, por exemplo), a proximidade de scroll cobre.
+      // Rede de segurança final: se nada acima disparar por algum motivo, a
+      // proximidade de scroll cobre.
       const warmupFallback = new IntersectionObserver(
         (entries) => {
           if (!entries.some((e) => e.isIntersecting)) return
@@ -861,7 +862,7 @@ function MobileVersion({ t }: { t: TFn }) {
       return () => {
         observer.disconnect()
         warmupFallback.disconnect()
-        window.removeEventListener('load', scheduleWarmup)
+        window.removeEventListener('scroll', runWarmup)
         if (idleHandle !== undefined) {
           if (typeof window.cancelIdleCallback === 'function') window.cancelIdleCallback(idleHandle)
           else window.clearTimeout(idleHandle)
