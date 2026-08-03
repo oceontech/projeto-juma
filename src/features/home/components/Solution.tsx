@@ -21,9 +21,9 @@ export function Solution() {
   const ctaRef = useRef<HTMLDivElement>(null)
 
   const images = [
-    'https://images.unsplash.com/photo-1615811361523-6bd03d7748e7?auto=format&fit=crop&w=800&q=80', // Campo agrícola/Cultura
-    'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?auto=format&fit=crop&w=800&q=80', // Agrônomo com tablet / Planejamento
-    'https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&w=800&q=80', // Time técnico/Conversa
+    '/solution/trator-campo-aberto.webp', // Campo agrícola/Cultura
+    '/solution/campo-crescendo.webp', // Agrônomo com tablet / Planejamento
+    '/solution/produtor-tecnico.webp', // Time técnico/Conversa
   ]
 
   useGSAP(

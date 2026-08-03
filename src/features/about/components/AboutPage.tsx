@@ -621,23 +621,51 @@ export function AboutPage() {
             </div>
           </div>
 
-          {/* Foto grande: acervo da família; demais do banco de imagens até chegar o acervo completo */}
+          {/* Bento Grid de imagens aéreas (drone) representando a presença da Juma Agro pelo Brasil */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-[60vh] md:h-[80vh]">
             {[
-              { src: '/assets/about/bento/gallery-suporte-campo.webp?v=20260731c', span: 'col-span-2 row-span-2', sizes: '(min-width: 768px) 50vw, 100vw' },
-              { src: '/heritage/familia-matino.webp', span: '', sizes: '(min-width: 768px) 25vw, 50vw' },
-              { src: '/assets/about/bento/gallery-ensaios-campo.webp?v=20260731c', span: '', sizes: '(min-width: 768px) 25vw, 50vw' },
-              { src: '/assets/about/bento/values-comprometimento.webp?v=20260731c', span: 'col-span-2', sizes: '(min-width: 768px) 50vw, 100vw' },
+              {
+                src: '/about/drone-sp.webp',
+                alt: 'Vista aérea de lavouras e pivôs de irrigação em São Paulo e Sudeste',
+                caption: 'Sede & Região Sudeste (SP, MG)',
+                span: 'col-span-2 row-span-2',
+                sizes: '(min-width: 768px) 50vw, 100vw',
+              },
+              {
+                src: '/about/drone-mt.webp',
+                alt: 'Vista superior de drone das lavouras no Cerrado e Centro-Oeste',
+                caption: 'Cerrado & Centro-Oeste (MT, MS, GO)',
+                span: 'col-span-1',
+                sizes: '(min-width: 768px) 25vw, 50vw',
+              },
+              {
+                src: '/about/drone-pr.webp',
+                alt: 'Vista aérea de colinas agrícolas e lavouras no Sul do Brasil',
+                caption: 'Região Sul (PR, RS, SC)',
+                span: 'col-span-1',
+                sizes: '(min-width: 768px) 25vw, 50vw',
+              },
+              {
+                src: '/about/drone-ba.webp',
+                alt: 'Panorâmica aérea de lavouras na fronteira agrícola do MATOPIBA',
+                caption: 'Fronteira Agrícola (BA, TO, MA, PI)',
+                span: 'col-span-2',
+                sizes: '(min-width: 768px) 50vw, 100vw',
+              },
             ].map((photo, i) => (
               <div key={i} data-gal-img className={`${photo.span} bg-foreground/5 rounded-3xl overflow-hidden relative group`}>
                 <Image
                   src={photo.src}
-                  alt={t('galleryTitle')}
+                  alt={photo.alt}
                   fill
                   sizes={photo.sizes}
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                  <span className="text-white font-montserrat font-bold text-sm md:text-base translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                    {photo.caption}
+                  </span>
+                </div>
               </div>
             ))}
           </div>

@@ -360,23 +360,51 @@ export function ExperiencePage() {
           </div>
         </div>
 
-        {/* Banco de imagens (Unsplash) até chegarem as fotos dos eventos da Juma Experience */}
+        {/* Bento Grid de imagens reais e tematizadas da Juma Experience */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-[60vh] md:h-[80vh]">
           {[
-            { src: 'https://images.unsplash.com/photo-1589923188900-85dae523342b?q=80&w=1400&auto=format&fit=crop', span: 'col-span-2 row-span-2', sizes: '(min-width: 768px) 50vw, 100vw' },
-            { src: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?q=80&w=800&auto=format&fit=crop', span: '', sizes: '(min-width: 768px) 25vw, 50vw' },
-            { src: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=800&auto=format&fit=crop', span: '', sizes: '(min-width: 768px) 25vw, 50vw' },
-            { src: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?q=80&w=1200&auto=format&fit=crop', span: 'col-span-2', sizes: '(min-width: 768px) 50vw, 100vw' },
+            {
+              src: '/experience/fabrica.webp',
+              alt: 'Tour pela fábrica e unidade de produção da Juma Agro',
+              caption: 'Tour pela Fábrica & Produção',
+              span: 'col-span-2 row-span-2',
+              sizes: '(min-width: 768px) 50vw, 100vw',
+            },
+            {
+              src: '/experience/laboratorio.webp',
+              alt: 'Laboratório de controle de qualidade e pesquisa de aminoácidos',
+              caption: 'Pesquisa & Laboratório',
+              span: 'col-span-1',
+              sizes: '(min-width: 768px) 25vw, 50vw',
+            },
+            {
+              src: '/experience/fundador.webp',
+              alt: 'Bate-papo técnico e tira-dúvidas diretamente no campo',
+              caption: 'Bate-Papo & Tira-Dúvidas',
+              span: 'col-span-1',
+              sizes: '(min-width: 768px) 25vw, 50vw',
+            },
+            {
+              src: '/experience/campo.webp',
+              alt: 'Ensaios em campo e vivência em lavouras parceiras',
+              caption: 'Vivência & Ensaios na Lavoura',
+              span: 'col-span-2',
+              sizes: '(min-width: 768px) 50vw, 100vw',
+            },
           ].map((photo, i) => (
             <div key={i} data-gal-img className={`${photo.span} bg-foreground/5 rounded-3xl overflow-hidden relative group`}>
               <Image
                 src={photo.src}
-                alt={t('galleryTitle')}
+                alt={photo.alt}
                 fill
                 sizes={photo.sizes}
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                <span className="text-white font-montserrat font-bold text-sm md:text-base translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                  {photo.caption}
+                </span>
+              </div>
             </div>
           ))}
         </div>

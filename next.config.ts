@@ -34,6 +34,15 @@ const nextConfig: NextConfig = {
         pathname: '/desata/**',
       },
       {
+        pathname: '/solution/**',
+      },
+      {
+        pathname: '/linha-produtos/**',
+      },
+      {
+        pathname: '/about/**',
+      },
+      {
         pathname: '/hero/**',
       },
       {
