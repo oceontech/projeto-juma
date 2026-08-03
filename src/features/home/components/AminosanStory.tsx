@@ -172,8 +172,11 @@ export function AminosanStory() {
  * Substitui o compartilhamento do clipe 1920×1080 do desktop (que exigia
  * `object-contain` + reescala via JS para caber no celular — ver `stageZoom`
  * na CinematicVersion, fonte da maior parte dos travamentos relatados em
- * mobile). Aqui o vídeo já nasce 1080×1920 e não precisa de nenhuma
- * reescala: só `object-cover`.
+ * mobile). Aqui o vídeo já nasce 1080×1920 e não precisa de reescala via JS
+ * — só `object-contain`: a composição tem bastante margem em cima/embaixo e
+ * pouca nas laterais, então acompanhar a LARGURA (sem cortar o frasco) e
+ * deixar sobrar espaço vertical é o certo — o excedente é preenchido pelo
+ * próprio fundo branco do vídeo, idêntico ao da seção, e por isso invisível.
  *
  * Mesmo contrato de gesto do HeroJornada/CinematicVersion — a DIREÇÃO do
  * gesto manda (play() nativo pra frente, passo manual de currentTime pra
@@ -473,7 +476,14 @@ function MobileVersion({ t }: { t: TFn }) {
         } else if (direction === 'backward') {
           if (!v.paused) v.pause()
           if (v.seeking) { animFrame = requestAnimationFrame(tick); return }
-          const elapsed = (now - lastTime) / 1000
+          // Teto de 150ms de vídeo por tick: sem ele, um rAF atrasado (thread
+          // ocupada, aparelho mais fraco) faz `elapsed` saltar — e o passo
+          // seguinte pula direto por cima de um ou mais pontos de pausa antes
+          // de o `if` abaixo notar que já passou do alvo. 150ms é folgado o
+          // bastante pra não travar o reverso num aparelho só um pouco mais
+          // lento (as fases ficam a 1,5s+ uma da outra — nenhum tick sozinho
+          // alcança a próxima), mas segura o estrago de um engasgo real.
+          const elapsed = Math.min((now - lastTime) / 1000, 0.15)
           lastTime = now
           const current = v.currentTime
           const nextTime = Math.max(0, current - elapsed)
@@ -737,27 +747,54 @@ function MobileVersion({ t }: { t: TFn }) {
       }
       document.addEventListener('visibilitychange', onVisibility)
 
-      /* Margem maior que a da CinematicVersion (100%): aquele clipe compartilha
-         banda com o resto da cadeia de decisão do desktop; este é um arquivo
-         único e pequeno (2MB), então vale começar a baixar mais cedo — dá
-         mais tempo de sobra pra terminar antes do primeiro gesto do usuário
-         chegar. Sem isso, o primeiro avanço (fase 1→2) podia ficar esperando
-         buffer em rede de celular mais lenta, e a seção "travava" bem na
-         entrada, exatamente onde o usuário reclamou. */
-      const warmup = new IntersectionObserver(
+      /* Aquecimento por IDLE (igual à HeroJornada), não por proximidade de
+         scroll: esperar o usuário chegar a duas telas de distância ainda
+         deixa pouco tempo pra baixar + decodificar o primeiro frame numa rede
+         de celular mais lenta — era essa espera que travava o primeiro gesto
+         bem na entrada da seção (a fase 1, o primeiro frame). O vídeo é
+         pequeno (2MB) e a seção não é a primeira da página, então esperar o
+         `load` da página e só então usar tempo ocioso do navegador é seguro:
+         não compete com o que decide o LCP, mas começa MUITO mais cedo que
+         "a duas telas de distância" — na prática, cedo o bastante pra estar
+         pronto antes de o usuário rolar até aqui. */
+      let warmed = false
+      const runWarmup = () => {
+        if (warmed) return
+        warmed = true
+        if (video.preload !== 'auto') { video.preload = 'auto'; video.load() }
+        video.play().then(() => { if (!playing) { video.pause(); video.currentTime = 0 } }).catch(() => {})
+      }
+      let idleHandle: number | undefined
+      const scheduleWarmup = () => {
+        if (typeof window.requestIdleCallback === 'function') {
+          idleHandle = window.requestIdleCallback(runWarmup, { timeout: 2000 })
+        } else {
+          idleHandle = window.setTimeout(runWarmup, 500)
+        }
+      }
+      if (document.readyState === 'complete') scheduleWarmup()
+      else window.addEventListener('load', scheduleWarmup, { once: true })
+
+      // Rede de segurança: se o idle não disparar por algum motivo (aba em
+      // segundo plano no load, por exemplo), a proximidade de scroll cobre.
+      const warmupFallback = new IntersectionObserver(
         (entries) => {
           if (!entries.some((e) => e.isIntersecting)) return
-          warmup.disconnect()
-          if (video.preload !== 'auto') { video.preload = 'auto'; video.load() }
-          video.play().then(() => { if (!playing) { video.pause(); video.currentTime = 0 } }).catch(() => {})
+          warmupFallback.disconnect()
+          runWarmup()
         },
         { rootMargin: '200% 0px' },
       )
-      if (root.current) warmup.observe(root.current)
+      if (root.current) warmupFallback.observe(root.current)
 
       return () => {
         observer.disconnect()
-        warmup.disconnect()
+        warmupFallback.disconnect()
+        window.removeEventListener('load', scheduleWarmup)
+        if (idleHandle !== undefined) {
+          if (typeof window.cancelIdleCallback === 'function') window.cancelIdleCallback(idleHandle)
+          else window.clearTimeout(idleHandle)
+        }
         window.clearInterval(watchdog)
         document.removeEventListener('visibilitychange', onVisibility)
         pinTrigger?.kill()
@@ -790,7 +827,7 @@ function MobileVersion({ t }: { t: TFn }) {
           muted playsInline preload="metadata"
           poster="/heritage/mobile/aminosan-transformacao-poster.webp"
           aria-label={t('videoAlt')}
-          className="absolute inset-0 z-0 h-full w-full object-cover object-bottom opacity-0"
+          className="absolute inset-0 z-0 h-full w-full object-contain opacity-0"
         >
           <source src="/heritage/mobile/aminosan-transformacao.mp4" type="video/mp4" />
         </video>
@@ -805,7 +842,7 @@ function MobileVersion({ t }: { t: TFn }) {
           aria-hidden
           fill sizes="100vw"
           quality={85}
-          className="absolute inset-0 z-0 h-full w-full object-cover object-bottom opacity-0"
+          className="absolute inset-0 z-0 h-full w-full object-contain opacity-0"
         />
 
         <AminosanBrandMark refEl={brandMarkRef} />
