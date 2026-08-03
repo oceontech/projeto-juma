@@ -689,17 +689,38 @@ function MobileVersion({ t }: { t: TFn }) {
          overflow, o scroll já está parado e `snapToPhase()` (chamado logo
          em seguida) alinha no pixel exato da fase 1 — sem inércia residual
          pra brigar com o próximo gesto do usuário. */
-      const killMomentumScroll = () => {
+      let momentumKillRaf = 0
+      let momentumKillTimeout: ReturnType<typeof setTimeout> | null = null
+
+      const killMomentumScroll = (targetPhaseIdx = 0) => {
         const de = document.documentElement
         const body = document.body
         const prevHtml = de.style.overflow
         const prevBody = body.style.overflow
+
+        if (momentumKillRaf) cancelAnimationFrame(momentumKillRaf)
+        if (momentumKillTimeout) clearTimeout(momentumKillTimeout)
+
         de.style.overflow = 'hidden'
         body.style.overflow = 'hidden'
-        requestAnimationFrame(() => {
-          de.style.overflow = prevHtml
-          body.style.overflow = prevBody
-        })
+
+        const targetY = phaseY(targetPhaseIdx)
+        let frames = 0
+
+        const lockFrame = () => {
+          window.scrollTo(0, targetY)
+          frames++
+          if (frames < 15) {
+            momentumKillRaf = requestAnimationFrame(lockFrame)
+          } else {
+            de.style.overflow = prevHtml
+            body.style.overflow = prevBody
+            window.scrollTo(0, targetY)
+            ScrollTrigger.update()
+            momentumKillRaf = 0
+          }
+        }
+        momentumKillRaf = requestAnimationFrame(lockFrame)
       }
 
       pinTrigger = ScrollTrigger.create({
@@ -709,8 +730,18 @@ function MobileVersion({ t }: { t: TFn }) {
         pin: stageTrigger,
         pinSpacing: true,
         anticipatePin: 1,
-        onEnter: () => { killMomentumScroll(); if (!playing) snapToPhase() },
-        onEnterBack: () => { killMomentumScroll(); if (!playing) snapToPhase() },
+        onEnter: () => {
+          step = 0
+          phase = 'bottle1988'
+          showStaticBottle1988()
+          killMomentumScroll(0)
+        },
+        onEnterBack: () => {
+          step = LAST - 1
+          phase = 'linha'
+          showStaticLinha()
+          killMomentumScroll(LAST - 1)
+        },
       })
 
       const canStep = () => !playing && !releasing && performance.now() >= cooldownRef.current
@@ -954,6 +985,8 @@ function MobileVersion({ t }: { t: TFn }) {
         pinTrigger?.kill()
         pinTrigger = null
         if (animFrame) cancelAnimationFrame(animFrame)
+        if (momentumKillRaf) cancelAnimationFrame(momentumKillRaf)
+        if (momentumKillTimeout) clearTimeout(momentumKillTimeout)
         clearTimeout(idleTimer)
         lockScroll(false)
 
