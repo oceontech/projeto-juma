@@ -142,56 +142,10 @@ const PRODUCTS: ProductEntry[] = [
 
 const COUNT = PRODUCTS.length
 
-/* ── Ponte de geometria com a seção Aminosan ───────────────────────────
-   O vídeo de transição termina num frame 16:9 servido como imagem
-   (`aminosan-catalogo.png`, 1777×1000: o trio pequeno no meio de muita
-   margem vazia) e o catálogo mostra o MESMO render recortado justo
-   (`aminosan-destaque.png`, 1000×1000). As frações abaixo são o retângulo
-   alpha da arte dentro de cada canvas — sem elas não há como sobrepor os
-   dois, porque as caixas têm proporções diferentes e a arte nunca cai no
-   mesmo lugar. Medidas sobre o alpha dos PNGs; refazer se o asset mudar. */
-const HANDOFF_ART = {
-  /** /produtos/aminosan-catalogo.png (1777×1000, desktop) — frame final do vídeo */
-  stillDesktop: { x: 0.3292, y: 0.344, w: 0.3455, h: 0.489 },
-  /** /heritage/mobile/aminosan-catalogo-mobile.webp (1080×1920, mobile) — medido
-   *  com `ffmpeg ... alphaextract,bbox` sobre o canal alfa do arquivo. Composição
-   *  diferente da desktop (retrato nativo, sem a margem 16:9), então a caixa não
-   *  pode ser a mesma — refazer esta medida se o asset mudar. */
-  stillMobile: { x: 0.2046, y: 0.3948, w: 0.5907, h: 0.2682 },
-  /** /produtos/aminosan-destaque.png — frasco do catálogo */
-  bottle: { x: 0.055, y: 0.144, w: 0.891, h: 0.711 },
-} as const
-
 /** O corte aqui é 1024px (mesmo de `stillFullFrameProps`), não os 768px do
  *  `isMobile` do gsap.matchMedia deste componente — ver comentário longo
  *  em `stillFullFrameProps`. */
 const isNarrowStage = () => typeof window !== 'undefined' && window.innerWidth < 1024
-
-type ArtBox = { x: number; y: number; w: number; h: number }
-
-/** Centro e altura (px de viewport) onde a ARTE de um <img> aparece de fato.
- *  Resolve o object-fit e já vem com os transforms aplicados, então serve
- *  para alinhar dois elementos de caixas completamente diferentes. */
-function artRect(img: HTMLImageElement | null, art: ArtBox) {
-  if (!img) return null
-  const nw = img.naturalWidth
-  const nh = img.naturalHeight
-  const box = img.getBoundingClientRect()
-  if (!nw || !nh || !box.width || !box.height) return null
-  const cover = getComputedStyle(img).objectFit === 'cover'
-  const fit = cover
-    ? Math.max(box.width / nw, box.height / nh)
-    : Math.min(box.width / nw, box.height / nh)
-  const cw = nw * fit
-  const ch = nh * fit
-  const left = box.left + (box.width - cw) / 2
-  const top = box.top + (box.height - ch) / 2
-  return {
-    cx: left + (art.x + art.w / 2) * cw,
-    cy: top + (art.y + art.h / 2) * ch,
-    h: art.h * ch,
-  }
-}
 
 /** Geometria do still idêntica ao frame final do vídeo do Aminosan.
  *  O breakpoint aqui é 1024px — o `max-lg:` das classes do trio na seção de
@@ -828,92 +782,6 @@ export function HomeProductShowcase() {
             gsap.set([p.text, p.cta, ...p.stats], { autoAlpha: 1, x: 0, y: 0 })
           }
 
-          /* ── Ponte com o frame final do vídeo ──────────────────────
-             Mede onde a arte do trio cai no still (frame 16:9 full-bleed) e
-             onde ela cai no frasco em repouso no catálogo (68vh contido), e
-             devolve o transform que faz os dois coincidirem pixel a pixel.
-             Medir em vez de chutar números é o que faz a transição fechar em
-             qualquer viewport: as duas caixas têm proporção diferente, então
-             uma escala fixa acerta numa tela e erra em todas as outras. */
-          const measureBridge = () => {
-            const catalogCenter = getCatalogBottleProps(0, 0, isMobile)
-            const bottle = bottles[0]
-            const still = handoffStillRef.current
-            const fallback = { catalogCenter, start: null as RoleProps | null }
-            if (!bottle || !still) return fallback
-
-            const bottleImg = bottle.querySelector<HTMLImageElement>('.pcs-bottle')
-            gsap.set(bottle, { ...catalogCenter, autoAlpha: 0, opacity: 0 })
-            const rest = artRect(bottleImg, HANDOFF_ART.bottle)
-            gsap.set(still, stillFullFrameProps())
-            const frame = artRect(still, isNarrowStage() ? HANDOFF_ART.stillMobile : HANDOFF_ART.stillDesktop)
-            if (!rest || !frame || rest.h < 1) return fallback
-
-            const baseX = typeof catalogCenter.x === 'number' ? catalogCenter.x : 0
-            const baseY = typeof catalogCenter.y === 'number' ? catalogCenter.y : 0
-            const scale = (catalogCenter.scale ?? 1) * (frame.h / rest.h)
-            // Segunda medição: o transform-origin do frasco não é o centro da
-            // caixa, então o resíduo de posição depois de escalar sai medido,
-            // não previsto — é o que evita o pulinho no fim do dissolve.
-            gsap.set(bottle, { scale })
-            const probe = artRect(bottleImg, HANDOFF_ART.bottle)
-            if (!probe) return fallback
-
-            return {
-              catalogCenter,
-              start: {
-                ...catalogCenter,
-                scale,
-                x: baseX + (frame.cx - probe.cx),
-                y: baseY + (frame.cy - probe.cy),
-              } as RoleProps,
-            }
-          }
-
-          /** Só o transform — o resto da caixa é igual nas duas pontas. */
-          const bridgeTransform = (props: RoleProps) => ({
-            scale: props.scale ?? 1,
-            x: typeof props.x === 'number' ? props.x : 0,
-            y: typeof props.y === 'number' ? props.y : 0,
-          })
-
-          /* Ponte medida com ANTECEDÊNCIA, fora do instante do handoff.
-             `measureBridge` faz três leituras de layout forçadas (write→read
-             repetido) — reportaram o encolhimento de entrada como um tranco/
-             piscada mesmo depois de trocar `ScrollTrigger.refresh()` por
-             `.update()` no releaseForward do Aminosan. A saída (runHandoffOut)
-             já mede a ponte bem ANTES do próprio salto de scroll (que só
-             acontece no onComplete da timeline, ~0,6-0,9s depois) — o custo do
-             reflow tem uma timeline inteira pela frente para ser absorvido
-             sem competir com nada. A entrada (runHandoffIn) media na hora
-             exata do salto, empilhando esse custo em cima do próprio salto E
-             do início de várias animações simultâneas (cor de fundo,
-             spotlight, texto, os outros três frascos) — é essa pilha, não o
-             alinhamento (que mede certo quadro a quadro), o tranco relatado.
-             Medir ociosamente de antemão e só LER o cache no handoff resolve
-             os dois lados com a mesma medição, sem reflow no frame crítico. */
-          let bridgeCache: ReturnType<typeof measureBridge> | null = null
-          const warmBridgeCache = () => {
-            // measureBridge desloca o frasco 0 pra medir — nunca durante uma
-            // transição/handoff em andamento, senão o deslocamento aparece.
-            if (handingOff || isTransitioning) return
-            bridgeCache = measureBridge()
-            if (bottles[0]) {
-              gsap.set(bottles[0], getCatalogBottleProps(0, currentIndexRef.current, isMobile))
-            }
-          }
-          warmBridgeCache()
-          // Só recalcula em resize de LARGURA — mudança de altura sozinha no
-          // mobile é a barra de endereço escondendo/aparecendo (mesma guarda
-          // usada em todo o resto do arquivo), não uma mudança real de layout.
-          let bridgeWidth = window.innerWidth
-          const onBridgeResize = () => {
-            if (window.innerWidth === bridgeWidth) return
-            bridgeWidth = window.innerWidth
-            warmBridgeCache()
-          }
-          window.addEventListener('resize', onBridgeResize)
-
           const prepareHandoffIn = () => {
             handingOff = true
             leavingUp = false
@@ -1081,11 +949,11 @@ export function HomeProductShowcase() {
           /* ── Handoff vindo da seção Aminosan ───────────────────────
              O vídeo de transição termina no trio Aminosan sobre fundo
              branco; o catálogo entra branco e a cor + textos do produto 0
-             aparecem gradualmente enquanto o auto-scroll assenta no pin.
-             O frasco de verdade já entra em cena sobreposto ao frame do
-             vídeo e faz o caminho até o repouso do catálogo num tween só —
-             não existe mais troca de elemento no meio (era ela que dava o
-             salto de tamanho e a queda de nitidez). */
+             aparecem gradualmente enquanto o auto-scroll assenta no pin. O
+             still (frame congelado do vídeo) cobre a tela e faz um crossfade
+             simples com o frasco de verdade já no lugar de repouso — ver
+             comentário logo abaixo sobre por que não é mais um tween de
+             tamanho/posição casado por medição de layout. */
           const runHandoffIn = () => {
             handingOff = true
             leavingUp = false
@@ -1114,21 +982,27 @@ export function HomeProductShowcase() {
               gsap.set([p.text, p.cta, ...p.stats], { autoAlpha: 0 })
             })
 
-            // Lê a ponte já medida ociosamente (ver `warmBridgeCache` acima)
-            // — medir de novo aqui, na hora exata do salto, é o que empilhava
-            // o reflow em cima do próprio salto e das animações que começam
-            // juntas. Sem cache pronto (entrada direta, ainda sem idle
-            // passado), mede na hora como antes.
-            const { catalogCenter, start } = bridgeCache ?? measureBridge()
+            /* Crossfade simples — sem medir geometria ao vivo. A versão
+               anterior (`measureBridge`) lia o layout de still e frasco na
+               hora exata do handoff pra calcular um transform que fizesse o
+               frasco "nascer" do tamanho do vídeo e encolher até o repouso
+               do catálogo. Mesmo com a medição cacheada com antecedência,
+               ainda dava piscada em aparelho real: o handoff empilha o salto
+               de scroll com o início de várias animações (cor de fundo,
+               spotlight, texto, os outros frascos), e qualquer coisa que não
+               feche no frame exato lê como tranco. Um crossfade puro — still
+               apaga, frasco já nasce no lugar de repouso e só some opacity —
+               não depende de nenhuma leitura de layout nem de sincronizar
+               tamanho entre dois elementos: é compositor puro (opacity),
+               então não tem uma janela "certa" pra perder. */
+            const catalogCenter = getCatalogBottleProps(0, 0, isMobile)
             bottles.forEach((bottle, i) => {
-              if (i === 0) return
               gsap.set(bottle, {
                 ...getCatalogBottleProps(i, 0, isMobile),
                 autoAlpha: 0,
                 opacity: 0,
               })
             })
-            gsap.set(bottles[0], { ...(start ?? catalogCenter), autoAlpha: 1, opacity: 1 })
             gsap.set(handoffStillRef.current, {
               ...stillFullFrameProps(),
               autoAlpha: 1,
@@ -1147,35 +1021,18 @@ export function HomeProductShowcase() {
                   zIndex: 3,
                 })
                 handingOff = false
-                // Reaquece com folga (handoff já terminou, nada compete por
-                // frame agora) — mantém o cache correto para o próximo ciclo
-                // ida/volta sem depender só do resize.
-                warmBridgeCache()
               },
             })
             transitionTl = tl
 
-            // Dissolve curto entre o frame do vídeo (baixa resolução, é um
-            // still 16:9) e o frasco em alta — como estão sobrepostos, a troca
-            // não se vê; o que se percebe é a imagem ganhando nitidez.
-            tl.to(handoffStillRef.current, { autoAlpha: 0, duration: 0.26, ease: 'power1.out' }, 0)
-            tl.set(handoffStillRef.current, { zIndex: 3 }, 0.26)
-            if (start) {
-              /* No mobile, mais curto (0,5s em vez de 0,85s): reportaram esse
-                 encolhimento (de "tamanho do vídeo" pro tamanho do catálogo)
-                 como uma piscada — o alinhamento e o fade em si medem certos
-                 (conferido quadro a quadro), então o mais provável é o
-                 aparelho real perder frames durante essa janela, com várias
-                 animações simultâneas rodando (cor de fundo, spotlight, texto,
-                 os outros frascos). Encurtar dá menos tempo pra esse engasgo
-                 aparecer e faz a transição ler como um "zoom out" decidido,
-                 não como uma imagem grande demorando pra assentar. */
-              tl.to(
-                bottles[0],
-                { ...bridgeTransform(catalogCenter), duration: isMobile ? 0.5 : 0.85, ease: 'power2.inOut' },
-                0.06,
-              )
-            }
+            tl.to(handoffStillRef.current, { autoAlpha: 0, duration: 0.35, ease: 'power1.out' }, 0.05)
+            tl.set(handoffStillRef.current, { zIndex: 3 }, 0.4)
+            tl.fromTo(
+              bottles[0],
+              { ...catalogCenter, autoAlpha: 0, opacity: 0 },
+              { ...catalogCenter, autoAlpha: 1, opacity: 1, duration: 0.5, ease: 'power2.out' },
+              0.12,
+            )
             bottles.forEach((bottle, i) => {
               if (i === 0) return
               tl.to(
@@ -1263,13 +1120,12 @@ export function HomeProductShowcase() {
             }
             outroRaf = requestAnimationFrame(holdOutro)
             const p0 = parts(products[0])
-            // Simétrico à entrada: o próprio frasco do catálogo volta ao
-            // tamanho e à posição do trio no frame final do vídeo (mesma
-            // medição da entrada, só de trás pra frente), o still aparece por
-            // cima já alinhado e só então a página salta INSTANTANEAMENTE
-            // para o stage do Aminosan, que toca o clipe em reverso. O
-            // wheel/tecla no produto 0 já vêm com preventDefault (pin ativo),
-            // então a página fica parada durante o preparo.
+            // Simétrico à entrada: o frasco do catálogo apaga no lugar
+            // enquanto o still (frame final do vídeo) assume por cima, e só
+            // então a página salta INSTANTANEAMENTE para o stage do Aminosan,
+            // que toca o clipe em reverso. O wheel/tecla no produto 0 já vêm
+            // com preventDefault (pin ativo), então a página fica parada
+            // durante o preparo.
             const tl = gsap.timeline({
               defaults: { overwrite: 'auto' },
               onComplete: () => {
@@ -1306,9 +1162,9 @@ export function HomeProductShowcase() {
             })
             transitionTl = tl
 
-            // Mesmo cache da entrada — aqui o ganho é menor (a saída já mede
-            // antes do salto de scroll), mas evita um reflow redundante.
-            const { catalogCenter, start } = bridgeCache ?? measureBridge()
+            // Mesmo crossfade da entrada, de trás pra frente — sem medir
+            // geometria (ver comentário em `runHandoffIn`).
+            const catalogCenter = getCatalogBottleProps(0, 0, isMobile)
             gsap.set(bottles[0], { ...catalogCenter, autoAlpha: 1, opacity: 1 })
             gsap.set(handoffStillRef.current, {
               ...stillFullFrameProps(),
@@ -1341,21 +1197,15 @@ export function HomeProductShowcase() {
               if (i === 0) return
               tl.to(bottle, { autoAlpha: 0, opacity: 0, duration: 0.28, ease: 'power2.in' }, 0)
             })
-            if (start) {
-              tl.to(
-                bottles[0],
-                { ...bridgeTransform(start), duration: 0.58, ease: 'power2.inOut' },
-                0,
-              )
-            }
-            // Só depois de alinhado o still assume — o salto para a seção de
-            // cima acontece com o frame do vídeo já cobrindo a tela.
+            // Crossfade: o frasco 0 apaga no lugar enquanto o still (frame
+            // congelado do vídeo) assume — só então a página salta para a
+            // seção de cima (ver `onComplete` acima).
             tl.to(
               handoffStillRef.current,
               { autoAlpha: 1, duration: 0.26, ease: 'power1.in' },
               0.32,
             )
-            tl.set(bottles[0], { autoAlpha: 0, opacity: 0 }, 0.58)
+            tl.to(bottles[0], { autoAlpha: 0, opacity: 0, duration: 0.26, ease: 'power2.in' }, 0.32)
           }
 
           // Snap ao parar de rolar (detecção própria de inatividade — o
@@ -1589,7 +1439,6 @@ export function HomeProductShowcase() {
             window.removeEventListener('wheel', onWheelStep, { capture: true })
             window.removeEventListener('touchstart', onTouchStart)
             window.removeEventListener('touchmove', onTouchMoveStep, { capture: true })
-            window.removeEventListener('resize', onBridgeResize)
             if (onPointerMove) window.removeEventListener('pointermove', onPointerMove)
             settleTimers.forEach(window.clearTimeout)
             clearTimeout(idleTimer)
@@ -1654,8 +1503,9 @@ export function HomeProductShowcase() {
               breakpoint correspondente, para a ponte começar exatamente no
               frame em que o vídeo parou. Desktop: still 1777×1000 (paisagem,
               `/produtos/aminosan-catalogo.png`). Mobile (<1024px, `narrowStill`):
-              still 1080×1920 (retrato nativo, `HANDOFF_ART.stillMobile`) — a
-              caixa alfa é diferente da desktop, ver `HANDOFF_ART`. */}
+              still 1080×1920 (retrato nativo). Handoff é um crossfade simples
+              (still apaga, frasco de verdade nasce no lugar de repouso) — sem
+              tentar casar o tamanho exato do trio no still com o frasco. */}
           <Image
             ref={handoffStillRef as any}
             src={narrowStill ? '/heritage/mobile/aminosan-catalogo-mobile.webp' : '/produtos/aminosan-catalogo.png'}
