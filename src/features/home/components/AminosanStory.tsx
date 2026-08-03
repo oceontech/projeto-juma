@@ -168,7 +168,7 @@ export function AminosanStory() {
   )
 }
 
-/* ── MobileVersion — celular, retrato nativo, dois clipes ────────────────
+/* ── MobileVersion — celular, vídeo único em retrato nativo ─────────────
  * Substitui o compartilhamento do clipe 1920×1080 do desktop (que exigia
  * `object-contain` + reescala via JS para caber no celular — ver `stageZoom`
  * na CinematicVersion, fonte da maior parte dos travamentos relatados em
@@ -179,28 +179,28 @@ export function AminosanStory() {
  * próprio fundo branco do vídeo, idêntico ao da seção, e por isso invisível.
  *
  * Mesmo contrato de gesto do HeroJornada/CinematicVersion — a DIREÇÃO do
- * gesto manda, nunca scrub contínuo ligado à posição do scroll/ponteiro. A
- * diferença pro HeroJornada: aqui os DOIS sentidos tocam nativamente
- * (`play()`), cada um no seu próprio `<video>` — o de ida, e um clipe
- * idêntico gravado ao contrário (`aminosan-transformacao-reversa.mp4`, gerado
- * com `ffmpeg -vf reverse`) para o sentido de volta. Mesma solução que a
- * CinematicVersion já usa no desktop, pelo mesmo motivo: arrastar
- * `currentTime` quadro a quadro (scrub manual) não fica fluido no decoder de
- * um celular. Os dois vídeos alternam por `autoAlpha`, nunca visíveis ao
- * mesmo tempo — ver `startPlayback`.
+ * gesto manda (play() nativo pra frente, passo manual de currentTime pra
+ * trás, com teto de 150ms por tick — ver comentário em `tick()`), nunca
+ * scrub contínuo ligado à posição do scroll/ponteiro.
+ *
+ * (Uma tentativa anterior trocou o reverso por um segundo `<video>` com um
+ * clipe pré-gravado ao contrário, tocado nativamente — mesma técnica da
+ * CinematicVersion no desktop. Gerou mais bugs do que resolveu no celular
+ * real — flash da imagem final aparecendo cedo demais, mais travamentos —
+ * então voltou pro passo manual de currentTime num vídeo só.)
  *
  * 4 fases de repouso: 'bottle1988' → 'bottleHoje' → 'linha' → 'catalogo'
  * (handoff pro catálogo pelos mesmos eventos `aminosan:*` que a
  * CinematicVersion já usa, então o HomeProductShowcase não precisa saber
- * qual versão rodou). O texto de cada fase só troca perto da CHEGADA no
- * alvo (ver `maybeTriggerPhaseText`/`TEXT_LEAD`), não no instante do gesto —
- * texto e vídeo "estacionam" juntos.
- */
+ * qual versão rodou). Texto de fase em duas pernas independentes: a SAÍDA da
+ * fase atual dispara no início do gesto (`runPhaseTextExit`, chamada por
+ * `startPlayback`), a ENTRADA da próxima só perto da chegada no alvo
+ * (`runPhaseTextEnter` via `maybeTriggerPhaseText`/`TEXT_LEAD`) — nenhum
+ * texto de fase fica visível durante o meio da transição, só o vídeo. */
 function MobileVersion({ t }: { t: TFn }) {
   const root         = useRef<HTMLDivElement>(null)
   const stageRef      = useRef<HTMLElement>(null)
   const videoRef       = useRef<HTMLVideoElement>(null)
-  const videoReverseRef = useRef<HTMLVideoElement>(null)
   const catalogImgRef  = useRef<HTMLImageElement>(null)
   const act1Ref        = useRef<HTMLDivElement>(null)
   const act3Ref        = useRef<HTMLDivElement>(null)
@@ -219,16 +219,14 @@ function MobileVersion({ t }: { t: TFn }) {
       // lado certo do breakpoint cria pin e liga os listeners de gesto.
       if (window.innerWidth >= 1024) return
       const video = videoRef.current
-      const videoRev = videoReverseRef.current
       const stageTrigger = stageRef.current
-      if (!video || !videoRev || !stageTrigger) return
+      if (!video || !stageTrigger) return
 
       const act1Items = act1Ref.current ? gsap.utils.toArray<HTMLElement>('[data-anim]', act1Ref.current) : []
       const act3Items = act3Ref.current ? gsap.utils.toArray<HTMLElement>('[data-anim]', act3Ref.current) : []
       const lineItems = lineRef.current ? gsap.utils.toArray<HTMLElement>('[data-anim]', lineRef.current) : []
 
       gsap.set(video, { autoAlpha: 1 })
-      gsap.set(videoRev, { autoAlpha: 0 })
       gsap.set(catalogImgRef.current, { autoAlpha: 0 })
       gsap.set(act1Items, { y: 0, autoAlpha: 1 })
       gsap.set(act3Items, { y: 16, autoAlpha: 0 })
@@ -364,18 +362,14 @@ function MobileVersion({ t }: { t: TFn }) {
       }
 
       // ── Estados estáticos: cada fase de repouso descrita por inteiro ──────
-      /* Devolve o palco pro vídeo de ida (pausado, autoAlpha 1) e esconde o
-         reverso — todo estado de repouso passa por aqui. `eps`: só reseekar o
-         vídeo de ida se ele estiver visivelmente longe do alvo (a chegada
-         natural do tick/timeupdate já para a ~0,02–0,05s dele); reseekar de
-         novo por cima de um frame que já está certo é o que causava o flash
-         reportado nas fases 2 e 3 — um seek redundante ainda dispara o
-         pipeline de decodificação do navegador. */
+      /* Todo estado de repouso passa por aqui. Só reseekar o vídeo se ele
+         estiver visivelmente longe do alvo (a chegada natural do
+         tick/timeupdate já para a ~0,02–0,05s dele) — reseekar de novo por
+         cima de um frame que já está certo é o que causava o flash reportado
+         nas fases 2 e 3: um seek redundante ainda dispara o pipeline de
+         decodificação do navegador. */
       const restoreForwardVideo = (targetTime2: number | null) => {
         const v = videoRef.current
-        const rv = videoReverseRef.current
-        if (rv) { try { rv.pause() } catch {} }
-        gsap.set(rv, { autoAlpha: 0 })
         if (v) {
           if (targetTime2 !== null && Math.abs(v.currentTime - targetTime2) > 0.1) {
             try { v.currentTime = targetTime2 } catch {}
@@ -463,35 +457,19 @@ function MobileVersion({ t }: { t: TFn }) {
         else phase = 'catalogo'
       }
 
-      /* O clipe reverso (`aminosan-transformacao-reversa.mp4`, gerado com
-         `ffmpeg -vf reverse`) tem a MESMA duração, só que tocado do fim pro
-         começo — em rTime=0 ele mostra o ÚLTIMO frame do vídeo de ida, em
-         rTime=duration o PRIMEIRO. Um tempo de ida `f` corresponde a
-         `duration - f` no reverso, e vice-versa. */
-      const toReverseTime = (fwdTime: number) => {
-        const v = videoRef.current
-        const d = v && v.duration > 0 && isFinite(v.duration) ? v.duration : FALLBACK_DURATION
-        return Math.max(0, d - fwdTime)
-      }
-      const fromReverseTime = (rTime: number) => {
-        const v = videoRef.current
-        const d = v && v.duration > 0 && isFinite(v.duration) ? v.duration : FALLBACK_DURATION
-        return Math.max(0, d - rTime)
-      }
-
-      /* Troca de texto da fase — só o conteúdo, nunca o timing (isso é
-         `maybeTriggerPhaseText`, logo abaixo). */
-      const runPhaseTextTransition = (dir: 'forward' | 'backward', s: number) => {
+      /* Saída da fase que está sendo deixada — dispara IMEDIATAMENTE no
+         início do gesto (chamada por `startPlayback`), nunca esperando o
+         vídeo se mexer. `runPhaseTextEnter` (abaixo) faz o par: só entra
+         perto da chegada na fase seguinte. Entre as duas, nenhum texto de
+         fase fica visível — é o vídeo sozinho contando a transição. */
+      const runPhaseTextExit = (dir: 'forward' | 'backward', s: number) => {
         if (dir === 'forward') {
           if (s === 1) {
             hidePhaseText(act1Items)
             gsap.to(oldCalloutRef.current, { autoAlpha: 0, duration: 0.2, overwrite: 'auto' })
-            showPhaseText(act3Items)
-            gsap.to(newCalloutRef.current, { autoAlpha: 1, duration: 0.3, delay: 0.15, overwrite: 'auto' })
           } else if (s === 2) {
             hidePhaseText(act3Items)
             gsap.to([newCalloutRef.current, brandMarkRef.current], { autoAlpha: 0, duration: 0.2, overwrite: 'auto' })
-            showPhaseText(lineItems)
           } else if (s === 3) {
             hidePhaseText(lineItems)
             window.dispatchEvent(new CustomEvent('aminosan:video-handoff-start'))
@@ -500,24 +478,43 @@ function MobileVersion({ t }: { t: TFn }) {
           if (s === 0) {
             hidePhaseText(act3Items)
             gsap.to(newCalloutRef.current, { autoAlpha: 0, duration: 0.15, overwrite: 'auto' })
+          } else if (s === 1) {
+            hidePhaseText(lineItems)
+          } else if (s === 2) {
+            gsap.to(catalogImgRef.current, { autoAlpha: 0, duration: 0.18, ease: 'power1.out', overwrite: true })
+          }
+        }
+      }
+
+      /* Entrada da fase de chegada — ver `maybeTriggerPhaseText` pra quando
+         ela dispara (perto do alvo, não no início do gesto). */
+      const runPhaseTextEnter = (dir: 'forward' | 'backward', s: number) => {
+        if (dir === 'forward') {
+          if (s === 1) {
+            showPhaseText(act3Items)
+            gsap.to(newCalloutRef.current, { autoAlpha: 1, duration: 0.3, delay: 0.15, overwrite: 'auto' })
+          } else if (s === 2) {
+            showPhaseText(lineItems)
+          }
+        } else {
+          if (s === 0) {
             showPhaseText(act1Items)
             gsap.to(oldCalloutRef.current, { autoAlpha: 1, duration: 0.3, delay: 0.1, overwrite: 'auto' })
             gsap.set(brandMarkRef.current, { autoAlpha: 1 })
           } else if (s === 1) {
-            hidePhaseText(lineItems)
             gsap.set(brandMarkRef.current, { autoAlpha: 1 })
             showPhaseText(act3Items)
             gsap.to(newCalloutRef.current, { autoAlpha: 1, duration: 0.3, delay: 0.1, overwrite: 'auto' })
           } else if (s === 2) {
-            gsap.to(catalogImgRef.current, { autoAlpha: 0, duration: 0.18, ease: 'power1.out', overwrite: true })
             showPhaseText(lineItems)
           }
         }
       }
 
-      /* Dispara a troca de texto quando o vídeo ainda está a `TEXT_LEAD`
-         segundos (ou menos) do alvo — não no instante em que o gesto começa.
-         `showPhaseText`/`hidePhaseText` levam ~0,45–0,55s pra assentar
+      /* Dispara a ENTRADA quando o vídeo ainda está a `TEXT_LEAD` segundos
+         (ou menos) do alvo — não no instante em que o gesto começa (a saída,
+         essa sim, dispara no início — ver `runPhaseTextExit` em
+         `startPlayback`). `showPhaseText` leva ~0,4–0,6s pra assentar
          (duração + stagger), então isto faz o texto terminar de entrar
          praticamente junto com o vídeo parando — "estacionam" juntos, como
          pedido. `textTriggered` garante um disparo só por voo. */
@@ -527,7 +524,7 @@ function MobileVersion({ t }: { t: TFn }) {
         const dist = direction === 'forward' ? (targetTime - fwdTimeNow) : (fwdTimeNow - targetTime)
         if (dist > TEXT_LEAD) return
         textTriggered = true
-        runPhaseTextTransition(direction, step)
+        runPhaseTextEnter(direction, step)
       }
 
       /* Checagem de "chegou no alvo" independente do rAF: `timeupdate` é
@@ -548,77 +545,55 @@ function MobileVersion({ t }: { t: TFn }) {
         }
       }
 
-      /* Mesma checagem, espelhada pro clipe reverso — a MESMA razão de ser do
-         `checkForwardLimit` (não depender só do rAF pra notar que chegou). */
-      const checkBackwardLimit = () => {
-        if (!playing || direction !== 'backward') return
-        const rv = videoReverseRef.current
-        if (!rv || targetTime === null) return
-        maybeTriggerPhaseText(fromReverseTime(rv.currentTime))
-        const rDuration = rv.duration > 0 && isFinite(rv.duration) ? rv.duration : FALLBACK_DURATION
-        const rTarget = toReverseTime(targetTime)
-        const limit = rTarget >= rDuration - 0.1 ? rDuration - 0.05 : rTarget - 0.02
-        if (rv.currentTime >= limit || rv.ended) {
-          try { rv.pause() } catch {}
-          stopPlayback()
-        }
-      }
-
-      /* Os dois sentidos tocam NATIVAMENTE (`play()`), cada um no seu vídeo —
-         o de ida pra frente, o clipe pré-gravado ao contrário pra trás. Antes
-         o reverso avançava por seek manual de `currentTime` a cada frame, e
-         isso é justamente o que a CinematicVersion já evita no desktop
-         (comentário de lá: "os clipes não têm keyframes densos o bastante
-         para scrub manual de currentTime ficar fluido") — no mobile o mesmo
-         limite de decodificação aparecia como engasgo no reverso. Com os dois
-         vídeos tocando nativamente, a suavidade fica igual nos dois sentidos. */
       const tick = (now: number) => {
-        if (!playing || targetTime === null) return
+        const v = videoRef.current
+        if (!v) { stopPlayback(); return }
+        if (!playing) return
+        const target = targetTime
+        if (target === null) return
+
+        lastTickAt = now
+        const seen = v.currentTime
+        if (Math.abs(seen - lastSeenTime) > 0.001) {
+          lastSeenTime = seen
+          lastProgressAt = now
+        } else if (now - lastProgressAt > 1600) {
+          try { v.pause() } catch {}
+          try { v.currentTime = target } catch {}
+          stopPlayback()
+          return
+        }
 
         if (direction === 'forward') {
-          const v = videoRef.current
-          if (!v) { stopPlayback(); return }
-          lastTickAt = now
-          const seen = v.currentTime
-          if (Math.abs(seen - lastSeenTime) > 0.001) {
-            lastSeenTime = seen
-            lastProgressAt = now
-          } else if (now - lastProgressAt > 1600) {
-            try { v.pause() } catch {}
-            try { v.currentTime = targetTime } catch {}
-            stopPlayback()
-            return
-          }
+          lastTime = now
           checkForwardLimit()
           if (!playing) return
           if (v.paused && !v.ended) void v.play().catch(() => {})
-          updateActivePhase(v.currentTime)
-        } else {
-          const rv = videoReverseRef.current
-          if (!rv) { stopPlayback(); return }
-          lastTickAt = now
-          const seen = rv.currentTime
-          if (Math.abs(seen - lastSeenTime) > 0.001) {
-            lastSeenTime = seen
-            lastProgressAt = now
-          } else if (now - lastProgressAt > 1600) {
-            try { rv.pause() } catch {}
-            try { rv.currentTime = toReverseTime(targetTime) } catch {}
-            stopPlayback()
-            return
-          }
-          checkBackwardLimit()
-          if (!playing) return
-          if (rv.paused && !rv.ended) void rv.play().catch(() => {})
-          updateActivePhase(fromReverseTime(rv.currentTime))
+        } else if (direction === 'backward') {
+          if (!v.paused) v.pause()
+          if (v.seeking) { animFrame = requestAnimationFrame(tick); return }
+          // Teto de 150ms de vídeo por tick: sem ele, um rAF atrasado (thread
+          // ocupada, aparelho mais fraco) faz `elapsed` saltar — e o passo
+          // seguinte pula direto por cima de um ou mais pontos de pausa antes
+          // de o `if` abaixo notar que já passou do alvo. 150ms é folgado o
+          // bastante pra não travar o reverso num aparelho só um pouco mais
+          // lento (as fases ficam a 1,5s+ uma da outra — nenhum tick sozinho
+          // alcança a próxima), mas segura o estrago de um engasgo real.
+          const elapsed = Math.min((now - lastTime) / 1000, 0.15)
+          lastTime = now
+          const current = v.currentTime
+          const nextTime = Math.max(0, current - elapsed)
+          try { v.currentTime = nextTime } catch {}
+          maybeTriggerPhaseText(nextTime)
+          if (nextTime <= target + 0.02) { stopPlayback(); return }
         }
+        updateActivePhase(v.currentTime)
         animFrame = requestAnimationFrame(tick)
       }
 
       const startPlayback = (dir: 'forward' | 'backward', target: number) => {
         const v = videoRef.current
-        const rv = videoReverseRef.current
-        if (!v || !rv) return
+        if (!v) return
         if (animFrame) cancelAnimationFrame(animFrame)
         direction = dir
         targetTime = target
@@ -629,24 +604,14 @@ function MobileVersion({ t }: { t: TFn }) {
         lastProgressAt = lastTickAt
         lastSeenTime = -1
         lockScroll(true)
+        runPhaseTextExit(dir, step)
 
         if (dir === 'forward') {
-          // Redirecionamento em voo (o reverso ainda tocando): o vídeo de ida
-          // assume EXATAMENTE onde o reverso estava antes de trocar de
-          // camada — senão o frame pula na troca.
-          if (!rv.paused) { try { v.currentTime = fromReverseTime(rv.currentTime) } catch {} }
-          try { rv.pause() } catch {}
-          gsap.set(rv, { autoAlpha: 0 })
-          gsap.set(v, { autoAlpha: 1 })
           void v.play().catch(() => {})
         } else {
-          try { v.pause() } catch {}
+          v.pause()
           const duration = safeDur(v)
           if (v.currentTime >= duration - 0.05) { try { v.currentTime = duration - 0.1 } catch {} }
-          try { rv.currentTime = toReverseTime(v.currentTime) } catch {}
-          gsap.set(v, { autoAlpha: 0 })
-          gsap.set(rv, { autoAlpha: 1 })
-          void rv.play().catch(() => {})
         }
         lastTime = performance.now()
         animFrame = requestAnimationFrame(tick)
@@ -797,7 +762,6 @@ function MobileVersion({ t }: { t: TFn }) {
       window.addEventListener('touchend', onTouchEnd, { passive: true })
       window.addEventListener('scroll', onScroll, { passive: true })
       video.addEventListener('timeupdate', checkForwardLimit)
-      videoRev.addEventListener('timeupdate', checkBackwardLimit)
 
       const onHandoffBackward = () => {
         clearHandoffBack()
@@ -846,10 +810,7 @@ function MobileVersion({ t }: { t: TFn }) {
 
       const onVisibility = () => {
         if (document.visibilityState !== 'visible') {
-          // Pausa o vídeo que estiver realmente tocando — ida ou reverso.
-          if (playing) {
-            try { (direction === 'backward' ? videoReverseRef : videoRef).current?.pause() } catch {}
-          }
+          if (playing) { try { videoRef.current?.pause() } catch {} }
           return
         }
         if (playing) abortPlayback(active())
@@ -873,11 +834,6 @@ function MobileVersion({ t }: { t: TFn }) {
         warmed = true
         if (video.preload !== 'auto') { video.preload = 'auto'; video.load() }
         video.play().then(() => { if (!playing) { video.pause(); video.currentTime = 0 } }).catch(() => {})
-        // Aquece o decoder do clipe reverso também — sem isto, o primeiro
-        // gesto de volta pagaria o mesmo custo de decoder "frio" que o
-        // aquecimento do vídeo de ida existe pra evitar.
-        if (videoRev.preload !== 'auto') { videoRev.preload = 'auto'; videoRev.load() }
-        videoRev.play().then(() => { if (direction !== 'backward') { videoRev.pause(); videoRev.currentTime = 0 } }).catch(() => {})
       }
       let idleHandle: number | undefined
       const scheduleWarmup = () => {
@@ -929,8 +885,6 @@ function MobileVersion({ t }: { t: TFn }) {
         window.removeEventListener('touchend', onTouchEnd)
         window.removeEventListener('scroll', onScroll)
         video.removeEventListener('timeupdate', checkForwardLimit)
-        videoRev.removeEventListener('timeupdate', checkBackwardLimit)
-        try { videoRev.pause() } catch {}
       }
     },
     { scope: root },
@@ -947,22 +901,6 @@ function MobileVersion({ t }: { t: TFn }) {
           className="absolute inset-0 z-0 h-full w-full object-contain opacity-0"
         >
           <source src="/heritage/mobile/aminosan-transformacao.mp4" type="video/mp4" />
-        </video>
-
-        {/* Clipe idêntico tocado ao contrário (gerado com `ffmpeg -vf
-            reverse`) — o sentido de voltar toca ESTE vídeo nativamente
-            (`play()`) em vez de arrastar `currentTime` quadro a quadro no
-            vídeo de ida. Mesma razão da CinematicVersion usar clipes reversos
-            gravados no desktop: scrub manual de currentTime não fica fluido
-            no decoder de um celular. Some/aparece via autoAlpha, alternando
-            com o vídeo de ida — nunca os dois visíveis ao mesmo tempo. */}
-        <video
-          ref={videoReverseRef}
-          muted playsInline preload="metadata"
-          aria-hidden
-          className="absolute inset-0 z-0 h-full w-full object-contain opacity-0"
-        >
-          <source src="/heritage/mobile/aminosan-transformacao-reversa.mp4" type="video/mp4" />
         </video>
 
         {/* Frame final do vídeo, servido como imagem (canal alfa) — vira a
