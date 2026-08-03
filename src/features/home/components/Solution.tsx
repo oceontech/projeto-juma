@@ -111,7 +111,7 @@ export function Solution() {
           const icon = step.querySelector<HTMLElement>('[data-step-icon]')
 
           // Estado inicial (fora de foco)
-          if (bg) gsap.set(bg, { opacity: 0.15, scale: 0.9, filter: 'blur(12px)' })
+          if (bg) gsap.set(bg, { opacity: 0.15, scale: 0.9, ...(!isMobile && { filter: 'blur(12px)' }) })
           if (card) gsap.set(card, { opacity: 0, y: 30, scale: 0.95 })
           if (dot) gsap.set(dot, { scale: 1, backgroundColor: '#F7F8F6', borderColor: 'rgba(26, 26, 26, 0.1)' })
           if (icon) gsap.set(icon, { color: 'rgba(26, 26, 26, 0.2)' })
@@ -131,7 +131,7 @@ export function Solution() {
             start: 'center 50%', // Exatamente quando o pulso atinge o tamanho máximo dentro da bolinha
             end: 'bottom 50%',
             onEnter: () => {
-              if (bg) gsap.to(bg, { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.8, ease: 'power3.out', overwrite: 'auto' })
+              if (bg) gsap.to(bg, { opacity: 1, scale: 1, ...(!isMobile && { filter: 'blur(0px)' }), duration: 0.8, ease: 'power3.out', overwrite: 'auto' })
               if (card) gsap.to(card, { opacity: 1, y: 0, scale: 1, duration: 0.5, delay: 0.1, ease: 'back.out(1.2)', overwrite: 'auto' })
               if (dot) gsap.to(dot, { scale: 1.05, backgroundColor: '#004C26', borderColor: '#004C26', duration: 0.3, ease: 'power2.out', overwrite: 'auto' })
               if (icon) gsap.to(icon, { color: '#FFFFFF', duration: 0.3, ease: 'power2.out', overwrite: 'auto' })
@@ -145,7 +145,7 @@ export function Solution() {
               if (icon) gsap.to(icon, { color: '#FFFFFF', duration: 0.3, ease: 'power2.out', overwrite: 'auto' })
             },
             onEnterBack: () => {
-              if (bg) gsap.to(bg, { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.8, ease: 'power3.out', overwrite: 'auto' })
+              if (bg) gsap.to(bg, { opacity: 1, scale: 1, ...(!isMobile && { filter: 'blur(0px)' }), duration: 0.8, ease: 'power3.out', overwrite: 'auto' })
               if (card) gsap.to(card, { opacity: 1, y: 0, scale: 1, duration: 0.5, delay: 0.1, ease: 'back.out(1.2)', overwrite: 'auto' })
               if (dot) gsap.to(dot, { scale: 1.05, backgroundColor: '#004C26', borderColor: '#004C26', duration: 0.3, ease: 'power2.out', overwrite: 'auto' })
               if (icon) gsap.to(icon, { color: '#FFFFFF', duration: 0.3, ease: 'power2.out', overwrite: 'auto' })
@@ -154,7 +154,7 @@ export function Solution() {
               if (timelineTip) gsap.to(timelineTip, { scale: 0.2, duration: 0.2, overwrite: 'auto' })
             },
             onLeaveBack: () => {
-              if (bg) gsap.to(bg, { opacity: 0.15, scale: 0.9, filter: 'blur(12px)', duration: 0.6, ease: 'power2.out', overwrite: 'auto' })
+              if (bg) gsap.to(bg, { opacity: 0.15, scale: 0.9, ...(!isMobile && { filter: 'blur(12px)' }), duration: 0.6, ease: 'power2.out', overwrite: 'auto' })
               if (card) gsap.to(card, { opacity: 0, y: 20, scale: 0.95, duration: 0.4, ease: 'power2.in', overwrite: 'auto' })
               if (dot) gsap.to(dot, { scale: 1, backgroundColor: '#F7F8F6', borderColor: 'rgba(26, 26, 26, 0.1)', duration: 0.3, ease: 'power2.out', overwrite: 'auto' })
               if (icon) gsap.to(icon, { color: 'rgba(26, 26, 26, 0.2)', duration: 0.3, ease: 'power2.out', overwrite: 'auto' })

@@ -65,7 +65,7 @@ export function ProofStrip() {
             if (numWrap) {
               gsap.to(numWrap, {
                 clipPath: 'inset(0 0 0% 0)',
-                filter: 'blur(0px)',
+                filter: blurPx(0),
                 duration: 1.0,
                 delay,
                 ease: EASE.reveal,

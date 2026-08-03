@@ -66,8 +66,8 @@ export const MOBILE_BP = 1024
  * largura da janela no momento.
  */
 export function blurPx(px: number): string {
-  if (typeof window === 'undefined') return 'blur(0px)'
-  return window.innerWidth < MOBILE_BP ? 'blur(0px)' : `blur(${px}px)`
+  if (typeof window === 'undefined') return 'none'
+  return window.innerWidth < MOBILE_BP ? 'none' : `blur(${px}px)`
 }
 
 /** ScrollTrigger: ponto de disparo padrão para reveals (topo do elemento a 80% da viewport). */

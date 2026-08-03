@@ -58,7 +58,7 @@ export function Lines() {
 
       if (title) tlHead.set(title, { opacity: 1 }, 0)
       if (chars.length)
-        tlHead.to(chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char, ease: EASE.reveal }, 0)
+        tlHead.to(chars, { x: 0, opacity: 1, filter: blurPx(0), duration: DUR.title, stagger: STAGGER.char, ease: EASE.reveal }, 0)
         
       if (gline)
         tlHead.to(gline, { scaleX: 1, opacity: 1, duration: 0.8, ease: 'power3.out' }, 0.2)
@@ -87,7 +87,7 @@ export function Lines() {
                 toggleActions: 'play reverse play reverse',
               },
               opacity: 1,
-              filter: 'blur(0px)',
+              filter: blurPx(0),
               duration: 0.8,
               // Mantém um pequeno delay simulando o stagger inicial baseado na posição do card
               delay: (index % 3) * 0.15,
