@@ -47,7 +47,7 @@ const ARTICLES = [
     date: '18 MAR 2026',
     readTime: '7 MIN',
     color: 'from-purple-600 to-purple-900',
-    image: '/materias/aminoacidos-foliares.png'
+    image: '/materias/aminoacidos-foliares.webp'
   },
   {
     id: 'calda-eficiente',
@@ -56,7 +56,7 @@ const ARTICLES = [
     date: '11 MAR 2026',
     readTime: '4 MIN',
     color: 'from-teal-600 to-emerald-800',
-    image: '/materias/calda-eficiente.png'
+    image: '/materias/calda-eficiente.webp'
   },
   {
     id: 'floracao-cafe',
@@ -209,7 +209,7 @@ export function ArticlesPage() {
             className="group flex flex-col md:flex-row rounded-3xl overflow-hidden border border-foreground/10 bg-white shadow-sm hover:shadow-xl transition-all duration-300"
           >
             <div className="md:w-1/2 relative min-h-[300px] md:min-h-[400px] bg-gradient-to-br from-[#004C26] to-green-900 overflow-hidden">
-              <Image src="/materias/capa-destaque.png" alt={t('featuredTitle')} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+              <Image src="/materias/capa-destaque.webp" alt={t('featuredTitle')} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500" />
               <span className="absolute top-6 left-6 z-10 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full bg-white/90 backdrop-blur text-foreground shadow-sm">
                 {t('featuredBadge')}
