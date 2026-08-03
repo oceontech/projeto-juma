@@ -945,7 +945,9 @@ html.lenis body { height: auto; }
      `getCatalogBottleProps` (inline do GSAP vence esta regra); as duas
      precisam andar juntas. Arte útil do PNG = 71% da caixa, centrada:
      50% + 3,7% ≈ 54% até ~72% do palco — a faixa livre entre o texto e os
-     chips de stats. */
+     chips de stats. Tentei subir pra 34%: o fundo da caixa (709px numa tela
+     de 844px) invade o link "Ver produto" (topo em 642px) — 26% já é
+     praticamente o máximo que cabe sem também mover texto/CTA. */
   .pcs-theater-bottle {
     bottom: auto;
     top: 50%;
