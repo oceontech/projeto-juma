@@ -623,6 +623,8 @@ export function HomeProductShowcase() {
           let touchStartY = 0
           /** Um passo por gesto de toque — ver `stepFromTouch`. */
           let steppedThisGesture = false
+          /** Timestamp de cooldown ao reentrar pela parte inferior para absorver inércia. */
+          let reenterCooldownUntil = 0
           let transitionUnlockTimer: ReturnType<typeof setTimeout> | null = null
           /* Rede de segurança da trava: o `onComplete` de uma timeline morta
              nunca roda, e alguns caminhos (saída para cima, handoff) trocam a
@@ -990,19 +992,40 @@ export function HomeProductShowcase() {
             window.scrollTo(0, y)
             ScrollTrigger.update()
           }
-          const killMomentumScroll = () => {
+          let momentumKillRaf = 0
+          let momentumKillTimeout: ReturnType<typeof setTimeout> | null = null
+
+          const killMomentumScroll = (targetIdx?: number) => {
             if (!isMobile) return
+            const i = targetIdx ?? currentIndexRef.current
+            const targetY = indexToY(i)
+
+            if (momentumKillRaf) cancelAnimationFrame(momentumKillRaf)
+            if (momentumKillTimeout) clearTimeout(momentumKillTimeout)
+
             const de = document.documentElement
             const body = document.body
             const prevHtml = de.style.overflow
             const prevBody = body.style.overflow
+
             de.style.overflow = 'hidden'
             body.style.overflow = 'hidden'
-            requestAnimationFrame(() => {
-              de.style.overflow = prevHtml
-              body.style.overflow = prevBody
-              snapToIndexNow()
-            })
+
+            let frames = 0
+            const lockFrame = () => {
+              window.scrollTo(0, targetY)
+              frames++
+              if (frames < 15) {
+                momentumKillRaf = requestAnimationFrame(lockFrame)
+              } else {
+                de.style.overflow = prevHtml
+                body.style.overflow = prevBody
+                window.scrollTo(0, targetY)
+                ScrollTrigger.update()
+                momentumKillRaf = 0
+              }
+            }
+            momentumKillRaf = requestAnimationFrame(lockFrame)
           }
 
           const pinTrigger = ScrollTrigger.create({
@@ -1055,27 +1078,21 @@ export function HomeProductShowcase() {
               }
             },
             onEnterBack: () => {
-              if (!insidePin()) return
-              killMomentumScroll()
+              if (leavingUp || handingOff || aminosanVideoHandoff) return
               leavingDown = false
               lockLenis()
               window.dispatchEvent(new CustomEvent('nav:hide', { detail: { lock: true } }))
-              // Mesma guarda do onEnter acima (índice E restoreVisual).
+              leavingUp = false
+              steppedThisGesture = true
+              reenterCooldownUntil = Date.now() + 600
+
               if (currentIndexRef.current !== COUNT - 1 && !isTransitioning && !stepLocked) {
                 applyIndex(COUNT - 1)
-                /* Reentrada por baixo (Cultures) pousa o scrollY perto de
-                   `pinTrigger.end` — que não é mais o mesmo pixel de
-                   `indexToY(COUNT-1)` desde o `PIN_EDGE_INSET` (o último
-                   produto descansa 8px pra DENTRO da borda, pra não ficar no
-                   limiar de ligar/desligar o pin). O `onEnter`/handoff do
-                   vídeo já ganhou esse ajuste explícito (ver `onComplete` do
-                   `runHandoffIn`); faltava o espelho aqui — sem ele, uma
-                   volta rápida vinda de baixo landava com esse desvio de 8px
-                   sem correção nenhuma (o `settle` ignora de propósito o
-                   último produto no mobile), o que lia como "não pina
-                   direito" no último produto. */
-                if (isMobile) snapToIndexNow(COUNT - 1)
-              } else if (isMobile && !isTransitioning && !stepLocked) {
+              }
+
+              if (isMobile) {
+                killMomentumScroll(COUNT - 1)
+              } else {
                 snapToIndexNow(COUNT - 1)
               }
             },
@@ -1447,33 +1464,36 @@ export function HomeProductShowcase() {
             // longe da seção (ver `insidePin`). Assentar nesse estado era o que
             // arrastava o usuário de volta pro catálogo no meio do vídeo reverso.
             if (pinTrigger.isActive && insidePin()) {
-              // No mobile, a fronteira com a Cultures (último produto) fica de
-              // fora do "cola no alvo": senão, ao subir vindo da Cultures, o
-              // settle briga com o dedo e puxa a página de volta pra baixo.
-              if (isMobile && currentIndexRef.current === COUNT - 1) return
+              // No mobile, se o usuário estiver no último produto e rolando pra baixo (lastDir > 0)
+              // perto do fim, não força o encaixe pra permitir a saída fluida pra Cultures.
+              // Se estiver subindo (lastDir < 0), trava firmemente no produto 4.
+              if (isMobile && currentIndexRef.current === COUNT - 1 && lastDir > 0 && scroll >= pinTrigger.end - 10) return
               const target = indexToY(currentIndexRef.current)
               if (Math.abs(scroll - target) > 4) scrollToY(target, 0.55)
               return
             }
             /* Último produto no mobile, com o dedo já solto um tico ALÉM da
-               borda do pin: recolhe de volta pro lugar de repouso. É o que
-               antes era feito com `preventDefault` no meio do gesto (e prendia
-               o usuário na tela do produto 4 — ver `atLastMobile`); aqui só
-               acontece DEPOIS que o scroll parou, então nunca disputa nada
-               com o usuário. A faixa é curta de propósito: passou disso, a
-               intenção foi mesmo sair pra próxima seção e ninguém puxa de
-               volta. */
+               borda do pin: se a direção for para cima (lastDir < 0), recolhe de volta pro
+               lugar de repouso no produto 4. */
             if (
               isMobile &&
               currentIndexRef.current === COUNT - 1 &&
               scroll > pinTrigger.end &&
-              scroll < pinTrigger.end + 70
+              scroll < pinTrigger.end + 300
             ) {
-              scrollToY(indexToY(COUNT - 1), 0.4)
+              if (lastDir < 0) {
+                scrollToY(indexToY(COUNT - 1), 0.4)
+              }
               return
             }
             // Zona de entrada (catálogo espiando por baixo da seção anterior)
             if (scroll < pinTrigger.start && scroll > pinTrigger.start - vh) {
+              // Se o usuário está no último produto ou acabou de voltar da parte inferior,
+              // o scroll pra cima acima do start é excesso de inércia da volta: recolhe pro produto 4.
+              if (currentIndexRef.current === COUNT - 1 || Date.now() < reenterCooldownUntil + 1000) {
+                scrollToY(indexToY(COUNT - 1), 0.45)
+                return
+              }
               if (lastDir < 0 && currentIndexRef.current === 0) {
                 runHandoffOut()
                 return
@@ -1485,7 +1505,12 @@ export function HomeProductShowcase() {
             // No mobile o controle dessa transição fica só com o usuário —
             // sem completar o movimento sozinho.
             if (scroll > pinTrigger.end && scroll < pinTrigger.end + vh) {
-              if (isMobile) return
+              if (isMobile) {
+                if (lastDir < 0) {
+                  scrollToY(indexToY(COUNT - 1), 0.45)
+                }
+                return
+              }
               scrollToY(lastDir > 0 ? pinTrigger.end + 2 : pinTrigger.end, 0.6)
             }
           }
@@ -1510,12 +1535,31 @@ export function HomeProductShowcase() {
             }
           }
 
+          /* UM gesto = UM produto. É esta guarda (e não a duração da trava)
+             que impede um arrasto só de atravessar vários produtos — o que
+             deixa a trava livre pra ser bem curta e o próximo swipe responder
+             na hora. Sem ela, encurtar a trava fazia um arrasto lento avançar
+             2 de uma vez: o dedo continua na tela, acumula o limiar de novo e
+             dispara outro passo. */
+          const stepFromTouch = (dir: 1 | -1) => {
+            if (steppedThisGesture || Date.now() < reenterCooldownUntil) return
+            const before = currentIndexRef.current
+            stepCatalog(dir)
+            if (currentIndexRef.current !== before || leavingUp || handingOff) {
+              steppedThisGesture = true
+            }
+          }
+
           const onWheelStep = (e: WheelEvent) => {
             if (aminosanVideoHandoff || outroHolding) {
               if (e.cancelable) e.preventDefault()
               return
             }
             if (Math.abs(e.deltaY) < 2) return
+            if (Date.now() < reenterCooldownUntil && e.deltaY < 0) {
+              if (e.cancelable) e.preventDefault()
+              return
+            }
             /* `pinTrigger.isActive` sozinho falha bem no instante de chegar
                vindo do handoff do vídeo: o salto de scroll pousa o scrollY
                DENTRO da faixa do pin, mas o ScrollTrigger ainda não rodou o
@@ -1566,14 +1610,6 @@ export function HomeProductShowcase() {
              na hora. Sem ela, encurtar a trava fazia um arrasto lento avançar
              2 de uma vez: o dedo continua na tela, acumula o limiar de novo e
              dispara outro passo. */
-          const stepFromTouch = (dir: 1 | -1) => {
-            if (steppedThisGesture) return
-            const before = currentIndexRef.current
-            stepCatalog(dir)
-            if (currentIndexRef.current !== before || leavingUp || handingOff) {
-              steppedThisGesture = true
-            }
-          }
 
           const onTouchMoveStep = (e: TouchEvent) => {
             if (aminosanVideoHandoff || outroHolding) {
@@ -1582,6 +1618,10 @@ export function HomeProductShowcase() {
             }
             if (e.touches.length === 0) return
             const delta = touchStartY - e.touches[0].clientY
+            if (Date.now() < reenterCooldownUntil && delta < 0) {
+              if (e.cancelable) e.preventDefault()
+              return
+            }
             // Mesmo remédio do onWheelStep: `insidePin()` cobre o instante em
             // que o scrollY já está dentro da faixa do pin (chegando do
             // handoff do vídeo) mas `isActive` ainda não foi atualizado.
@@ -1596,7 +1636,7 @@ export function HomeProductShowcase() {
                 touchStartY = e.touches[0].clientY
                 return
               }
-              if (delta < 0 && isTopHandoffZone()) {
+              if (delta < 0 && isTopHandoffZone() && Date.now() >= reenterCooldownUntil) {
                 if (e.cancelable) e.preventDefault()
                 runHandoffOut()
               }
@@ -1625,6 +1665,7 @@ export function HomeProductShowcase() {
                 touchStartY = e.touches[0].clientY
                 return
               }
+              if (Date.now() < reenterCooldownUntil) return
               if (e.cancelable) e.preventDefault()
               stepFromTouch(-1)
               touchStartY = e.touches[0].clientY
@@ -1719,6 +1760,8 @@ export function HomeProductShowcase() {
             window.removeEventListener('touchstart', onTouchStart)
             window.removeEventListener('touchmove', onTouchMoveStep, { capture: true })
             if (onPointerMove) window.removeEventListener('pointermove', onPointerMove)
+            if (momentumKillRaf) cancelAnimationFrame(momentumKillRaf)
+            if (momentumKillTimeout) clearTimeout(momentumKillTimeout)
             settleTimers.forEach(window.clearTimeout)
             clearTimeout(idleTimer)
             clearStepLockTimers()
