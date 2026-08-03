@@ -136,7 +136,7 @@ type CropGroup = { label: string; crops: string[] }
  * `crop` é opcional porque o Supermix é adjuvante e se organiza por tipo de
  * aplicação (terrestre / aérea / calda concentrada), não por cultura.
  */
-type ApplicationRow = { crop?: string; dose: string; when: string }
+type ApplicationRow = { crop?: string; when: string }
 type ApplicationGroup = { label: string; note?: string; rows: ApplicationRow[] }
 
 export type ProductMeta = {
@@ -732,7 +732,7 @@ export function ProductPage({ slug }: { slug: string }) {
           </section>
         )}
 
-        {/* Aplicações por cultura — dosagem e momento direto do rótulo 2026 */}
+        {/* Aplicacoes por cultura: cultura/tipo de aplicacao e momento direto do rotulo 2026 */}
         {product.applications.length > 0 && (
           <section data-section className="pt-0 pb-[clamp(80px,9vw,140px)]">
             <Container>
@@ -746,7 +746,7 @@ export function ProductPage({ slug }: { slug: string }) {
               <div className="mt-8 flex flex-col gap-7">
                 {product.applications.map((group) => {
                   const hasCrop = group.rows.some((r) => r.crop)
-                  const cols = hasCrop ? 'md:grid-cols-[1.1fr_0.85fr_2fr]' : 'md:grid-cols-[0.9fr_2fr]'
+                  const cols = hasCrop ? 'md:grid-cols-[1.1fr_2fr]' : 'md:grid-cols-1'
                   return (
                     <div key={group.label} data-animate-content>
                       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
@@ -766,7 +766,6 @@ export function ProductPage({ slug }: { slug: string }) {
                         {/* Cabeçalho só no desktop; no mobile cada linha vira card rotulado */}
                         <div className={`hidden ${cols} md:grid gap-4 px-5 py-3 bg-[#DDE6C8] text-[11px] font-bold uppercase tracking-[0.07em] text-[#004B26]`}>
                           {hasCrop && <span>{tPage('appCropCol')}</span>}
-                          <span>{tPage('appDoseCol')}</span>
                           <span>{tPage('appWhenCol')}</span>
                         </div>
 
@@ -780,10 +779,6 @@ export function ProductPage({ slug }: { slug: string }) {
                                 {row.crop}
                               </span>
                             )}
-                            <span className="text-[13.5px] text-[#1A1A1A] leading-snug">
-                              <span className="md:hidden text-[#5A5A57] font-semibold">{tPage('appDoseCol')}: </span>
-                              {row.dose}
-                            </span>
                             <span className="text-[13.5px] text-[#5A5A57] leading-[1.5]">
                               <span className="md:hidden font-semibold">{tPage('appWhenCol')}: </span>
                               {row.when}
