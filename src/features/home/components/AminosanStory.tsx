@@ -464,7 +464,10 @@ function MobileVersion({ t }: { t: TFn }) {
         step = PHASES.indexOf(phase)
         applyPhaseVisuals(phase)
         if (snap) snapToPhase()
-        cooldownRef.current = performance.now() + 350
+        /* 350ms era mais longo que a folga entre um ato e o gesto seguinte:
+           quem já estava arrastando batia na trava e não via resposta. */
+        cooldownRef.current = performance.now() + 140
+        drainPending()
       }
 
       const updateActivePhase = (time: number) => {
@@ -664,7 +667,10 @@ function MobileVersion({ t }: { t: TFn }) {
           snapToPhase()
         }
         lockScroll(false)
-        cooldownRef.current = performance.now() + 350
+        /* 350ms era mais longo que a folga entre um ato e o gesto seguinte:
+           quem já estava arrastando batia na trava e não via resposta. */
+        cooldownRef.current = performance.now() + 140
+        drainPending()
       }
 
       /* Mata o momentum/inércia nativo do touch (iOS/Android) na hora — não
@@ -715,18 +721,28 @@ function MobileVersion({ t }: { t: TFn }) {
 
       const canStep = () => !playing && !releasing && performance.now() >= cooldownRef.current
 
+      /* Gesto que chega durante um ato fica guardado em vez de sumir — mesmo
+         contrato da versão cinematográfica, ver o comentário longo lá. */
+      let pendingStep: 'forward' | 'backward' | null = null
+
       const stepForward = () => {
         if (releasing) return
         const targets = getTargets()
         if (playing) {
-          if (direction !== 'backward') return
-          const next = step + 1
-          if (next > LAST) return
-          step = next
-          startPlayback('forward', targets[next])
+          if (direction === 'backward') {
+            const next = step + 1
+            if (next > LAST) return
+            step = next
+            startPlayback('forward', targets[next])
+            return
+          }
+          if (step < LAST) pendingStep = 'forward'
           return
         }
-        if (!canStep()) return
+        if (!canStep()) {
+          if (!releasing) pendingStep = 'forward'
+          return
+        }
         const i = PHASES.indexOf(phase)
         if (i >= LAST) return
         step = i + 1
@@ -737,18 +753,33 @@ function MobileVersion({ t }: { t: TFn }) {
         if (releasing) return
         const targets = getTargets()
         if (playing) {
-          if (direction !== 'forward') return
-          const prev = step - 1
-          if (prev < 0) return
-          step = prev
-          startPlayback('backward', targets[prev])
+          if (direction === 'forward') {
+            const prev = step - 1
+            if (prev < 0) return
+            step = prev
+            startPlayback('backward', targets[prev])
+            return
+          }
+          if (step > 0) pendingStep = 'backward'
           return
         }
-        if (!canStep()) return
+        if (!canStep()) {
+          if (!releasing) pendingStep = 'backward'
+          return
+        }
         const i = PHASES.indexOf(phase)
         if (i <= 0) return
         step = i - 1
         startPlayback('backward', targets[step])
+      }
+
+      /** Consome o gesto guardado assim que a cena volta ao repouso. */
+      const drainPending = () => {
+        const next = pendingStep
+        pendingStep = null
+        if (!next || playing || releasing) return
+        if (next === 'forward') stepForward()
+        else stepBackward()
       }
 
       const escapes = (down: boolean) =>
@@ -764,7 +795,7 @@ function MobileVersion({ t }: { t: TFn }) {
         if (!active() || Math.abs(e.deltaY) < 2) return
         if (escapes(e.deltaY > 0)) return
         if (e.cancelable) e.preventDefault()
-        if (Math.abs(e.deltaY) < 8) return
+        if (Math.abs(e.deltaY) < 5) return
         if (e.deltaY > 0) stepForward()
         else stepBackward()
       }
@@ -782,20 +813,46 @@ function MobileVersion({ t }: { t: TFn }) {
         else stepBackward()
       }
 
+      /* ── Toque: o ato responde DURANTE o arrasto ──────────────────────
+         Antes a decisão saía só no `touchend`, e um gesto valia um ato — o
+         dedo podia correr 30px ou 600px, dava no mesmo. Para atravessar a
+         seção o usuário precisava de um toque separado por ato, soltando o
+         dedo entre cada um, sem retorno visual enquanto arrastava. É a origem
+         do "esforço grande de muitos toques".
+
+         Agora o deslocamento é medido ao longo do gesto: a cada `STEP_PX` a
+         origem é reposicionada e um ato dispara. Um arrasto contínuo encadeia
+         os atos naturalmente, e a resposta vem enquanto o dedo ainda está na
+         tela. O `touchend` continua existindo para o flick curto — aquele que
+         não chega a `STEP_PX` mas é claramente intencional — com limiar menor
+         que os 30px de antes. */
+      const STEP_PX = 34
+      const FLICK_PX = 18
+
       let touchY = 0
-      const onTouchStart = (e: TouchEvent) => { touchY = e.touches[0]?.clientY ?? 0 }
+      let steppedInGesture = false
+      const onTouchStart = (e: TouchEvent) => {
+        touchY = e.touches[0]?.clientY ?? 0
+        steppedInGesture = false
+      }
       const onTouchMove = (e: TouchEvent) => {
         if (!active()) return
         const y = e.touches[0]?.clientY ?? touchY
         const dy = touchY - y
         if (Math.abs(dy) > 4 && escapes(dy > 0)) return
         if (e.cancelable) e.preventDefault()
+        if (Math.abs(dy) < STEP_PX) return
+        touchY = y // reposiciona a origem: o arrasto longo encadeia atos
+        steppedInGesture = true
+        if (dy > 0) stepForward()
+        else stepBackward()
       }
       const onTouchEnd = (e: TouchEvent) => {
         if (!active()) return
+        if (steppedInGesture) return // o arrasto já resolveu
         const endY = e.changedTouches[0]?.clientY ?? touchY
         const dy = touchY - endY
-        if (Math.abs(dy) < 30) return
+        if (Math.abs(dy) < FLICK_PX) return
         if (dy > 0) stepForward()
         else stepBackward()
       }
@@ -2056,7 +2113,10 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         step = PHASES.indexOf(phase)
         applyPhaseVisuals(phase)
         if (snap) snapToPhase()
-        cooldownRef.current = performance.now() + 350
+        /* 350ms era mais longo que a folga entre um ato e o gesto seguinte:
+           quem já estava arrastando batia na trava e não via resposta. */
+        cooldownRef.current = performance.now() + 140
+        drainPending()
       }
 
       /* Verificação: com a cena parada, o que está na tela TEM que ser a fase
@@ -2095,7 +2155,10 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           snapToPhase()
         }
         lockScroll(false)
-        cooldownRef.current = performance.now() + 350
+        /* 350ms era mais longo que a folga entre um ato e o gesto seguinte:
+           quem já estava arrastando batia na trava e não via resposta. */
+        cooldownRef.current = performance.now() + 140
+        drainPending()
       }
 
       /* O pin é só o trilho: segura o palco colado no topo da viewport e dá
@@ -2139,17 +2202,40 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
          resposta imediata, e um gesto longo (vários eventos de wheel no mesmo
          sentido) vira uma única vez, porque os eventos seguintes já estão no
          mesmo sentido do clipe e caem no no-op. */
+      /* ── Gesto que chega cedo demais fica guardado ────────────────────
+         Cada ato é um trecho de vídeo de um a três segundos, e durante a
+         reprodução `canStep()` recusa qualquer comando. Só que o usuário não
+         vê a máquina: ele arrasta o dedo, nada acontece, arrasta de novo,
+         nada — e tem a impressão de que a seção não responde ou de que precisa
+         insistir. Era daí que vinha o esforço de "muitos toques para navegar".
+
+         Um gesto no MESMO sentido do clipe em curso agora não é descartado:
+         fica guardado e é executado assim que o ato termina. Guarda-se apenas
+         UM — a intenção é encadear o próximo ato, não acumular uma fila que
+         atravessaria a seção inteira contra a vontade de quem rolou. O sentido
+         contrário continua virando o clipe na hora, como já era. */
+      let pendingStep: 'forward' | 'backward' | null = null
+
       const stepForward = () => {
         if (releasing) return
         if (playing) {
-          if (direction !== 'backward') return
-          const next = step + 1
-          if (next > LAST) return
-          step = next
-          startPlayback('forward', targets[next], true)
+          // Sentido contrário: vira o clipe imediatamente (comportamento antigo).
+          if (direction === 'backward') {
+            const next = step + 1
+            if (next > LAST) return
+            step = next
+            startPlayback('forward', targets[next], true)
+            return
+          }
+          // Mesmo sentido: encadeia no fim em vez de sumir.
+          if (step < LAST) pendingStep = 'forward'
           return
         }
-        if (!canStep()) return
+        if (!canStep()) {
+          // Dentro do cooldown o gesto também não se perde.
+          if (!releasing) pendingStep = 'forward'
+          return
+        }
         const i = PHASES.indexOf(phase)
         if (i >= LAST) return
         step = i + 1
@@ -2159,18 +2245,33 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const stepBackward = () => {
         if (releasing) return
         if (playing) {
-          if (direction !== 'forward') return
-          const prev = step - 1
-          if (prev < 0) return
-          step = prev
-          startPlayback('backward', targets[prev], true)
+          if (direction === 'forward') {
+            const prev = step - 1
+            if (prev < 0) return
+            step = prev
+            startPlayback('backward', targets[prev], true)
+            return
+          }
+          if (step > 0) pendingStep = 'backward'
           return
         }
-        if (!canStep()) return
+        if (!canStep()) {
+          if (!releasing) pendingStep = 'backward'
+          return
+        }
         const i = PHASES.indexOf(phase)
         if (i <= 0) return
         step = i - 1
         startPlayback('backward', targets[step])
+      }
+
+      /** Consome o gesto guardado assim que a cena volta ao repouso. */
+      const drainPending = () => {
+        const next = pendingStep
+        pendingStep = null
+        if (!next || playing || releasing) return
+        if (next === 'forward') stepForward()
+        else stepBackward()
       }
 
       /* Nas duas pontas da cadeia o gesto passa direto (sem preventDefault):
@@ -2194,7 +2295,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         if (!active() || Math.abs(e.deltaY) < 2) return
         if (escapes(e.deltaY > 0)) return
         if (e.cancelable) e.preventDefault()
-        if (Math.abs(e.deltaY) < 8) return
+        if (Math.abs(e.deltaY) < 5) return
         if (e.deltaY > 0) stepForward()
         else stepBackward()
       }
@@ -2216,9 +2317,27 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
          mata o momentum do iOS na origem, então não sobra rolagem inercial
          brigando com o snap. A decisão sai no touchend: passou de 30px, vale
          um ato — e um só, tenha o dedo corrido 30px ou 600px. */
+      /* ── Toque: o ato responde DURANTE o arrasto ──────────────────────
+         Antes a decisão saía só no `touchend`, e um gesto valia um ato — o
+         dedo podia correr 30px ou 600px, dava no mesmo. Para atravessar a
+         seção o usuário precisava de um toque separado por ato, soltando o
+         dedo entre cada um, sem retorno visual enquanto arrastava. É a origem
+         do "esforço grande de muitos toques".
+
+         Agora o deslocamento é medido ao longo do gesto: a cada `STEP_PX` a
+         origem é reposicionada e um ato dispara. Um arrasto contínuo encadeia
+         os atos naturalmente, e a resposta vem enquanto o dedo ainda está na
+         tela. O `touchend` continua existindo para o flick curto — aquele que
+         não chega a `STEP_PX` mas é claramente intencional — com limiar menor
+         que os 30px de antes. */
+      const STEP_PX = 34
+      const FLICK_PX = 18
+
       let touchY = 0
+      let steppedInGesture = false
       const onTouchStart = (e: TouchEvent) => {
         touchY = e.touches[0]?.clientY ?? 0
+        steppedInGesture = false
       }
       const onTouchMove = (e: TouchEvent) => {
         if (!active()) return
@@ -2230,12 +2349,18 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         // antes da trava pegar.
         if (Math.abs(dy) > 4 && escapes(dy > 0)) return
         if (e.cancelable) e.preventDefault()
+        if (Math.abs(dy) < STEP_PX) return
+        touchY = y // reposiciona a origem: o arrasto longo encadeia atos
+        steppedInGesture = true
+        if (dy > 0) stepForward()
+        else stepBackward()
       }
       const onTouchEnd = (e: TouchEvent) => {
         if (!active()) return
+        if (steppedInGesture) return // o arrasto já resolveu
         const endY = e.changedTouches[0]?.clientY ?? touchY
         const dy = touchY - endY
-        if (Math.abs(dy) < 30) return // mesmo limiar do HeroJornada
+        if (Math.abs(dy) < FLICK_PX) return
         if (dy > 0) stepForward()
         else stepBackward()
       }
