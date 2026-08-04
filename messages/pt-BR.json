@@ -169,7 +169,7 @@
     "paragraph2": "A diferença entre uma lavoura boa e uma lavoura recorde quase nunca está em gastar mais. Está em atravessar cada fase sem deixar potencial para trás."
   },
   "solution": {
-    "title": "O programa fase a fase",
+    "title": "O programa <highlight>fase a fase</highlight>",
     "intro": "Para cada cultura, a Juma-Agro define a sequência: qual produto entra, em que fase, com que objetivo. O programa começa no tratamento de sementes e segue até o enchimento de grãos, usando o calendário de aplicações que você já tem. Cada combinação foi testada em ensaio de campo contra testemunha, e a fonte do resultado é publicada junto do número.",
     "stepsTitle": "Como funciona, em 3 passos",
     "step1": {
@@ -188,7 +188,7 @@
   },
   "lines": {
     "kicker": "Linhas de produto",
-    "title": "Uma linha para cada decisão do ciclo",
+    "title": "Uma linha para <highlight>cada decisão do ciclo</highlight>",
     "viewLine": "Ver produtos da linha",
     "nutricao": {
       "title": "Para a planta produzir no potencial",

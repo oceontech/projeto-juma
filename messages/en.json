@@ -169,7 +169,7 @@
     "paragraph2": "The difference between a good field and a record field is almost never about spending more. It is about getting through every phase without leaving potential behind."
   },
   "solution": {
-    "title": "The phase by phase program",
+    "title": "The <highlight>phase by phase</highlight> program",
     "intro": "For each crop, Juma-Agro defines the sequence: which product goes in, at which phase, for which purpose. The program starts at seed treatment and runs through grain fill, using the spray calendar you already follow. Every combination has been tested in field trials against a control, and the source of the result is published right next to the number.",
     "stepsTitle": "How it works, in 3 steps",
     "step1": {
@@ -188,7 +188,7 @@
   },
   "lines": {
     "kicker": "Product lines",
-    "title": "A line for every decision in the cycle",
+    "title": "A line for <highlight>every decision in the cycle</highlight>",
     "viewLine": "See the line's products",
     "nutricao": {
       "title": "For the plant to produce at full potential",

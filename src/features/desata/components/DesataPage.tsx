@@ -4,8 +4,9 @@ import React, { useRef } from 'react'
 import Image from 'next/image'
 import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
-import { gsap, SplitText, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
-import { DUR, EASE, STAGGER } from '@/features/animation/motion'
+import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
+import { createCharReveal } from '@/features/animation/charReveal'
+import { DUR, EASE, blurPx } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
 export function DesataPage() {
@@ -30,16 +31,16 @@ export function DesataPage() {
       const heroTitle = heroTitleRef.current
       const heroDesc = heroDescRef.current
 
-      const split = heroTitle ? new SplitText(heroTitle, { type: 'words,lines' }) : null
-      const words = split?.words ?? []
+      const reveal = createCharReveal(heroTitle as HTMLElement | null, { by: 'words', axis: 'y', distance: 24 })
+      const words = reveal?.chars ?? []
 
       if (heroTitle) gsap.set(heroTitle, { opacity: 0 })
-      if (words.length) gsap.set(words, { y: 24, opacity: 0, filter: 'blur(10px)' })
+      reveal?.hide()
       if (heroDesc) gsap.set(heroDesc, { y: 20, opacity: 0 })
 
       const tl = gsap.timeline({ delay: 0.8, defaults: { ease: EASE.reveal } })
       if (heroTitle) tl.set(heroTitle, { opacity: 1 }, 0.1)
-      if (words.length) tl.to(words, { y: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.word }, 0.1)
+      reveal?.playIn(tl, 0.1)
       if (heroDesc) tl.to(heroDesc, { y: 0, opacity: 1, duration: DUR.sub }, 0.6)
 
       // Topics Section
@@ -47,7 +48,7 @@ export function DesataPage() {
         const section = topicsRef.current
         const rows = gsap.utils.toArray<HTMLElement>('.fade-up', section)
         rows.forEach((row) => {
-          gsap.set(row, { y: 50, opacity: 0, scale: 0.98, filter: 'blur(8px)' })
+          gsap.set(row, { y: 50, opacity: 0, scale: 0.98, filter: blurPx(8) })
           ScrollTrigger.create({
             trigger: row,
             start: 'top 85%',
@@ -55,7 +56,7 @@ export function DesataPage() {
               y: 0,
               opacity: 1,
               scale: 1,
-              filter: 'blur(0px)',
+              filter: blurPx(0),
               duration: 1.2,
               ease: 'power3.out'
             })
@@ -110,7 +111,7 @@ export function DesataPage() {
         const section = videoRef.current
         const videoWrapper = section.querySelector('.aspect-video')
         if (videoWrapper) {
-          gsap.set(videoWrapper, { clipPath: 'inset(10% 5% 10% 5% round 24px)', scale: 0.95, opacity: 0, filter: 'blur(10px)' })
+          gsap.set(videoWrapper, { clipPath: 'inset(10% 5% 10% 5% round 24px)', scale: 0.95, opacity: 0, filter: blurPx(10) })
           ScrollTrigger.create({
             trigger: section,
             start: 'top 85%',
@@ -118,7 +119,7 @@ export function DesataPage() {
               clipPath: 'inset(0% 0% 0% 0% round 24px)',
               scale: 1,
               opacity: 1,
-              filter: 'blur(0px)',
+              filter: blurPx(0),
               duration: 1.5,
               ease: 'power3.inOut'
             })
@@ -147,7 +148,10 @@ export function DesataPage() {
           {/* Glassmorphism Card */}
           <div className="bg-black/30 backdrop-blur-md border border-white/20 p-8 md:p-14 rounded-3xl flex flex-col items-center text-center max-w-[840px] w-full shadow-2xl">
             <h1 ref={heroTitleRef} className="text-4xl md:text-6xl lg:text-7xl font-bold uppercase tracking-tight font-montserrat text-white drop-shadow-md mb-6">
-              {t.rich('hero.title', { highlight: (chunks) => <span className="text-[#00A859] drop-shadow-md">{chunks}</span> })}
+              {/* `text-highlight` alinha este destaque ao padrão do resto do
+                  site (itálico, peso 500). A cor continua a verde clara desta
+                  página, que vive sobre foto escura. */}
+              {t.rich('hero.title', { highlight: (chunks) => <span className="text-highlight text-[#00A859] drop-shadow-md">{chunks}</span> })}
             </h1>
             <p ref={heroDescRef} className="text-lg md:text-xl max-w-[48rem] text-white/90 drop-shadow-sm">
               {t('hero.description')}

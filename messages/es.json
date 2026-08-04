@@ -169,7 +169,7 @@
     "paragraph2": "La diferencia entre un cultivo bueno y un cultivo récord casi nunca está en gastar más. Está en atravesar cada fase sin dejar potencial atrás."
   },
   "solution": {
-    "title": "El programa fase a fase",
+    "title": "El programa <highlight>fase a fase</highlight>",
     "intro": "Para cada cultivo, Juma-Agro define la secuencia: qué producto entra, en qué fase, con qué objetivo. El programa empieza en el tratamiento de semillas y sigue hasta el llenado de granos, usando el calendario de aplicaciones que usted ya tiene. Cada combinación fue probada en ensayo de campo contra un testigo, y la fuente del resultado se publica junto al número.",
     "stepsTitle": "Cómo funciona, en 3 pasos",
     "step1": {
@@ -188,7 +188,7 @@
   },
   "lines": {
     "kicker": "Líneas de producto",
-    "title": "Una línea para cada decisión del ciclo",
+    "title": "Una línea para <highlight>cada decisión del ciclo</highlight>",
     "viewLine": "Ver productos de la línea",
     "nutricao": {
       "title": "Para que la planta produzca en su potencial",

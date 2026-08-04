@@ -139,7 +139,9 @@ export function Lines() {
             className="font-black uppercase leading-[1.05] tracking-tight text-foreground"
             style={{ fontSize: 'clamp(2.5rem, 4.5vw, 4.5rem)' }}
           >
-            {t('title')}
+            {t.rich('title', {
+              highlight: (chunks) => <span className="text-highlight text-primary">{chunks}</span>,
+            })}
           </h2>
           <span data-gline aria-hidden className="mt-8 block h-[3px] w-12 rounded-full bg-primary" />
         </div>
