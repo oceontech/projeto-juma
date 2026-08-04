@@ -698,6 +698,14 @@ export function HomeProductShowcase() {
             })
             transitionTl = tl
 
+            /* No mobile a troca acontece COM o scroll correndo (o carrossel
+               segue o progresso do pin, ninguém segura o dedo), então a
+               timeline concorre com a rolagem em vez de tocar sozinha: se ela
+               se arrasta, a resposta ao gesto parece atrasada. Comprimida em
+               ~1/4 ela chega junto com o dedo, e é um `timeScale` justamente
+               pra não ter dois conjuntos de duração pra manter. */
+            if (isMobile) tl.timeScale(1.35)
+
             /* Destrava os passos assim que o MOVIMENTO principal termina, não
                quando a timeline inteira acaba (~0,9s, cauda de texto
                assentando) — senão o segundo swipe cai no vazio. Encadear é
@@ -967,10 +975,18 @@ export function HomeProductShowcase() {
           const progressToIndex = (p: number) =>
             Math.min(COUNT - 1, Math.max(0, Math.round(p * (COUNT - 1))))
 
+          /* Quanto de rolagem cada produto custa, em % da viewport. No desktop
+             o gesto vira um passo discreto e o valor só define o tamanho do
+             spacer. No MOBILE ele é o que o dedo percorre de verdade: com 100%
+             cada troca exigia uma viewport inteira de arrasto e o catálogo
+             ficava pesado de atravessar. 65% deixa a troca acontecer perto do
+             meio de um swipe normal, sem virar um flick que pula produtos. */
+          const PIN_STEP_VH = isMobile ? 65 : 100
+
           const pinTrigger = ScrollTrigger.create({
             trigger: root,
             start: 'top top',
-            end: `+=${(COUNT - 1) * 100}%`,
+            end: `+=${(COUNT - 1) * PIN_STEP_VH}%`,
             pin: true,
             pinSpacing: true,
             /* SEM `anticipatePin`. Ele adianta o pin com base na VELOCIDADE do

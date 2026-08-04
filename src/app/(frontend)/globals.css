@@ -460,6 +460,23 @@ html.lenis body { height: auto; }
   --pcs-accent: #7fd0f2;
 }
 
+/* Sangria de cor nas bordas do pin.
+   Enquanto pinado o root é `position: fixed` e vale `100dvh` — mas o `dvh` do
+   celular muda de valor quando a barra de endereço entra ou sai, e o
+   `pin-spacer` (medido em px num refresh anterior) não acompanha. Nesses
+   frames sobra uma faixa da seção que envolve o spacer, em cima ou embaixo do
+   catálogo. Duas sombras sólidas (sem blur, sem espalhamento) estendem a cor
+   do catálogo uma viewport para cada lado: `--pcs-base` em cima, que é a cor
+   do gradiente na altura do topo da tela, e `--pcs-mid` embaixo, que é onde
+   ele termina. Sombra não ocupa espaço no layout e, como a regra só vale com
+   o root fixed (cobrindo a viewport), ela fica fora da tela sempre que não há
+   falha para preencher — nunca cobre a seção vizinha. */
+.pcs-root[style*="position: fixed"] {
+  box-shadow:
+    0 -100vh 0 0 var(--pcs-base),
+    0 100vh 0 0 var(--pcs-mid);
+}
+
 /* Quando o GSAP pina a seção (aplica position: fixed no root) */
 .pcs-root[style*="position: fixed"],
 .pin-spacer > .pcs-root {
