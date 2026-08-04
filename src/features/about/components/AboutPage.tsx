@@ -4,8 +4,9 @@ import React, { useRef } from 'react'
 import Image from 'next/image'
 import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
-import { gsap, SplitText, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
-import { DUR, EASE, STAGGER } from '@/features/animation/motion'
+import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
+import { createCharReveal, revealToggleActions } from '@/features/animation/charReveal'
+import { DUR, EASE, blurPx } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
 import { Leaf, Tractor, Sun, TreePine, Sprout, ClipboardEdit, LucideIcon } from 'lucide-react'
@@ -59,18 +60,18 @@ export function AboutPage() {
       const highlight = highlightRef.current
       const gallery = galleryRef.current
 
-      const split = title ? new SplitText(title, { type: 'chars,lines' }) : null
-      const chars = split?.chars ?? []
+      const reveal = createCharReveal(title)
+      const chars = reveal?.chars ?? []
 
       if (eyebrow) gsap.set(eyebrow, { y: 15, opacity: 0 })
       if (title) gsap.set(title, { opacity: 0 })
-      if (chars.length) gsap.set(chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
+      reveal?.hide()
       if (intro) gsap.set(intro, { y: 20, opacity: 0 })
 
       const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
       if (eyebrow) tl.to(eyebrow, { y: 0, opacity: 1, duration: 0.5 })
       if (title) tl.set(title, { opacity: 1 }, 0.1)
-      if (chars.length) tl.to(chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, 0.1)
+      reveal?.playIn(tl, 0.1)
       if (intro) tl.to(intro, { y: 0, opacity: 1, duration: DUR.sub }, 0.4)
 
       if (history) {
@@ -78,8 +79,8 @@ export function AboutPage() {
         const histTitle = history.querySelector('[data-hist-title]')
         const histIntro = history.querySelector('[data-hist-intro]')
         
-        const histSplit = histTitle ? new SplitText(histTitle as HTMLElement, { type: 'words' }) : null
-        const histWords = histSplit?.words ?? []
+        const histReveal = createCharReveal(histTitle as HTMLElement | null, { by: 'words', axis: 'y' })
+        const histWords = histReveal?.chars ?? []
         
         const track = history.querySelector('[data-hist-track]')
         const line = history.querySelector('[data-hist-line]')
@@ -89,11 +90,11 @@ export function AboutPage() {
 
         if (histEyebrow) gsap.set(histEyebrow, { y: 15, opacity: 0 })
         if (histTitle) gsap.set(histTitle, { opacity: 0 })
-        if (histWords.length) gsap.set(histWords, { y: 20, opacity: 0, filter: 'blur(10px)' })
+        histReveal?.hide()
         if (histIntro) gsap.set(histIntro, { y: 20, opacity: 0 })
         
         // Initial state for cards
-        gsap.set(cards, { opacity: 0, filter: 'blur(10px)', y: 30, scale: 0.95 })
+        gsap.set(cards, { opacity: 0, filter: blurPx(10), y: 30, scale: 0.95 })
 
         // Intro animation for the timeline section
         ScrollTrigger.create({
@@ -104,7 +105,7 @@ export function AboutPage() {
             const tlHist = gsap.timeline({ defaults: { ease: EASE.reveal } })
             if (histEyebrow) tlHist.to(histEyebrow, { y: 0, opacity: 1, duration: 0.5 })
             if (histTitle) tlHist.set(histTitle, { opacity: 1 }, 0.1)
-            if (histWords.length) tlHist.to(histWords, { y: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.word }, 0.1)
+            histReveal?.playIn(tlHist, 0.1)
             if (histIntro) tlHist.to(histIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.4)
           }
         })
@@ -172,7 +173,7 @@ export function AboutPage() {
               // Blur in and scale card
               scrubTl.to(card, {
                 opacity: 1,
-                filter: 'blur(0px)',
+                filter: blurPx(0),
                 y: 0,
                 scale: 1,
                 duration: 0.15,
@@ -226,20 +227,20 @@ export function AboutPage() {
 
           // Desktop e Tablet (sm em diante) - Stagger no grupo
           mm.add('(min-width: 640px)', () => {
-            gsap.set(vCards, { opacity: 0, filter: 'blur(12px)' })
+            gsap.set(vCards, { opacity: 0, filter: blurPx(12) })
 
             const tlCards = gsap.timeline({
               scrollTrigger: {
                 trigger: vCards[0].parentElement || values,
                 start: 'top 85%',
                 end: 'bottom 15%',
-                toggleActions: 'play reverse play reverse',
+                toggleActions: revealToggleActions(),
               }
             })
 
             tlCards.to(vCards, {
               opacity: 1,
-              filter: 'blur(0px)',
+              filter: blurPx(0),
               duration: 1.4,
               stagger: 0.3,
               ease: 'power3.out'
@@ -249,17 +250,17 @@ export function AboutPage() {
           // Mobile - ScrollTrigger individual para cada card
           mm.add('(max-width: 639px)', () => {
             vCards.forEach((card) => {
-              gsap.set(card, { opacity: 0, filter: 'blur(12px)' })
+              gsap.set(card, { opacity: 0, filter: blurPx(12) })
 
               gsap.to(card, {
                 scrollTrigger: {
                   trigger: card,
                   start: 'top 85%',
                   end: 'bottom 15%',
-                  toggleActions: 'play reverse play reverse',
+                  toggleActions: revealToggleActions(),
                 },
                 opacity: 1,
-                filter: 'blur(0px)',
+                filter: blurPx(0),
                 duration: 1.4,
                 ease: 'power3.out'
               })
@@ -273,12 +274,12 @@ export function AboutPage() {
         const hlTitle = highlight.querySelector('[data-hl-title]')
         const hlIntro = highlight.querySelector('[data-hl-intro]')
 
-        const splitHL = hlTitle ? new SplitText(hlTitle, { type: 'chars,lines' }) : null
-        const charsHL = splitHL?.chars ?? []
+        const revealHL = createCharReveal(hlTitle as HTMLElement | null)
+        const charsHL = revealHL?.chars ?? []
 
         if (hlEyebrow) gsap.set(hlEyebrow, { y: 15, opacity: 0 })
         if (hlTitle) gsap.set(hlTitle, { opacity: 0 })
-        if (charsHL.length) gsap.set(charsHL, { x: 20, opacity: 0, filter: 'blur(10px)' })
+        revealHL?.hide()
         if (hlIntro) gsap.set(hlIntro, { y: 20, opacity: 0 })
 
         ScrollTrigger.create({
@@ -289,7 +290,7 @@ export function AboutPage() {
             const tlHl = gsap.timeline({ defaults: { ease: EASE.reveal } })
             if (hlEyebrow) tlHl.to(hlEyebrow, { y: 0, opacity: 1, duration: 0.5 })
             if (hlTitle) tlHl.set(hlTitle, { opacity: 1 }, 0.1)
-            if (charsHL.length) tlHl.to(charsHL, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, 0.1)
+            revealHL?.playIn(tlHl, 0.1)
             if (hlIntro) tlHl.to(hlIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.4)
           }
         })
@@ -348,7 +349,7 @@ export function AboutPage() {
       }
 
       return () => {
-        split?.revert()
+        reveal?.revert()
       }
     },
     { scope: containerRef, dependencies: [reduced] }

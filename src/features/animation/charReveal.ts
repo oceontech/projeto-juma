@@ -78,6 +78,8 @@ export type CharRevealOptions = {
 export type CharReveal = {
   /** Os caracteres (ou palavras) que a timeline anima. */
   chars: Element[]
+  /** Intervalo entre alvos, para quem monta a tween por conta própria. */
+  stagger: number
   /** Estado escondido — para `gsap.set` ou para uma tween de saída. */
   hidden: gsap.TweenVars
   /** Aplica o estado escondido agora (inclui o desfoque do container). */
@@ -134,6 +136,7 @@ export function createCharReveal(
 
   return {
     chars,
+    stagger,
     hidden,
     hide: () => {
       if (blur > 0) gsap.set(el, { filter: `blur(${blur}px)` })

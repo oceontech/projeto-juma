@@ -17,9 +17,10 @@ import { useEffect, useRef, useState, type HTMLAttributes, type ReactNode, type 
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 
-import { gsap, ScrollTrigger, SplitText, useGSAP } from '@/features/animation/gsap'
+import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
+import { createCharReveal } from '@/features/animation/charReveal'
 import { useLenis } from '@/features/animation/SmoothScroll'
-import { DUR, EASE, STAGGER, blurPx } from '@/features/animation/motion'
+import { EASE, STAGGER, blurPx } from '@/features/animation/motion'
 import { StaggerGroup } from '@/features/animation/StaggerGroup'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
@@ -1364,10 +1365,12 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const calloutLabel = oldCalloutRef.current?.querySelector<HTMLElement>('[data-label]') ?? null
       const calloutDot = oldCalloutRef.current?.querySelector<HTMLElement>('[data-dot]') ?? null
 
-      const titleSplit = titleEl
-        ? new SplitText(titleEl, { type: 'chars,lines' })
-        : null
-      const titleChars = titleSplit?.chars ?? (titleEl ? [titleEl] : [])
+      /* Motor central: o desfoque fica no título inteiro, nunca por caractere.
+         Este reveal roda com um clipe de vídeo tocando atrás — é o pior frame
+         da home para pedir sessenta desfoques de uma vez. */
+      const titleReveal = createCharReveal(titleEl, { autoAlpha: true, autoRevert: false })
+      const titleChars = titleReveal?.chars ?? (titleEl ? [titleEl] : [])
+      const titleStagger = titleReveal?.stagger ?? STAGGER.char
 
       /* ── O vídeo nunca é escondido por `visibility` ────────────────────
          `autoAlpha` desliga a visibility quando a opacidade zera, e no mobile
@@ -1389,7 +1392,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       gsap.set(brandMarkRef.current, { autoAlpha: 1, y: 0, filter: bl(0) })
       gsap.set(oldImg,       { zIndex: 10, scale: stageZoom().bottle, autoAlpha: 0, yPercent: 80, filter: bl(0) })
       gsap.set(scrimRef.current, { autoAlpha: 1 })
-      gsap.set(titleChars,   { x: 0, autoAlpha: 1, filter: bl(0) })
+      gsap.set(titleChars,   { x: 0, autoAlpha: 1 })
       gsap.set(act1Items,    { y: 0, autoAlpha: 1, filter: bl(0) })
       gsap.set(calloutLine,  { scaleX: 1, transformOrigin: 'left' })
       gsap.set(calloutDot,   { scale: 1, autoAlpha: 1 })
@@ -1403,8 +1406,9 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       const newCalloutLabel = newCalloutRef.current?.querySelector<HTMLElement>('[data-label]') ?? null
       const newCalloutDot = newCalloutRef.current?.querySelector<HTMLElement>('[data-dot]') ?? null
       const lineTitleEl = linePanelRef.current?.querySelector<HTMLElement>('[data-line-title]') ?? null
-      const lineTitleSplit = lineTitleEl ? new SplitText(lineTitleEl, { type: 'chars,lines' }) : null
-      const lineTitleChars = lineTitleSplit?.chars ?? (lineTitleEl ? [lineTitleEl] : [])
+      const lineTitleReveal = createCharReveal(lineTitleEl, { autoAlpha: true, autoRevert: false })
+      const lineTitleChars = lineTitleReveal?.chars ?? (lineTitleEl ? [lineTitleEl] : [])
+      const lineTitleStagger = lineTitleReveal?.stagger ?? STAGGER.char
       const lineItems = stageTrigger ? gsap.utils.toArray<HTMLElement>('[data-line-copy]', stageTrigger) : []
 
       gsap.set(leftPanelRef.current, { autoAlpha: 1 }) // O painel em si fica visível, os filhos animam
@@ -1416,7 +1420,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       gsap.set(newCalloutDot, { scale: 0, autoAlpha: 0 })
       gsap.set(newCalloutLabel, { autoAlpha: 0, x: 12 })
       gsap.set([linePanelRef.current, lineBodyRef.current], { autoAlpha: 0, y: 24, filter: bl(10) })
-      gsap.set(lineTitleChars, { x: 20, autoAlpha: 0, filter: bl(10) })
+      gsap.set(lineTitleChars, { x: 20, autoAlpha: 0 })
       gsap.set(lineItems, { autoAlpha: 0, y: 18, filter: bl(10) })
 
       // ── Helpers de animação
@@ -1430,7 +1434,6 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         if (on) lenisRef.current?.stop()
         else lenisRef.current?.start()
       }
-
 
       let stIntro: ScrollTrigger | null = null
       let stIntroExit: ScrollTrigger | null = null
@@ -1533,7 +1536,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         0
       )
       introTl.to(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: bl(0), duration: 0.7, ease: 'power3.out' }, 0.1)
-      introTl.to(titleChars,       { x: 0, autoAlpha: 1, filter: bl(0), duration: 0.72, stagger: STAGGER.char, ease: 'power2.out' }, 0.16)
+      introTl.to(titleChars,       { x: 0, autoAlpha: 1, duration: 0.72, stagger: titleStagger, ease: 'power2.out' }, 0.16)
       introTl.to(act1Items,        { y: 0, autoAlpha: 1, filter: bl(0), duration: 0.72, stagger: 0.12, ease: 'power2.out' }, 0.28)
       introTl.to(calloutLine,      { scaleX: 1, duration: 0.55, transformOrigin: 'left', ease: 'power2.out' }, 0.62)
       introTl.to(calloutDot,       { scale: 1, autoAlpha: 1, duration: 0.35, ease: 'back.out(1.8)' }, 0.92)
@@ -1607,7 +1610,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
 
         tl.to(linePanelRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.38, ease: 'power2.out' }, 0)
         tl.to(lineItems, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.38, stagger: 0.05, ease: 'power2.out' }, 0.04)
-        tl.to(lineTitleChars, { x: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.5, stagger: STAGGER.char, ease: 'power2.out' }, 0.08)
+        tl.to(lineTitleChars, { x: 0, autoAlpha: 1, duration: 0.5, stagger: lineTitleStagger, ease: 'power2.out' }, 0.08)
         tl.to(lineBodyRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.4, ease: 'power2.out' }, 0.18)
       }
 
@@ -1659,7 +1662,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           if (oldCalloutRef.current) gsap.set(oldCalloutRef.current, { autoAlpha: 0 })
         } else {
           gsap.killTweensOf([...titleChars, ...act1Items, calloutLine, calloutDot, calloutLabel, scrimRef.current, oldCalloutRef.current].filter(Boolean))
-          gsap.to(titleChars, { x: 20, autoAlpha: 0, filter: bl(10), duration: 0.6, stagger: STAGGER.char, ease: 'power1.inOut', overwrite: 'auto' })
+          gsap.to(titleChars, { x: 20, autoAlpha: 0, duration: 0.6, stagger: titleStagger, ease: 'power1.inOut', overwrite: 'auto' })
           gsap.to(act1Items, { y: 20, autoAlpha: 0, filter: bl(10), duration: 0.6, stagger: 0.05, ease: 'power1.inOut', overwrite: 'auto' })
           gsap.to(calloutLabel, { x: 12, autoAlpha: 0, duration: 0.36, ease: 'power1.inOut', overwrite: 'auto' })
           gsap.to(calloutDot, { scale: 0, autoAlpha: 0, duration: 0.33, ease: 'power1.inOut', overwrite: 'auto' })
@@ -1692,7 +1695,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
           lineTl = null
           gsap.killTweensOf([linePanelRef.current, lineBodyRef.current, ...lineItems, ...lineTitleChars])
           gsap.set([linePanelRef.current, lineBodyRef.current], { autoAlpha: 0, y: 24, filter: bl(10) })
-          gsap.set(lineTitleChars, { x: 20, autoAlpha: 0, filter: bl(10) })
+          gsap.set(lineTitleChars, { x: 20, autoAlpha: 0 })
           gsap.set(lineItems, { autoAlpha: 0, y: 18, filter: bl(10) })
         } else {
           hideLineUI(0)
@@ -2516,8 +2519,8 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         introTl.kill()
         pinTrigger?.kill()
         pinTrigger = null
-        titleSplit?.revert()
-        lineTitleSplit?.revert()
+        titleReveal?.revert()
+        lineTitleReveal?.revert()
         currentTl?.kill()
         lineTl?.kill()
         if (animFrame) cancelAnimationFrame(animFrame)
@@ -2736,7 +2739,6 @@ function AminosanBrandMark({ refEl }: { refEl: RefObject<HTMLDivElement | null> 
     </div>
   )
 }
-
 
 function BottleCallout({
   refEl,

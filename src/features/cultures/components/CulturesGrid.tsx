@@ -5,7 +5,8 @@ import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
-import { gsap, SplitText, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
+import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
+import { createCharReveal } from '@/features/animation/charReveal'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
@@ -85,19 +86,19 @@ export function CulturesGrid() {
       const how = howRef.current
       const cta = ctaRef.current
 
-      const split = title ? new SplitText(title, { type: 'chars,lines' }) : null
-      const chars = split?.chars ?? []
+      const reveal = createCharReveal(title)
+      const chars = reveal?.chars ?? []
 
       if (eyebrow) gsap.set(eyebrow, { y: 15, opacity: 0 })
       if (title) gsap.set(title, { opacity: 0 })
-      if (chars.length) gsap.set(chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
+      reveal?.hide()
       if (intro) gsap.set(intro, { y: 20, opacity: 0 })
       if (cta) gsap.set(cta, { y: 24, opacity: 0 })
 
       const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
       if (eyebrow) tl.to(eyebrow, { y: 0, opacity: 1, duration: 0.5 })
       if (title) tl.set(title, { opacity: 1 }, 0.1)
-      if (chars.length) tl.to(chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, 0.1)
+      reveal?.playIn(tl, 0.1)
       if (intro) tl.to(intro, { y: 0, opacity: 1, duration: DUR.sub }, 0.4)
 
       if (grid) {
@@ -172,7 +173,7 @@ export function CulturesGrid() {
       }
 
       return () => {
-        split?.revert()
+        reveal?.revert()
       }
     },
     { scope: containerRef, dependencies: [reduced] }

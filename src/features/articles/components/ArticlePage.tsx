@@ -5,7 +5,8 @@ import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
 import { useTranslations, useLocale } from 'next-intl'
-import { gsap, SplitText, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
+import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
+import { createCharReveal } from '@/features/animation/charReveal'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { ARTICLES_DATA, Article } from '../data/articlesData'
@@ -105,11 +106,8 @@ export function ArticlePage({ slug }: ArticlePageProps) {
         const author = headerContentRef.current?.querySelector('[data-author]')
 
         // Split text for title
-        let split: SplitText | null = null
-        if (title) {
-          split = new SplitText(title as HTMLElement, { type: 'chars,lines' })
-          gsap.set(split.chars, { x: 20, opacity: 0, filter: 'blur(8px)' })
-        }
+        const reveal = createCharReveal(title as HTMLElement | null, { blur: 8 })
+        reveal?.hide()
 
         if (backBtn) gsap.set(backBtn, { y: -15, opacity: 0 })
         if (meta) gsap.set(meta, { y: 15, opacity: 0 })
@@ -120,9 +118,7 @@ export function ArticlePage({ slug }: ArticlePageProps) {
         const tl = gsap.timeline({ delay: 0.2 })
         if (backBtn) tl.to(backBtn, { y: 0, opacity: 1, duration: 0.5, ease: EASE.reveal })
         if (meta) tl.to(meta, { y: 0, opacity: 1, duration: 0.5, ease: EASE.reveal }, '<0.1')
-        if (split) {
-          tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char, ease: EASE.reveal }, '<0.1')
-        }
+        reveal?.playIn(tl, '<0.1')
         if (subtitle) tl.to(subtitle, { y: 0, opacity: 1, duration: DUR.sub, ease: EASE.reveal }, '<0.2')
         if (author) tl.to(author, { y: 0, opacity: 1, duration: 0.5, ease: EASE.reveal }, '<0.15')
 
@@ -179,7 +175,7 @@ export function ArticlePage({ slug }: ArticlePageProps) {
         }
 
         return () => {
-          split?.revert()
+          reveal?.revert()
         }
       } else {
         // If reduced motion is enabled, make everything visible

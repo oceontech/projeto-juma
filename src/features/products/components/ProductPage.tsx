@@ -5,8 +5,9 @@ import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
-import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
-import { DUR, EASE, STAGGER } from '@/features/animation/motion'
+import { gsap, useGSAP } from '@/features/animation/gsap'
+import { createCharReveal, revealToggleActions } from '@/features/animation/charReveal'
+import { DUR, EASE } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { AlertTriangle, Star, Activity, BarChart3, Clock, LayoutGrid, Camera, Package, Rocket, ListChecks } from 'lucide-react'
 import { HomeCtaFinal } from '@/features/home/components/HomeCtaFinal'
@@ -436,21 +437,16 @@ export function ProductPage({ slug }: { slug: string }) {
       const title = heroRef.current.querySelector('[data-hero-title]')
       const els = heroRef.current.querySelectorAll('[data-hero-el]')
       
-      let split: SplitText | null = null
-      if (title) {
-        split = new SplitText(title, { type: 'chars,words' })
-        gsap.set(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
-      }
+      const reveal = createCharReveal(title as HTMLElement | null)
+      reveal?.hide()
       
       gsap.set(els, { y: 24, opacity: 0 })
       
       const tl = gsap.timeline({ delay: 0.15 })
       tl.to(els, { y: 0, opacity: 1, duration: DUR.sub, stagger: 0.04, ease: EASE.reveal })
-      if (split) {
-        tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char, ease: EASE.reveal }, '<0.1')
-      }
+      reveal?.playIn(tl, '<0.1')
 
-      return () => split?.revert()
+      return () => reveal?.revert()
     },
     { scope: heroRef, dependencies: [reduced] },
   )
@@ -460,7 +456,7 @@ export function ProductPage({ slug }: { slug: string }) {
       if (reduced || !bodyRef.current) return
       const sections = bodyRef.current.querySelectorAll('[data-section]')
       
-      const splits: SplitText[] = []
+      const reveals: NonNullable<ReturnType<typeof createCharReveal>>[] = []
       
       sections.forEach((section) => {
         const title = section.querySelector('[data-section-title]')
@@ -468,11 +464,10 @@ export function ProductPage({ slug }: { slug: string }) {
         const lede = section.querySelector('[data-section-lede]')
         const contentEls = section.querySelectorAll('[data-animate-content]')
         
-        let split: SplitText | null = null
-        if (title) {
-          split = new SplitText(title, { type: 'chars,words' })
-          splits.push(split)
-          gsap.set(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
+        const reveal = createCharReveal(title as HTMLElement | null)
+        if (reveal) {
+          reveals.push(reveal)
+          reveal.hide()
         }
         
         if (kicker) gsap.set(kicker, { y: 14, opacity: 0 })
@@ -485,23 +480,21 @@ export function ProductPage({ slug }: { slug: string }) {
             trigger: section,
             start: 'top 85%',
             end: 'bottom 15%',
-            toggleActions: 'play reverse play reverse',
+            toggleActions: revealToggleActions(),
           },
           defaults: { ease: EASE.reveal }
         })
         
         tl.to(section, { y: 0, opacity: 1, duration: 0.8 })
         if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub }, '<0.1')
-        if (split) {
-          tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, '<0.1')
-        }
+        reveal?.playIn(tl, '<0.1')
         if (lede) tl.to(lede, { y: 0, opacity: 1, duration: DUR.sub }, '<0.2')
         if (contentEls.length > 0) {
           tl.to(contentEls, { y: 0, opacity: 1, duration: 0.45, stagger: 0.03 }, '<0.2')
         }
       })
       
-      return () => splits.forEach(s => s.revert())
+      return () => reveals.forEach((r) => r.revert())
     },
     { scope: bodyRef, dependencies: [reduced] },
   )
