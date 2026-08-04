@@ -622,6 +622,35 @@ export function HomeProductShowcase() {
            *  que os próprios navegadores usam pra distinguir toque de arrasto. */
           const STEP_THRESHOLD = 12
 
+          /* ── Um gesto de RODA = um passo ─────────────────────────────────
+             O toque já tinha essa garantia (`steppedThisGesture`); a roda não
+             tinha nenhuma, e é ela que quebrava a imersão na volta da
+             Cultures. Trackpad (e mouse de roda livre) manda uma RAJADA de
+             eventos por gesto — a inércia do trackpad continua emitindo por
+             mais de um segundo depois do dedo sair. Como a trava do passo é
+             curta de propósito (`tl.call(releaseStepLock, ..., 0.2)`, pra o
+             gesto SEGUINTE responder na hora), cada rajada dessas andava um
+             produto a cada 0,2s: um scroll forte atravessava os quatro e o
+             evento seguinte caía no `stepCatalog(-1)` com o índice já em 0 —
+             que é o `runHandoffOut()`, o salto pro Aminosan. Daí a sensação
+             de ser cuspido pra seção de cima sem passar pelo catálogo.
+             O gesto só acaba depois de `WHEEL_GESTURE_GAP` ms de silêncio da
+             roda, e `wheelLastTime` é atualizado em TODO evento (inclusive
+             fora do pin) — então a cauda de inércia mantém o mesmo gesto vivo
+             e não vira passo nenhum. */
+          const WHEEL_GESTURE_GAP = 160
+          let wheelLastTime = 0
+          let wheelStepped = false
+          /** Marca o gesto de roda em curso como já gasto. Usado nas ENTRADAS
+           *  na seção: a rajada que trouxe o usuário até aqui não pode virar
+           *  passo, senão ele chega no catálogo e o produto da borda já sai de
+           *  cena antes de ele ver. Não mexe em `wheelLastTime` de propósito:
+           *  se a roda já estava em silêncio, o próximo evento é um gesto novo
+           *  e destrava sozinho (nenhum passo legítimo é engolido). */
+          const consumeWheelGesture = () => {
+            wheelStepped = true
+          }
+
           const clearStepLockTimers = () => {
             if (transitionUnlockTimer) clearTimeout(transitionUnlockTimer)
             if (stepLockWatchdog) clearTimeout(stepLockWatchdog)
@@ -912,6 +941,7 @@ export function HomeProductShowcase() {
             // Entrando de novo: a trava do passo anterior (inclusive a que
             // levou a página pra fora daqui) não pode sobreviver à volta.
             releaseStepLock()
+            consumeWheelGesture()
             lockLenis()
             currentIndexRef.current = 0
             dots.forEach((d, i) => d.classList.toggle('is-active', i === 0))
@@ -1023,6 +1053,9 @@ export function HomeProductShowcase() {
             onEnter: () => {
               if (!insidePin()) return
               leavingDown = false
+              // O gesto que atravessou a borda já cumpriu o papel dele (trazer
+              // o usuário pra cá) — ver `consumeWheelGesture`.
+              consumeWheelGesture()
               lockLenis()
               window.dispatchEvent(new CustomEvent('nav:hide', { detail: { lock: true } }))
               // Rede de segurança: qualquer entrada por cima cancela um
@@ -1044,6 +1077,12 @@ export function HomeProductShowcase() {
             onEnterBack: () => {
               if (!insidePin()) return
               leavingDown = false
+              /* A volta da Cultures é o caso que motivou isto: o flick foi
+                 dado FORA do pin (nada retido, Lenis acumulou o gesto inteiro)
+                 e a rajada continua chegando DEPOIS da borda ser cruzada. Sem
+                 gastar o gesto aqui, ela virava um passo a cada 0,2s e
+                 atravessava o catálogo até disparar a saída pro Aminosan. */
+              consumeWheelGesture()
               lockLenis()
               window.dispatchEvent(new CustomEvent('nav:hide', { detail: { lock: true } }))
               if (currentIndexRef.current !== COUNT - 1 && !isTransitioning && !stepLocked) {
@@ -1158,6 +1197,7 @@ export function HomeProductShowcase() {
             leavingUp = false
             leavingDown = false
             releaseStepLock()
+            consumeWheelGesture()
             lockLenis()
             hideHint()
             transitionTl?.kill()
@@ -1473,12 +1513,39 @@ export function HomeProductShowcase() {
             }
           }
 
+          /* UM gesto de roda = UM produto (mesma guarda do `stepFromTouch`).
+             Se o passo for RECUSADO (trava do gesto anterior ainda de pé), o
+             gesto não é dado como gasto: o evento seguinte da mesma rajada
+             tenta de novo, então um flick que chega em cima de uma transição
+             não se perde. Assim que um passo sai de verdade, o resto da
+             rajada — inclusive a inércia do trackpad — é ignorado. */
+          const stepFromWheel = (dir: 1 | -1) => {
+            if (wheelStepped) return
+            const before = currentIndexRef.current
+            stepCatalog(dir)
+            if (
+              currentIndexRef.current !== before ||
+              leavingUp ||
+              leavingDown ||
+              handingOff
+            ) {
+              wheelStepped = true
+            }
+          }
+
           const onWheelStep = (e: WheelEvent) => {
             if (aminosanVideoHandoff || outroHolding) {
               if (e.cancelable) e.preventDefault()
               return
             }
             if (Math.abs(e.deltaY) < 2) return
+            /* Fronteira do gesto de roda, medida ANTES de qualquer ramo: o
+               gesto que traz o usuário pra dentro do pin começa lá fora, e é
+               justamente a continuação dele (rajada + inércia) que não pode
+               virar passo aqui dentro. Ver `WHEEL_GESTURE_GAP`. */
+            const now = e.timeStamp || performance.now()
+            if (now - wheelLastTime > WHEEL_GESTURE_GAP) wheelStepped = false
+            wheelLastTime = now
             /* `pinTrigger.isActive` sozinho falha bem no instante de chegar
                vindo do handoff do vídeo: o salto de scroll pousa o scrollY
                DENTRO da faixa do pin, mas o ScrollTrigger ainda não rodou o
@@ -1516,7 +1583,7 @@ export function HomeProductShowcase() {
             // trackpad chega em deltas minúsculos e não conta como gesto —
             // sem este piso, um flick só atravessava vários produtos.
             if (Math.abs(e.deltaY) < 8) return
-            stepCatalog(e.deltaY > 0 ? 1 : -1)
+            stepFromWheel(e.deltaY > 0 ? 1 : -1)
           }
 
           /* Posse do gesto, decidida no PRIMEIRO touchmove e mantida até o dedo
