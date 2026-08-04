@@ -3,9 +3,9 @@
 import { CheckCircle2 } from 'lucide-react'
 
 import React, { useRef, useState, useEffect } from 'react'
-import Image from 'next/image'
-import { gsap, SplitText } from '@/features/animation/gsap'
-import { DUR, EASE, STAGGER, blurPx } from '@/features/animation/motion'
+import { gsap } from '@/features/animation/gsap'
+import { DUR, EASE } from '@/features/animation/motion'
+import { createTextReveal, revealToggleActions } from '@/features/animation/textReveal'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { useGSAP } from '@/features/animation/gsap'
 import { Container } from '@/components/layout/Container'
@@ -19,7 +19,6 @@ type TestimonialData = {
   initials: string;
   name: string;
   location: string;
-  image?: string;
 };
 
 export function HomeTestimonials() {
@@ -31,16 +30,16 @@ export function HomeTestimonials() {
     if (reduced || !ref.current) return
     
     const header = ref.current.querySelector<HTMLElement>('[data-header]')
-    let split: SplitText | null = null;
+    let reveal: ReturnType<typeof createTextReveal> = null
     if (header) {
       const kicker = header.querySelector<HTMLElement>('[data-kicker]')
       const title = header.querySelector<HTMLElement>('[data-title]')
       const line = header.querySelector<HTMLElement>('[data-gline]')
 
-      split = title ? new SplitText(title, { type: 'chars,words' }) : null
+      reveal = createTextReveal(title)
 
       if (kicker) gsap.set(kicker, { y: 14, opacity: 0 })
-      if (split) gsap.set(split.chars, { x: 20, opacity: 0, filter: blurPx(10) })
+      reveal?.hide()
       if (line) gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
 
       const tl = gsap.timeline({
@@ -48,23 +47,18 @@ export function HomeTestimonials() {
           trigger: header,
           start: 'top 85%',
           end: 'bottom 15%',
-          toggleActions: 'play reverse play reverse',
+          toggleActions: revealToggleActions(),
         },
         defaults: { ease: EASE.reveal }
       })
       if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub })
-      if (split) tl.to(split.chars, { x: 0, opacity: 1, filter: blurPx(0), duration: DUR.title, stagger: STAGGER.char }, '-=0.4')
+      if (reveal) tl.to(reveal.targets, reveal.shown, '-=0.4')
       if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: DUR.sub }, '-=0.4')
     }
-    
-    return () => split?.revert()
+
+    return () => reveal?.revert()
   }, { scope: ref })
 
-  const unsplashImages = [
-    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?fit=crop&w=100&h=100&q=80",
-    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?fit=crop&w=100&h=100&q=80",
-    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?fit=crop&w=100&h=100&q=80"
-  ];
 
   const testimonialsData: TestimonialData[] = TESTIMONIALS.map(i => ({
     text: t(`testimonials.${i}.text` as any),
@@ -72,7 +66,6 @@ export function HomeTestimonials() {
     initials: t(`testimonials.${i}.initials` as any),
     name: t(`testimonials.${i}.name` as any),
     location: t(`testimonials.${i}.location` as any),
-    image: unsplashImages[i]
   }));
 
   return (
@@ -206,22 +199,13 @@ export const TestimonialsColumn = (props: {
                 {item.text}
               </p>
               <div className="flex items-center gap-3 pt-2" style={{ borderTop: '1px solid rgba(0,0,0,.06)' }}>
-                {item.image ? (
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    width={40}
-                    height={40}
-                    className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-                  />
-                ) : (
-                  <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-[14px]"
-                    style={{ backgroundColor: '#004B26', color: '#F0E27A' }}
-                  >
-                    {item.initials}
-                  </div>
-                )}
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-[14px]"
+                  style={{ backgroundColor: '#004B26', color: '#F0E27A' }}
+                  aria-hidden
+                >
+                  {item.initials}
+                </div>
                 <div>
                   <div className="text-[14px] text-subtitle font-bold" style={{ color: '#0F1A0A' }}>{item.name}</div>
                   <div className="text-[12px]" style={{ color: '#7a8f6e' }}>{item.location}</div>
