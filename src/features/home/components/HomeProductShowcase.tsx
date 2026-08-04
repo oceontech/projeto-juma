@@ -651,6 +651,31 @@ export function HomeProductShowcase() {
             wheelStepped = true
           }
 
+          /* Estado do piso de scroll (a lógica vive em `enforceScrollFloor`,
+             lá embaixo, onde `pinTrigger`/`indexToY` já existem). Declarado
+             AQUI de propósito: o `onEnter` do pin pode disparar durante o
+             próprio `ScrollTrigger.create` (ver comentário em `pinBox`), e um
+             `let` declarado depois disso estaria na zona morta temporal —
+             ReferenceError na montagem da página. */
+          let guardArmed = false
+          let lastGestureAt = 0
+          const GUARD_GESTURE_WINDOW = 1500
+          /** Marca que o movimento atual nasceu de um gesto de scroll do
+           *  usuário — é o que separa "corrida" de "navegação" (âncora do
+           *  menu, `scrollTo` de outra seção), que o piso não deve tocar. */
+          const noteGesture = () => {
+            lastGestureAt = performance.now()
+          }
+          /** O catálogo é dono da cena: o piso passa a valer. */
+          const armScrollFloor = () => {
+            guardArmed = true
+          }
+          /** Saída deliberada (handoff pra cima, pular pra baixo): solta o piso
+           *  antes do movimento começar, senão ele desfaz a própria saída. */
+          const disarmScrollFloor = () => {
+            guardArmed = false
+          }
+
           const clearStepLockTimers = () => {
             if (transitionUnlockTimer) clearTimeout(transitionUnlockTimer)
             if (stepLockWatchdog) clearTimeout(stepLockWatchdog)
@@ -1018,12 +1043,22 @@ export function HomeProductShowcase() {
             })
           }
 
-          /** Entrada no pin pelo mobile: mata a inércia do gesto que trouxe o
-           *  usuário até aqui e ancora no produto de chegada. Sem isso o flick
-           *  continua correndo por dentro do pin — atravessando os quatro
-           *  produtos e saindo pela borda de cima, de volta pro vídeo. */
+          /** Entrada no pin com scroll NATIVO: mata a inércia do gesto que
+           *  trouxe o usuário até aqui e ancora no produto de chegada. Sem
+           *  isso o flick continua correndo por dentro do pin — atravessando
+           *  os quatro produtos e saindo pela borda de cima, de volta pro
+           *  vídeo.
+           *  A condição é "não existe Lenis", e não `isMobile`: os dois cortes
+           *  NÃO batem. O Lenis só é instanciado a partir de 1024px
+           *  (`SmoothScroll`), mas `isMobile` aqui é `max-width: 767px` — ou
+           *  seja, de 768 a 1023px (tablet, janela reduzida, DevTools
+           *  ancorado ao lado) não havia Lenis pra `lockLenis()` parar NEM
+           *  âncora nativa: a inércia do navegador atravessava o pin inteiro
+           *  sem ninguém no caminho. Quando o Lenis existe, quem mata a
+           *  inércia é o `stop()` dele e este caminho não deve rodar (mexer no
+           *  `overflow` por baixo dele produz tranco). */
           const anchorOnEnter = (index: number) => {
-            if (!isMobile) return
+            if (lenisRef.current) return
             killMomentumScroll()
             requestAnimationFrame(() => {
               const y = indexToY(index)
@@ -1056,6 +1091,7 @@ export function HomeProductShowcase() {
               // O gesto que atravessou a borda já cumpriu o papel dele (trazer
               // o usuário pra cá) — ver `consumeWheelGesture`.
               consumeWheelGesture()
+              armScrollFloor()
               lockLenis()
               window.dispatchEvent(new CustomEvent('nav:hide', { detail: { lock: true } }))
               // Rede de segurança: qualquer entrada por cima cancela um
@@ -1083,6 +1119,7 @@ export function HomeProductShowcase() {
                  gastar o gesto aqui, ela virava um passo a cada 0,2s e
                  atravessava o catálogo até disparar a saída pro Aminosan. */
               consumeWheelGesture()
+              armScrollFloor()
               lockLenis()
               window.dispatchEvent(new CustomEvent('nav:hide', { detail: { lock: true } }))
               if (currentIndexRef.current !== COUNT - 1 && !isTransitioning && !stepLocked) {
@@ -1099,6 +1136,7 @@ export function HomeProductShowcase() {
               pinActiveRef.current = self.isActive
               if (self.isActive) {
                 if (!insidePin()) return
+                armScrollFloor()
                 lockLenis()
                 window.dispatchEvent(new CustomEvent('nav:hide', { detail: { lock: true } }))
                 return
@@ -1108,6 +1146,15 @@ export function HomeProductShowcase() {
               // na posição passa a ser a outra seção — religar aqui devolveria
               // a inércia do gesto bem no meio do vídeo reverso.
               if (leavingUp || handingOff || outroHolding) return
+              /* O piso só é solto quando a saída foi pela borda de BAIXO (a
+                 saída legítima em rolagem livre, rumo à Cultures). Sair pela
+                 borda de cima sem passar pelo `runHandoffOut` é exatamente a
+                 corrida que o piso existe pra desfazer — soltá-lo aqui seria
+                 desarmar a rede no único instante em que ela importa. */
+              // `self.end` e não `pinTrigger.end`: o onToggle pode disparar
+              // durante o próprio `ScrollTrigger.create`, quando a const
+              // `pinTrigger` ainda está na zona morta temporal.
+              if (window.scrollY > self.end) disarmScrollFloor()
               leavingDown = false
               unlockLenis()
               // O catálogo não dirige mais o scroll: a navbar volta a decidir
@@ -1133,6 +1180,55 @@ export function HomeProductShowcase() {
             if (i <= 0) return raw + PIN_EDGE_INSET
             if (i >= COUNT - 1) return raw - PIN_EDGE_INSET
             return raw
+          }
+
+          /* ── Piso de scroll do catálogo — rede FINAL ────────────────────
+             Tudo que veio antes (parar o Lenis na borda, matar a inércia
+             nativa na entrada, um gesto de roda = um passo) tenta impedir a
+             corrida na ORIGEM, cada um cobrindo um caminho. Esta peça não
+             depende de adivinhar o caminho: enquanto o catálogo está em cena,
+             a página simplesmente NÃO passa acima do pixel do produto que
+             está na tela. Tanto faz o que produziu o movimento — inércia
+             nativa numa largura em que o Lenis nem existe, uma rajada de roda
+             que escapou, um callback do ScrollTrigger pulado por um salto
+             grande demais: o efeito era sempre o mesmo, o usuário atravessava
+             os quatro produtos de uma vez e caía na seção de cima.
+             A saída pra cima continua existindo — mas só pelo caminho
+             deliberado (`runHandoffOut`, que liga `leavingUp`/`outroHolding`
+             e desarma o piso), depois de o usuário ter voltado produto a
+             produto até o primeiro.
+
+             `guardArmed` existe pra o piso NÃO valer quando o catálogo não é
+             dono da cena: parado lá em cima no Aminosan, `indexToY(0)` ainda
+             aponta pra dentro do pin, e um piso solto puxaria o usuário pra
+             baixo, pra dentro de uma seção da qual ele já saiu.
+
+             A janela de gesto separa "corrida" de "navegação": um clique no
+             menu (âncora) ou um `scrollTo` de outra seção não vêm precedidos
+             de roda/toque, então o piso não briga com eles. */
+          const enforceScrollFloor = () => {
+            if (!guardArmed) return
+            // Movimentos que o próprio catálogo dirige pra fora daqui.
+            if (leavingUp || leavingDown || handingOff || outroHolding || aminosanVideoHandoff) {
+              return
+            }
+            if (performance.now() - lastGestureAt > GUARD_GESTURE_WINDOW) return
+            const floor = indexToY(currentIndexRef.current)
+            const y = window.scrollY
+            if (y >= floor - 2) return
+            /* Só dentro da faixa do pin (com folga mínima na borda de cima).
+               É onde o catálogo manda, e uma corrida precisa atravessar os
+               ~300vh dela inteira — dezenas de eventos de scroll, tempo de
+               sobra pra pegar já no primeiro. Fora daqui a página pertence a
+               outra seção e o piso não opina: era esse o risco de deixar a
+               faixa larga, ele acabaria puxando de volta quem só passou perto
+               vindo do menu ou de um `scrollTo` da seção vizinha. */
+            if (y < pinTrigger.start - 4 || y > pinTrigger.end + 1) return
+            const l = lenisRef.current
+            if (l && !l.isStopped) l.stop()
+            else if (!l) killMomentumScroll()
+            window.scrollTo(0, floor)
+            ScrollTrigger.update()
           }
 
           const isTopHandoffZone = () => {
@@ -1180,6 +1276,7 @@ export function HomeProductShowcase() {
             // onToggle do pin, ao cruzar a borda), ela matava justamente este
             // scroll de saída no meio do caminho.
             leavingDown = true
+            disarmScrollFloor()
             unlockLenis()
             scrollToY(pinTrigger.end + 2, 0.65)
           }
@@ -1335,6 +1432,9 @@ export function HomeProductShowcase() {
 
           const runHandoffOut = () => {
             if (leavingUp) return
+            // Esta é a ÚNICA saída legítima pela borda de cima: o piso sai de
+            // cena antes de qualquer movimento, senão ele desfaria o salto.
+            disarmScrollFloor()
             hideHint()
             window.dispatchEvent(new CustomEvent('nav:show'))
             // Avisa a seção de cima ANTES de qualquer movimento: enquanto a
@@ -1546,6 +1646,7 @@ export function HomeProductShowcase() {
             const now = e.timeStamp || performance.now()
             if (now - wheelLastTime > WHEEL_GESTURE_GAP) wheelStepped = false
             wheelLastTime = now
+            noteGesture()
             /* `pinTrigger.isActive` sozinho falha bem no instante de chegar
                vindo do handoff do vídeo: o salto de scroll pousa o scrollY
                DENTRO da faixa do pin, mas o ScrollTrigger ainda não rodou o
@@ -1599,6 +1700,7 @@ export function HomeProductShowcase() {
             if (e.touches.length > 0) touchStartY = e.touches[0].clientY
             steppedThisGesture = false
             gestureOwned = null
+            noteGesture()
           }
 
           /** Gestos que NÃO são do catálogo: ir pra frente no último produto é
@@ -1654,6 +1756,7 @@ export function HomeProductShowcase() {
               return
             }
             if (e.touches.length === 0) return
+            noteGesture()
             const delta = touchStartY - e.touches[0].clientY
             // Mesmo remédio do onWheelStep: `insidePin()` cobre o instante em
             // que o scrollY já está dentro da faixa do pin (chegando do
@@ -1719,6 +1822,12 @@ export function HomeProductShowcase() {
             if (pinTrigger.isActive && insidePin() && !leavingUp && !leavingDown && !outroHolding) {
               lockLenis()
             }
+            /* Piso: roda a CADA evento de scroll, não no idle. O `settle` só
+               acorda 180ms depois do movimento parar — tarde demais, porque a
+               essa altura a corrida já terminou lá em cima e "corrigir" viraria
+               um segundo salto visível. Aqui a correção acontece no mesmo frame
+               em que o scroll passa do limite, então ela não chega a aparecer. */
+            enforceScrollFloor()
             clearTimeout(idleTimer)
             idleTimer = setTimeout(settle, 180)
           }
@@ -1755,6 +1864,14 @@ export function HomeProductShowcase() {
 
           // Teclado
           const handleKeyDown = (e: KeyboardEvent) => {
+            if (
+              e.key === 'ArrowDown' ||
+              e.key === 'PageDown' ||
+              e.key === 'ArrowUp' ||
+              e.key === 'PageUp'
+            ) {
+              noteGesture()
+            }
             if (!pinTrigger.isActive) {
               if ((e.key === 'ArrowUp' || e.key === 'PageUp') && isTopHandoffZone()) {
                 e.preventDefault()
