@@ -964,29 +964,50 @@ export function HomeProductShowcase() {
             return y >= t.start - 1 && y <= t.end + 1
           }
 
-          /* Produto correspondente ao progresso do pin (0 = primeiro, 1 =
-             último). É o que dirige o carrossel no MOBILE: lá não existe Lenis
-             (SmoothScroll só instancia no desktop), então o scroll é o nativo
-             do navegador, com inércia própria — qualquer `window.scrollTo`
-             nosso no meio do gesto disputa posição com essa inércia, e é essa
-             disputa que fazia a seção despinar e voltar num tranco. Sem
-             reposicionar nada, o ScrollTrigger fica sempre em sincronia e só
-             lemos o progresso pra decidir qual produto está em cena. */
-          const progressToIndex = (p: number) =>
-            Math.min(COUNT - 1, Math.max(0, Math.round(p * (COUNT - 1))))
+          /* Mata a inércia nativa do touch (iOS/Android) na hora, sem esperar
+             ela desacelerar sozinha. Mesma técnica (e mesmo motivo) do
+             `killMomentumScroll` da seção Aminosan: o usuário chega no
+             catálogo com um flick dado FORA do pin, onde nenhum
+             `preventDefault` nosso vale — quando o dedo solta, o navegador
+             entra numa rolagem própria que atravessa a seção inteira por
+             conta dela. Não existe API pra cancelar essa animação; tornar o
+             documento não-rolável por um frame força o navegador a abortá-la.
+             É a peça que faltava aqui: no mobile não há Lenis (SmoothScroll só
+             instancia no desktop), então `lockLenis()` sempre foi no-op e
+             ninguém nunca tomou posse do scroll de verdade na entrada. */
+          const killMomentumScroll = () => {
+            const de = document.documentElement
+            const body = document.body
+            const prevHtml = de.style.overflow
+            const prevBody = body.style.overflow
+            de.style.overflow = 'hidden'
+            body.style.overflow = 'hidden'
+            requestAnimationFrame(() => {
+              de.style.overflow = prevHtml
+              body.style.overflow = prevBody
+            })
+          }
 
-          /* Quanto de rolagem cada produto custa, em % da viewport. No desktop
-             o gesto vira um passo discreto e o valor só define o tamanho do
-             spacer. No MOBILE ele é o que o dedo percorre de verdade: com 100%
-             cada troca exigia uma viewport inteira de arrasto e o catálogo
-             ficava pesado de atravessar. 65% deixa a troca acontecer perto do
-             meio de um swipe normal, sem virar um flick que pula produtos. */
-          const PIN_STEP_VH = isMobile ? 65 : 100
+          /** Entrada no pin pelo mobile: mata a inércia do gesto que trouxe o
+           *  usuário até aqui e ancora no produto de chegada. Sem isso o flick
+           *  continua correndo por dentro do pin — atravessando os quatro
+           *  produtos e saindo pela borda de cima, de volta pro vídeo. */
+          const anchorOnEnter = (index: number) => {
+            if (!isMobile) return
+            killMomentumScroll()
+            requestAnimationFrame(() => {
+              const y = indexToY(index)
+              if (Math.abs(window.scrollY - y) > 1) {
+                window.scrollTo(0, y)
+                ScrollTrigger.update()
+              }
+            })
+          }
 
           const pinTrigger = ScrollTrigger.create({
             trigger: root,
             start: 'top top',
-            end: `+=${(COUNT - 1) * PIN_STEP_VH}%`,
+            end: `+=${(COUNT - 1) * 100}%`,
             pin: true,
             pinSpacing: true,
             /* SEM `anticipatePin`. Ele adianta o pin com base na VELOCIDADE do
@@ -999,15 +1020,6 @@ export function HomeProductShowcase() {
                zerando `leavingUp` e devolvendo a página ao catálogo. A seção
                nunca é alcançada em rolagem livre (a entrada é sempre o handoff
                ou o gesto cancelado do pin), então não há flicker a evitar. */
-            /* MOBILE: o produto em cena sai do progresso do pin. Ninguém mexe
-               no scroll — nem passo travado, nem snap, nem preventDefault. */
-            onUpdate: (self) => {
-              if (!isMobile) return
-              if (handingOff || leavingUp || leavingDown || outroHolding || aminosanVideoHandoff)
-                return
-              const next = progressToIndex(self.progress)
-              if (next !== currentIndexRef.current) applyIndex(next)
-            },
             onEnter: () => {
               if (!insidePin()) return
               leavingDown = false
@@ -1024,33 +1036,25 @@ export function HomeProductShowcase() {
                  transição com essas mesmas propriedades ainda em voo, ele trava
                  tudo na posição final e lê como pulo. */
               if (!isTransitioning && !stepLocked) {
-                if (!isMobile && currentIndexRef.current !== 0) applyIndex(0)
+                if (currentIndexRef.current !== 0) applyIndex(0)
                 if (!handingOff) restoreVisual()
               }
+              if (!handingOff) anchorOnEnter(0)
             },
             onEnterBack: () => {
               if (!insidePin()) return
               leavingDown = false
               lockLenis()
               window.dispatchEvent(new CustomEvent('nav:hide', { detail: { lock: true } }))
-              // No mobile o índice já vem do `onUpdate` e o scroll fica intacto:
-              // a volta da Cultures chega com a inércia do dedo ainda correndo,
-              // e era o reposicionamento daqui que atropelava o pin.
-              if (
-                !isMobile &&
-                currentIndexRef.current !== COUNT - 1 &&
-                !isTransitioning &&
-                !stepLocked
-              ) {
+              if (currentIndexRef.current !== COUNT - 1 && !isTransitioning && !stepLocked) {
                 applyIndex(COUNT - 1)
               }
-            },
-            /* Saiu por cima a partir do primeiro produto: é a volta pro
-               Aminosan. No mobile o gesto pode atravessar o topo do pin antes
-               do touchmove pegar (inércia), então o próprio pin fecha a porta. */
-            onLeaveBack: () => {
-              if (!isMobile || handingOff || leavingUp) return
-              if (currentIndexRef.current === 0) runHandoffOut()
+              /* A volta da Cultures é o caso crítico: o gesto foi dado FORA do
+                 pin, então nenhum `preventDefault` valeu, e o dedo já está solto
+                 quando a borda é cruzada. Sem matar a inércia aqui, ela corre
+                 por dentro do pin, atravessa os quatro produtos e sai pela borda
+                 de cima — que é a saída pro vídeo. */
+              anchorOnEnter(COUNT - 1)
             },
             onToggle: (self) => {
               pinActiveRef.current = self.isActive
@@ -1124,10 +1128,7 @@ export function HomeProductShowcase() {
           const goToIndex = (i: number, duration = 0.55) => {
             if (i < 0 || i >= COUNT) return
             hideHint()
-            // No mobile quem troca o produto é o progresso do pin (`onUpdate`);
-            // aplicar o índice aqui também faria a troca acontecer duas vezes,
-            // com os produtos do caminho piscando por cima do destino.
-            if (!isMobile && i !== currentIndexRef.current) applyIndex(i)
+            if (i !== currentIndexRef.current) applyIndex(i)
             scrollToY(indexToY(i), duration)
           }
           goToIndexRef.current = goToIndex
@@ -1424,14 +1425,13 @@ export function HomeProductShowcase() {
             // `isActive` sozinho não basta: ele pode estar ligado com a página
             // longe da seção (ver `insidePin`). Assentar nesse estado era o que
             // arrastava o usuário de volta pro catálogo no meio do vídeo reverso.
+            /* Dentro do pin: assenta no produto atual. Só roda depois que o
+               scroll parou (180ms de silêncio), e no mobile a inércia já foi
+               morta na entrada — então isto nunca disputa posição com um gesto,
+               que era o que prendia o usuário no último produto. */
             if (pinTrigger.isActive && insidePin()) {
-              // Mobile: dentro do pin o scroll é 100% do usuário (ver `onUpdate`
-              // do pin). Colar no alvo aqui significava disputar posição com a
-              // inércia nativa — o "não pina no lugar certo" e o produto 4
-              // preso eram os dois lados dessa disputa.
-              if (isMobile) return
               const target = indexToY(currentIndexRef.current)
-              if (Math.abs(scroll - target) > 4) scrollToY(target, 0.55)
+              if (Math.abs(scroll - target) > 4) scrollToY(target, isMobile ? 0.35 : 0.55)
               return
             }
             // Zona de entrada (catálogo espiando por baixo da seção anterior)
@@ -1519,9 +1519,52 @@ export function HomeProductShowcase() {
             stepCatalog(e.deltaY > 0 ? 1 : -1)
           }
 
+          /* Posse do gesto, decidida no PRIMEIRO touchmove e mantida até o dedo
+             sair. Reavaliar a cada evento é o que prendia o usuário no produto
+             4: nos primeiros pixels a direção ainda não está declarada, o
+             gesto era retido "por precaução", e no iOS um `preventDefault`
+             não cancela só aquele evento — o navegador decide no início do
+             toque se aquilo é rolagem, e cancelar ali mata a rolagem pelo
+             RESTO do toque. `null` = ainda não decidido. */
+          let gestureOwned: boolean | null = null
+
           const onTouchStart = (e: TouchEvent) => {
             if (e.touches.length > 0) touchStartY = e.touches[0].clientY
             steppedThisGesture = false
+            gestureOwned = null
+          }
+
+          /** Gestos que NÃO são do catálogo: ir pra frente no último produto é
+           *  a saída natural pra Cultures e fica com o navegador. Todo o resto,
+           *  dentro do pin, é retido. */
+          const escapesPin = (down: boolean) => down && currentIndexRef.current === COUNT - 1
+
+          /* MOBILE: um gesto = um passo, decidido quando o dedo SAI, pelo
+             deslocamento total do arrasto. Como o `touchmove` reteve o gesto
+             (`preventDefault`), não sobra inércia nenhuma pro `scrollToY` do
+             passo disputar — que era a raiz de tudo: sem Lenis no mobile,
+             nenhum outro caminho tomava posse do scroll. */
+          const onTouchEndStep = (e: TouchEvent) => {
+            if (!isMobile) return
+            if (leavingUp || handingOff || aminosanVideoHandoff || outroHolding) return
+            if (!pinTrigger.isActive && !insidePin()) return
+            const endY = e.changedTouches[0]?.clientY ?? touchStartY
+            const delta = touchStartY - endY
+            /* Gesto que ATRAVESSOU a borda do pin: começou fora (vindo da
+               Cultures ou do Aminosan), onde nada é retido, e só entrou aqui
+               no meio do caminho — `gestureOwned` nunca chegou a ser decidido.
+               Ao soltar, o navegador entra em inércia POR DENTRO do catálogo.
+               Mata agora e ancora no produto em cena, em vez de deixar a
+               rolagem atravessar os quatro e sair pela borda de cima. */
+            if (gestureOwned === null) {
+              if (Math.abs(delta) > 8) anchorOnEnter(currentIndexRef.current)
+              return
+            }
+            // Gesto entregue ao navegador (saída pra Cultures): não vira passo.
+            if (gestureOwned === false) return
+            if (Math.abs(delta) < 30) return
+            if (escapesPin(delta > 0)) return
+            stepCatalog(delta > 0 ? 1 : -1)
           }
           /* UM gesto = UM produto. É esta guarda (e não a duração da trava)
              que impede um arrasto só de atravessar vários produtos — o que
@@ -1566,23 +1609,20 @@ export function HomeProductShowcase() {
               touchStartY = e.touches[0].clientY
               return
             }
-            /* MOBILE, pin ativo: o gesto é do usuário do começo ao fim. Nada de
-               `preventDefault` — no iOS ele não cancela só aquele evento: o
-               navegador decide no início do toque se é rolagem, e cancelar ali
-               mata a rolagem pelo RESTO do gesto (era o "trava e não sai do
-               lugar" no produto 4). O carrossel acompanha pelo progresso do pin
-               (`onUpdate`). A única saída dirigida é a volta pro Aminosan a
-               partir do primeiro produto, com o scroll já no topo do pin. */
+            /* MOBILE, pin ativo: o gesto é retido inteiro e o passo só sai no
+               `touchend`, com o delta total do arrasto — mesmo contrato da
+               seção Aminosan. Decidir no meio do movimento era o que fazia um
+               arrasto contínuo disparar passos em sequência, e disparar sem
+               reter deixava a inércia atravessar a seção. A única exceção é
+               ir pra FRENTE no último produto: esse gesto pertence ao
+               navegador, é assim que se sai pra Cultures. */
             if (isMobile) {
-              if (
-                delta < -STEP_THRESHOLD &&
-                currentIndexRef.current === 0 &&
-                window.scrollY <= pinTrigger.start + 24
-              ) {
-                if (e.cancelable) e.preventDefault()
-                runHandoffOut()
+              if (gestureOwned === null) {
+                if (delta === 0) return
+                gestureOwned = !escapesPin(delta > 0)
               }
-              touchStartY = e.touches[0].clientY
+              if (!gestureOwned) return
+              if (e.cancelable) e.preventDefault()
               return
             }
             // Desktop (telas de toque): cancela o gesto já no PRIMEIRO touchmove.
@@ -1619,6 +1659,8 @@ export function HomeProductShowcase() {
           window.addEventListener('wheel', onWheelStep, { passive: false, capture: true })
           window.addEventListener('touchstart', onTouchStart, { passive: true })
           window.addEventListener('touchmove', onTouchMoveStep, { passive: false, capture: true })
+          window.addEventListener('touchend', onTouchEndStep, { passive: true })
+          window.addEventListener('touchcancel', onTouchEndStep, { passive: true })
 
           const settleTimers = [window.setTimeout(settle, 320), window.setTimeout(settle, 950)]
 
@@ -1673,6 +1715,8 @@ export function HomeProductShowcase() {
             window.removeEventListener('wheel', onWheelStep, { capture: true })
             window.removeEventListener('touchstart', onTouchStart)
             window.removeEventListener('touchmove', onTouchMoveStep, { capture: true })
+            window.removeEventListener('touchend', onTouchEndStep)
+            window.removeEventListener('touchcancel', onTouchEndStep)
             if (onPointerMove) window.removeEventListener('pointermove', onPointerMove)
             settleTimers.forEach(window.clearTimeout)
             clearTimeout(idleTimer)
