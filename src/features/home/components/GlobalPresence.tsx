@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { Globe2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal } from '@/features/animation/charReveal'
 import { DUR, EASE } from '@/features/animation/motion'
+import { isTouch } from '@/features/animation/device'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
 import { FlagBR, FlagUS, type FlagComp } from '@/components/icons/flags'
@@ -70,6 +71,10 @@ export function GlobalPresence({ variant = 'section' }: { variant?: 'section' | 
   const reduced = useReducedMotion()
   const rootRef = useRef<HTMLDivElement>(null)
   const [dragging, setDragging] = useState(false)
+  /* Lido uma vez: decide se o esmaecimento do arrasto faz sentido neste
+     aparelho (ver comentário na camada de pins, mais abaixo). */
+  const [touch, setTouch] = useState(false)
+  useEffect(() => setTouch(isTouch()), [])
 
   useGSAP(
     () => {
@@ -94,24 +99,52 @@ export function GlobalPresence({ variant = 'section' }: { variant?: 'section' | 
       if (cards.length) gsap.set(cards, { y: 14, opacity: 0 })
       if (halos.length) gsap.set(halos, { scale: 0, opacity: 0 })
 
-      ScrollTrigger.create({
+      /* ── A entrada precisa acontecer, sempre ─────────────────────────
+         Esta seção nasce inteira em `opacity: 0` — corpo, apoio, globo, halos
+         e os cards das bandeiras — e conta com um `onEnter` para aparecer. Com
+         `once: true`, uma única chance: se o ScrollTrigger recalcular as
+         posições e concluir que o ponto de partida JÁ ficou para trás, ele
+         considera que a entrada aconteceu no passado e nunca chama o callback.
+
+         E é o que acontecia aqui. Acima desta seção há dois trechos pinados (o
+         catálogo e a Aminosan) que inserem espaçadores de milhares de pixels
+         quando montam; cada `ScrollTrigger.refresh()` reposiciona todo mundo, e
+         esta seção — que é carregada por `dynamic()`, portanto monta depois —
+         acabava com o start já vencido. O resultado no aparelho eram as
+         bandeiras e os textos permanentemente apagados.
+
+         `played` torna a entrada idempotente, e o `onRefresh` recupera o caso
+         em que o start já passou: se a seção está visível e a animação nunca
+         rodou, ela roda agora. */
+      let played = false
+      const play = () => {
+        if (played) return
+        played = true
+        const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
+        if (eyebrow) tl.to(eyebrow, { y: 0, opacity: 1, duration: 0.5 }, 0)
+        reveal?.playIn(tl, 0.08)
+        if (body) tl.to(body, { y: 0, opacity: 1, duration: DUR.sub }, 0.35)
+        if (support) tl.to(support, { y: 0, opacity: 1, duration: DUR.sub }, 0.5)
+        if (globeWrap) tl.to(globeWrap, { scale: 1, opacity: 1, duration: 1.1, ease: 'power3.out' }, 0.2)
+        if (halos.length)
+          tl.to(halos, { scale: 1, opacity: 1, duration: 0.5, stagger: 0.12, ease: 'back.out(2)' }, 0.9)
+        if (cards.length) tl.to(cards, { y: 0, opacity: 1, duration: 0.6, stagger: 0.12 }, 1.0)
+      }
+
+      const st = ScrollTrigger.create({
         trigger: root,
-        start: 'top 72%',
+        start: 'top 85%',
         once: true,
-        onEnter: () => {
-          const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
-          if (eyebrow) tl.to(eyebrow, { y: 0, opacity: 1, duration: 0.5 }, 0)
-          reveal?.playIn(tl, 0.08)
-          if (body) tl.to(body, { y: 0, opacity: 1, duration: DUR.sub }, 0.35)
-          if (support) tl.to(support, { y: 0, opacity: 1, duration: DUR.sub }, 0.5)
-          if (globeWrap) tl.to(globeWrap, { scale: 1, opacity: 1, duration: 1.1, ease: 'power3.out' }, 0.2)
-          if (halos.length)
-            tl.to(halos, { scale: 1, opacity: 1, duration: 0.5, stagger: 0.12, ease: 'back.out(2)' }, 0.9)
-          if (cards.length) tl.to(cards, { y: 0, opacity: 1, duration: 0.6, stagger: 0.12 }, 1.0)
+        onEnter: play,
+        onRefresh: (self) => {
+          if (self.progress > 0 || self.isActive) play()
         },
       })
 
-      return () => reveal?.revert()
+      return () => {
+        st.kill()
+        reveal?.revert()
+      }
     },
     { scope: rootRef, dependencies: [reduced] },
   )
@@ -176,12 +209,21 @@ export function GlobalPresence({ variant = 'section' }: { variant?: 'section' | 
 
         <Globe markers={MARKERS} focus={FOCUS} onDragChange={setDragging} />
 
-        {/* camada de pins/cards: acompanha o balanço idle do globo
-            (--globe-sway-px, setada pelo Globe) e esmaece durante o drag */}
+        {/* Camada de pins/cards: acompanha o balanço idle do globo
+            (--globe-sway-px, setada pelo Globe).
+
+            O esmaecimento durante o arrasto vale só onde existe arrasto de
+            verdade. Num aparelho de toque o mesmo gesto que gira o globo é o
+            gesto de rolar a página: encostar o dedo já disparava
+            `pointerdown` e derrubava bandeiras, nomes e halos para 20% de
+            opacidade no meio da rolagem. Pior, quando o gesto virava scroll o
+            navegador emitia `pointercancel` em vez de `pointerup`, e o estado
+            ficava preso indefinidamente — as bandeiras seguiam apagadas pelo resto da
+            visita. No celular a camada é sólida o tempo todo. */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 transition-opacity duration-300"
-          style={{ opacity: dragging ? 0.2 : 1, transform: 'translateX(var(--globe-sway-px, 0px))' }}
+          style={{ opacity: dragging && !touch ? 0.2 : 1, transform: 'translateX(var(--globe-sway-px, 0px))' }}
         >
           {/* conectores (curvas suaves do card ao pin) */}
           <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" fill="none">
