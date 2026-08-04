@@ -442,21 +442,16 @@ html.lenis body { height: auto; }
   width: 100%;
   max-width: 100%;
   overflow: hidden;
-  /* `--vh-stable` (congelada pelo SmoothScroll no primeiro measure, só mobile),
-     não `100dvh` cru: o `dvh` é recalculado toda vez que a barra de endereço
-     do navegador some/aparece, e é exatamente esse recálculo que dispara no
-     meio do gesto de voltar da Cultures pro catálogo (scroll pra cima é o
-     gesto clássico que traz a barra de volta). Com `100dvh` cru, o box do
-     `.pcs-root` (pinado, 100% da tela) muda de altura NO MEIO da rolagem
-     enquanto o `pin-spacer` do GSAP mantém a altura calculada no último
-     `refresh()` — o descompasso entre os dois é o que aparecia como "o
-     conteúdo sobe e uma cor sólida (o fundo do próprio produto) aparece na
-     borda de baixo/cima" ao voltar devagar/rápido no Revigo Phos Amino. O
-     mesmo remédio já existe pro hero (`HeroJornada.tsx`) e pro `OurStory.tsx`;
-     faltava aqui. Sem `--vh-stable` (desktop, ou antes do primeiro measure) o
-     fallback `100dvh` vale como antes. */
-  height: var(--vh-stable, 100dvh);
-  min-height: var(--vh-stable, 100dvh);
+  /* dvh, não svh: no mobile a barra de endereço muda a altura VISÍVEL da tela.
+     Com svh (viewport pequena, barra à mostra) a seção ficava mais curta que a
+     tela sempre que a barra estava escondida — era a faixa preta embaixo, com
+     o conteúdo comprimido num palco menor do que o que o usuário enxerga.
+     A altura só muda o box do elemento pinado (fixed); o pin-spacer tem altura
+     inline do GSAP, então nada disso mexe no scroll das outras seções. */
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
   /* Fundo sólido de segurança — evita flash branco antes do .pcs-bg renderizar */
   background: var(--pcs-mid, #030817);
   /* Shared color vars (atualizadas via JS) — bg + podium herdam */
@@ -475,8 +470,10 @@ html.lenis body { height: auto; }
   width: 100% !important;
   max-width: 100% !important;
   overflow: hidden !important;
-  height: var(--vh-stable, 100dvh) !important;
-  min-height: var(--vh-stable, 100dvh) !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
 }
 
 /* Illuminated background (driven by --pcs-base / --pcs-mid / --pcs-accent-bg).
