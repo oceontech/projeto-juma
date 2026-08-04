@@ -3,9 +3,8 @@
 import { CheckCircle2 } from 'lucide-react'
 
 import React, { useRef, useState, useEffect } from 'react'
-import { gsap } from '@/features/animation/gsap'
-import { DUR, EASE } from '@/features/animation/motion'
-import { createTextReveal, revealToggleActions } from '@/features/animation/textReveal'
+import { gsap, SplitText } from '@/features/animation/gsap'
+import { DUR, EASE, STAGGER, blurPx } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { useGSAP } from '@/features/animation/gsap'
 import { Container } from '@/components/layout/Container'
@@ -30,16 +29,16 @@ export function HomeTestimonials() {
     if (reduced || !ref.current) return
     
     const header = ref.current.querySelector<HTMLElement>('[data-header]')
-    let reveal: ReturnType<typeof createTextReveal> = null
+    let split: SplitText | null = null;
     if (header) {
       const kicker = header.querySelector<HTMLElement>('[data-kicker]')
       const title = header.querySelector<HTMLElement>('[data-title]')
       const line = header.querySelector<HTMLElement>('[data-gline]')
 
-      reveal = createTextReveal(title)
+      split = title ? new SplitText(title, { type: 'chars,words' }) : null
 
       if (kicker) gsap.set(kicker, { y: 14, opacity: 0 })
-      reveal?.hide()
+      if (split) gsap.set(split.chars, { x: 20, opacity: 0, filter: blurPx(10) })
       if (line) gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
 
       const tl = gsap.timeline({
@@ -47,16 +46,16 @@ export function HomeTestimonials() {
           trigger: header,
           start: 'top 85%',
           end: 'bottom 15%',
-          toggleActions: revealToggleActions(),
+          toggleActions: 'play reverse play reverse',
         },
         defaults: { ease: EASE.reveal }
       })
       if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub })
-      if (reveal) tl.to(reveal.targets, reveal.shown, '-=0.4')
+      if (split) tl.to(split.chars, { x: 0, opacity: 1, filter: blurPx(0), duration: DUR.title, stagger: STAGGER.char }, '-=0.4')
       if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: DUR.sub }, '-=0.4')
     }
 
-    return () => reveal?.revert()
+    return () => split?.revert()
   }, { scope: ref })
 
 
