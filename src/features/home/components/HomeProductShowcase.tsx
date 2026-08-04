@@ -649,7 +649,6 @@ export function HomeProductShowcase() {
           /** Trava os passos e agenda a liberação de emergência. */
           const holdStepLock = (maxMs = 2200) => {
             clearStepLockTimers()
-            stopEntryHold()
             isTransitioning = true
             stepLocked = true
             catalogBusyRef.current = true
@@ -893,25 +892,6 @@ export function HomeProductShowcase() {
           let outroHolding = false
           let outroRaf = 0
 
-          /* entryHolding: mesmo problema do outroHolding acima, borda oposta.
-             Reentrar por baixo (subindo da Cultures) no último produto pode
-             chegar com a inércia do flick ainda correndo (sem Lenis no
-             mobile, nada além de JS segura essa rolagem) — um `scrollTo`
-             disparado uma vez só perde a corrida contra ela por um ou dois
-             frames, e é isso que aparece como "pula pro lugar errado e volta
-             rápido". Enquanto a flag está ligada um rAF reafirma a posição a
-             cada frame; ver uso em `onEnterBack` do pin mais abaixo. */
-          let entryHolding = false
-          let entryRaf = 0
-          let entryHoldTimer: ReturnType<typeof setTimeout> | null = null
-          const stopEntryHold = () => {
-            entryHolding = false
-            if (entryRaf) cancelAnimationFrame(entryRaf)
-            entryRaf = 0
-            if (entryHoldTimer) clearTimeout(entryHoldTimer)
-            entryHoldTimer = null
-          }
-
           /* Estado visual pleno do produto atual — usado quando a seção é
              alcançada sem o handoff (âncora do menu, reload no meio da página)
              depois de ter ficado branca por uma saída para cima. */
@@ -931,7 +911,6 @@ export function HomeProductShowcase() {
           }
 
           const prepareHandoffIn = () => {
-            stopEntryHold()
             handingOff = true
             leavingUp = false
             leavingDown = false
@@ -1043,46 +1022,26 @@ export function HomeProductShowcase() {
               lockLenis()
               window.dispatchEvent(new CustomEvent('nav:hide', { detail: { lock: true } }))
               // Mesma guarda do onEnter acima (índice E restoreVisual).
-              if (isTransitioning || stepLocked) return
-              if (currentIndexRef.current !== COUNT - 1) applyIndex(COUNT - 1)
-              /* Reentrada por baixo (Cultures) pousa o scrollY perto de
-                 `pinTrigger.end` — que não é mais o mesmo pixel de
-                 `indexToY(COUNT-1)` desde o `PIN_EDGE_INSET` (o último
-                 produto descansa 8px pra DENTRO da borda, pra não ficar no
-                 limiar de ligar/desligar o pin).
-                 Isto precisa rodar SEMPRE que reentra por baixo — inclusive
-                 quando o índice JÁ estava em COUNT-1 (usuário nunca saiu do
-                 último produto, só espiou a Cultures e voltou: o caso mais
-                 comum, já que é a primeira vez que dá pra ver a seção
-                 seguinte). Antes esta correção ficava presa dentro do `if`
-                 de troca de índice ali em cima — nesse caso mais comum o
-                 índice não muda, o bloco inteiro era pulado e nada corrigia
-                 o desvio, o que lia como "não pina direito" bem no Revigo
-                 Phos Amino (o último produto, onde essa reentrada acontece).
-                 No mobile não existe Lenis (scroll nativo puro, ver
-                 `SmoothScroll.tsx`) — um `scrollTo` isolado pode não vencer a
-                 inércia do flick que trouxe o usuário de volta (o browser
-                 ainda anima por cima dele por mais um frame ou dois), e é
-                 isso que aparece como "pula pro lugar errado e volta rápido".
-                 Por isso a correção não é mais um tiro único: um `rAF`
-                 (mesmo padrão do `outroHolding` acima) reafirma o `scrollTo`
-                 por uma janela curta até a inércia morrer, cancelado assim
-                 que um toque novo chega (`onTouchStart` abaixo) pra nunca
-                 disputar um gesto real do usuário. */
-              if (isMobile) {
-                const safeY = indexToY(COUNT - 1)
-                if (Math.abs(window.scrollY - safeY) > 1) {
-                  window.scrollTo(0, safeY)
-                  ScrollTrigger.update()
-                  stopEntryHold()
-                  entryHolding = true
-                  const holdEntry = () => {
-                    if (!entryHolding) return
-                    if (Math.abs(window.scrollY - safeY) > 1) window.scrollTo(0, safeY)
-                    entryRaf = requestAnimationFrame(holdEntry)
+              if (currentIndexRef.current !== COUNT - 1 && !isTransitioning && !stepLocked) {
+                applyIndex(COUNT - 1)
+                /* Reentrada por baixo (Cultures) pousa o scrollY perto de
+                   `pinTrigger.end` — que não é mais o mesmo pixel de
+                   `indexToY(COUNT-1)` desde o `PIN_EDGE_INSET` (o último
+                   produto descansa 8px pra DENTRO da borda, pra não ficar no
+                   limiar de ligar/desligar o pin). O `onEnter`/handoff do
+                   vídeo já ganhou esse ajuste explícito (ver `onComplete` do
+                   `runHandoffIn`); faltava o espelho aqui — sem ele, uma
+                   volta rápida vinda de baixo landava com esse desvio de 8px
+                   sem correção nenhuma (o `settle` ignora de propósito o
+                   último produto no mobile), o que lia como "não pina
+                   direito" no último produto. */
+                if (isMobile) {
+                  const safeY = indexToY(COUNT - 1)
+                  if (Math.abs(window.scrollY - safeY) > 1) {
+                    lenisRef.current?.scrollTo(safeY, { immediate: true, force: true })
+                    window.scrollTo(0, safeY)
+                    ScrollTrigger.update()
                   }
-                  entryRaf = requestAnimationFrame(holdEntry)
-                  entryHoldTimer = setTimeout(stopEntryHold, 260)
                 }
               }
             },
@@ -1096,12 +1055,8 @@ export function HomeProductShowcase() {
               // Saiu do pin numa rolagem normal: devolve o scroll ao Lenis.
               // Nas saídas dirigidas (handoff para a seção de cima) quem manda
               // na posição passa a ser a outra seção — religar aqui devolveria
-              // a inércia do gesto bem no meio do vídeo reverso. `entryHolding`
-              // entra na mesma lista: o rAF de reentrada (ver `onEnterBack`)
-              // pode cruzar a borda do pin por um frame enquanto ainda está
-              // vencendo a inércia — não é uma saída de verdade, então a
-              // navbar não pode reaparecer nem o Lenis religar no meio disso.
-              if (leavingUp || handingOff || outroHolding || entryHolding) return
+              // a inércia do gesto bem no meio do vídeo reverso.
+              if (leavingUp || handingOff || outroHolding) return
               leavingDown = false
               unlockLenis()
               // O catálogo não dirige mais o scroll: a navbar volta a decidir
@@ -1193,7 +1148,6 @@ export function HomeProductShowcase() {
              comentário logo abaixo sobre por que não é mais um tween de
              tamanho/posição casado por medição de layout. */
           const runHandoffIn = () => {
-            stopEntryHold()
             handingOff = true
             leavingUp = false
             leavingDown = false
@@ -1333,7 +1287,6 @@ export function HomeProductShowcase() {
 
           const runHandoffOut = () => {
             if (leavingUp) return
-            stopEntryHold()
             hideHint()
             window.dispatchEvent(new CustomEvent('nav:show'))
             // Avisa a seção de cima ANTES de qualquer movimento: enquanto a
@@ -1456,13 +1409,7 @@ export function HomeProductShowcase() {
           const settle = () => {
             // Durante um handoff ou durante a transição animada de um produto,
             // o scroll é dirigido pela timeline; não pode assentar no meio.
-            // `entryHolding`: o rAF de reentrada já está segurando a posição
-            // exata (ver `onEnterBack`) — deixar o settle correr por cima
-            // dele é uma segunda fonte de `scrollTo` competindo pelo mesmo
-            // pixel, e a diferença de timing entre os dois é o tipo de coisa
-            // que produz um tranco visível.
-            if (leavingUp || handingOff || aminosanVideoHandoff || isTransitioning || stepLocked || entryHolding)
-              return
+            if (leavingUp || handingOff || aminosanVideoHandoff || isTransitioning || stepLocked) return
             const scroll = window.scrollY
             const vh = window.innerHeight
 
@@ -1580,9 +1527,6 @@ export function HomeProductShowcase() {
           }
 
           const onTouchStart = (e: TouchEvent) => {
-            // Toque novo é o usuário retomando o controle — o hold de
-            // reentrada (ver `onEnterBack`) não pode competir com o dedo.
-            stopEntryHold()
             if (e.touches.length > 0) touchStartY = e.touches[0].clientY
             steppedThisGesture = false
           }
@@ -1753,7 +1697,6 @@ export function HomeProductShowcase() {
             // navegação): o resto da página ficaria sem scroll.
             unlockLenis()
             stopOutroHold()
-            stopEntryHold()
             transitionTl?.kill()
             pinTrigger.kill(true)
             goToIndexRef.current = null
