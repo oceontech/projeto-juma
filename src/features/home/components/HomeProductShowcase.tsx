@@ -21,6 +21,7 @@ import {
 import type { LucideIcon } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
+import { killMomentumScroll, releaseMomentumLock } from '@/features/animation/killMomentumScroll'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { useLenis } from '@/features/animation/SmoothScroll'
 import { Spotlight } from '@/components/ui/Spotlight'
@@ -1087,18 +1088,14 @@ export function HomeProductShowcase() {
              É a peça que faltava aqui: no mobile não há Lenis (SmoothScroll só
              instancia no desktop), então `lockLenis()` sempre foi no-op e
              ninguém nunca tomou posse do scroll de verdade na entrada. */
-          const killMomentumScroll = () => {
-            const de = document.documentElement
-            const body = document.body
-            const prevHtml = de.style.overflow
-            const prevBody = body.style.overflow
-            de.style.overflow = 'hidden'
-            body.style.overflow = 'hidden'
-            requestAnimationFrame(() => {
-              de.style.overflow = prevHtml
-              body.style.overflow = prevBody
-            })
-          }
+          /* A implementação vive em `@/features/animation/killMomentumScroll`
+             porque o estado precisa ser ÚNICO: aqui dentro dois caminhos
+             chamam isto na mesma rajada de inércia (`anchorOnEnter` e
+             `enforceScrollFloor`), e a seção Aminosan chama do lado de fora.
+             Com uma cópia por fechamento, a segunda chamada guardava o
+             `overflow: hidden` da primeira como "valor anterior" e a página
+             ficava sem scroll nativo pro resto da visita — ver o comentário
+             longo no módulo. */
 
           /** Entrada no pin com scroll NATIVO: mata a inércia do gesto que
            *  trouxe o usuário até aqui e ancora no produto de chegada. Sem
@@ -1995,6 +1992,9 @@ export function HomeProductShowcase() {
             clearStepLockTimers()
             catalogBusyRef.current = false
             pinActiveRef.current = false
+            // Nunca sair daqui com o documento não-rolável (troca de
+            // breakpoint no meio de uma rajada de inércia).
+            releaseMomentumLock()
             sectionEl?.style.removeProperty('background-color')
             // Nunca deixar o Lenis parado atrás de nós (troca de breakpoint,
             // navegação): o resto da página ficaria sem scroll.
