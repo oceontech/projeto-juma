@@ -5,8 +5,9 @@ import { Star, Warehouse } from 'lucide-react'
 import { useRef } from 'react'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
-import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
-import { DUR, EASE, STAGGER } from '@/features/animation/motion'
+import { gsap, useGSAP } from '@/features/animation/gsap'
+import { createCharReveal, revealToggleActions } from '@/features/animation/charReveal'
+import { DUR, EASE } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
@@ -24,7 +25,7 @@ export function HomeExperience() {
     const isMobile = window.innerWidth < 1024
     if (visual) gsap.set(visual, { x: -40, opacity: 0, ...(!isMobile && { filter: 'blur(10px)' }) })
     
-    let split: SplitText | null = null;
+    let reveal: ReturnType<typeof createCharReveal> = null
     if (body) {
       const kicker = body.querySelector<HTMLElement>('[data-kicker]')
       const title = body.querySelector<HTMLElement>('[data-title]')
@@ -32,10 +33,10 @@ export function HomeExperience() {
       const desc = body.querySelector<HTMLElement>('[data-desc]')
       const cta = body.querySelector<HTMLElement>('[data-cta]')
 
-      split = title ? new SplitText(title, { type: 'chars,words' }) : null
+      reveal = createCharReveal(title)
 
       if (kicker) gsap.set(kicker, { y: 14, opacity: 0 })
-      if (split) gsap.set(split.chars, { x: 30, opacity: 0, ...(!isMobile && { filter: 'blur(10px)' }) })
+      reveal?.hide()
       if (line) gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
       if (desc) gsap.set(desc, { y: 20, opacity: 0 })
       if (cta) gsap.set(cta, { y: 20, opacity: 0 })
@@ -46,7 +47,7 @@ export function HomeExperience() {
         trigger: ref.current,
         start: 'top 75%',
         end: 'bottom 15%',
-        toggleActions: 'play reverse play reverse',
+        toggleActions: revealToggleActions(),
       },
       defaults: { ease: EASE.reveal }
     })
@@ -60,13 +61,13 @@ export function HomeExperience() {
       const cta = body.querySelector<HTMLElement>('[data-cta]')
 
       if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub }, '-=0.5')
-      if (split) tl.to(split.chars, { x: 0, opacity: 1, ...(!isMobile && { filter: 'blur(0px)' }), duration: DUR.title, stagger: STAGGER.char }, '-=0.4')
+      reveal?.playIn(tl, '-=0.4')
       if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: DUR.sub }, '-=0.4')
       if (desc) tl.to(desc, { y: 0, opacity: 1, duration: DUR.sub }, '-=0.4')
       if (cta) tl.to(cta, { y: 0, opacity: 1, duration: DUR.sub }, '-=0.4')
     }
 
-    return () => split?.revert()
+    return () => reveal?.revert()
   }, { scope: ref })
 
   return (

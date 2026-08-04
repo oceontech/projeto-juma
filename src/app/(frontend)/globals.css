@@ -437,6 +437,41 @@ html.lenis body { height: auto; }
    sessão catalogo produtos/src/Hero.tsx + index.css
    ============================================================ */
 
+/* ============================================================
+   `will-change` do catálogo — ligado só enquanto a seção está em cena.
+   ============================================================
+   Estas promessas de transformação viviam soltas nas regras `.pcs-*`, sem
+   nenhuma condição. `will-change` não é uma dica que o navegador pesa: é uma
+   ordem para promover o elemento a camada de composição própria e MANTER a
+   textura reservada. Como as regras valiam sempre, o catálogo deixava ligadas,
+   pelo resto da visita:
+
+     4 frascos (`.pcs-theater-bottle`, 68vh de altura cada)
+     4 wraps com `preserve-3d`
+     4 painéis de texto + 4 blocos de stats + 12 chips + 4 CTAs
+     1 camada de fundo para o crossfade de cor
+
+   Medido no aparelho: 37 elementos com `will-change` ativo e cerca de 86 MB de
+   texturas de camada, constantes do catálogo até o rodapé. Num iPhone esse
+   orçamento não sobra — o compositor passa a descartar e recriar camadas, e a
+   conta é cobrada de TUDO que vem depois, não da seção que reservou. É o
+   motivo de a página ficar visivelmente mais pesada a partir das culturas.
+
+   Agora a promessa acompanha a cena: `data-live` entra pelo
+   IntersectionObserver do componente quando o catálogo se aproxima e sai
+   quando ele passa (atributo, e não classe — `className` é prop controlada
+   pelo React e é reescrita a cada troca de produto). Enquanto
+   a seção está em cena nada muda — as mesmas camadas, a mesma fluidez na troca
+   de produto. Depois dela, a memória volta.
+   ============================================================ */
+.pcs-root[data-live] .pcs-bg-next     { will-change: opacity; }
+.pcs-root[data-live] .pcs-theater-bottle { will-change: transform, filter, opacity; }
+.pcs-root[data-live] .pcs-bottle-wrap    { will-change: transform, opacity, filter; }
+.pcs-root[data-live] .pcs-panel-text,
+.pcs-root[data-live] .pcs-panel-stats,
+.pcs-root[data-live] .pcs-stat-row,
+.pcs-root[data-live] .pcs-panel-cta      { will-change: transform, opacity; }
+
 .pcs-root {
   position: relative;
   width: 100%;
@@ -529,7 +564,6 @@ html.lenis body { height: auto; }
     var(--pcs-mid-next, var(--pcs-mid)) 100%
   );
   pointer-events: none;
-  will-change: opacity;
 }
 
 /* Subtle film grain for texture */
@@ -639,7 +673,6 @@ html.lenis body { height: auto; }
   height: 68vh;
   width: auto;
   transform-origin: bottom center;
-  will-change: transform, filter, opacity;
 }
 
 .pcs-bottle-wrap {
@@ -649,7 +682,6 @@ html.lenis body { height: auto; }
   align-items: flex-end;
   justify-content: center;
   transform-style: preserve-3d;
-  will-change: transform, opacity, filter;
 }
 .pcs-bottle {
   position: relative;
@@ -681,7 +713,6 @@ html.lenis body { height: auto; }
   max-width: min(420px, 100%);
   justify-self: start;
   z-index: 3;
-  will-change: transform, opacity;
 }
 
 .pcs-panel-main {
@@ -813,7 +844,6 @@ html.lenis body { height: auto; }
   backdrop-filter: none;
   z-index: 4;
   transition: opacity 0.25s ease, transform 0.25s ease, text-underline-offset 0.25s ease;
-  will-change: transform, opacity;
 }
 .pcs-panel-cta:hover {
   opacity: 0.86;
@@ -833,13 +863,11 @@ html.lenis body { height: auto; }
   flex-direction: column;
   gap: 1.75rem;
   z-index: 3;
-  will-change: transform, opacity;
 }
 .pcs-stat-row {
   display: flex;
   align-items: center;
   gap: 1rem;
-  will-change: transform, opacity;
   cursor: pointer;
 }
 .pcs-stat-icon {
@@ -1533,10 +1561,10 @@ html.lenis body { height: auto; }
      evitar). Só no `.pcs-theater-bottle`, que é quem o GSAP anima: prometer
      no wrap também reservava memória de GPU pra uma camada que nunca muda
      de filtro. */
-  .pcs-theater-bottle {
+  .pcs-root[data-live] .pcs-theater-bottle {
     will-change: transform, opacity, filter;
   }
-  .pcs-bottle-wrap {
+  .pcs-root[data-live] .pcs-bottle-wrap {
     will-change: transform, opacity;
   }
 

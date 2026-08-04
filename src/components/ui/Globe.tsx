@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef } from 'react'
 import createGlobe from 'cobe'
 
+import { isLowPower } from '@/features/animation/device'
+
 export type GlobeMarker = {
   location: [number, number]
   size?: number
@@ -65,9 +67,18 @@ export function Globe({ markers, focus, className = '', onDragChange }: GlobePro
     }
     window.addEventListener('pointermove', handlePointerMove, { passive: true })
     window.addEventListener('pointerup', handlePointerUp, { passive: true })
+    /* `pointercancel` fecha o gesto tão bem quanto `pointerup`, e no celular é
+       ele que chega: quando o toque que começou no canvas vira rolagem da
+       página, o navegador CANCELA o ponteiro em vez de soltá-lo. Sem escutar
+       aqui, `pointerStart` continuava preenchido para sempre — o globo ficava
+       achando que estava sendo arrastado, e quem avisa o pai desse estado
+       (`onDragChange`) nunca era chamado de volta. Era isso que deixava as
+       bandeiras e os nomes apagados depois de uma rolagem. */
+    window.addEventListener('pointercancel', handlePointerUp, { passive: true })
     return () => {
       window.removeEventListener('pointermove', handlePointerMove)
       window.removeEventListener('pointerup', handlePointerUp)
+      window.removeEventListener('pointercancel', handlePointerUp)
     }
   }, [])
 
@@ -81,12 +92,23 @@ export function Globe({ markers, focus, className = '', onDragChange }: GlobePro
     const host = canvas.parentElement
     let globe: ReturnType<typeof createGlobe> | null = null
     let ro: ResizeObserver | null = null
+    let io: IntersectionObserver | null = null
     let rafId = 0
+    /* Começa falso: o globo nasce fora de vista (fica no fim da página) e o
+       IntersectionObserver liga o laço quando ele chega. */
+    let onScreen = false
+    let running = false
+    let resume: (() => void) | null = null
+    const weak = isLowPower()
 
     const init = () => {
       const width = canvas.offsetWidth
       if (width === 0 || globe) return
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      /* Teto de 1,5x em aparelho fraco, em vez de 2x: o globo é redesenhado
+         inteiro a cada frame e o custo cresce com o QUADRADO do fator — 2x são
+         quatro vezes mais pixels que 1x, 1,5x são 2,25. Num canvas de ~340px de
+         largura a diferença de nitidez não se percebe. */
+      const dpr = Math.min(window.devicePixelRatio || 1, weak ? 1.5 : 2)
 
       globe = createGlobe(canvas, {
         devicePixelRatio: dpr,
@@ -96,7 +118,8 @@ export function Globe({ markers, focus, className = '', onDragChange }: GlobePro
         theta: homeTheta,
         dark: 0,
         diffuse: 1.2,
-        mapSamples: 22000,
+        // Cada amostra é um ponto do mapa redesenhado a cada frame.
+        mapSamples: weak ? 12000 : 22000,
         mapBrightness: 6,
         baseColor: [1, 1, 1], // esfera branca com pontos acinzentados (ref)
         markerColor: [0.0, 0.62, 0.3], // verde Juma nos pins
@@ -114,6 +137,15 @@ export function Globe({ markers, focus, className = '', onDragChange }: GlobePro
       let idleWeight = 1
 
       const tick = (now: number) => {
+        /* Sem esta guarda o laço roda do primeiro frame da visita até a aba
+           fechar: um render WebGL completo a cada 16ms, com o globo fora da
+           tela quase o tempo todo (ele vive lá embaixo, na seção de presença
+           internacional). É custo que não aparece em nenhuma animação
+           específica e come os frames de todas as outras — e a bateria. */
+        if (!onScreen) {
+          running = false
+          return
+        }
         if (pointerStart.current) {
           idleWeight = Math.max(0, idleWeight - 0.06)
         } else {
@@ -137,11 +169,28 @@ export function Globe({ markers, focus, className = '', onDragChange }: GlobePro
         }
         rafId = requestAnimationFrame(tick)
       }
-      rafId = requestAnimationFrame(tick)
+      resume = () => {
+        if (running) return
+        running = true
+        rafId = requestAnimationFrame(tick)
+      }
+      if (onScreen) resume()
+
       requestAnimationFrame(() => {
         canvas.style.opacity = '1'
       })
     }
+
+    /* Margem generosa: o globo já está desenhado e girando quando entra de
+       fato na tela, em vez de acordar no pixel exato em que aparece. */
+    io = new IntersectionObserver(
+      ([entry]) => {
+        onScreen = entry.isIntersecting
+        if (onScreen) resume?.()
+      },
+      { rootMargin: '300px 0px' },
+    )
+    io.observe(canvas)
 
     if (canvas.offsetWidth > 0) {
       init()
@@ -157,7 +206,9 @@ export function Globe({ markers, focus, className = '', onDragChange }: GlobePro
 
     return () => {
       ro?.disconnect()
+      io?.disconnect()
       cancelAnimationFrame(rafId)
+      running = false
       globe?.destroy()
     }
   }, [markers, focus])

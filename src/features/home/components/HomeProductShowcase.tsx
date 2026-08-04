@@ -514,6 +514,41 @@ export function HomeProductShowcase() {
       const bottles = bottlesRef.current.filter(Boolean) as HTMLDivElement[]
       const dots = dotsRef.current.filter(Boolean) as HTMLButtonElement[]
 
+      /* ── `is-live`: a memória de GPU do catálogo acompanha a cena ─────
+         Todo o `will-change` desta seção (4 frascos de 68vh, 4 wraps em
+         preserve-3d, painéis, chips e CTAs — 37 elementos ao todo) depende
+         desta classe no CSS. Sem ela, as camadas ficavam reservadas pelo resto
+         da visita: medido, cerca de 86 MB de texturas constantes do catálogo
+         até o rodapé. Num iPhone esse orçamento não sobra, e quem paga a conta
+         é tudo o que vem DEPOIS — daí a página ficar mais pesada a partir das
+         culturas.
+
+         A margem generosa (uma tela e meia para cada lado) garante que as
+         camadas já estejam promovidas bem antes de a seção entrar: promover no
+         exato momento da entrada seria trocar um custo permanente por um
+         engasgo na hora da transição, que é justamente o que `will-change`
+         existe para evitar.
+
+         O sinal vai num ATRIBUTO, não numa classe. `className` é prop
+         controlada pelo React: qualquer re-render do componente (e este troca
+         de produto por state) reescreve a lista de classes e apaga o que foi
+         posto por `classList`. Um `data-` que não existe no JSX passa
+         despercebido pela reconciliação e sobrevive. */
+      const liveObserver = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) root.setAttribute('data-live', '')
+          else root.removeAttribute('data-live')
+        },
+        { rootMargin: '150% 0px' },
+      )
+      /* Observa a SEÇÃO, não o `.pcs-root`.
+         Com o pin ativo, o ScrollTrigger insere um `.pin-spacer` de vários
+         milhares de pixels e o root fica no fim dele — observar o root ligaria
+         as camadas só quando o scroll chegasse ao fim do trecho pinado, ou
+         seja, depois de o catálogo já ter sido usado. A seção envolve o spacer
+         inteiro e cobre toda a faixa em que o catálogo aparece em tela. */
+      liveObserver.observe(root.closest('#sec-produtos') ?? root)
+
       let hintHidden = false
       const hideHint = () => {
         if (hintHidden || !hintRef.current) return
@@ -1973,7 +2008,11 @@ export function HomeProductShowcase() {
         },
       )
 
-      return () => mm.revert()
+      return () => {
+        liveObserver.disconnect()
+        root.removeAttribute('data-live')
+        mm.revert()
+      }
     },
     { scope: rootRef },
   )

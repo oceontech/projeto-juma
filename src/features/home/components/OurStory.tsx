@@ -11,8 +11,9 @@ import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 
-import { gsap, ScrollTrigger, SplitText, useGSAP } from '@/features/animation/gsap'
-import { DUR, EASE, STAGGER } from '@/features/animation/motion'
+import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
+import { createCharReveal } from '@/features/animation/charReveal'
+import { EASE } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
 
@@ -117,13 +118,15 @@ export function OurStory() {
       // Título em linhas mascaradas (mesma voz do Hero/PhaseLayout). O split
       // roda uma única vez aqui fora das timelines — re-tригgar é só reanimar
       // yPercent dos spans já existentes, sem custo de novo split a cada ciclo.
-      const titleSplit = title ? new SplitText(title, { type: 'chars,lines' }) : null
-      const titleChars = titleSplit ? titleSplit.chars : title ? [title] : []
+      // `autoRevert: false`: as timelines de entrada e saída são pausadas e
+      // reiniciadas pelo ScrollTrigger, então os alvos precisam sobreviver ao
+      // fim da primeira passagem.
+      const reveal = createCharReveal(title, { autoRevert: false })
 
       // ── Estado inicial ──────────────────────────────────────────────
       gsap.set(photo, { y: 24, opacity: 0 })
       gsap.set(title, { opacity: 0 })
-      gsap.set(titleChars, { x: 20, opacity: 0, ...(isDesktop && { filter: 'blur(10px)' }) })
+      reveal?.hide()
       gsap.set(body, { y: 12, opacity: 0 })
       gsap.set(cta, { y: 12, opacity: 0 })
       gsap.set(stats, { y: 10, opacity: 0 })
@@ -140,17 +143,7 @@ export function OurStory() {
         entry.to(vLines, { scaleY: 1, duration: 0.45, stagger: 0.08 }, 0.25)
       }
       entry.set(title, { opacity: 1 }, 0.15)
-      entry.to(
-        titleChars,
-        {
-          x: 0,
-          opacity: 1,
-          ...(isDesktop && { filter: 'blur(0px)' }),
-          duration: DUR.title,
-          stagger: STAGGER.char,
-        },
-        0.15,
-      )
+      reveal?.playIn(entry, 0.15)
       entry.to(body, { y: 0, opacity: 1, duration: 0.5 }, 0.35)
       entry.to(cta, { y: 0, opacity: 1, duration: 0.45 }, 0.45)
       entry.to(stats, { y: 0, opacity: 1, duration: 0.45, stagger: 0.06 }, 0.5)
@@ -158,7 +151,7 @@ export function OurStory() {
       // ── Saída: fade simples, sem y para evitar "giro" pesado ────────
       const exit = gsap.timeline({ paused: true, defaults: { ease: 'power2.in' } })
       exit.to([title, body, cta, stats], { opacity: 0, duration: 0.25 }, 0)
-      exit.set(titleChars, { x: 20, opacity: 0, ...(isDesktop && { filter: 'blur(10px)' }) }, 0.25)
+      if (reveal) exit.set(reveal.chars, reveal.hidden, 0.25)
       if (isDesktop) exit.to(labels, { opacity: 0, duration: 0.2 }, 0)
       exit.to(photo, { y: -10, opacity: 0, duration: 0.3 }, 0.05)
 
@@ -230,7 +223,7 @@ export function OurStory() {
         entry.kill()
         exit.kill()
         tiltTriggers.forEach((t) => t.kill())
-        titleSplit?.revert()
+        reveal?.revert()
       }
     },
     { dependencies: [reduced, isDesktop], scope: sectionRef },
