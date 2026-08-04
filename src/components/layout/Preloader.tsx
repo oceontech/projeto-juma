@@ -111,9 +111,15 @@ export function Preloader() {
   useEffect(() => {
     if (!visible) return
 
+    /* `preloader:done` avisa quem tem animação de abertura para começar agora.
+       Sem esse sinal, a entrada do hero rodava no mount — ou seja, ATRÁS da
+       tela branca do preloader, que fica de pé por até 2,5s. Quando o overlay
+       finalmente saía, a timeline já havia terminado e o usuário via o hero
+       parado, sem entrada nenhuma. */
     const finish = () => {
       showingRef.current = false
       setVisible(false)
+      window.dispatchEvent(new CustomEvent('preloader:done'))
     }
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {

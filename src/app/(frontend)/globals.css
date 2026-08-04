@@ -256,11 +256,6 @@ html.lenis body { height: auto; }
   50%       { transform: translateY(6px); }
 }
 
-@keyframes shimmer-sweep {
-  from { transform: translateX(-110%); }
-  to   { transform: translateX(110%); }
-}
-
 @keyframes seal-spin {
   to { transform: rotate(360deg); }
 }
@@ -1240,17 +1235,6 @@ html.lenis body { height: auto; }
   }
 }
 
-/* ── Shimmer Effect (Hero) ─────────────────────────────────────── */
-.hero-title-shimmer::after {
-  content: '';
-  position: absolute;
-  top: 0; left: -100%;
-  width: 60%; height: 100%;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 40%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0.5) 60%, transparent 100%);
-  pointer-events: none;
-  z-index: 5;
-  opacity: 0;
-}
 
 /* Heritage Aminosan callouts */
 .aminosan-bottle-callout {
@@ -1379,13 +1363,6 @@ html.lenis body { height: auto; }
   to { transform: translateY(-50%); }
 }
 
-.hero-title-shimmer.shimmer-active::after {
-  animation: hero-shimmer-sweep 0.8s ease-out forwards;
-}
-@keyframes hero-shimmer-sweep {
-  0% { left: -60%; opacity: 1; }
-  100% { left: 120%; opacity: 0; }
-}
 
 .pcs-featured-anchor {
   position: absolute;

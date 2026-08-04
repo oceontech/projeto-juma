@@ -4,7 +4,8 @@ import { useEffect, useId, useRef, useState } from 'react'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 
-import { gsap, ScrollTrigger, SplitText, useGSAP } from '@/features/animation/gsap'
+import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
+import { createCharReveal } from '@/features/animation/charReveal'
 import { DUR, EASE, FADE_Y, STAGGER } from '@/features/animation/motion'
 import { useLenis } from '@/features/animation/SmoothScroll'
 import { Link } from '@/i18n/navigation'
@@ -45,6 +46,8 @@ export function HeroJornada() {
   const directionRef     = useRef<'forward' | 'backward' | null>(null)
   const lastTimeRef      = useRef<number>(0)
   const entranceRanRef   = useRef(false)
+  /** Handle do reveal do título, para a jornada poder reexecutá-lo no retorno. */
+  const titleRevealRef   = useRef<ReturnType<typeof createCharReveal>>(null)
   // autoRewindRef: Ao voltar pro topo (scrollY<=2) depois de já ter saído da jornada, a gota
   // re-trava — mas sozinha ela não chega no rest: sem isto o usuário precisa
   // de um segundo gesto de scroll só pra "destravar" a gota.
@@ -159,8 +162,16 @@ export function HeroJornada() {
       const naturalWidth     = mainNav  ? mainNav.offsetWidth  : 960
       const naturalLangWidth = langPill ? langPill.offsetWidth : 80
 
+      /* O título entra letra a letra, pelo mesmo motor do resto do site: o
+         desfoque fica no título inteiro, nunca em cada caractere. O handle é
+         guardado em ref porque a mecânica da jornada (mais abaixo) precisa
+         reexecutar esta entrada toda vez que o hero volta ao repouso. */
+      const titleReveal = createCharReveal(titleWrap, { autoRevert: false })
+      titleRevealRef.current = titleReveal
+
       // Estado inicial — evita flash antes da timeline
       gsap.set(titleWrap, { y: 60, opacity: 0 })
+      titleReveal?.hide()
       gsap.set(glow,    { opacity: 0 })
       gsap.set(support, { y: 30, opacity: 0, filter: 'blur(8px)' })
       gsap.set(accent,  { scaleX: 0, transformOrigin: 'left center' })
@@ -172,12 +183,29 @@ export function HeroJornada() {
       if (navLinks) gsap.set(navLinks,  { opacity: 0, filter: 'blur(8px)' })
 
       const tl = gsap.timeline({
+        paused: true,
         defaults: { overwrite: 'auto' },
         onComplete: () => {
           gsap.set([titleWrap, glow, support, accent, leaves, scrollInd].filter(Boolean), { clearProps: 'filter' })
         }
       })
       tl.timeScale(1.8)
+
+      /* A abertura só começa quando a tela do preloader sai.
+         Antes ela partia no mount e rodava inteira ATRÁS do overlay branco,
+         que fica de pé por até 2,5s — quando ele saía, a timeline já havia
+         terminado e o hero aparecia parado. Era por isso que a entrada
+         "não existia", sobretudo no celular, onde o preloader espera mais. */
+      let startHandle: number | undefined
+      const startEntrance = () => {
+        window.clearTimeout(startHandle)
+        window.removeEventListener('preloader:done', startEntrance)
+        tl.play()
+      }
+      window.addEventListener('preloader:done', startEntrance, { once: true })
+      // Rede de segurança: se o preloader não existir nesta rota (ou já tiver
+      // saído antes de este efeito montar), a abertura não pode ficar parada.
+      startHandle = window.setTimeout(startEntrance, 2600)
 
       // 1. Navbar — pílula surge suavemente com blur-in (unificado para mobile e desktop)
       if (mainNav) {
@@ -206,23 +234,22 @@ export function HeroJornada() {
         }, 0.8)
       }
 
-      // 2. Headline — rises very slowly from far below the mountains
+      /* 2. Headline — sobe de trás das montanhas e revela letra a letra.
+            O reveal usa o mesmo motor do resto do site (desfoque no título
+            inteiro, nunca por caractere), então a cascata é a de sempre sem o
+            custo que travava o iPhone. */
       tl.to(titleWrap, {
         opacity: 1,
         y: 0,
         duration: 1.7,
         ease: 'power2.out'
       }, 0.2) // Inicia quase junto com a navbar
+      if (titleReveal) titleReveal.playIn(tl, 0.35)
 
       // 3. Mountain glow fades in as headline rises
       tl.to(glow, { opacity: 0.45, duration: 1.0, ease: 'power1.out' }, '<')
 
-      // 4. Shimmer inicia um pouco antes do texto terminar de subir
-      tl.call(() => {
-        if (titleWrap) titleWrap.classList.add('shimmer-active')
-      }, undefined, '-=0.3')
-
-      // 5. Complement text + accent line com blur-in (logo após shimmer)
+      // 4. Texto de apoio + linha de acento entram com blur-in
       tl.to(support, { 
         opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.8, ease: 'power2.out',
         onComplete: () => gsap.set(support, { clearProps: 'filter' })
@@ -234,6 +261,13 @@ export function HeroJornada() {
 
       // 7. Indicador de scroll surge (tempo absoluto)
       tl.to(scrollInd, { opacity: 1, duration: 0.4, ease: EASE.micro }, 1.0)
+
+      return () => {
+        window.clearTimeout(startHandle)
+        window.removeEventListener('preloader:done', startEntrance)
+        titleReveal?.revert()
+        titleRevealRef.current = null
+      }
     },
     { dependencies: [enhanced], scope: root },
   )
@@ -281,6 +315,22 @@ export function HeroJornada() {
       /** Só o visual dos elementos de repouso — não mexe na fase. */
       const fadeRest = (show: boolean) => {
         gsap.to(restEls(), { autoAlpha: show ? 1 : 0, duration: show ? 0.3 : 0.4, ease: 'power2.out' })
+
+        /* Voltar ao repouso reexecuta a entrada do título, letra a letra.
+           A cortina de `autoAlpha` acima devolve o bloco inteiro de uma vez;
+           sozinha, ela fazia o título simplesmente reaparecer — sem entrada
+           nenhuma ao subir de volta para o topo, que era a queixa. O reveal
+           roda por cima do fade e dá ao retorno a mesma abertura da primeira
+           vez. Enquanto o hero está fora de cena não há nada a reanimar, por
+           isso só no `show`. */
+        if (show) {
+          const reveal = titleRevealRef.current
+          if (reveal) {
+            const tl = gsap.timeline()
+            reveal.hide()
+            reveal.playIn(tl, 0.05)
+          }
+        }
       }
 
       /* A mecânica da jornada (travar o gesto, avançar ou rebobinar o vídeo) só
@@ -893,7 +943,7 @@ export function HeroJornada() {
                 style={{ background: 'radial-gradient(ellipse 75% 55% at 38% 52%, rgba(0,76,38,0.12), transparent 70%)' }}
               />
 
-              <h1 ref={titleWrapRef} className="hero-title-shimmer relative font-black uppercase leading-[0.92] tracking-tight text-[clamp(2.2rem, 6.5vw, 5rem)] md:text-[clamp(2.8rem, 7.5vw, 5rem)] min-[1600px]:text-[7.5rem] min-[2000px]:text-[9rem] text-left">
+              <h1 ref={titleWrapRef} className="relative font-black uppercase leading-[0.92] tracking-tight text-[clamp(2.2rem, 6.5vw, 5rem)] md:text-[clamp(2.8rem, 7.5vw, 5rem)] min-[1600px]:text-[7.5rem] min-[2000px]:text-[9rem] text-left">
                 <span className="block text-foreground">{t('headlineLine1')}</span>
                 <span className="block text-foreground">{t('headlineLine2')}</span>
                 <span className="block">
@@ -1085,27 +1135,25 @@ function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, alig
       const subEl    = el.querySelector<HTMLElement>(mobile ? '[data-ps-m]' : '[data-ps]')
       const itemsEl  = el.querySelector<HTMLElement>(mobile ? '[data-pi-m]' : '[data-pi]')
 
-      const split = titleEl
-        ? new SplitText(titleEl, { type: 'chars,lines' })
-        : null
+      /* Este reveal dispara no instante em que a jornada pausa o clipe — o
+         pior frame possível para pedir desfoque por caractere, com o
+         decodificador de vídeo ainda ocupado. O motor central põe o desfoque
+         no título inteiro. */
+      const reveal = createCharReveal(titleEl)
 
       const lineOrigin = (!mobile && align === 'right') ? 'right center' : 'left center'
 
       const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
       if (kickerEl) tl.fromTo(kickerEl, { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0)
-      if (split) {
-        tl.fromTo(
-          split.chars,
-          { x: 20, opacity: 0, ...(!mobile && { filter: 'blur(10px)' }) },
-          { x: 0, opacity: 1, ...(!mobile && { filter: 'blur(0px)' }), duration: DUR.title, stagger: STAGGER.char },
-          0.05,
-        )
+      if (reveal) {
+        reveal.hide()
+        reveal.playIn(tl, 0.05)
       }
       if (lineEl)   tl.fromTo(lineEl, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: DUR.sub, transformOrigin: lineOrigin }, 0.2)
       if (subEl)    tl.fromTo(subEl, { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0.28)
       if (itemsEl)  tl.fromTo(itemsEl, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0.34)
 
-      return () => { tl.kill(); split?.revert() }
+      return () => { tl.kill(); reveal?.revert() }
     },
     { dependencies: [show], scope: ref },
   )
@@ -1253,7 +1301,7 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitl
   const titleRef     = useRef<HTMLHeadingElement>(null)
   const hiRef        = useRef<HTMLSpanElement>(null)
 
-  // Cena da gota: tela branca + reveal por palavra mascarada (SplitText) na voz da fundação.
+  // Cena da gota: tela branca + reveal do título na voz da fundação.
   // Disparado pelo estado `show` (fim da animação do vídeo), não por scroll. Enquanto o texto
   // não termina de revelar, `onRevealComplete(false)` mantém o scroll travado no passo anterior.
   // Ao terminar, espera um pouco (HOLD_MS) antes de liberar — sem isso, quem já está rolando
@@ -1269,13 +1317,10 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitl
       const lineEl   = el.querySelector<HTMLElement>('[data-gline]')
       const subEl    = el.querySelector<HTMLElement>('[data-gs]')
 
-      const split = titleRef.current
-        ? new SplitText(titleRef.current, { type: 'chars,words' })
-        : null
+      const reveal = createCharReveal(titleRef.current)
 
       let rotatorTl: gsap.core.Timeline | null = null;
 
-      const isMobileGota = window.innerWidth < 1024
       const tl = gsap.timeline({ 
         defaults: { ease: EASE.reveal },
         onComplete: () => {
@@ -1283,21 +1328,17 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitl
         }
       })
       if (kickerEl) tl.fromTo(kickerEl, { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0)
-      if (split) {
-        tl.fromTo(
-          split.chars,
-          { x: 20, opacity: 0, ...(!isMobileGota && { filter: 'blur(10px)' }) },
-          { x: 0, opacity: 1, ...(!isMobileGota && { filter: 'blur(0px)' }), duration: DUR.title, stagger: STAGGER.char },
-          0.12,
-        )
+      if (reveal) {
+        reveal.hide()
+        reveal.playIn(tl, 0.12)
       }
       if (lineEl)   tl.fromTo(lineEl, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: DUR.sub }, 0.55)
       if (subEl)    tl.fromTo(subEl, { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0.7)
 
-      return () => { 
-        tl.kill(); 
-        split?.revert(); 
-        onRevealComplete?.(false);
+      return () => {
+        tl.kill()
+        reveal?.revert()
+        onRevealComplete?.(false)
       }
     },
     { dependencies: [show], scope: containerRef },
