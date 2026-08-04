@@ -152,11 +152,10 @@ const isNarrowStage = () => typeof window !== 'undefined' && window.innerWidth <
    catálogo mostra o MESMO render recortado justo (frasco 1000×1000). As
    frações abaixo são o retângulo alpha da arte dentro de cada canvas —
    medidas uma vez sobre os PNGs/WEBPs (`ffmpeg ... alphaextract,bbox`), não
-   mudam a menos que o asset mude. Uma versão anterior lia essas caixas com
-   `getBoundingClientRect()` (measureBridge) — precisa, mas cara: três
-   leituras de layout forçadas na hora exata do handoff competiam com o
-   salto de scroll e as outras animações, e isso lia como tranco em aparelho
-   real. Como o still preenche sempre o PALCO INTEIRO (`stillFullFrameProps`)
+   mudam a menos que o asset mude. Nada aqui lê o DOM: leituras de layout
+   forçadas na hora exata do handoff competem com o salto de scroll e as
+   outras animações, e isso lê como tranco em aparelho real. Como o still
+   preenche sempre o PALCO INTEIRO (`stillFullFrameProps`)
    e o palco vale a viewport quando pinado, e a caixa do frasco no catálogo é
    uma fração fixa dessa mesma viewport (ver `getCatalogBottleProps`), dá pra
    calcular a MESMA geometria só com `window.innerWidth/innerHeight` — zero
@@ -406,11 +405,11 @@ function getCatalogBottleProps(index: number, active: number, isMobile: boolean)
 export function HomeProductShowcase() {
   const t = useTranslations('homeProductShowcase')
 
-  /* Compartilhado entre o efeito de `scheduleRefresh` abaixo e o `useGSAP`
-     principal (que marca true/false em volta de cada passo) — ver comentário
-     em `scheduleRefresh` sobre por que um `ScrollTrigger.refresh()` não pode
-     rodar em cima de uma transição em andamento. */
+  /* Transição de produto em andamento (marcado pelo useGSAP em volta de cada
+     passo) e pin do catálogo ativo. Os dois seguram o `ScrollTrigger.refresh()`
+     agendado abaixo. */
   const catalogBusyRef = useRef(false)
+  const pinActiveRef = useRef(false)
 
   // Mesmo corte de 1024px do `isNarrowStage()`/`stillFullFrameProps` — decide
   // qual still de handoff (retrato mobile x paisagem desktop) o <Image> carrega.
@@ -424,22 +423,20 @@ export function HomeProductShowcase() {
 
   useEffect(() => {
     const timeouts: number[] = []
-    const rafs: number[] = []
 
     let pendingRaf = 0
-    /* Rodar `ScrollTrigger.refresh()` com o pin do catálogo ATIVO (usuário no
-       meio de um passo entre produtos) recalcula o spacer/posição do pin
-       tocando o layout medido — e como o próprio gatilho mais comum daqui é
-       uma imagem de frasco (lazy) terminando de carregar EXATAMENTE durante o
-       swipe pra ela, o refresh cai bem no meio da transição. Se o resultado
-       mudar por um pixel, o scroll (ainda em voo pro próximo produto) é
-       corrigido pra bater com a nova medição — daí o "pulo pra cima/baixo
-       antes de trocar de produto" reportado. `catalogBusyRef` (setado pelo
-       useGSAP principal em volta de cada passo) faz este refresh esperar a
-       transição atual terminar em vez de rodar em cima dela. */
+    /* `ScrollTrigger.refresh()` remede start/end/spacer de todos os triggers e
+       reposiciona o pin debaixo do usuário. Com o catálogo pinado isso lê como
+       a seção "despinar" e voltar ao lugar num tranco — no mobile, onde o
+       scroll é nativo e tem inércia própria, o estrago é maior porque a
+       correção cai em cima de um gesto ainda em voo. Enquanto o pin estiver
+       ativo (ou uma troca de produto em andamento), o refresh espera.
+       Os frascos e o still são `position: absolute` dentro de um palco de
+       altura fixa: terminar de carregar não muda layout nenhum, então não há
+       refresh amarrado ao `load` deles. */
     const runRefresh = () => {
       pendingRaf = 0
-      if (catalogBusyRef.current) {
+      if (catalogBusyRef.current || pinActiveRef.current) {
         pendingRaf = window.requestAnimationFrame(runRefresh)
         return
       }
@@ -454,24 +451,9 @@ export function HomeProductShowcase() {
     timeouts.push(window.setTimeout(scheduleRefresh, 300))
     document.fonts?.ready.then(scheduleRefresh).catch(() => {})
 
-    const media = Array.from(
-      document.querySelectorAll<HTMLImageElement | HTMLVideoElement>(
-        '#sec-produtos img, #sec-produtos video',
-      ),
-    )
-    media.forEach((el) => {
-      el.addEventListener('load', scheduleRefresh)
-      el.addEventListener('loadedmetadata', scheduleRefresh)
-      el.addEventListener('loadeddata', scheduleRefresh)
-    })
-
     // Só re-agenda refresh em resize de LARGURA (rotação, redimensionar janela).
-    // No mobile, mudança de ALTURA sozinha é o navegador escondendo/mostrando a
-    // barra de endereço enquanto o usuário rola — refazer o refresh nesse momento
-    // recalcula o pin (start/end/spacer) no meio do gesto e é o que produz o
-    // "salto"/barra vazia na seção pinada. `ScrollTrigger.config({ ignoreMobileResize:
-    // true })` (features/animation/gsap.ts) já existe pra evitar isso, mas o listener
-    // de resize aqui embaixo o contornava direto.
+    // No mobile, mudança de ALTURA sozinha é a barra de endereço recolhendo
+    // durante a rolagem — refazer o pin nesse momento produz o salto.
     let lastWidth = window.innerWidth
     const onResize = () => {
       const w = window.innerWidth
@@ -488,13 +470,8 @@ export function HomeProductShowcase() {
       window.removeEventListener('load', scheduleRefresh)
       window.removeEventListener('pageshow', scheduleRefresh)
       window.removeEventListener('resize', onResize)
-      media.forEach((el) => {
-        el.removeEventListener('load', scheduleRefresh)
-        el.removeEventListener('loadedmetadata', scheduleRefresh)
-        el.removeEventListener('loadeddata', scheduleRefresh)
-      })
       timeouts.forEach(window.clearTimeout)
-      rafs.forEach(window.cancelAnimationFrame)
+      if (pendingRaf) window.cancelAnimationFrame(pendingRaf)
     }
   }, [])
   const reduced = useReducedMotion()
@@ -584,6 +561,19 @@ export function HomeProductShowcase() {
           root.style.setProperty('--pcs-accent', PRODUCTS[startIndex].accent)
           root.style.setProperty('--pcs-accent-bg', PRODUCTS[startIndex].accent)
 
+          /* O `#sec-produtos` envolve o pin-spacer e aparece numa faixa fina
+             nas bordas do pin sempre que o `dvh` do celular muda de valor: o
+             spacer foi medido com uma altura de viewport e o `.pcs-root` passa
+             a valer outra quando a barra de endereço entra ou sai. O `bg`
+             estático da seção (azul-marinho) tornava essa faixa um bloco
+             gritante entre o catálogo e a Cultures; pintado com a cor do
+             produto em cena, ela some visualmente. */
+          const sectionEl = root.closest<HTMLElement>('#sec-produtos')
+          const paintEdge = (color: string) => {
+            if (sectionEl) sectionEl.style.backgroundColor = color
+          }
+          paintEdge(PRODUCTS[startIndex].mid)
+
           // Estado inicial dos frascos (carrossel)
           bottles.forEach((bottle, i) => {
             gsap.set(bottle, getCatalogBottleProps(i, startIndex, isMobile))
@@ -610,10 +600,10 @@ export function HomeProductShowcase() {
           dots.forEach((d, i) => d.classList.toggle('is-active', i === startIndex))
 
           /* ── Transição entre produtos ──────────────────────────────
-             Com trava de transição (step lock): enquanto a timeline de um
-             produto estiver animando, scrolls rápidos são retidos até a
-             animação concluir, garantindo peso, responsividade e evitando
-             atropelo de fases. */
+             No DESKTOP cada gesto vira um passo e a trava (step lock) retém
+             scrolls rápidos até a timeline do produto concluir. No MOBILE o
+             scroll é livre e o produto sai do progresso do pin (ver `onUpdate`
+             do pinTrigger); a trava só serve pra segurar refresh e settle. */
 
           let transitionTl: gsap.core.Timeline | null = null
           let isTransitioning = false
@@ -628,9 +618,8 @@ export function HomeProductShowcase() {
              catálogo congelava — a roda continuava cancelada e nenhum produto
              trocava mais. */
           let stepLockWatchdog: ReturnType<typeof setTimeout> | null = null
-          /** Arrasto (px) necessário pra contar como troca de produto. Era 18;
-           *  12 deixa o gesto mais sensível sem pegar toque parado/tremida —
-           *  os limiares de gesto de sistema ficam na casa dos 8–10px. */
+          /** Arrasto (px) necessário pra contar como gesto — acima dos 8–10px
+           *  que os próprios navegadores usam pra distinguir toque de arrasto. */
           const STEP_THRESHOLD = 12
 
           const clearStepLockTimers = () => {
@@ -656,19 +645,17 @@ export function HomeProductShowcase() {
           }
 
           /* ── Trava real do scroll enquanto o catálogo dirige ─────────────
-             `preventDefault` no wheel cancela só a rolagem NATIVA. O Lenis lê
-             o mesmo evento por conta própria e nem olha o `defaultPrevented`:
-             soma o delta no `targetScroll` e continua animando a página. Era
-             isso que fazia um gesto rápido atravessar a seção inteira sem
-             tocar uma transição sequer — o step lock retinha os PASSOS, mas
-             ninguém retinha o SCROLL, então a página saía pela borda do pin
-             direto na seção vizinha.
-             Parado, o próprio Lenis descarta os eventos de roda (e o `stop()`
-             já faz `reset()`: mata a inércia acumulada no flick de entrada e
-             reancora o alvo no scroll real). O `scrollTo(..., { force: true })`
-             do `scrollToY` continua funcionando com ele parado, que é como as
-             trocas de produto movem a página. Mesmo contrato do `lockScroll`
-             da seção Aminosan. */
+             `preventDefault` no wheel cancela só a rolagem NATIVA: o Lenis lê o
+             mesmo evento por conta própria e nem olha o `defaultPrevented`.
+             Parado, ele descarta os eventos de roda (e o `stop()` já faz
+             `reset()`: mata a inércia acumulada e reancora o alvo no scroll
+             real). O `scrollTo(..., { force: true })` do `scrollToY` continua
+             valendo com ele parado. Mesmo contrato do `lockScroll` da seção
+             Aminosan.
+             NO MOBILE tudo isto é no-op: o Lenis não é instanciado abaixo de
+             1024px nem em ponteiro grosso (ver `SmoothScroll`), o scroll é o
+             nativo do navegador e não existe forma de pausá-lo — por isso lá o
+             catálogo não dirige o scroll em nenhum momento. */
           let lenisOwned = false
           const lockLenis = () => {
             const l = lenisRef.current
@@ -697,6 +684,7 @@ export function HomeProductShowcase() {
 
             const dir = index > from ? 1 : -1
             const next = PRODUCTS[index]
+            paintEdge(next.mid)
 
             transitionTl?.kill()
 
@@ -711,14 +699,12 @@ export function HomeProductShowcase() {
             transitionTl = tl
 
             /* Destrava os passos assim que o MOVIMENTO principal termina, não
-               quando a timeline inteira acaba. A timeline vai até ~0,9s (a
-               cauda é só texto assentando) e antes ficava travada esse tempo
-               todo + 140ms de buffer — ou seja, ~1s sem aceitar o próximo
-               gesto. Era isso o "comando pouco sensível": o segundo swipe
-               caía no vazio. Encadear é seguro porque um passo novo já mata a
-               timeline anterior (`transitionTl?.kill()`) e todos os tweens
-               são `overwrite: 'auto'`; os painéis que ficarem pelo caminho
-               são zerados pelo `products.forEach` do passo seguinte. */
+               quando a timeline inteira acaba (~0,9s, cauda de texto
+               assentando) — senão o segundo swipe cai no vazio. Encadear é
+               seguro: um passo novo mata a timeline anterior
+               (`transitionTl?.kill()`), todos os tweens são
+               `overwrite: 'auto'` e os painéis que ficarem pelo caminho são
+               zerados pelo `products.forEach` do passo seguinte. */
             tl.call(releaseStepLock, undefined, 0.2)
 
             /* Fundo: crossfade de opacidade entre `.pcs-bg` (cor atual, parada)
@@ -897,6 +883,7 @@ export function HomeProductShowcase() {
              depois de ter ficado branca por uma saída para cima. */
           const restoreVisual = () => {
             const i = currentIndexRef.current
+            paintEdge(PRODUCTS[i].mid)
             gsap.set(root, {
               '--pcs-base': PRODUCTS[i].base,
               '--pcs-mid': PRODUCTS[i].mid,
@@ -969,6 +956,17 @@ export function HomeProductShowcase() {
             return y >= t.start - 1 && y <= t.end + 1
           }
 
+          /* Produto correspondente ao progresso do pin (0 = primeiro, 1 =
+             último). É o que dirige o carrossel no MOBILE: lá não existe Lenis
+             (SmoothScroll só instancia no desktop), então o scroll é o nativo
+             do navegador, com inércia própria — qualquer `window.scrollTo`
+             nosso no meio do gesto disputa posição com essa inércia, e é essa
+             disputa que fazia a seção despinar e voltar num tranco. Sem
+             reposicionar nada, o ScrollTrigger fica sempre em sincronia e só
+             lemos o progresso pra decidir qual produto está em cena. */
+          const progressToIndex = (p: number) =>
+            Math.min(COUNT - 1, Math.max(0, Math.round(p * (COUNT - 1))))
+
           const pinTrigger = ScrollTrigger.create({
             trigger: root,
             start: 'top top',
@@ -985,6 +983,15 @@ export function HomeProductShowcase() {
                zerando `leavingUp` e devolvendo a página ao catálogo. A seção
                nunca é alcançada em rolagem livre (a entrada é sempre o handoff
                ou o gesto cancelado do pin), então não há flicker a evitar. */
+            /* MOBILE: o produto em cena sai do progresso do pin. Ninguém mexe
+               no scroll — nem passo travado, nem snap, nem preventDefault. */
+            onUpdate: (self) => {
+              if (!isMobile) return
+              if (handingOff || leavingUp || leavingDown || outroHolding || aminosanVideoHandoff)
+                return
+              const next = progressToIndex(self.progress)
+              if (next !== currentIndexRef.current) applyIndex(next)
+            },
             onEnter: () => {
               if (!insidePin()) return
               leavingDown = false
@@ -994,25 +1001,14 @@ export function HomeProductShowcase() {
               // "saindo pra cima" que tenha ficado pendente.
               leavingUp = false
               /* `isTransitioning`/`stepLocked`: o `onEnter` pode refirar sem o
-                 usuário ter saído e voltado de verdade — o `scheduleRefresh`
-                 (mais acima, ligado a `load` das imagens dos frascos) chama
-                 `ScrollTrigger.refresh()` sempre que um frasco lazy termina de
-                 carregar, e isso acontece bem NO MEIO de um swipe (é exatamente
-                 quando o frasco do próximo produto aparece pela primeira vez).
-                 O refresh recalcula start/end de TODOS os triggers da página; se
-                 o resultado mudar por um pixel que seja, o scrollY (ainda em
-                 voo, a caminho do próximo produto) pode ler como "saiu e voltou
-                 a entrar" — e sem esta guarda o reset pra produto 0 cancelava o
-                 passo que o usuário tinha acabado de dar, no meio do gesto.
-                 `restoreVisual()` precisa da MESMA guarda: ela dá `gsap.set`
-                 instantâneo (sem animação) nos 4 frascos e nos textos pro
-                 estado de repouso do índice atual — se isso dispara em cima de
-                 uma transição com essas MESMAS propriedades ainda em voo
-                 (frasco a meio caminho, opacidade subindo), o `.set()` trava
-                 tudo na posição final na hora, cortando a animação e lendo
-                 como um pulo — mesmo sem o índice ter sido resetado. */
+                 usuário ter saído e voltado de verdade (um refresh no meio de
+                 um passo desloca o start/end por alguns pixels e o scrollY em
+                 voo lê como "saiu e voltou"). `restoreVisual()` dá `gsap.set`
+                 instantâneo nos 4 frascos e nos textos: rodando em cima de uma
+                 transição com essas mesmas propriedades ainda em voo, ele trava
+                 tudo na posição final e lê como pulo. */
               if (!isTransitioning && !stepLocked) {
-                if (currentIndexRef.current !== 0) applyIndex(0)
+                if (!isMobile && currentIndexRef.current !== 0) applyIndex(0)
                 if (!handingOff) restoreVisual()
               }
             },
@@ -1021,31 +1017,27 @@ export function HomeProductShowcase() {
               leavingDown = false
               lockLenis()
               window.dispatchEvent(new CustomEvent('nav:hide', { detail: { lock: true } }))
-              // Mesma guarda do onEnter acima (índice E restoreVisual).
-              if (currentIndexRef.current !== COUNT - 1 && !isTransitioning && !stepLocked) {
+              // No mobile o índice já vem do `onUpdate` e o scroll fica intacto:
+              // a volta da Cultures chega com a inércia do dedo ainda correndo,
+              // e era o reposicionamento daqui que atropelava o pin.
+              if (
+                !isMobile &&
+                currentIndexRef.current !== COUNT - 1 &&
+                !isTransitioning &&
+                !stepLocked
+              ) {
                 applyIndex(COUNT - 1)
-                /* Reentrada por baixo (Cultures) pousa o scrollY perto de
-                   `pinTrigger.end` — que não é mais o mesmo pixel de
-                   `indexToY(COUNT-1)` desde o `PIN_EDGE_INSET` (o último
-                   produto descansa 8px pra DENTRO da borda, pra não ficar no
-                   limiar de ligar/desligar o pin). O `onEnter`/handoff do
-                   vídeo já ganhou esse ajuste explícito (ver `onComplete` do
-                   `runHandoffIn`); faltava o espelho aqui — sem ele, uma
-                   volta rápida vinda de baixo landava com esse desvio de 8px
-                   sem correção nenhuma (o `settle` ignora de propósito o
-                   último produto no mobile), o que lia como "não pina
-                   direito" no último produto. */
-                if (isMobile) {
-                  const safeY = indexToY(COUNT - 1)
-                  if (Math.abs(window.scrollY - safeY) > 1) {
-                    lenisRef.current?.scrollTo(safeY, { immediate: true, force: true })
-                    window.scrollTo(0, safeY)
-                    ScrollTrigger.update()
-                  }
-                }
               }
             },
+            /* Saiu por cima a partir do primeiro produto: é a volta pro
+               Aminosan. No mobile o gesto pode atravessar o topo do pin antes
+               do touchmove pegar (inércia), então o próprio pin fecha a porta. */
+            onLeaveBack: () => {
+              if (!isMobile || handingOff || leavingUp) return
+              if (currentIndexRef.current === 0) runHandoffOut()
+            },
             onToggle: (self) => {
+              pinActiveRef.current = self.isActive
               if (self.isActive) {
                 if (!insidePin()) return
                 lockLenis()
@@ -1070,18 +1062,12 @@ export function HomeProductShowcase() {
 
           /* Os EXTREMOS (primeiro e último produto) não descansam no pixel
              exato do `start`/`end` do pin — ficam `PIN_EDGE_INSET` px pra
-             dentro. Parar cravado na borda deixa o pin no limiar de
-             ligar/desligar, e ali ele fica DESLIGADO (medido: `.pcs-root` em
-             `position: relative` em vez de `fixed`, tanto ao chegar no
-             produto 1 quanto ao parar no produto 4). Desligado, o `.pcs-root`
-             volta pro fluxo normal dentro do `pin-spacer` e o conteúdo
-             escorrega junto com o scroll — como o fundo dele é opaco e ocupa
-             a tela toda, não aparece a seção vizinha, só o conteúdo "pulando"
-             (pra cima saindo do produto 1, pra baixo voltando do 4). Dentro
-             da faixa do pin o elemento é `position: fixed`, então esses px
-             não deslocam NADA na tela: o ajuste é invisível.
-             8px (> os 4px de tolerância do `settle`) pra que o próprio settle
-             corrija uma chegada que tenha pousado em cima da borda. */
+             dentro. Cravado na borda o pin fica no limiar de ligar/desligar, e
+             ali ele fica DESLIGADO: o `.pcs-root` volta pro fluxo normal dentro
+             do `pin-spacer` e o conteúdo escorrega junto com o scroll. Dentro
+             da faixa o elemento é `position: fixed`, então esses px não
+             deslocam nada na tela. 8px > os 4px de tolerância do `settle`, pra
+             que ele corrija uma chegada que pouse em cima da borda. */
           const PIN_EDGE_INSET = 8
           const indexToY = (i: number) => {
             const raw = pinTrigger.start + ((pinTrigger.end - pinTrigger.start) * i) / (COUNT - 1)
@@ -1122,7 +1108,10 @@ export function HomeProductShowcase() {
           const goToIndex = (i: number, duration = 0.55) => {
             if (i < 0 || i >= COUNT) return
             hideHint()
-            if (i !== currentIndexRef.current) applyIndex(i)
+            // No mobile quem troca o produto é o progresso do pin (`onUpdate`);
+            // aplicar o índice aqui também faria a troca acontecer duas vezes,
+            // com os produtos do caminho piscando por cima do destino.
+            if (!isMobile && i !== currentIndexRef.current) applyIndex(i)
             scrollToY(indexToY(i), duration)
           }
           goToIndexRef.current = goToIndex
@@ -1156,6 +1145,7 @@ export function HomeProductShowcase() {
             hideHint()
             transitionTl?.kill()
             currentIndexRef.current = 0
+            paintEdge('#ffffff')
             dots.forEach((d, i) => d.classList.toggle('is-active', i === 0))
             products.forEach((el, i) => el.classList.toggle('is-active', i === 0))
             const p0 = parts(products[0])
@@ -1209,6 +1199,7 @@ export function HomeProductShowcase() {
               onComplete: () => {
                 if (bottles[0]) gsap.set(bottles[0], { ...catalogCenter, autoAlpha: 1, opacity: 1 })
                 gsap.set(handoffStillRef.current, { autoAlpha: 0, opacity: 0, zIndex: 3 })
+                paintEdge(PRODUCTS[0].mid)
                 handingOff = false
                 /* Sai da borda exata do pin (ver `PIN_EDGE_INSET`): a chegada
                    do vídeo pousa em `pinTrigger.start` cravado, e ali o pin
@@ -1295,6 +1286,7 @@ export function HomeProductShowcase() {
             window.dispatchEvent(new CustomEvent('aminosan:prepare-handoff-backward'))
             transitionTl?.kill()
             clearTimeout(idleTimer)
+            paintEdge('#ffffff')
             lockLenis()
             lenisRef.current?.scrollTo(pinTrigger.start, { immediate: true, force: true })
             window.scrollTo(0, pinTrigger.start)
@@ -1417,29 +1409,13 @@ export function HomeProductShowcase() {
             // longe da seção (ver `insidePin`). Assentar nesse estado era o que
             // arrastava o usuário de volta pro catálogo no meio do vídeo reverso.
             if (pinTrigger.isActive && insidePin()) {
-              // No mobile, a fronteira com a Cultures (último produto) fica de
-              // fora do "cola no alvo": senão, ao subir vindo da Cultures, o
-              // settle briga com o dedo e puxa a página de volta pra baixo.
-              if (isMobile && currentIndexRef.current === COUNT - 1) return
+              // Mobile: dentro do pin o scroll é 100% do usuário (ver `onUpdate`
+              // do pin). Colar no alvo aqui significava disputar posição com a
+              // inércia nativa — o "não pina no lugar certo" e o produto 4
+              // preso eram os dois lados dessa disputa.
+              if (isMobile) return
               const target = indexToY(currentIndexRef.current)
               if (Math.abs(scroll - target) > 4) scrollToY(target, 0.55)
-              return
-            }
-            /* Último produto no mobile, com o dedo já solto um tico ALÉM da
-               borda do pin: recolhe de volta pro lugar de repouso. É o que
-               antes era feito com `preventDefault` no meio do gesto (e prendia
-               o usuário na tela do produto 4 — ver `atLastMobile`); aqui só
-               acontece DEPOIS que o scroll parou, então nunca disputa nada
-               com o usuário. A faixa é curta de propósito: passou disso, a
-               intenção foi mesmo sair pra próxima seção e ninguém puxa de
-               volta. */
-            if (
-              isMobile &&
-              currentIndexRef.current === COUNT - 1 &&
-              scroll > pinTrigger.end &&
-              scroll < pinTrigger.end + 70
-            ) {
-              scrollToY(indexToY(COUNT - 1), 0.4)
               return
             }
             // Zona de entrada (catálogo espiando por baixo da seção anterior)
@@ -1448,6 +1424,7 @@ export function HomeProductShowcase() {
                 runHandoffOut()
                 return
               }
+              if (isMobile) return
               scrollToY(lastDir > 0 ? pinTrigger.start : Math.max(0, pinTrigger.start - vh), 0.7)
               return
             }
@@ -1560,7 +1537,7 @@ export function HomeProductShowcase() {
               const scroll = window.scrollY
               const isCatalogPeeking =
                 scroll < pinTrigger.start && scroll > pinTrigger.start - window.innerHeight
-              if (delta > 0 && isCatalogPeeking) {
+              if (!isMobile && delta > 0 && isCatalogPeeking) {
                 if (e.cancelable) e.preventDefault()
                 scrollToY(pinTrigger.start, 0.45)
                 touchStartY = e.touches[0].clientY
@@ -1573,39 +1550,31 @@ export function HomeProductShowcase() {
               touchStartY = e.touches[0].clientY
               return
             }
-            // No mobile, saindo do último produto pra frente, não força o
-            // salto de uma viewport inteira (skip): deixa o próprio arrasto
-            // do dedo levar o scroll pra Cultures, sem preventDefault. Aqui o
-            // sentido precisa estar declarado antes de decidir, então este é o
-            // único caso que ainda espera os 18px.
-            const atLastMobile = isMobile && currentIndexRef.current === COUNT - 1
-            if (atLastMobile) {
-              if (Math.abs(delta) < STEP_THRESHOLD) return
-              if (delta > 0) {
-                /* Pra FRENTE no último produto: nunca dar `preventDefault`.
-                   Um `preventDefault` num touchmove não cancela só aquele
-                   evento — o navegador (iOS em especial) decide logo no começo
-                   do gesto se ele é rolagem, e um preventDefault ali mata a
-                   rolagem pro RESTO do toque. Era isso que prendia o usuário
-                   na tela do último produto: o gesto era descartado inteiro e
-                   só um novo toque tinha chance de sair. O overscroll que essa
-                   guarda tentava evitar agora é resolvido depois do gesto, no
-                   `settle` (que puxa de volta se o dedo parou coladinho na
-                   borda do pin) — sem nunca disputar o gesto com o usuário. */
-                touchStartY = e.touches[0].clientY
-                return
+            /* MOBILE, pin ativo: o gesto é do usuário do começo ao fim. Nada de
+               `preventDefault` — no iOS ele não cancela só aquele evento: o
+               navegador decide no início do toque se é rolagem, e cancelar ali
+               mata a rolagem pelo RESTO do gesto (era o "trava e não sai do
+               lugar" no produto 4). O carrossel acompanha pelo progresso do pin
+               (`onUpdate`). A única saída dirigida é a volta pro Aminosan a
+               partir do primeiro produto, com o scroll já no topo do pin. */
+            if (isMobile) {
+              if (
+                delta < -STEP_THRESHOLD &&
+                currentIndexRef.current === 0 &&
+                window.scrollY <= pinTrigger.start + 24
+              ) {
+                if (e.cancelable) e.preventDefault()
+                runHandoffOut()
               }
-              if (e.cancelable) e.preventDefault()
-              stepFromTouch(-1)
               touchStartY = e.touches[0].clientY
               return
             }
-            // Pin ativo: cancela o gesto já no PRIMEIRO touchmove. Esperar os
-            // 18px de limiar para só então dar preventDefault deixava o browser
+            // Desktop (telas de toque): cancela o gesto já no PRIMEIRO touchmove.
+            // Esperar o limiar para só então dar preventDefault deixava o browser
             // começar a rolagem nativa nos primeiros pixels — e uma vez começada
             // ela não é mais cancelável, então um flick forte atravessava o pin
-            // inteiro (era o salto do catálogo direto pro início do Aminosan,
-            // sem passar pelos vídeos de transição).
+            // inteiro (o salto do catálogo direto pro início do Aminosan, sem
+            // passar pelos vídeos de transição).
             if (e.cancelable) e.preventDefault()
             if (Math.abs(delta) < STEP_THRESHOLD) return
             stepFromTouch(delta > 0 ? 1 : -1)
@@ -1693,6 +1662,8 @@ export function HomeProductShowcase() {
             clearTimeout(idleTimer)
             clearStepLockTimers()
             catalogBusyRef.current = false
+            pinActiveRef.current = false
+            sectionEl?.style.removeProperty('background-color')
             // Nunca deixar o Lenis parado atrás de nós (troca de breakpoint,
             // navegação): o resto da página ficaria sem scroll.
             unlockLenis()
