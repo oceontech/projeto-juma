@@ -3,8 +3,9 @@
 import { CheckCircle2 } from 'lucide-react'
 
 import React, { useRef, useState, useEffect } from 'react'
-import { gsap, SplitText } from '@/features/animation/gsap'
-import { DUR, EASE, STAGGER, blurPx } from '@/features/animation/motion'
+import { gsap } from '@/features/animation/gsap'
+import { createCharReveal, revealToggleActions } from '@/features/animation/charReveal'
+import { DUR, EASE } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { useGSAP } from '@/features/animation/gsap'
 import { Container } from '@/components/layout/Container'
@@ -29,16 +30,16 @@ export function HomeTestimonials() {
     if (reduced || !ref.current) return
     
     const header = ref.current.querySelector<HTMLElement>('[data-header]')
-    let split: SplitText | null = null;
+    let reveal: ReturnType<typeof createCharReveal> = null
     if (header) {
       const kicker = header.querySelector<HTMLElement>('[data-kicker]')
       const title = header.querySelector<HTMLElement>('[data-title]')
       const line = header.querySelector<HTMLElement>('[data-gline]')
 
-      split = title ? new SplitText(title, { type: 'chars,words' }) : null
+      reveal = createCharReveal(title)
 
       if (kicker) gsap.set(kicker, { y: 14, opacity: 0 })
-      if (split) gsap.set(split.chars, { x: 20, opacity: 0, filter: blurPx(10) })
+      reveal?.hide()
       if (line) gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
 
       const tl = gsap.timeline({
@@ -46,18 +47,17 @@ export function HomeTestimonials() {
           trigger: header,
           start: 'top 85%',
           end: 'bottom 15%',
-          toggleActions: 'play reverse play reverse',
+          toggleActions: revealToggleActions(),
         },
         defaults: { ease: EASE.reveal }
       })
       if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub })
-      if (split) tl.to(split.chars, { x: 0, opacity: 1, filter: blurPx(0), duration: DUR.title, stagger: STAGGER.char }, '-=0.4')
+      reveal?.playIn(tl, '-=0.4')
       if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: DUR.sub }, '-=0.4')
     }
 
-    return () => split?.revert()
+    return () => reveal?.revert()
   }, { scope: ref })
-
 
   const testimonialsData: TestimonialData[] = TESTIMONIALS.map(i => ({
     text: t(`testimonials.${i}.text` as any),

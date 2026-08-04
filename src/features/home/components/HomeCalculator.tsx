@@ -6,8 +6,9 @@ import { useState, useMemo, useRef } from 'react'
 import { DropdownMenu } from '@/components/ui/dropdown-menu'
 import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
-import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
-import { DUR, EASE, STAGGER } from '@/features/animation/motion'
+import { gsap, useGSAP } from '@/features/animation/gsap'
+import { createCharReveal, revealToggleActions } from '@/features/animation/charReveal'
+import { DUR, EASE, blurPx } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
 type Culture = { id: string; label: string }
@@ -83,16 +84,16 @@ export function HomeCalculator() {
     const formPanel = ref.current.querySelector<HTMLElement>('[data-form]')
     const resultPanel = ref.current.querySelector<HTMLElement>('[data-result]')
 
-    let split: SplitText | null = null;
+    let reveal: ReturnType<typeof createCharReveal> = null
     if (header) {
       const kicker = header.querySelector<HTMLElement>('[data-kicker]')
       const title = header.querySelector<HTMLElement>('[data-title]')
       const line = header.querySelector<HTMLElement>('[data-gline]')
 
-      split = title ? new SplitText(title, { type: 'chars,words' }) : null
+      reveal = createCharReveal(title)
 
       if (kicker) gsap.set(kicker, { y: 14, opacity: 0 })
-      if (split) gsap.set(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
+      reveal?.hide()
       if (line) gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
 
       const tl = gsap.timeline({
@@ -100,31 +101,31 @@ export function HomeCalculator() {
           trigger: header,
           start: 'top 85%',
           end: 'bottom 15%',
-          toggleActions: 'play reverse play reverse',
+          toggleActions: revealToggleActions(),
         },
         defaults: { ease: EASE.reveal }
       })
       if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub })
-      if (split) tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, '-=0.4')
+      reveal?.playIn(tl, '-=0.4')
       if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: DUR.sub }, '-=0.4')
     }
 
-    if (formPanel) gsap.set(formPanel, { x: -30, opacity: 0, filter: 'blur(10px)' })
-    if (resultPanel) gsap.set(resultPanel, { x: 30, opacity: 0, filter: 'blur(10px)' })
+    if (formPanel) gsap.set(formPanel, { x: -30, opacity: 0, filter: blurPx(10) })
+    if (resultPanel) gsap.set(resultPanel, { x: 30, opacity: 0, filter: blurPx(10) })
 
     const tlPanels = gsap.timeline({
       scrollTrigger: {
         trigger: formPanel,
         start: 'top 80%',
         end: 'bottom 15%',
-        toggleActions: 'play reverse play reverse',
+        toggleActions: revealToggleActions(),
       },
       defaults: { ease: EASE.reveal }
     })
-    if (formPanel) tlPanels.to(formPanel, { x: 0, opacity: 1, filter: 'blur(0px)', duration: 0.8 })
-    if (resultPanel) tlPanels.to(resultPanel, { x: 0, opacity: 1, filter: 'blur(0px)', duration: 0.8 }, '-=0.6')
+    if (formPanel) tlPanels.to(formPanel, { x: 0, opacity: 1, filter: blurPx(0), duration: 0.8 })
+    if (resultPanel) tlPanels.to(resultPanel, { x: 0, opacity: 1, filter: blurPx(0), duration: 0.8 }, '-=0.6')
 
-    return () => split?.revert()
+    return () => reveal?.revert()
   }, { scope: ref })
 
   return (

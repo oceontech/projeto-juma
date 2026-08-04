@@ -6,8 +6,9 @@ import { useRef } from 'react'
 import Image from 'next/image'
 import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
-import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
-import { STAGGER } from '@/features/animation/motion'
+import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
+import { createCharReveal } from '@/features/animation/charReveal'
+
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
 export function HomeCtaFinal() {
@@ -22,7 +23,7 @@ export function HomeCtaFinal() {
     const bg        = section.querySelector<HTMLElement>('[data-bg-reveal]')
     const globe     = section.querySelector<HTMLElement>('[data-globe]')
     const container = section.querySelector<HTMLElement>('[data-cta-container]')
-    let split: SplitText | null = null;
+    let reveal: ReturnType<typeof createCharReveal> = null
 
     if (container && globe) {
       const kicker = container.querySelector<HTMLElement>('[data-kicker]')
@@ -30,7 +31,12 @@ export function HomeCtaFinal() {
       const line   = container.querySelector<HTMLElement>('[data-gline]')
       const desc   = container.querySelector<HTMLElement>('[data-desc]')
 
-      split = title ? new SplitText(title, { type: 'chars,words' }) : null
+      /* Aqui o reveal está preso a um `scrub`: cada frame de rolagem reescreve
+         o estado dos alvos. É o pior lugar possível para desfoque por letra —
+         eram sessenta repinturas por frame de SCROLL, não por frame de
+         animação. Com o desfoque no container sobra uma camada só, e ela
+         termina cedo (ver `blurDuration` no helper). */
+      reveal = createCharReveal(title, { duration: 0.3, ease: 'none', autoRevert: false })
 
       // Quanto o globo precisa subir pra sair do seu repouso (encostado no
       // rodapé da seção) e ficar encostado no TOPO da seção — função (não
@@ -48,7 +54,7 @@ export function HomeCtaFinal() {
       if (bg) gsap.set(bg, { clipPath: 'inset(100% 0% 0% 0%)' })
       gsap.set(container, { opacity: 0, filter: 'blur(6px)' })
       if (kicker) gsap.set(kicker, { y: 14, opacity: 0 })
-      if (split) gsap.set(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
+      reveal?.hide()
       if (line) gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
       if (desc) gsap.set(desc, { y: 20, opacity: 0 })
 
@@ -79,12 +85,12 @@ export function HomeCtaFinal() {
       // desceu o bastante pra ter saído de cima da área do texto.
       tl.to(container, { opacity: 1, filter: 'blur(0px)', duration: 0.35 }, 0.55)
       if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: 0.3 }, 0.55)
-      if (split) tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: 0.3, stagger: STAGGER.char }, 0.62)
+      reveal?.playIn(tl, 0.62)
       if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: 0.15 }, 0.78)
       if (desc) tl.to(desc, { y: 0, opacity: 1, duration: 0.2 }, 0.85)
     }
 
-    return () => split?.revert()
+    return () => reveal?.revert()
   }, { scope: ref })
 
   return (

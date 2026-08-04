@@ -5,8 +5,9 @@ import dynamic from 'next/dynamic'
 import { Globe2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
-import { gsap, ScrollTrigger, SplitText, useGSAP } from '@/features/animation/gsap'
-import { DUR, EASE, STAGGER, blurPx } from '@/features/animation/motion'
+import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
+import { createCharReveal } from '@/features/animation/charReveal'
+import { DUR, EASE } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
 import { FlagBR, FlagUS, type FlagComp } from '@/components/icons/flags'
@@ -83,10 +84,10 @@ export function GlobalPresence({ variant = 'section' }: { variant?: 'section' | 
       const cards = gsap.utils.toArray<HTMLElement>('[data-pin-card]', root)
       const halos = gsap.utils.toArray<HTMLElement>('[data-pin-halo]', root)
 
-      const split = title ? new SplitText(title, { type: 'chars,lines' }) : null
+      const reveal = createCharReveal(title)
 
       if (eyebrow) gsap.set(eyebrow, { y: 15, opacity: 0 })
-      if (split) gsap.set(split.chars, { x: 20, opacity: 0, filter: blurPx(10) })
+      reveal?.hide()
       if (body) gsap.set(body, { y: 20, opacity: 0 })
       if (support) gsap.set(support, { y: 16, opacity: 0 })
       if (globeWrap) gsap.set(globeWrap, { scale: 0.9, opacity: 0 })
@@ -100,12 +101,7 @@ export function GlobalPresence({ variant = 'section' }: { variant?: 'section' | 
         onEnter: () => {
           const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
           if (eyebrow) tl.to(eyebrow, { y: 0, opacity: 1, duration: 0.5 }, 0)
-          if (split)
-            tl.to(
-              split.chars,
-              { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char },
-              0.08,
-            )
+          reveal?.playIn(tl, 0.08)
           if (body) tl.to(body, { y: 0, opacity: 1, duration: DUR.sub }, 0.35)
           if (support) tl.to(support, { y: 0, opacity: 1, duration: DUR.sub }, 0.5)
           if (globeWrap) tl.to(globeWrap, { scale: 1, opacity: 1, duration: 1.1, ease: 'power3.out' }, 0.2)
@@ -115,7 +111,7 @@ export function GlobalPresence({ variant = 'section' }: { variant?: 'section' | 
         },
       })
 
-      return () => split?.revert()
+      return () => reveal?.revert()
     },
     { scope: rootRef, dependencies: [reduced] },
   )

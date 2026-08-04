@@ -8,7 +8,8 @@ import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 
 import { gsap, SplitText, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
-import { DUR, EASE, STAGGER, blurPx } from '@/features/animation/motion'
+import { createCharReveal, revealToggleActions } from '@/features/animation/charReveal'
+import { blurPx } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
 
@@ -36,20 +37,17 @@ export function Lines() {
 
       // Título: SplitText caracteres
       const title = titleRef.current
-      const split = title
-        ? new SplitText(title, { type: 'chars,lines' })
-        : null
-      const chars = split?.chars ?? []
+      const reveal = createCharReveal(title)
 
       if (title) gsap.set(title, { opacity: 0 })
-      if (chars.length) gsap.set(chars, { x: 20, opacity: 0, filter: blurPx(10) })
+      reveal?.hide()
 
       const tlHead = gsap.timeline({
         scrollTrigger: {
           trigger: titleRef.current?.parentElement || ref.current,
           start: 'top 75%',
           end: 'bottom 30%',
-          toggleActions: 'play reverse play reverse',
+          toggleActions: revealToggleActions(),
         },
       })
       
@@ -57,8 +55,7 @@ export function Lines() {
       if (gline) gsap.set(gline, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
 
       if (title) tlHead.set(title, { opacity: 1 }, 0)
-      if (chars.length)
-        tlHead.to(chars, { x: 0, opacity: 1, filter: blurPx(0), duration: DUR.title, stagger: STAGGER.char, ease: EASE.reveal }, 0)
+      reveal?.playIn(tlHead, 0)
         
       if (gline)
         tlHead.to(gline, { scaleX: 1, opacity: 1, duration: 0.8, ease: 'power3.out' }, 0.2)
@@ -84,7 +81,7 @@ export function Lines() {
                 trigger: card,
                 start: 'top 75%',
                 end: 'bottom 30%',
-                toggleActions: 'play reverse play reverse',
+                toggleActions: revealToggleActions(),
               },
               opacity: 1,
               filter: blurPx(0),
@@ -106,7 +103,7 @@ export function Lines() {
                 trigger: card,
                 start: 'top 80%',
                 end: 'bottom 30%',
-                toggleActions: 'play reverse play reverse',
+                toggleActions: revealToggleActions(),
               },
               opacity: 1,
               y: 0,
@@ -118,7 +115,7 @@ export function Lines() {
       }
 
       return () => {
-        split?.revert()
+        reveal?.revert()
       }
     },
     { scope: ref, dependencies: [reduced] },

@@ -3,8 +3,9 @@
 import { useRef } from 'react'
 import { useTranslations } from 'next-intl'
 
-import { gsap, SplitText, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
-import { DUR, EASE, STAGGER } from '@/features/animation/motion'
+import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
+import { createCharReveal } from '@/features/animation/charReveal'
+import { EASE } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
 
@@ -34,8 +35,11 @@ export function Problem() {
          * drive o progress da timeline. Cada palavra parte de
          * opacity 0.08 e vai para 1 conforme o usuário desce.
          */
-        const split = new SplitText(title, { type: 'lines,words' })
-        const words = split.words
+        /* Este título acende palavra a palavra (não letra a letra) — desenho
+           original da seção, preservado com `by: 'words'`. O desfoque continua
+           existindo, agora no título inteiro em vez de em cada palavra. */
+        const reveal = createCharReveal(title, { by: 'words', axis: 'y', distance: 0, blur: 12, autoRevert: false })
+        const words = reveal ? reveal.chars : []
 
         // Distribui as 4 cores pelo total de palavras (4 blocos proporcionais)
         const textColors = ['var(--color-foreground)', 'var(--color-primary)', 'var(--color-accent)', 'var(--color-secondary)']
@@ -46,7 +50,7 @@ export function Problem() {
           gsap.set(word, { color: textColors[colorIndex] })
         })
 
-        gsap.set(words, { opacity: 0, ...(isDesktop && { filter: 'blur(12px)' }) })
+        reveal?.hide()
 
         // Distribui as palavras em 7 unidades de timeline
         const step = words.length > 1 ? 7 / (words.length - 1) : 7
@@ -61,7 +65,7 @@ export function Problem() {
         })
 
         words.forEach((word, i) => {
-          tl.to(word, { opacity: 1, ...(isDesktop && { filter: 'blur(0px)' }), duration: step * 0.9 }, i * step)
+          tl.to(word, { opacity: 1, duration: step * 0.9 }, i * step)
         })
 
         // Anima a linha dinamicamente no final do scrub
@@ -90,7 +94,7 @@ export function Problem() {
           tl.scrollTrigger?.kill(true)
           tl.kill()
           bodyTrigger?.kill()
-          split.revert()
+          reveal?.revert()
         }
       }
     },

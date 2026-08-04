@@ -5,8 +5,9 @@ import Image from 'next/image'
 import { useRef } from 'react'
 import { useTranslations } from 'next-intl'
 
-import { gsap, SplitText, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
-import { DUR, EASE, STAGGER } from '@/features/animation/motion'
+import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
+import { createCharReveal, revealToggleActions } from '@/features/animation/charReveal'
+import { DUR, EASE } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
@@ -34,15 +35,11 @@ export function Solution() {
       const intro = introRef.current
       const cta = ctaRef.current
 
-      // Título: SplitText por linha (mesma voz do Hero e OurStory)
-      const split = title
-        ? new SplitText(title, { type: 'chars,lines' })
-        : null
-      const chars = split?.chars ?? []
-
+      const reveal = createCharReveal(title)
       const isMobile = window.innerWidth < 1024
+
       if (title) gsap.set(title, { opacity: 0 })
-      if (chars.length) gsap.set(chars, { x: 20, opacity: 0, ...(!isMobile && { filter: 'blur(10px)' }) })
+      reveal?.hide()
       if (intro) gsap.set(intro, { y: 20, opacity: 0 })
       if (cta) gsap.set(cta, { y: 16, opacity: 0 })
 
@@ -52,7 +49,7 @@ export function Solution() {
           trigger: ref.current,
           start: 'top 85%',
           end: 'bottom 15%',
-          toggleActions: 'play reverse play reverse',
+          toggleActions: revealToggleActions(),
         },
       })
 
@@ -60,8 +57,7 @@ export function Solution() {
       if (gline) gsap.set(gline, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
 
       if (title) tlHead.set(title, { opacity: 1 }, 0)
-      if (chars.length)
-        tlHead.to(chars, { x: 0, opacity: 1, ...(!isMobile && { filter: 'blur(0px)' }), duration: DUR.title, stagger: STAGGER.char, ease: EASE.reveal }, 0)
+      reveal?.playIn(tlHead, 0)
 
       if (gline)
         tlHead.to(gline, { scaleX: 1, opacity: 1, duration: 0.8, ease: 'power3.out' }, 0.2)
@@ -163,7 +159,7 @@ export function Solution() {
         })
       }
 
-      return () => split?.revert()
+      return () => reveal?.revert()
     },
     { scope: ref, dependencies: [reduced] },
   )

@@ -5,8 +5,9 @@ import { BookOpen } from 'lucide-react'
 import { useRef } from 'react'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
-import { gsap, ScrollTrigger, useGSAP, SplitText } from '@/features/animation/gsap'
-import { DUR, EASE, STAGGER } from '@/features/animation/motion'
+import { gsap, useGSAP } from '@/features/animation/gsap'
+import { createCharReveal, revealToggleActions } from '@/features/animation/charReveal'
+import { DUR, EASE, blurPx } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
@@ -49,19 +50,19 @@ export function HomeBlog() {
   useGSAP(() => {
     if (reduced || !ref.current) return
     const cards = gsap.utils.toArray<HTMLElement>('[data-blog-card]', ref.current)
-    gsap.set(cards, { y: 40, opacity: 0, filter: 'blur(12px)' })
+    gsap.set(cards, { y: 40, opacity: 0, filter: blurPx(12) })
     
     const header = ref.current.querySelector<HTMLElement>('[data-header]')
-    let split: SplitText | null = null;
+    let reveal: ReturnType<typeof createCharReveal> = null
     if (header) {
       const kicker = header.querySelector<HTMLElement>('[data-kicker]')
       const title = header.querySelector<HTMLElement>('[data-title]')
       const line = header.querySelector<HTMLElement>('[data-gline]')
 
-      split = title ? new SplitText(title, { type: 'chars,words' }) : null
+      reveal = createCharReveal(title)
 
       if (kicker) gsap.set(kicker, { y: 14, opacity: 0 })
-      if (split) gsap.set(split.chars, { x: 20, opacity: 0, filter: 'blur(10px)' })
+      reveal?.hide()
       if (line) gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
 
       const tl = gsap.timeline({
@@ -69,19 +70,19 @@ export function HomeBlog() {
           trigger: header,
           start: 'top 85%',
           end: 'bottom 15%',
-          toggleActions: 'play reverse play reverse',
+          toggleActions: revealToggleActions(),
         },
         defaults: { ease: EASE.reveal }
       })
       if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub })
-      if (split) tl.to(split.chars, { x: 0, opacity: 1, filter: 'blur(0px)', duration: DUR.title, stagger: STAGGER.char }, '-=0.4')
+      reveal?.playIn(tl, '-=0.4')
       if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: DUR.sub }, '-=0.4')
     }
 
     gsap.to(cards, {
       y: 0,
       opacity: 1,
-      filter: 'blur(0px)',
+      filter: blurPx(0),
       duration: 0.8,
       stagger: 0.1,
       ease: EASE.reveal,
@@ -89,11 +90,11 @@ export function HomeBlog() {
         trigger: ref.current,
         start: 'top 78%',
         end: 'bottom 15%',
-        toggleActions: 'play reverse play reverse',
+        toggleActions: revealToggleActions(),
       }
     })
     
-    return () => split?.revert()
+    return () => reveal?.revert()
   }, { scope: ref })
 
   return (
