@@ -1022,15 +1022,30 @@ html.lenis body { height: auto; }
 
 /* ======================== Mobile ======================== */
 @media (max-width: 767px) {
-  /* Rings e backlight: usar vw para não exceder largura. Subiram mais uma
-     vez (57% → 52%) junto com a caixa do frasco logo abaixo — o catálogo
-     ganhou ainda mais espaço vertical (logo saiu, padding do topo encolheu). */
+  /* Fundo e backlight no mobile: manter estritamente a iluminação base constante
+     sem acréscimo de camadas ou surtos de luz durante a transição. */
+  .pcs-bg-next {
+    display: none !important;
+  }
+
   .pcs-ring      { top: 52%; }
-  .pcs-backlight { top: 52%; }
+  .pcs-backlight {
+    top: 52%;
+    width: min(280px, 72vw);
+    height: min(280px, 72vw);
+    background: radial-gradient(
+      circle at center,
+      color-mix(in srgb, var(--pcs-accent) 35%, transparent) 0%,
+      color-mix(in srgb, var(--pcs-accent) 15%, transparent) 45%,
+      transparent 70%
+    );
+    opacity: 0.85;
+    filter: blur(16px);
+    mix-blend-mode: normal;
+  }
   .pcs-ring-1    { width: min(320px, 82vw); height: min(320px, 82vw); }
   .pcs-ring-2    { width: min(225px, 58vw); height: min(225px, 58vw); }
   .pcs-ring-3    { width: min(145px, 37vw); height: min(145px, 37vw); }
-  .pcs-backlight { width: min(270px, 69vw); height: min(270px, 69vw); }
 
   /* Caixa do frasco em % do PALCO, não em vh: o palco é a altura visível
      (dvh) e `vh` no mobile é a viewport grande, sempre maior — era isso que
