@@ -1,183 +1,148 @@
-"use client"
+'use client'
 
-import { useEffect, useState, useMemo, useCallback, memo } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+/**
+ * Palavra que se troca sozinha, letra a letra — usada na cena da gota, no fim
+ * da jornada do hero.
+ *
+ * ── Por que foi reescrito ─────────────────────────────────────────────
+ * A versão anterior custava caro de três formas ao mesmo tempo, e o pior é que
+ * o custo era PERMANENTE: o componente vive no hero, no topo da página, mas o
+ * laço não parava — seguia trocando a palavra a cada 2,5s com o usuário lendo
+ * uma seção dez telas abaixo. Medido na home, os spans deste componente eram
+ * os únicos elementos com `filter` ativo na região do rodapé.
+ *
+ *  1. `filter: blur(8px)` animado EM CADA LETRA. Desfoque é propriedade de
+ *     pintura: o navegador redesenha e refaz o desfoque a cada frame, por
+ *     letra. Num laço infinito, isso é um relógio consumindo frames para
+ *     sempre.
+ *  2. `rotateX` dentro de uma `perspective`, que promove cada letra a camada
+ *     própria em contexto 3D.
+ *  3. framer-motion só para isto — uma segunda biblioteca de animação num
+ *     projeto de motor único (GSAP + Lenis, ADR-021).
+ *
+ * A versão em GSAP mantém a leitura (a palavra troca, letra a letra, em
+ * cascata) e corta o que era caro: transform e opacity apenas, ambos
+ * compostos. E o laço só corre com o componente em cena e a aba à frente.
+ */
+
+import { useEffect, useRef, useState } from 'react'
+
+import { gsap, useGSAP } from '@/features/animation/gsap'
+import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
 interface FlipFadeTextProps {
-    /**
-     * Array of words to cycle through
-     * @default ["LOADING", "COMPUTING", "SEARCHING", "RETRIEVING", "ASSEMBLING"]
-     */
-    words?: string[]
-    /**
-     * Interval between word changes in milliseconds
-     * @default 2500
-     */
-    interval?: number
-    /**
-     * Additional CSS classes for the container
-     */
-    className?: string
-    /**
-     * Additional CSS classes for the text
-     */
-    textClassName?: string
-    /**
-     * Animation duration for each letter in seconds
-     * @default 0.6
-     */
-    letterDuration?: number
-    /**
-     * Stagger delay between letters on enter in seconds
-     * @default 0.1
-     */
-    staggerDelay?: number
-    /**
-     * Stagger delay between letters on exit in seconds
-     * @default 0.05
-     */
-    exitStaggerDelay?: number
+  /** Palavras que se alternam. */
+  words?: string[]
+  /** Intervalo entre trocas, em ms. */
+  interval?: number
+  className?: string
+  textClassName?: string
+  /** Duração da animação de cada letra, em segundos. */
+  letterDuration?: number
+  /** Intervalo entre letras na entrada, em segundos. */
+  staggerDelay?: number
+  /** Intervalo entre letras na saída, em segundos. */
+  exitStaggerDelay?: number
 }
 
-const defaultWords = ["LOADING", "COMPUTING", "SEARCHING", "RETRIEVING", "ASSEMBLING"]
-
-// Memoized Letter component for performance
-const Letter = memo(function Letter({
-    char,
-    letterDuration
-}: {
-    char: string
-    letterDuration: number
-}) {
-    // Treat spaces explicitly so they don't collapse
-    const content = char === " " ? "\u00A0" : char;
-    return (
-        <motion.span
-            style={{ transformStyle: "preserve-3d" }}
-            variants={{
-                initial: {
-                    rotateX: 90,
-                    y: 20,
-                    opacity: 0,
-                    filter: "blur(8px)",
-                },
-                animate: {
-                    rotateX: 0,
-                    y: 0,
-                    opacity: 1,
-                    filter: "blur(0px)",
-                    transition: {
-                        duration: letterDuration,
-                        ease: [0.2, 0.65, 0.3, 0.9],
-                    },
-                },
-                exit: {
-                    rotateX: -90,
-                    y: -20,
-                    opacity: 0,
-                    filter: "blur(8px)",
-                    transition: {
-                        duration: letterDuration * 0.67,
-                        ease: "easeIn",
-                    },
-                },
-            }}
-            className="inline-block whitespace-pre"
-        >
-            {content}
-        </motion.span>
-    )
-})
-
-// Memoized Word component for performance
-const Word = memo(function Word({
-    text,
-    staggerDelay,
-    exitStaggerDelay,
-    letterDuration,
-    textClassName
-}: {
-    text: string
-    staggerDelay: number
-    exitStaggerDelay: number
-    letterDuration: number
-    textClassName?: string
-}) {
-    const letters = useMemo(() => text.split(""), [text])
-
-    return (
-        <motion.div
-            className={`flex text-highlight text-primary items-center justify-center min-w-max ${textClassName || ""}`}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            variants={{
-                initial: { opacity: 1 },
-                animate: {
-                    opacity: 1,
-                    transition: {
-                        staggerChildren: staggerDelay,
-                    },
-                },
-                exit: {
-                    opacity: 1,
-                    transition: {
-                        staggerChildren: exitStaggerDelay,
-                    },
-                },
-            }}
-        >
-            {letters.map((char, i) => (
-                <Letter
-                    key={`${char}-${i}`}
-                    char={char}
-                    letterDuration={letterDuration}
-                />
-            ))}
-        </motion.div>
-    )
-})
+const defaultWords = ['LOADING', 'COMPUTING', 'SEARCHING', 'RETRIEVING', 'ASSEMBLING']
 
 export function FlipFadeText({
-    words = defaultWords,
-    interval = 2500,
-    className,
-    textClassName,
-    letterDuration = 0.6,
-    staggerDelay = 0.1,
-    exitStaggerDelay = 0.05,
+  words = defaultWords,
+  interval = 2500,
+  className,
+  textClassName,
+  letterDuration = 0.6,
+  staggerDelay = 0.1,
+  exitStaggerDelay = 0.05,
 }: FlipFadeTextProps) {
-    const [index, setIndex] = useState(0)
+  const [index, setIndex] = useState(0)
+  const hostRef = useRef<HTMLSpanElement>(null)
+  const wordRef = useRef<HTMLSpanElement>(null)
+  const reduced = useReducedMotion()
 
-    // Memoize the interval callback
-    const updateIndex = useCallback(() => {
-        setIndex((prev) => (prev + 1) % words.length)
-    }, [words.length])
+  /* O rodízio só corre com o elemento em cena E a aba à frente. Sem isto o
+     intervalo seguia disparando (e reanimando letras) com o usuário dez telas
+     abaixo — custo pago pelo resto da visita, para animar algo que ninguém
+     está vendo. */
+  const [active, setActive] = useState(false)
+  useEffect(() => {
+    const el = hostRef.current
+    if (!el || reduced || words.length < 2) return
 
-    useEffect(() => {
-        const timer = setInterval(updateIndex, interval)
-        return () => clearInterval(timer)
-    }, [updateIndex, interval])
+    let visible = !document.hidden
+    let onScreen = false
+    const sync = () => setActive(visible && onScreen)
 
-    // Memoize the current word
-    const currentWord = useMemo(() => words[index], [words, index])
+    const io = new IntersectionObserver(([entry]) => {
+      onScreen = entry.isIntersecting
+      sync()
+    })
+    io.observe(el)
 
-    return (
-        <span className={`inline-flex items-center justify-center ${className || ""}`}>
-            <span className="relative inline-flex items-center justify-center" style={{ perspective: "1000px" }}>
-                <AnimatePresence mode="wait">
-                    <Word
-                        key={currentWord}
-                        text={currentWord}
-                        staggerDelay={staggerDelay}
-                        exitStaggerDelay={exitStaggerDelay}
-                        letterDuration={letterDuration}
-                        textClassName={textClassName}
-                    />
-                </AnimatePresence>
+    const onVisibility = () => {
+      visible = !document.hidden
+      sync()
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+
+    return () => {
+      io.disconnect()
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
+  }, [reduced, words.length])
+
+  useEffect(() => {
+    if (!active) return
+    const timer = setInterval(() => setIndex((prev) => (prev + 1) % words.length), interval)
+    return () => clearInterval(timer)
+  }, [active, interval, words.length])
+
+  const currentWord = words[index] ?? ''
+
+  useGSAP(
+    () => {
+      const el = wordRef.current
+      if (!el || reduced) return
+
+      const letters = gsap.utils.toArray<HTMLElement>('[data-letter]', el)
+      if (!letters.length) return
+
+      /* Só transform e opacity — o desenho continua sendo uma cascata de
+         letras subindo, sem nenhuma repintura. */
+      gsap.fromTo(
+        letters,
+        { y: 16, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: letterDuration,
+          ease: 'power2.out',
+          stagger: staggerDelay,
+          // Devolve a memória de vídeo assim que a troca termina.
+          clearProps: 'transform',
+        },
+      )
+    },
+    { dependencies: [currentWord, reduced], scope: wordRef },
+  )
+
+  return (
+    <span ref={hostRef} className={`inline-flex items-center justify-center ${className || ''}`}>
+      <span className="relative inline-flex items-center justify-center">
+        <span
+          ref={wordRef}
+          className={`flex text-highlight text-primary items-center justify-center min-w-max ${textClassName || ''}`}
+        >
+          {currentWord.split('').map((char, i) => (
+            <span key={`${char}-${i}`} data-letter className="inline-block whitespace-pre">
+              {char === ' ' ? ' ' : char}
             </span>
+          ))}
         </span>
-    )
+      </span>
+    </span>
+  )
 }
 
 export default FlipFadeText

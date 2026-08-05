@@ -154,6 +154,11 @@ export const TestimonialsColumn = (props: {
     <div className={props.className} ref={containerRef}>
       <div
         className="home-testimonials-marquee flex flex-col gap-6 pb-6"
+        /* `data-idle` fora de vista devolve a memória de vídeo da camada.
+           Pausar a animação não basta: `will-change: transform` MANTÉM a
+           textura reservada mesmo parada, e esta lista tem mais de 3000px de
+           altura — medido, 4,2 MB presos pelo resto da visita. */
+        data-idle={inView ? undefined : ''}
         style={{
           animationDuration: `${props.duration || 10}s`,
           animationPlayState: hoveredIdx !== null || !inView ? 'paused' : 'running',

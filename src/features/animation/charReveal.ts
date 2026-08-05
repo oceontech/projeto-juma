@@ -40,7 +40,7 @@
  */
 
 import { gsap, ScrollTrigger, SplitText } from './gsap'
-import { DUR, EASE, STAGGER } from './motion'
+import { DUR, EASE, STAGGER, blurPx } from './motion'
 
 export type CharRevealOptions = {
   /** Deslocamento horizontal inicial, em px (default: 20 — o valor do site). */
@@ -110,6 +110,15 @@ export function createCharReveal(
     autoRevert = true,
   } = options
 
+  /* O desfoque vale só onde há folga de pintura.
+     Ele é a única propriedade cara do reveal, e no celular deixava rastro: se
+     a timeline para no meio de uma reversão — o que acontece o tempo todo com
+     scroll rápido —, o elemento fica com `filter` inline e sai do caminho
+     acelerado pelo resto da visita. Medido na home, catorze títulos e
+     parágrafos nesse estado depois de uma única passagem. A cascata letra a
+     letra, que é o que define o efeito, continua igual nos dois casos. */
+  const blurAtivo = blurPx(blur) !== 'none' ? blur : 0
+
   const split = new SplitText(el, { type: by === 'words' ? 'words,lines' : 'chars,lines' })
   const chars = by === 'words' ? split.words : split.chars
   const alphaKey = autoAlpha ? 'autoAlpha' : 'opacity'
@@ -138,23 +147,29 @@ export function createCharReveal(
     stagger,
     hidden,
     hide: () => {
-      if (blur > 0) gsap.set(el, { filter: `blur(${blur}px)` })
+      if (blurAtivo > 0) gsap.set(el, { filter: `blur(${blurAtivo}px)` })
       if (chars.length) gsap.set(chars, hidden)
     },
     playIn: (tl, position = 0) => {
       if (!chars.length) return
 
-      if (blur > 0) {
+      if (blurAtivo > 0) {
+        /* O filtro precisa sumir do elemento nos DOIS sentidos.
+           Antes a limpeza vinha só no `onComplete`: quando a seção saía da tela
+           a timeline revertia, o desfoque voltava ao valor inicial e ficava
+           inline para sempre. Um `filter` residual — mesmo `blur(0px)` — tira o
+           elemento e toda a sua subárvore do caminho acelerado, e o preço é
+           pago em pintura pelo resto da visita. Medido na home: três títulos
+           ficavam nesse estado depois de uma passagem de scroll. */
+        const limpar = () => gsap.set(el, { clearProps: 'filter' })
         tl.to(
           el,
           {
             filter: 'blur(0px)',
             duration: blurDuration,
             ease: 'power2.out',
-            /* Sem `clearProps` o elemento fica com `filter: blur(0px)` inline —
-               um filtro de valor zero ainda é um filtro, e mantém a subárvore
-               inteira fora do caminho acelerado pelo resto da visita. */
-            onComplete: () => gsap.set(el, { clearProps: 'filter' }),
+            onComplete: limpar,
+            onReverseComplete: limpar,
           },
           position,
         )

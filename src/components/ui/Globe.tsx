@@ -188,7 +188,9 @@ export function Globe({ markers, focus, className = '', onDragChange }: GlobePro
         onScreen = entry.isIntersecting
         if (onScreen) resume?.()
       },
-      { rootMargin: '300px 0px' },
+      /* Margem larga: o globo precisa estar DESENHADO antes de a seção entrar,
+         senão a animação de entrada roda sobre um canvas ainda vazio. */
+      { rootMargin: '600px 0px' },
     )
     io.observe(canvas)
 
@@ -224,7 +226,13 @@ export function Globe({ markers, focus, className = '', onDragChange }: GlobePro
         height: '100%',
         cursor: 'grab',
         opacity: 0,
-        transition: 'opacity 1.2s ease',
+        /* Curta de propósito: cobre apenas o primeiro frame antes de o globo
+           desenhar. Em 1,2s este fade corria POR FORA do GSAP e por cima da
+           animação de entrada — como o canvas só inicializa quando a seção se
+           aproxima, quando ele enfim ficava visível a escala já havia
+           terminado, e a entrada passava despercebida. Quem conduz a aparição
+           é o wrapper, animado pelo GSAP. */
+        transition: 'opacity 0.2s linear',
         touchAction: 'pan-y',
         contain: 'layout paint size',
       }}

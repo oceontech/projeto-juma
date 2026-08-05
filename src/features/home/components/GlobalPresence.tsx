@@ -98,7 +98,9 @@ export function GlobalPresence({ variant = 'section' }: { variant?: 'section' | 
       /* O globo nasce bem pequeno e transparente e cresce até o tamanho certo,
          ganhando corpo no caminho. Antes partia de 0.9 — quase o tamanho final,
          o que fazia a entrada passar despercebida. */
-      if (globeWrap) gsap.set(globeWrap, { scale: 0.55, opacity: 0 })
+      /* 0.72: pequeno o suficiente para o crescimento ser visto, sem o salto
+         exagerado que valores baixos causam num elemento deste tamanho. */
+      if (globeWrap) gsap.set(globeWrap, { scale: 0.72, opacity: 0 })
       if (cards.length) gsap.set(cards, { y: 14, opacity: 0 })
       if (halos.length) gsap.set(halos, { scale: 0, opacity: 0 })
 

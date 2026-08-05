@@ -1366,6 +1366,12 @@ html.lenis body { height: auto; }
   will-change: transform;
 }
 
+/* Fora de vista a promessa cai. `will-change` reserva a textura da camada
+   mesmo com a animação pausada, e esta lista passa de 3000px de altura. */
+.home-testimonials-marquee[data-idle] {
+  will-change: auto;
+}
+
 @keyframes home-testimonials-scroll {
   from { transform: translateY(0); }
   to { transform: translateY(-50%); }
