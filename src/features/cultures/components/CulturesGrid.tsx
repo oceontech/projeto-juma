@@ -164,16 +164,7 @@ export function CulturesGrid() {
              empilhados e, no celular, o fundo dele só cruza o gatilho muito
              depois de o texto de cima ter saído da tela. */
           endTrigger: (sectionIntro as HTMLElement) ?? undefined,
-          end: 'bottom 20%',
-          /* Todos se despedem juntos, para cima, em ~0,3s — em vez de a
-             reversão devolver item por item na ordem inversa, o que fazia o
-             cabeçalho sair por último, já fora da tela. */
-          buildOut: () => {
-            const tlOut = gsap.timeline({ defaults: { ease: 'power2.in' } })
-            tlOut.to([sectionEyebrow, sectionTitle, sectionIntro, ...stepCards].filter(Boolean),
-                     { y: -14, autoAlpha: 0, duration: 0.3, overwrite: 'auto' }, 0)
-            return tlOut
-          },
+          end: 'bottom 20%'
         })
       }
 

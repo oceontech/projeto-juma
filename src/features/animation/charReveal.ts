@@ -197,39 +197,39 @@ export function createCharReveal(
         )
       }
 
-      tl.to(
-        chars,
-        {
-          [axis]: 0,
-          [alphaKey]: 1,
-          duration,
-          ease,
-          /* A cascata também acompanha o sentido do scroll.
-             Descendo, ela corre do primeiro caractere para o último — a ordem
-             natural da leitura. SUBINDO, a seção reaparece pela borda de cima e
-             é o fim do texto que surge primeiro; começar pelo primeiro
-             caractere ali contraria o que o olho vê chegando.
+      /* ── A cascata é criada no INSTANTE em que roda ────────────────────
+         Não basta o atraso ser uma função: qualquer `stagger` — objeto ou
+         função — é resolvido quando a TWEEN é construída, e a timeline de um
+         reveal é construída uma vez e reproduzida muitas. Era por isso que a
+         cascata invertida nunca aparecia: a ordem ficava congelada no sentido
+         do primeiro encontro com a seção.
 
-             O atraso é uma FUNÇÃO, e não `{ each, from }`, porque precisa ser
-             reavaliado a cada execução: a timeline é construída uma vez e
-             reproduzida muitas, e um objeto de stagger fixa a ordem na
-             construção — congelando o sentido do primeiro encontro. */
-          stagger: (indice: number, _alvo: Element, lista: Element[]) => {
-            const total = lista.length
-            const ordem = scrollDirection() === -1 ? total - 1 - indice : indice
-            return ordem * stagger
-          },
-          /* A promessa de transformação vale só enquanto a cascata corre; ao
-             fim, `clearProps` devolve a memória de vídeo dos caracteres. */
-          willChange: 'transform, opacity',
-          clearProps: 'willChange,transform',
-          /* Terminou de entrar: os spans do split saíram de cena e o texto
-             volta a ser um nó só. Sem isto, cada título deixa algumas dezenas
-             de elementos no DOM pelo resto da visita — somando as seções da
-             home, passa de setecentos, todos com estilo inline e todos entrando
-             em cada recálculo de layout que a página fizer daí em diante. */
-          onComplete: cleansUp ? revert : undefined,
+         Com `call`, quem é agendado na timeline é a CRIAÇÃO da tween. A cada
+         execução ela nasce de novo e lê o sentido do scroll naquele momento:
+         descendo corre do primeiro caractere para o último, a ordem natural da
+         leitura; subindo, a seção reaparece pela borda de cima e é o FIM do
+         texto que surge primeiro, então a cascata começa pela última palavra. */
+      tl.call(
+        () => {
+          const alvos = scrollDirection() === -1 ? [...chars].reverse() : chars
+          gsap.to(alvos, {
+            [axis]: 0,
+            [alphaKey]: 1,
+            duration,
+            ease,
+            stagger,
+            overwrite: 'auto',
+            /* A promessa de transformação vale só enquanto a cascata corre; ao
+               fim, `clearProps` devolve a memória de vídeo dos caracteres. */
+            willChange: 'transform, opacity',
+            clearProps: 'willChange,transform',
+            /* Terminou de entrar: os spans do split saem de cena e o texto
+               volta a ser um nó só. Sem isto, cada título deixa dezenas de
+               elementos no DOM pelo resto da visita. */
+            onComplete: cleansUp ? revert : undefined,
+          })
         },
+        undefined,
         position,
       )
     },
@@ -238,23 +238,28 @@ export function createCharReveal(
 }
 
 /**
- * `toggleActions` padrão dos reveals de seção — entrada E saída, em todo
- * aparelho.
+ * `toggleActions` padrão dos reveals de conteúdo: ENTRADA nos dois sentidos,
+ * sem animação de saída.
  *
- * A seção anima ao entrar na tela e desanima ao sair, nos dois sentidos: quem
- * volta para uma seção já vista a vê entrar de novo, em vez de encontrá-la
- * parada no estado final.
+ * `restart none restart none` — reinicia ao entrar descendo, reinicia de novo
+ * ao reentrar subindo, e nunca reverte. Quem volta a uma seção já vista a vê
+ * entrar outra vez; quem passa por ela não vê o conteúdo se desmanchar.
  *
- * Isto já chegou a ser cortado no celular, por conta do custo do vaivém — o
- * polegar atravessa a home em poucos gestos e cada seção que passa dispara uma
- * timeline de entrada e outra de saída. O que tornava esse vaivém caro, porém,
- * não era o número de timelines: era o `filter: blur()` que cada uma animava em
- * dezenas de caracteres. Com o desfoque no título inteiro (ver o topo deste
- * arquivo), o que sobra por seção é `transform` e `opacity` — compostos, com
- * custo de frame desprezível. Não há mais razão para abrir mão do efeito.
+ * `restart`, e não `play`: uma timeline que já chegou ao fim ignora `play()` —
+ * ela não tem para onde avançar. Era essa a razão de a entrada não reexecutar
+ * na volta, e por tabela de a cascata invertida nunca aparecer: a animação
+ * simplesmente não rodava de novo. `restart` volta ao tempo zero, o que
+ * reaplica o estado escondido e cria a cascata outra vez, já lendo o sentido
+ * atual do scroll.
+ *
+ * A saída animada faz sentido onde o movimento CONTA alguma coisa: a jornada
+ * do hero, os atos da Aminosan, a troca de produto no catálogo — ali uma fase
+ * precisa sair para a próxima entrar, e esse trecho tem mecânica própria. Para
+ * um título ou uma foto de seção, o desmanche não informa nada: só apaga
+ * conteúdo que o usuário ainda pode estar lendo.
  */
 export function revealToggleActions(): string {
-  return 'play reverse play reverse'
+  return 'restart none restart none'
 }
 
 /**
@@ -342,7 +347,13 @@ export function bindSectionReveal(
   let out: gsap.core.Timeline | null = null
   const sair = () => {
     if (!buildOut) {
-      tl?.timeScale(2.2).reverse()
+      /* Sem saída animada: a timeline volta ao tempo zero de uma vez.
+         Isso acontece com a seção JÁ fora da tela, então ninguém vê o corte —
+         e é o que deixa a próxima entrada pronta para animar de novo. Reverter
+         aqui seria desmanchar na frente do usuário um conteúdo que ele ainda
+         pode estar lendo; a saída animada fica para onde o movimento conta
+         alguma coisa, e nesses lugares vem por `buildOut`. */
+      tl?.pause(0)
       return
     }
     const saida = out ?? (out = buildOut().pause())

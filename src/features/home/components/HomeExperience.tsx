@@ -101,20 +101,14 @@ export function HomeExperience() {
          Cada bloco leva a própria saída, para voltar ao estado escondido quando
          deixa a tela — sem isso, um bloco que ficasse visível "apareceria
          primeiro" na volta apenas por nunca ter sumido. */
-      const esconde = (alvos: (Element | null)[]) => () => {
-        const tlOut = gsap.timeline({ defaults: { ease: 'power2.in' } })
-        tlOut.to(alvos.filter(Boolean) as Element[],
-                 { y: -12, autoAlpha: 0, duration: 0.28, overwrite: 'auto' }, 0)
-        return tlOut
-      }
 
       gatilhos.push(bindSectionReveal(titleEl ?? body, () => {
         const tl = gsap.timeline(cfg); animaTitulo(tl); return tl
-      }, { buildOut: esconde([kicker, titleEl, line]) }))
+      }))
 
       gatilhos.push(bindSectionReveal(desc ?? body, () => {
         const tl = gsap.timeline(cfg); animaCorpo(tl); return tl
-      }, { buildOut: esconde([desc, cta]) }))
+      }))
 
     } else {
       gatilhos.push(bindSectionReveal(ref.current, () => {
