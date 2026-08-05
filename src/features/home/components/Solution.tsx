@@ -83,25 +83,26 @@ export function Solution() {
         if (timelineProgress && timelineTip) {
           gsap.set(timelineProgress, { scaleY: 0, transformOrigin: 'top center' })
           gsap.set(timelineTip, { top: 0 })
-          
-          const timelineScroll = {
-            trigger: stepsRef.current,
-            start: 'top 50%', // Inicia quando o topo da timeline chega próximo do centro
-            end: 'bottom 50%', // Termina quando o fundo chega próximo do centro
-            scrub: 0.5,
-          }
 
-          gsap.to(timelineProgress, {
-            scaleY: 1,
-            ease: 'none',
-            scrollTrigger: timelineScroll,
+          /* Uma timeline só dirigindo os dois, em vez de duas tweens com o
+             MESMO objeto de config passado por scrollTrigger — cada uma virava
+             seu próprio ScrollTrigger, com o mesmo range e o mesmo scrub
+             inercial (0.5) rodando em dobro. Numa seção com tantos outros
+             gatilhos por scroll (o pulso de cada passo, mais abaixo), essa
+             redundância pesava exatamente no tipo de scroll rápido do celular
+             — cada evento de scroll deixava DOIS tweens de inércia terminando
+             de assentar em vez de um, e era esse acúmulo que fazia a rolagem
+             "acelerar" ao passar por aqui e continuar pesada logo depois. */
+          const progressTl = gsap.timeline({
+            scrollTrigger: {
+              trigger: stepsRef.current,
+              start: 'top 50%', // Inicia quando o topo da timeline chega próximo do centro
+              end: 'bottom 50%', // Termina quando o fundo chega próximo do centro
+              scrub: 0.5,
+            },
           })
-
-          gsap.to(timelineTip, {
-            top: '100%',
-            ease: 'none',
-            scrollTrigger: timelineScroll,
-          })
+          progressTl.to(timelineProgress, { scaleY: 1, ease: 'none' }, 0)
+          progressTl.to(timelineTip, { top: '100%', ease: 'none' }, 0)
         }
 
         const steps = gsap.utils.toArray<HTMLElement>('[data-step]', stepsRef.current)
@@ -118,14 +119,20 @@ export function Solution() {
           if (dot) gsap.set(dot, { scale: 1, backgroundColor: '#F7F8F6', borderColor: 'rgba(26, 26, 26, 0.1)' })
           if (icon) gsap.set(icon, { color: 'rgba(26, 26, 26, 0.2)' })
 
-          // Pulso móvel cresce ao se aproximar da etapa
-          ScrollTrigger.create({
-            trigger: step,
-            start: 'top 50%',
-            end: 'center 50%',
-            scrub: true,
-            animation: gsap.fromTo(timelineTip, { scale: 0.2 }, { scale: 1, ease: 'none', immediateRender: false })
-          })
+          /* Pulso móvel cresce ao se aproximar da etapa — só no desktop.
+             No celular é um detalhe fácil de não notar (o indicador é
+             pequeno, numa coluna estreita), e cada passo soma mais um
+             ScrollTrigger de scrub rodando durante o scroll — três a mais
+             numa seção que já tem bastante coisa presa ao scroll. */
+          if (!isMobile) {
+            ScrollTrigger.create({
+              trigger: step,
+              start: 'top 50%',
+              end: 'center 50%',
+              scrub: true,
+              animation: gsap.fromTo(timelineTip, { scale: 0.2 }, { scale: 1, ease: 'none', immediateRender: false })
+            })
+          }
 
           // Trigger para a bolinha fixa e o card de conteúdo
           ScrollTrigger.create({
@@ -256,16 +263,23 @@ export function Solution() {
                   {n === 3 && <LineChart size={20} />}
                 </div>
 
-                {/* Conteúdo do Passo */}
+                {/* Conteúdo do Passo.
+                    No desktop, alterna de lado a cada passo — a primeira
+                    imagem fica à direita (longe da linha do tempo), a
+                    segunda à esquerda (perto dela), e assim por diante — só
+                    a largura muda de lugar, o layout mobile (coluna única,
+                    imagem cheia) continua igual. */}
                 <div
-                  className="relative w-full h-[60vh] lg:h-[75vh] flex"
+                  className={`relative w-full aspect-[4/3] lg:aspect-auto lg:h-[75vh] lg:w-[70%] flex ${
+                    n % 2 === 0 ? 'lg:mr-auto' : 'lg:ml-auto'
+                  }`}
                 >
                   <div data-step-bg className="absolute inset-0 origin-center rounded-[24px] overflow-hidden shadow-2xl">
                     <Image
                       src={images[n - 1]}
                       alt={t(`step${n}.title` as any)}
                       fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      sizes="(max-width: 1024px) 100vw, 70vw"
                       className="object-cover"
                       priority={n === 1}
                       quality={60}
