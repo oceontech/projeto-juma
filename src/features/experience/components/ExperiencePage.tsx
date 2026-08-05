@@ -98,7 +98,7 @@ export function ExperiencePage() {
               scrollTrigger: {
                 trigger: program,
                 start: 'top 50%',
-                end: 'bottom 15%',
+                end: 'bottom 45%',
                 toggleActions: revealToggleActions(),
               },
             })
@@ -116,7 +116,7 @@ export function ExperiencePage() {
                 scrollTrigger: {
                   trigger: card,
                   start: 'top 75%',
-                  end: 'bottom 15%',
+                  end: 'bottom 45%',
                   toggleActions: revealToggleActions(),
                 }
               })
@@ -188,7 +188,7 @@ export function ExperiencePage() {
           scrollTrigger: {
             trigger: cta,
             start: 'top 90%',
-            end: 'bottom 15%',
+            end: 'bottom 45%',
             toggleActions: revealToggleActions(),
           },
         })

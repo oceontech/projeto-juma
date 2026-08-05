@@ -479,7 +479,7 @@ export function ProductPage({ slug }: { slug: string }) {
           scrollTrigger: {
             trigger: section,
             start: 'top 85%',
-            end: 'bottom 15%',
+            end: 'bottom 45%',
             toggleActions: revealToggleActions(),
           },
           defaults: { ease: EASE.reveal }

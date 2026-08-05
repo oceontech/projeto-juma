@@ -135,7 +135,7 @@ export function ContactPage() {
           scrollTrigger: {
             trigger: cta,
             start: 'top 90%',
-            end: 'bottom 15%',
+            end: 'bottom 45%',
             toggleActions: revealToggleActions(),
           },
         })

@@ -104,43 +104,68 @@ export function GlobalPresence({ variant = 'section' }: { variant?: 'section' | 
       if (cards.length) gsap.set(cards, { y: 14, opacity: 0 })
       if (halos.length) gsap.set(halos, { scale: 0, opacity: 0 })
 
-      /* ── A entrada precisa acontecer, sempre ─────────────────────────
-         Esta seção nasce inteira em `opacity: 0` — corpo, apoio, globo, halos
-         e os cards das bandeiras — e conta com um `onEnter` para aparecer. Com
-         `once: true`, uma única chance: se o ScrollTrigger recalcular as
-         posições e concluir que o ponto de partida JÁ ficou para trás, ele
-         considera que a entrada aconteceu no passado e nunca chama o callback.
+      /* ── Entrada em duas partes, na ordem em que o usuário encontra ────
+         No desktop texto e globo estão lado a lado e entram na mesma tela: uma
+         timeline só resolve. No CELULAR o layout é empilhado — o texto fica em
+         cima, o globo embaixo — e os dois chegam ao centro da tela em momentos
+         diferentes. Animar tudo junto fazia metade da cena acontecer fora do
+         campo de visão.
 
-         E é o que acontecia aqui. Acima desta seção há dois trechos pinados (o
-         catálogo e a Aminosan) que inserem espaçadores de milhares de pixels
-         quando montam; cada `ScrollTrigger.refresh()` reposiciona todo mundo, e
-         esta seção — que é carregada por `dynamic()`, portanto monta depois —
-         acabava com o start já vencido. O resultado no aparelho eram as
-         bandeiras e os textos permanentemente apagados.
+         Descendo, o texto entra primeiro (é ele que aparece primeiro); o globo
+         tem gatilho próprio, mais abaixo. Subindo, a ordem se inverte sozinha:
+         quem aparece primeiro é o globo, porque é ele que está mais perto da
+         borda de baixo. Cada bloco reage ao seu próprio ponto de entrada, o que
+         dá a inversão sem nenhuma lógica de direção.
 
-         `played` torna a entrada idempotente, e o `onRefresh` recupera o caso
-         em que o start já passou: se a seção está visível e a animação nunca
-         rodou, ela roda agora. */
-      /* Entrada E saída, como no resto do site: quem volta para esta seção a vê
-         entrar de novo. `bindSectionReveal` também cobre o caso que deixava as
-         bandeiras apagadas — acima daqui há dois trechos pinados que inserem
-         espaçadores de milhares de pixels ao montar, e cada refresh
-         reposiciona os triggers; com `once`, essa única chance podia ser gasta
-         sem que o callback rodasse, e a seção ficava presa invisível. */
-      const st = bindSectionReveal(root, () => {
-        const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
+         `bindSectionReveal` também cobre um caso que já deixou as bandeiras
+         apagadas: acima daqui há dois trechos pinados que inserem espaçadores
+         de milhares de pixels ao montar, e cada refresh reposiciona os
+         triggers; com `once`, essa única chance podia ser gasta sem o callback
+         rodar, e a seção ficava presa invisível. */
+      const empilhado = window.matchMedia('(max-width: 1023px)').matches
+
+      const animaTexto = (tl: gsap.core.Timeline) => {
         if (eyebrow) tl.to(eyebrow, { y: 0, opacity: 1, duration: 0.5 }, 0)
         reveal?.playIn(tl, 0.08)
         if (body) tl.to(body, { y: 0, opacity: 1, duration: DUR.sub }, 0.35)
         if (support) tl.to(support, { y: 0, opacity: 1, duration: DUR.sub }, 0.5)
-        // O globo cresce de 0.55 até 1 enquanto ganha opacidade — a entrada
-        // acompanha o texto em vez de aparecer pronta.
-        if (globeWrap) tl.to(globeWrap, { scale: 1, opacity: 1, duration: 1.2, ease: 'power2.out' }, 0.2)
+      }
+      const animaGlobo = (tl: gsap.core.Timeline, em = 0) => {
+        // Cresce e ganha corpo num movimento só.
+        if (globeWrap) tl.to(globeWrap, { scale: 1, opacity: 1, duration: 1.2, ease: 'power2.out' }, em)
         if (halos.length)
-          tl.to(halos, { scale: 1, opacity: 1, duration: 0.5, stagger: 0.12, ease: 'back.out(2)' }, 0.9)
-        if (cards.length) tl.to(cards, { y: 0, opacity: 1, duration: 0.6, stagger: 0.12 }, 1.0)
-        return tl
-      })
+          tl.to(halos, { scale: 1, opacity: 1, duration: 0.5, stagger: 0.12, ease: 'back.out(2)' }, em + 0.55)
+        if (cards.length) tl.to(cards, { y: 0, opacity: 1, duration: 0.6, stagger: 0.12 }, em + 0.65)
+      }
+
+      const gatilhos: ScrollTrigger[] = []
+
+      if (empilhado && globeWrap) {
+        // Texto e globo com gatilhos próprios: cada um anima ao chegar.
+        gatilhos.push(
+          bindSectionReveal(root, () => {
+            const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
+            animaTexto(tl)
+            return tl
+          }),
+        )
+        gatilhos.push(
+          bindSectionReveal(globeWrap, () => {
+            const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
+            animaGlobo(tl)
+            return tl
+          }),
+        )
+      } else {
+        gatilhos.push(
+          bindSectionReveal(root, () => {
+            const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
+            animaTexto(tl)
+            animaGlobo(tl, 0.2)
+            return tl
+          }),
+        )
+      }
 
       /* `data-gp-idle` congela os halos enquanto a seção não está em cena
          (ver o comentário no <style> abaixo). Margem de meia tela para que eles
@@ -158,7 +183,7 @@ export function GlobalPresence({ variant = 'section' }: { variant?: 'section' | 
       return () => {
         idleObserver.disconnect()
         root.removeAttribute('data-gp-idle')
-        st.kill()
+        gatilhos.forEach((g) => g.kill())
         reveal?.revert()
       }
     },

@@ -50,7 +50,7 @@ export function HomeCultures() {
         scrollTrigger: {
           trigger: header,
           start: 'top 85%',
-          end: 'bottom 15%',
+          end: 'bottom 45%',
           toggleActions: revealToggleActions(),
         },
         defaults: { ease: EASE.reveal }
@@ -74,7 +74,7 @@ export function HomeCultures() {
         scrollTrigger: {
           trigger: ref.current,
           start: 'top 65%',
-          end: 'bottom 15%',
+          end: 'bottom 45%',
           toggleActions: revealToggleActions(),
         }
       })
@@ -91,7 +91,7 @@ export function HomeCultures() {
           scrollTrigger: {
             trigger: card,
             start: 'top 75%',
-            end: 'bottom 15%',
+            end: 'bottom 45%',
             toggleActions: revealToggleActions(),
           }
         })

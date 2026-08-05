@@ -225,7 +225,7 @@ export function AboutPage() {
               scrollTrigger: {
                 trigger: vCards[0].parentElement || values,
                 start: 'top 85%',
-                end: 'bottom 15%',
+                end: 'bottom 45%',
                 toggleActions: revealToggleActions(),
               }
             })
@@ -248,7 +248,7 @@ export function AboutPage() {
                 scrollTrigger: {
                   trigger: card,
                   start: 'top 85%',
-                  end: 'bottom 15%',
+                  end: 'bottom 45%',
                   toggleActions: revealToggleActions(),
                 },
                 opacity: 1,

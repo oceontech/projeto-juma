@@ -133,7 +133,7 @@ export function ArticlePage({ slug }: ArticlePageProps) {
               scrollTrigger: {
                 trigger: block,
                 start: 'top 85%',
-                end: 'bottom 15%',
+                end: 'bottom 45%',
                 toggleActions: revealToggleActions(),
               },
             })
@@ -166,7 +166,7 @@ export function ArticlePage({ slug }: ArticlePageProps) {
             scrollTrigger: {
               trigger: ctaRef.current,
               start: 'top 88%',
-              end: 'bottom 15%',
+              end: 'bottom 45%',
               toggleActions: revealToggleActions(),
             },
           })

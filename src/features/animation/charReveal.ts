@@ -41,6 +41,7 @@
 
 import { gsap, ScrollTrigger, SplitText } from './gsap'
 import { DUR, EASE, STAGGER, blurPx } from './motion'
+import { scrollDirection } from './device'
 
 export type CharRevealOptions = {
   /** Deslocamento horizontal inicial, em px (default: 20 — o valor do site). */
@@ -130,7 +131,18 @@ export function createCharReveal(
      modo de pintura por todo o reveal sem ganho visual. */
   const blurDuration = Math.min(0.45, duration * 0.5)
 
-  const hidden: gsap.TweenVars = { [axis]: distance, [alphaKey]: 0 }
+  /* ── O texto entra pelo lado de onde o usuário está vindo ──────────────
+     Descendo, o conteúdo chega por baixo/pela direita — é de lá que ele vem, e
+     o deslocamento inicial acompanha isso. SUBINDO, a seção reaparece pela
+     borda de cima: manter o mesmo sentido faz o texto entrar contra o
+     movimento do dedo, o que se lê como um solavanco.
+
+     `ScrollTrigger.direction` vale 1 descendo e -1 subindo. O sinal do
+     deslocamento segue essa direção, então a mesma animação serve aos dois
+     caminhos sem nenhuma timeline extra. */
+  const deslocamento = () => (scrollDirection() === -1 ? -distance : distance)
+
+  const hidden: gsap.TweenVars = { [axis]: deslocamento, [alphaKey]: 0 }
 
   /* Só limpa sozinho onde o reveal roda uma vez. No desktop a seção reanima ao
      voltar para a tela, e para isso os spans precisam continuar existindo. */
@@ -148,10 +160,15 @@ export function createCharReveal(
     hidden,
     hide: () => {
       if (blurAtivo > 0) gsap.set(el, { filter: `blur(${blurAtivo}px)` })
-      if (chars.length) gsap.set(chars, hidden)
+      if (chars.length) gsap.set(chars, { [axis]: deslocamento(), [alphaKey]: 0 })
     },
     playIn: (tl, position = 0) => {
       if (!chars.length) return
+
+      /* O ponto de partida é reescrito a cada execução, porque ele depende do
+         sentido do scroll no momento em que a seção entra. Um `fromTo` fixo
+         congelaria a direção da primeira vez. */
+      tl.set(chars, { [axis]: deslocamento() }, position)
 
       if (blurAtivo > 0) {
         /* O filtro precisa sumir do elemento nos DOIS sentidos.
@@ -248,9 +265,32 @@ export function revealRunsOnce(): boolean {
 export function bindSectionReveal(
   trigger: Element,
   build: () => gsap.core.Timeline,
-  options: { start?: string; end?: string } = {},
+  options: {
+    start?: string
+    end?: string
+    /**
+     * Timeline de SAÍDA própria, curta e simultânea.
+     *
+     * Sem ela a despedida é `reverse()` — a chegada de trás para frente. Isso
+     * tem um efeito colateral que não se percebe no código e salta aos olhos na
+     * tela: quem entrou por ÚLTIMO sai PRIMEIRO. Como as timelines começam pelo
+     * topo do bloco, o conteúdo de cima — justamente o primeiro a deixar a
+     * tela — só começava a se despedir no fim da reversão, quando já não estava
+     * visível.
+     */
+    buildOut?: () => gsap.core.Timeline
+    /**
+     * Elemento que define o FIM, quando ele não é o que dispara a entrada.
+     *
+     * Serve para blocos altos: a entrada pode ser medida pela seção inteira,
+     * mas a saída precisa ser medida pelo conteúdo que de fato está indo
+     * embora. Numa seção com três cards empilhados, o fundo só cruza o gatilho
+     * muito depois de o cabeçalho ter deixado a tela.
+     */
+    endTrigger?: Element
+  } = {},
 ): ScrollTrigger {
-  const { start = 'top 85%', end = 'bottom 15%' } = options
+  const { start = 'top 85%', end = 'bottom 45%', buildOut, endTrigger } = options
 
   /* A timeline é construída sob demanda, na primeira entrada, e reaproveitada
      daí em diante: `play()` e `reverse()` na mesma instância, sem remontar nada
@@ -261,14 +301,39 @@ export function bindSectionReveal(
     return tl
   }
 
+  let out: gsap.core.Timeline | null = null
+  const sair = () => {
+    if (!buildOut) {
+      tl?.timeScale(2.2).reverse()
+      return
+    }
+    const saida = out ?? (out = buildOut().pause())
+    tl?.pause()
+    saida.restart()
+  }
+
   return ScrollTrigger.create({
     trigger,
     start,
     end,
-    onEnter: () => ensure().play(),
-    onEnterBack: () => ensure().play(),
-    onLeave: () => tl?.reverse(),
-    onLeaveBack: () => tl?.reverse(),
+    ...(endTrigger ? { endTrigger } : {}),
+    // A entrada sempre no ritmo próprio; só a saída é acelerada.
+    onEnter: () => {
+      out?.pause(0)
+      ensure().timeScale(1).play()
+    },
+    onEnterBack: () => {
+      out?.pause(0)
+      ensure().timeScale(1).play()
+    },
+    /* A saída corre mais rápido que a entrada.
+       Revertendo no mesmo ritmo, a despedida dura o tempo inteiro da chegada —
+       e como `reverse()` desfaz na ordem inversa, o conteúdo do TOPO do bloco
+       (justamente o primeiro a deixar a tela) só começava a sair no fim da
+       reversão, quando já não estava visível. Em velocidade dobrada a
+       despedida cabe na janela em que o bloco ainda aparece. */
+    onLeave: sair,
+    onLeaveBack: sair,
     /* Se o start já ficou para trás quando os triggers foram remedidos, a
        entrada não pode se perder: a seção está em cena, então ela roda agora. */
     onRefresh: (self) => {

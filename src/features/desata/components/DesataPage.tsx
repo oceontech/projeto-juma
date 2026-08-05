@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal } from '@/features/animation/charReveal'
 import { DUR, EASE, blurPx } from '@/features/animation/motion'
+import { isLowPower } from '@/features/animation/device'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
 export function DesataPage() {
@@ -38,10 +39,20 @@ export function DesataPage() {
       reveal?.hide()
       if (heroDesc) gsap.set(heroDesc, { y: 20, opacity: 0 })
 
-      const tl = gsap.timeline({ delay: 0.8, defaults: { ease: EASE.reveal } })
+      /* A abertura somava 1,4s antes de o texto de apoio começar a aparecer:
+         0,8s de espera inicial mais 0,6s de posição na timeline. No celular
+         isso é uma eternidade — o título já terminou de entrar e o parágrafo
+         ainda não existe, o que faz a tela parecer travada. Os tempos caem
+         para menos da metade, e mais ainda em aparelho de toque: o texto passa
+         a acompanhar o fim da cascata do título em vez de esperar por ela. */
+      const compacto = isLowPower()
+      const espera = compacto ? 0.2 : 0.4
+      const textoEm = compacto ? 0.28 : 0.42
+
+      const tl = gsap.timeline({ delay: espera, defaults: { ease: EASE.reveal } })
       if (heroTitle) tl.set(heroTitle, { opacity: 1 }, 0.1)
       reveal?.playIn(tl, 0.1)
-      if (heroDesc) tl.to(heroDesc, { y: 0, opacity: 1, duration: DUR.sub }, 0.6)
+      if (heroDesc) tl.to(heroDesc, { y: 0, opacity: 1, duration: DUR.sub }, textoEm)
 
       // Topics Section
       if (topicsRef.current) {

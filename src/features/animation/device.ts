@@ -55,3 +55,39 @@ export function blurPx(px: number): string {
   if (typeof window === 'undefined') return 'none'
   return isLowPower() ? 'none' : `blur(${px}px)`
 }
+
+/* ── Sentido do scroll ─────────────────────────────────────────────────
+   Um único listener para todo o site, em vez de um por animação.
+
+   Serve para que a entrada de um texto venha do lado de onde o usuário está
+   chegando: descendo, o conteúdo entra por baixo; SUBINDO, ele reaparece pela
+   borda de cima, e manter o mesmo sentido faria o texto entrar contra o
+   movimento do dedo — o que se lê como um solavanco.
+
+   `ScrollTrigger.direction` não existe como propriedade estática (só dentro do
+   callback de cada trigger, como `self.direction`), daí o rastreio próprio. */
+let direcao = 1
+let rastreando = false
+
+function rastrearScroll() {
+  if (rastreando || typeof window === 'undefined') return
+  rastreando = true
+  let ultimo = window.scrollY
+  window.addEventListener(
+    'scroll',
+    () => {
+      const y = window.scrollY
+      // Ignora o ruído de sub-pixel do scroll suave.
+      if (Math.abs(y - ultimo) < 2) return
+      direcao = y > ultimo ? 1 : -1
+      ultimo = y
+    },
+    { passive: true },
+  )
+}
+
+/** `1` quando o usuário está descendo, `-1` quando está subindo. */
+export function scrollDirection(): 1 | -1 {
+  rastrearScroll()
+  return direcao as 1 | -1
+}

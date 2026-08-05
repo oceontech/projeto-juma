@@ -248,19 +248,19 @@ export function ProductGrid() {
         const cards = gsap.utils.toArray<HTMLElement>('[data-product-card]', grid)
         gsap.set(cards, { y: 20, opacity: 0 })
         /* `batch` agrupa os cards que cruzam o gatilho no mesmo frame — um
-           stagger só para a leva inteira, em vez de uma tween por card. Com
-           entrada e saída, os quatro callbacks: quem volta para a grade a vê
-           entrar de novo. */
+           stagger só para a leva inteira, em vez de uma tween por card.
+
+           Aqui a grade tem SÓ entrada: o card aparece uma vez e fica. Numa
+           listagem, sair e voltar a entrar a cada passagem de scroll atrapalha
+           quem está comparando produtos — o conteúdo pisca no meio da leitura,
+           e é o oposto do que se espera de uma lista. `once: true` também
+           dispensa os callbacks de saída. */
         const entra = (batch: Element[]) =>
           gsap.to(batch, { y: 0, opacity: 1, duration: 0.4, stagger: 0.05, ease: 'power2.out', overwrite: true })
-        const sai = (batch: Element[]) =>
-          gsap.to(batch, { y: 20, opacity: 0, duration: 0.3, stagger: 0.03, ease: 'power2.in', overwrite: true })
         ScrollTrigger.batch(cards, {
           start: 'top 95%', // Gatilho antecipado para não parecer travado
+          once: true,
           onEnter: entra,
-          onEnterBack: entra,
-          onLeave: sai,
-          onLeaveBack: sai,
         })
       }
 
@@ -270,7 +270,7 @@ export function ProductGrid() {
           scrollTrigger: {
             trigger: cta,
             start: 'top 90%',
-            end: 'bottom 15%',
+            end: 'bottom 45%',
             toggleActions: revealToggleActions(),
           },
         })
@@ -339,7 +339,7 @@ export function ProductGrid() {
 
       {/* Grid de Produtos */}
       {filteredProducts.length > 0 ? (
-        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div ref={gridRef} className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
           {filteredProducts.map((product) => (
             <Link
               key={product.id}
