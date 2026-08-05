@@ -225,7 +225,7 @@ export function ArticlePage({ slug }: ArticlePageProps) {
               <Link
                 href="/materias"
                 data-back-btn
-                className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 bg-black/20 text-white font-bold text-xs uppercase tracking-wider backdrop-blur-md transition-all hover:bg-white/10 hover:border-white/40"
+                className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 bg-black/20 text-white font-bold text-sm uppercase tracking-wider backdrop-blur-md transition-all hover:bg-white/10 hover:border-white/40"
               >
                 <ArrowLeftIcon className="h-4 w-4" /> {t('backButton')}
               </Link>

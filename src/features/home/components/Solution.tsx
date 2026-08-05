@@ -215,7 +215,7 @@ export function Solution() {
             <div ref={ctaRef} className="mt-10 lg:mt-12">
               <Link
                 href="/contato"
-                className="text-body-regular inline-flex items-center justify-center rounded-full bg-primary px-xl py-md text-base text-white transition-opacity hover:opacity-80"
+                className="font-bold uppercase tracking-wider text-sm inline-flex items-center justify-center rounded-full bg-primary px-xl py-md text-white transition-opacity hover:opacity-80"
               >
                 {t('cta')}
               </Link>

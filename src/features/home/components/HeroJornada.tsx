@@ -1038,7 +1038,7 @@ export function HeroJornada() {
                 <div className={`flex flex-col gap-sm mx-auto w-full lg:mx-0 items-start lg:items-end text-left lg:text-right`}>
                   <Link
                     href="/contato"
-                    className="text-body-regular pointer-events-auto inline-flex items-center justify-center rounded-full bg-primary px-lg py-sm text-sm text-white transition-colors hover:bg-primary-light"
+                    className="font-bold uppercase tracking-wider pointer-events-auto inline-flex items-center justify-center rounded-full bg-primary px-lg py-sm text-sm text-white transition-colors hover:bg-primary-light"
                   >
                     {t('cta')}
                   </Link>

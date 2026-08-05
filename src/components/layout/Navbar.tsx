@@ -262,7 +262,7 @@ export function Navbar() {
                 <Link
                   id="nav-cta-btn"
                   href="/contato"
-                  className="whitespace-nowrap rounded-full btn-metallic-blue px-md py-[8px] text-body-regular text-[10px] xl:text-[11px] uppercase tracking-wider items-center justify-center gap-1.5 hidden xl:inline-flex shrink-0 transition-transform duration-200 hover:scale-[1.03] active:scale-95"
+                  className="whitespace-nowrap rounded-full btn-metallic-blue px-md py-[8px] font-bold uppercase tracking-wider text-sm items-center justify-center gap-1.5 hidden xl:inline-flex shrink-0 transition-transform duration-200 hover:scale-[1.03] active:scale-95"
                 >
                   <span>{tc('contactCta')}</span>
                   <ArrowRight className="h-3.5 w-3.5 shrink-0" />
@@ -339,7 +339,7 @@ export function Navbar() {
               <Link
                 href="/contato"
                 onClick={() => setOpen(false)}
-                className="rounded-full btn-metallic-blue px-md py-[10px] text-body-regular text-[10px] uppercase tracking-wider inline-flex items-center justify-center gap-1.5"
+                className="rounded-full btn-metallic-blue px-md py-[10px] font-bold uppercase tracking-wider text-sm inline-flex items-center justify-center gap-1.5"
               >
                 <span>{tc('contactCta')}</span>
                 <ArrowRight className="h-3.5 w-3.5 shrink-0" />
