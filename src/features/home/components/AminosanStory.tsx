@@ -222,6 +222,27 @@ function MobileVersion({ t }: { t: TFn }) {
       if (window.innerWidth >= 1024) return
       const video = videoRef.current
       const stageTrigger = stageRef.current
+
+      /* Congela os pontos pulsantes dos callouts enquanto a seção não está em
+         cena. São quatro laços infinitos que, sem isto, seguem sendo compostos
+         a cada frame pelo resto da visita — junto com os halos do globo, era o
+         que fazia a metade de baixo da home ficar mais pesada. */
+      let calloutIdleObserver: IntersectionObserver | null = null
+      /* Marca a SEÇÃO, não o palco: parte dos callouts vive fora do
+         `stageTrigger`, e a regra CSS depende de ser descendente de quem tem o
+         atributo — marcando só o palco, dois pontos continuavam pulsando. */
+      const idleHost = stageTrigger?.closest('#sec-origem') ?? stageTrigger
+      if (idleHost) {
+        calloutIdleObserver = new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) idleHost.removeAttribute('data-aminosan-idle')
+            else idleHost.setAttribute('data-aminosan-idle', '')
+          },
+          { rootMargin: '50% 0px' },
+        )
+        calloutIdleObserver.observe(idleHost)
+        idleHost.setAttribute('data-aminosan-idle', '')
+      }
       if (!video || !stageTrigger) return
 
       const act1Items = act1Ref.current ? gsap.utils.toArray<HTMLElement>('[data-anim]', act1Ref.current) : []
@@ -995,6 +1016,7 @@ function MobileVersion({ t }: { t: TFn }) {
       if (root.current) warmupFallback.observe(root.current)
 
       return () => {
+        calloutIdleObserver?.disconnect()
         observer.disconnect()
         warmupFallback.disconnect()
         window.removeEventListener('scroll', runWarmup)
@@ -1329,6 +1351,27 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       if (window.innerWidth < 1024) return
       const video = videoRef.current
       const stageTrigger = stageRef.current
+
+      /* Congela os pontos pulsantes dos callouts enquanto a seção não está em
+         cena. São quatro laços infinitos que, sem isto, seguem sendo compostos
+         a cada frame pelo resto da visita — junto com os halos do globo, era o
+         que fazia a metade de baixo da home ficar mais pesada. */
+      let calloutIdleObserver: IntersectionObserver | null = null
+      /* Marca a SEÇÃO, não o palco: parte dos callouts vive fora do
+         `stageTrigger`, e a regra CSS depende de ser descendente de quem tem o
+         atributo — marcando só o palco, dois pontos continuavam pulsando. */
+      const idleHost = stageTrigger?.closest('#sec-origem') ?? stageTrigger
+      if (idleHost) {
+        calloutIdleObserver = new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) idleHost.removeAttribute('data-aminosan-idle')
+            else idleHost.setAttribute('data-aminosan-idle', '')
+          },
+          { rootMargin: '50% 0px' },
+        )
+        calloutIdleObserver.observe(idleHost)
+        idleHost.setAttribute('data-aminosan-idle', '')
+      }
       const oldImg = oldImgRef.current
       if (!video || !stageTrigger || !oldImg) return
 
@@ -2505,6 +2548,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
       if (root.current) warmup.observe(root.current)
 
       return () => {
+        calloutIdleObserver?.disconnect()
         observer.disconnect()
         warmup.disconnect()
         window.clearInterval(watchdog)

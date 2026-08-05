@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
-import { createCharReveal, revealToggleActions } from '@/features/animation/charReveal'
+import { createCharReveal, revealToggleActions , bindSectionReveal } from '@/features/animation/charReveal'
 import { DUR, EASE, blurPx } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
@@ -97,18 +97,14 @@ export function AboutPage() {
         gsap.set(cards, { opacity: 0, filter: blurPx(10), y: 30, scale: 0.95 })
 
         // Intro animation for the timeline section
-        ScrollTrigger.create({
-          trigger: history,
-          start: 'top 80%',
-          once: true,
-          onEnter: () => {
+        bindSectionReveal(history, () => {
             const tlHist = gsap.timeline({ defaults: { ease: EASE.reveal } })
             if (histEyebrow) tlHist.to(histEyebrow, { y: 0, opacity: 1, duration: 0.5 })
             if (histTitle) tlHist.set(histTitle, { opacity: 1 }, 0.1)
             histReveal?.playIn(tlHist, 0.1)
             if (histIntro) tlHist.to(histIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.4)
-          }
-        })
+          return tlHist
+        }, { start: 'top 80%' })
 
         if (track && line && cards.length && pinElement) {
           const scrubTl = gsap.timeline({
@@ -210,17 +206,13 @@ export function AboutPage() {
         if (vEyebrow) gsap.set(vEyebrow, { y: 15, opacity: 0 })
         if (vTitle) gsap.set(vTitle, { y: 20, opacity: 0 })
         if (vIntro) gsap.set(vIntro, { y: 20, opacity: 0 })
-        ScrollTrigger.create({
-          trigger: values,
-          start: 'top 80%',
-          once: true,
-          onEnter: () => {
+        bindSectionReveal(values, () => {
             const tlVal = gsap.timeline({ defaults: { ease: EASE.reveal } })
             if (vEyebrow) tlVal.to(vEyebrow, { y: 0, opacity: 1, duration: 0.5 })
             if (vTitle) tlVal.to(vTitle, { y: 0, opacity: 1, duration: 0.7 }, 0.1)
             if (vIntro) tlVal.to(vIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.25)
-          }
-        })
+          return tlVal
+        }, { start: 'top 80%' })
 
         if (vCards.length > 0) {
           const mm = gsap.matchMedia()
@@ -282,18 +274,14 @@ export function AboutPage() {
         revealHL?.hide()
         if (hlIntro) gsap.set(hlIntro, { y: 20, opacity: 0 })
 
-        ScrollTrigger.create({
-          trigger: highlight,
-          start: 'top 75%',
-          once: true,
-          onEnter: () => {
+        bindSectionReveal(highlight, () => {
             const tlHl = gsap.timeline({ defaults: { ease: EASE.reveal } })
             if (hlEyebrow) tlHl.to(hlEyebrow, { y: 0, opacity: 1, duration: 0.5 })
             if (hlTitle) tlHl.set(hlTitle, { opacity: 1 }, 0.1)
             revealHL?.playIn(tlHl, 0.1)
             if (hlIntro) tlHl.to(hlIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.4)
-          }
-        })
+          return tlHl
+        }, { start: 'top 75%' })
       }
 
       if (gallery) {
@@ -307,11 +295,7 @@ export function AboutPage() {
         if (galIntro) gsap.set(galIntro, { y: 20, opacity: 0 })
         if (galImgs.length) gsap.set(galImgs, { y: 30, opacity: 0 })
 
-        ScrollTrigger.create({
-          trigger: gallery,
-          start: 'top 80%',
-          once: true,
-          onEnter: () => {
+        bindSectionReveal(gallery, () => {
             const tlGal = gsap.timeline({ defaults: { ease: EASE.reveal } })
             if (galEyebrow) tlGal.to(galEyebrow, { y: 0, opacity: 1, duration: 0.5 })
             if (galTitle) tlGal.to(galTitle, { y: 0, opacity: 1, duration: 0.7 }, 0.1)
@@ -319,8 +303,8 @@ export function AboutPage() {
             if (galImgs.length) {
               tlGal.to(galImgs, { y: 0, opacity: 1, duration: 0.8, stagger: 0.1 }, 0.35)
             }
-          }
-        })
+          return tlGal
+        }, { start: 'top 80%' })
       }
 
       if (mission) {
@@ -334,18 +318,14 @@ export function AboutPage() {
         if (mDesc) gsap.set(mDesc, { y: 20, opacity: 0 })
         if (mVisual) gsap.set(mVisual, { scale: 0.95, opacity: 0 })
 
-        ScrollTrigger.create({
-          trigger: mission,
-          start: 'top 80%',
-          once: true,
-          onEnter: () => {
+        bindSectionReveal(mission, () => {
             const tlMis = gsap.timeline({ defaults: { ease: EASE.reveal } })
             if (mEyebrow) tlMis.to(mEyebrow, { y: 0, opacity: 1, duration: 0.5 })
             if (mTitle) tlMis.to(mTitle, { y: 0, opacity: 1, duration: 0.7 }, 0.1)
             if (mDesc) tlMis.to(mDesc, { y: 0, opacity: 1, duration: DUR.sub }, 0.2)
             if (mVisual) tlMis.to(mVisual, { scale: 1, opacity: 1, duration: 0.8 }, 0.25)
-          }
-        })
+          return tlMis
+        }, { start: 'top 80%' })
       }
 
       return () => {

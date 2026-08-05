@@ -6,7 +6,7 @@ import { Container } from '@/components/layout/Container'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
-import { createCharReveal } from '@/features/animation/charReveal'
+import { createCharReveal , bindSectionReveal, revealToggleActions } from '@/features/animation/charReveal'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
@@ -80,30 +80,27 @@ export function ExperiencePage() {
         if (pTitle) gsap.set(pTitle, { y: 20, opacity: 0 })
         if (pIntro) gsap.set(pIntro, { y: 20, opacity: 0 })
 
-        ScrollTrigger.create({
-          trigger: program,
-          start: 'top 80%',
-          once: true,
-          onEnter: () => {
+        bindSectionReveal(program, () => {
             const tlProg = gsap.timeline({ defaults: { ease: EASE.reveal } })
             if (pEyebrow) tlProg.to(pEyebrow, { y: 0, opacity: 1, duration: 0.5 })
             if (pTitle) tlProg.to(pTitle, { y: 0, opacity: 1, duration: 0.7 }, 0.1)
             if (pIntro) tlProg.to(pIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.25)
-          }
-        })
+          return tlProg
+        }, { start: 'top 80%' })
 
         if (pCards.length) {
           const mm = gsap.matchMedia()
 
           mm.add('(min-width: 640px)', () => {
             gsap.set(pCards, { y: 24, opacity: 0, filter: 'blur(12px)' })
-            ScrollTrigger.create({
-              trigger: program,
-              start: 'top 50%',
-              once: true,
-              onEnter: () => {
-                gsap.to(pCards, { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.0, stagger: 0.1, ease: EASE.reveal, delay: 0.4 })
-              }
+            gsap.to(pCards, {
+              y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.0, stagger: 0.1, ease: EASE.reveal, delay: 0.4,
+              scrollTrigger: {
+                trigger: program,
+                start: 'top 50%',
+                end: 'bottom 15%',
+                toggleActions: revealToggleActions(),
+              },
             })
           })
 
@@ -119,7 +116,8 @@ export function ExperiencePage() {
                 scrollTrigger: {
                   trigger: card,
                   start: 'top 75%',
-                  once: true,
+                  end: 'bottom 15%',
+                  toggleActions: revealToggleActions(),
                 }
               })
             })
@@ -144,11 +142,7 @@ export function ExperiencePage() {
           if (text) gsap.set(text, { y: 15, opacity: 0 })
         })
 
-        ScrollTrigger.create({
-          trigger: benefits,
-          start: 'top 80%',
-          once: true,
-          onEnter: () => {
+        bindSectionReveal(benefits, () => {
             const tlBen = gsap.timeline({ defaults: { ease: EASE.reveal } })
             if (bEyebrow) tlBen.to(bEyebrow, { y: 0, opacity: 1, duration: 0.5 })
             if (bTitle) tlBen.to(bTitle, { y: 0, opacity: 1, duration: 0.7 }, 0.1)
@@ -161,8 +155,8 @@ export function ExperiencePage() {
               if (icon) tlBen.to(icon, { scale: 1, duration: 0.5, ease: 'back.out(1.7)' }, delay)
               if (text) tlBen.to(text, { y: 0, opacity: 1, duration: 0.6 }, delay + 0.1)
             })
-          }
-        })
+          return tlBen
+        }, { start: 'top 80%' })
       }
 
       if (gallery) {
@@ -176,11 +170,7 @@ export function ExperiencePage() {
         if (gIntro) gsap.set(gIntro, { y: 20, opacity: 0 })
         if (gImages.length) gsap.set(gImages, { y: 30, opacity: 0 })
 
-        ScrollTrigger.create({
-          trigger: gallery,
-          start: 'top 80%',
-          once: true,
-          onEnter: () => {
+        bindSectionReveal(gallery, () => {
             const tlGal = gsap.timeline({ defaults: { ease: EASE.reveal } })
             if (gEyebrow) tlGal.to(gEyebrow, { y: 0, opacity: 1, duration: 0.5 })
             if (gTitle) tlGal.to(gTitle, { y: 0, opacity: 1, duration: 0.7 }, 0.1)
@@ -188,16 +178,19 @@ export function ExperiencePage() {
             if (gImages.length) {
               tlGal.to(gImages, { y: 0, opacity: 1, duration: 0.9, stagger: STAGGER.card }, 0.4)
             }
-          }
-        })
+          return tlGal
+        }, { start: 'top 80%' })
       }
 
       if (cta) {
-        ScrollTrigger.create({
-          trigger: cta,
-          start: 'top 90%',
-          once: true,
-          onEnter: () => gsap.to(cta, { y: 0, opacity: 1, duration: 0.7, ease: EASE.reveal })
+        gsap.to(cta, {
+          y: 0, opacity: 1, duration: 0.7, ease: EASE.reveal,
+          scrollTrigger: {
+            trigger: cta,
+            start: 'top 90%',
+            end: 'bottom 15%',
+            toggleActions: revealToggleActions(),
+          },
         })
       }
 

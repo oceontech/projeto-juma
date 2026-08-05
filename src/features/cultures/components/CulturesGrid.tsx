@@ -6,7 +6,7 @@ import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
-import { createCharReveal } from '@/features/animation/charReveal'
+import { createCharReveal , bindSectionReveal, revealToggleActions } from '@/features/animation/charReveal'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
@@ -107,13 +107,14 @@ export function CulturesGrid() {
 
         mm.add('(min-width: 640px)', () => {
           gsap.set(cards, { y: 24, opacity: 0, filter: 'blur(12px)' })
-          ScrollTrigger.create({
-            trigger: grid,
-            start: 'top 65%',
-            once: true,
-            onEnter: () => {
-              gsap.to(cards, { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.0, stagger: 0.1, ease: EASE.reveal })
-            }
+          gsap.to(cards, {
+            y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.0, stagger: 0.1, ease: EASE.reveal,
+            scrollTrigger: {
+              trigger: grid,
+              start: 'top 65%',
+              end: 'bottom 15%',
+              toggleActions: revealToggleActions(),
+            },
           })
         })
 
@@ -129,7 +130,8 @@ export function CulturesGrid() {
               scrollTrigger: {
                 trigger: card,
                 start: 'top 75%',
-                once: true,
+                end: 'bottom 15%',
+                toggleActions: revealToggleActions(),
               }
             })
           })
@@ -147,11 +149,7 @@ export function CulturesGrid() {
         if (sectionIntro) gsap.set(sectionIntro, { y: 20, opacity: 0 })
         if (stepCards.length) gsap.set(stepCards, { y: 24, opacity: 0 })
 
-        ScrollTrigger.create({
-          trigger: how,
-          start: 'top 80%',
-          once: true,
-          onEnter: () => {
+        bindSectionReveal(how, () => {
             const tlHow = gsap.timeline({ defaults: { ease: EASE.reveal } })
             if (sectionEyebrow) tlHow.to(sectionEyebrow, { y: 0, opacity: 1, duration: 0.5 })
             if (sectionTitle) tlHow.to(sectionTitle, { y: 0, opacity: 1, duration: 0.7 }, 0.1)
@@ -159,16 +157,19 @@ export function CulturesGrid() {
             if (stepCards.length) {
               tlHow.to(stepCards, { y: 0, opacity: 1, duration: 0.8, stagger: STAGGER.card }, 0.4)
             }
-          }
-        })
+          return tlHow
+        }, { start: 'top 80%' })
       }
 
       if (cta) {
-        ScrollTrigger.create({
-          trigger: cta,
-          start: 'top 90%',
-          once: true,
-          onEnter: () => gsap.to(cta, { y: 0, opacity: 1, duration: 0.7, ease: EASE.reveal })
+        gsap.to(cta, {
+          y: 0, opacity: 1, duration: 0.7, ease: EASE.reveal,
+          scrollTrigger: {
+            trigger: cta,
+            start: 'top 90%',
+            end: 'bottom 15%',
+            toggleActions: revealToggleActions(),
+          },
         })
       }
 

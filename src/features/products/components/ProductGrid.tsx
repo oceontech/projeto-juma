@@ -6,7 +6,7 @@ import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
-import { createCharReveal } from '@/features/animation/charReveal'
+import { createCharReveal, revealToggleActions } from '@/features/animation/charReveal'
 import { DUR, EASE } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { DropdownMenu } from '@/components/ui/dropdown-menu'
@@ -247,23 +247,32 @@ export function ProductGrid() {
       if (grid) {
         const cards = gsap.utils.toArray<HTMLElement>('[data-product-card]', grid)
         gsap.set(cards, { y: 20, opacity: 0 })
+        /* `batch` agrupa os cards que cruzam o gatilho no mesmo frame — um
+           stagger só para a leva inteira, em vez de uma tween por card. Com
+           entrada e saída, os quatro callbacks: quem volta para a grade a vê
+           entrar de novo. */
+        const entra = (batch: Element[]) =>
+          gsap.to(batch, { y: 0, opacity: 1, duration: 0.4, stagger: 0.05, ease: 'power2.out', overwrite: true })
+        const sai = (batch: Element[]) =>
+          gsap.to(batch, { y: 20, opacity: 0, duration: 0.3, stagger: 0.03, ease: 'power2.in', overwrite: true })
         ScrollTrigger.batch(cards, {
           start: 'top 95%', // Gatilho antecipado para não parecer travado
-          once: true,
-          onEnter: (batch) => {
-            gsap.to(batch, { y: 0, opacity: 1, duration: 0.4, stagger: 0.05, ease: 'power2.out' })
-          }
+          onEnter: entra,
+          onEnterBack: entra,
+          onLeave: sai,
+          onLeaveBack: sai,
         })
       }
 
       if (cta) {
-        ScrollTrigger.create({
-          trigger: cta,
-          start: 'top 90%',
-          once: true,
-          onEnter: () => {
-            gsap.to(cta, { y: 0, opacity: 1, duration: 0.7, ease: EASE.reveal })
-          }
+        gsap.to(cta, {
+          y: 0, opacity: 1, duration: 0.7, ease: EASE.reveal,
+          scrollTrigger: {
+            trigger: cta,
+            start: 'top 90%',
+            end: 'bottom 15%',
+            toggleActions: revealToggleActions(),
+          },
         })
       }
 

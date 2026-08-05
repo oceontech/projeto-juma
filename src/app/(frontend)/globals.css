@@ -1290,6 +1290,14 @@ html.lenis body { height: auto; }
   line-height: 1.45;
   color: rgba(26, 26, 26, 0.64);
 }
+/* Os pontos dos callouts pulsam em laço infinito. Fora da tela isso é
+   composição gasta a cada frame pelo resto da visita — medido, quatro deles
+   seguiam pulsando com a seção Aminosan bem longe do viewport. `data-idle`
+   entra pelo IntersectionObserver do componente. */
+[data-aminosan-idle] .aminosan-bottle-callout__dot {
+  animation-play-state: paused;
+}
+
 @keyframes aminosan-callout-pulse {
   0%, 100% { transform: scale(1); box-shadow: 0 0 0 7px rgba(0, 76, 38, 0.05); }
   50% { transform: scale(1.22); box-shadow: 0 0 0 11px rgba(0, 76, 38, 0.015); }

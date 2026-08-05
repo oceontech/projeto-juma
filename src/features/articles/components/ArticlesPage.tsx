@@ -6,7 +6,7 @@ import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
-import { createCharReveal } from '@/features/animation/charReveal'
+import { createCharReveal, revealToggleActions } from '@/features/animation/charReveal'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { DropdownMenu } from '@/components/ui/dropdown-menu'
@@ -124,33 +124,40 @@ export function ArticlesPage() {
 
       if (featured) {
         gsap.set(featured, { y: 24, opacity: 0 })
-        ScrollTrigger.create({
-          trigger: featured,
-          start: 'top 85%',
-          once: true,
-          onEnter: () => gsap.to(featured, { y: 0, opacity: 1, duration: 0.8, ease: EASE.reveal })
+        gsap.to(featured, {
+          y: 0, opacity: 1, duration: 0.8, ease: EASE.reveal,
+          scrollTrigger: {
+            trigger: featured,
+            start: 'top 85%',
+            end: 'bottom 15%',
+            toggleActions: revealToggleActions(),
+          },
         })
       }
 
       if (grid) {
         const cards = gsap.utils.toArray<HTMLElement>('[data-article-card]', grid)
         gsap.set(cards, { y: 24, opacity: 0 })
-        ScrollTrigger.create({
-          trigger: grid,
-          start: 'top 85%',
-          once: true,
-          onEnter: () => {
-            gsap.to(cards, { y: 0, opacity: 1, duration: 0.8, stagger: STAGGER.card, ease: EASE.reveal })
-          }
+        gsap.to(cards, {
+          y: 0, opacity: 1, duration: 0.8, stagger: STAGGER.card, ease: EASE.reveal,
+          scrollTrigger: {
+            trigger: grid,
+            start: 'top 85%',
+            end: 'bottom 15%',
+            toggleActions: revealToggleActions(),
+          },
         })
       }
 
       if (cta) {
-        ScrollTrigger.create({
-          trigger: cta,
-          start: 'top 90%',
-          once: true,
-          onEnter: () => gsap.to(cta, { y: 0, opacity: 1, duration: 0.7, ease: EASE.reveal })
+        gsap.to(cta, {
+          y: 0, opacity: 1, duration: 0.7, ease: EASE.reveal,
+          scrollTrigger: {
+            trigger: cta,
+            start: 'top 90%',
+            end: 'bottom 15%',
+            toggleActions: revealToggleActions(),
+          },
         })
       }
 

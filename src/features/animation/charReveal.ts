@@ -39,9 +39,8 @@
  *    que nunca é devolvida.
  */
 
-import { gsap, SplitText } from './gsap'
+import { gsap, ScrollTrigger, SplitText } from './gsap'
 import { DUR, EASE, STAGGER } from './motion'
-import { isLowPower } from './device'
 
 export type CharRevealOptions = {
   /** Deslocamento horizontal inicial, em px (default: 20 — o valor do site). */
@@ -188,24 +187,77 @@ export function createCharReveal(
 }
 
 /**
- * `toggleActions` dos reveals de seção.
+ * `toggleActions` padrão dos reveals de seção — entrada E saída, em todo
+ * aparelho.
  *
- * No desktop o comportamento continua o de sempre: a seção reanima ao voltar
- * para a tela. No aparelho de toque ela roda uma vez e fica.
+ * A seção anima ao entrar na tela e desanima ao sair, nos dois sentidos: quem
+ * volta para uma seção já vista a vê entrar de novo, em vez de encontrá-la
+ * parada no estado final.
  *
- * O motivo não é economia de efeito, é o custo do vaivém: o polegar atravessa a
- * home em poucos gestos, e com `reverse` cada seção que passa dispara uma
- * timeline de entrada e, um instante depois, uma de saída. São dezenas de
- * timelines montadas e revertidas dentro de um único movimento, todas
- * disputando os frames que deveriam estar desenhando a rolagem — e é isso que
- * faz a página parecer mais pesada quanto mais se desce. Rodar uma vez também
- * é o que permite desfazer o split e limpar os spans depois da animação.
+ * Isto já chegou a ser cortado no celular, por conta do custo do vaivém — o
+ * polegar atravessa a home em poucos gestos e cada seção que passa dispara uma
+ * timeline de entrada e outra de saída. O que tornava esse vaivém caro, porém,
+ * não era o número de timelines: era o `filter: blur()` que cada uma animava em
+ * dezenas de caracteres. Com o desfoque no título inteiro (ver o topo deste
+ * arquivo), o que sobra por seção é `transform` e `opacity` — compostos, com
+ * custo de frame desprezível. Não há mais razão para abrir mão do efeito.
  */
 export function revealToggleActions(): string {
-  return isLowPower() ? 'play none none none' : 'play reverse play reverse'
+  return 'play reverse play reverse'
 }
 
-/** `true` quando o reveal deve rodar uma vez só (e então limpar-se). */
+/**
+ * `false` desde que a entrada e a saída passaram a valer em todo aparelho:
+ * reverter o split ao fim da cascata apagaria justamente os alvos que a
+ * animação de saída precisa encontrar.
+ */
 export function revealRunsOnce(): boolean {
-  return isLowPower()
+  return false
+}
+
+/**
+ * Liga uma timeline pausada ao scroll, com entrada E saída nos dois sentidos.
+ *
+ * É o equivalente de `toggleActions: 'play reverse play reverse'` para os casos
+ * em que a timeline não pode ser criada junto com o ScrollTrigger — tipicamente
+ * porque ela é montada dentro de um callback, medindo o layout já assentado.
+ *
+ * Substitui o padrão `ScrollTrigger.create({ once: true, onEnter })`, que
+ * espalhamos por dez seções: `once` roda a animação uma única vez na vida da
+ * página, então quem descia, voltava e descia de novo encontrava a seção parada
+ * no estado final, sem entrada e sem saída. Pior, quando o start era
+ * recalculado (os trechos pinados da home inserem espaçadores de milhares de
+ * pixels ao montar) a única chance podia ser gasta sem que o callback rodasse —
+ * e a seção ficava presa invisível.
+ */
+export function bindSectionReveal(
+  trigger: Element,
+  build: () => gsap.core.Timeline,
+  options: { start?: string; end?: string } = {},
+): ScrollTrigger {
+  const { start = 'top 85%', end = 'bottom 15%' } = options
+
+  /* A timeline é construída sob demanda, na primeira entrada, e reaproveitada
+     daí em diante: `play()` e `reverse()` na mesma instância, sem remontar nada
+     a cada passagem de scroll. */
+  let tl: gsap.core.Timeline | null = null
+  const ensure = () => {
+    if (!tl) tl = build().pause()
+    return tl
+  }
+
+  return ScrollTrigger.create({
+    trigger,
+    start,
+    end,
+    onEnter: () => ensure().play(),
+    onEnterBack: () => ensure().play(),
+    onLeave: () => tl?.reverse(),
+    onLeaveBack: () => tl?.reverse(),
+    /* Se o start já ficou para trás quando os triggers foram remedidos, a
+       entrada não pode se perder: a seção está em cena, então ela roda agora. */
+    onRefresh: (self) => {
+      if (self.isActive) ensure().play()
+    },
+  })
 }

@@ -6,7 +6,7 @@ import { Container } from '@/components/layout/Container'
 import { DropdownMenu } from '@/components/ui/dropdown-menu'
 import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
-import { createCharReveal } from '@/features/animation/charReveal'
+import { createCharReveal , bindSectionReveal, revealToggleActions } from '@/features/animation/charReveal'
 import { DUR, EASE } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
@@ -119,26 +119,25 @@ export function ContactPage() {
         if (form) gsap.set(form, { y: 24, opacity: 0 })
         if (sidebarItems.length) gsap.set(sidebarItems, { y: 15, opacity: 0 })
 
-        ScrollTrigger.create({
-          trigger: grid,
-          start: 'top 80%',
-          once: true,
-          onEnter: () => {
+        bindSectionReveal(grid, () => {
             const tlGrid = gsap.timeline({ defaults: { ease: EASE.reveal } })
             if (form) tlGrid.to(form, { y: 0, opacity: 1, duration: 0.8 })
             if (sidebarItems.length) {
               tlGrid.to(sidebarItems, { y: 0, opacity: 1, duration: 0.7, stagger: 0.1 }, 0.2)
             }
-          }
-        })
+          return tlGrid
+        }, { start: 'top 80%' })
       }
 
       if (cta) {
-        ScrollTrigger.create({
-          trigger: cta,
-          start: 'top 90%',
-          once: true,
-          onEnter: () => gsap.to(cta, { y: 0, opacity: 1, duration: 0.7, ease: EASE.reveal })
+        gsap.to(cta, {
+          y: 0, opacity: 1, duration: 0.7, ease: EASE.reveal,
+          scrollTrigger: {
+            trigger: cta,
+            start: 'top 90%',
+            end: 'bottom 15%',
+            toggleActions: revealToggleActions(),
+          },
         })
       }
 

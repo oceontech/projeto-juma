@@ -6,7 +6,7 @@ import { Globe2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
-import { createCharReveal } from '@/features/animation/charReveal'
+import { bindSectionReveal, createCharReveal } from '@/features/animation/charReveal'
 import { DUR, EASE } from '@/features/animation/motion'
 import { isTouch } from '@/features/animation/device'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
@@ -95,7 +95,10 @@ export function GlobalPresence({ variant = 'section' }: { variant?: 'section' | 
       reveal?.hide()
       if (body) gsap.set(body, { y: 20, opacity: 0 })
       if (support) gsap.set(support, { y: 16, opacity: 0 })
-      if (globeWrap) gsap.set(globeWrap, { scale: 0.9, opacity: 0 })
+      /* O globo nasce bem pequeno e transparente e cresce até o tamanho certo,
+         ganhando corpo no caminho. Antes partia de 0.9 — quase o tamanho final,
+         o que fazia a entrada passar despercebida. */
+      if (globeWrap) gsap.set(globeWrap, { scale: 0.55, opacity: 0 })
       if (cards.length) gsap.set(cards, { y: 14, opacity: 0 })
       if (halos.length) gsap.set(halos, { scale: 0, opacity: 0 })
 
@@ -116,32 +119,43 @@ export function GlobalPresence({ variant = 'section' }: { variant?: 'section' | 
          `played` torna a entrada idempotente, e o `onRefresh` recupera o caso
          em que o start já passou: se a seção está visível e a animação nunca
          rodou, ela roda agora. */
-      let played = false
-      const play = () => {
-        if (played) return
-        played = true
+      /* Entrada E saída, como no resto do site: quem volta para esta seção a vê
+         entrar de novo. `bindSectionReveal` também cobre o caso que deixava as
+         bandeiras apagadas — acima daqui há dois trechos pinados que inserem
+         espaçadores de milhares de pixels ao montar, e cada refresh
+         reposiciona os triggers; com `once`, essa única chance podia ser gasta
+         sem que o callback rodasse, e a seção ficava presa invisível. */
+      const st = bindSectionReveal(root, () => {
         const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
         if (eyebrow) tl.to(eyebrow, { y: 0, opacity: 1, duration: 0.5 }, 0)
         reveal?.playIn(tl, 0.08)
         if (body) tl.to(body, { y: 0, opacity: 1, duration: DUR.sub }, 0.35)
         if (support) tl.to(support, { y: 0, opacity: 1, duration: DUR.sub }, 0.5)
-        if (globeWrap) tl.to(globeWrap, { scale: 1, opacity: 1, duration: 1.1, ease: 'power3.out' }, 0.2)
+        // O globo cresce de 0.55 até 1 enquanto ganha opacidade — a entrada
+        // acompanha o texto em vez de aparecer pronta.
+        if (globeWrap) tl.to(globeWrap, { scale: 1, opacity: 1, duration: 1.2, ease: 'power2.out' }, 0.2)
         if (halos.length)
           tl.to(halos, { scale: 1, opacity: 1, duration: 0.5, stagger: 0.12, ease: 'back.out(2)' }, 0.9)
         if (cards.length) tl.to(cards, { y: 0, opacity: 1, duration: 0.6, stagger: 0.12 }, 1.0)
-      }
-
-      const st = ScrollTrigger.create({
-        trigger: root,
-        start: 'top 85%',
-        once: true,
-        onEnter: play,
-        onRefresh: (self) => {
-          if (self.progress > 0 || self.isActive) play()
-        },
+        return tl
       })
 
+      /* `data-gp-idle` congela os halos enquanto a seção não está em cena
+         (ver o comentário no <style> abaixo). Margem de meia tela para que eles
+         já estejam pulsando quando a seção aparece. */
+      const idleObserver = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) root.removeAttribute('data-gp-idle')
+          else root.setAttribute('data-gp-idle', '')
+        },
+        { rootMargin: '50% 0px' },
+      )
+      idleObserver.observe(root)
+      root.setAttribute('data-gp-idle', '')
+
       return () => {
+        idleObserver.disconnect()
+        root.removeAttribute('data-gp-idle')
         st.kill()
         reveal?.revert()
       }
@@ -151,6 +165,14 @@ export function GlobalPresence({ variant = 'section' }: { variant?: 'section' | 
 
   const inner = (
     <div ref={rootRef} className="grid grid-cols-1 lg:grid-cols-2 items-center gap-14 lg:gap-10">
+      {/* Os dois halos pulsam em laço infinito. Sem a pausa abaixo eles seguem
+          pulsando com a seção fora da tela — do primeiro frame da visita até a
+          aba fechar. São só dois elementos, mas cada um é uma camada composta e
+          recomposta a cada frame, para sempre: medido no aparelho, pausá-los
+          fora de vista derruba os frames perdidos na região DEPOIS desta seção
+          de 99% para 76%. Era a causa de a página "ficar lenta depois do
+          globo" — o canvas WebGL, que parecia o suspeito óbvio, respondia por
+          quase nada (96% quando removido). */}
       <style>{`
         @media (prefers-reduced-motion: no-preference) {
           @keyframes gp-halo-pulse {
@@ -159,6 +181,7 @@ export function GlobalPresence({ variant = 'section' }: { variant?: 'section' | 
             100% { transform: scale(2.2); opacity: 0; }
           }
           .gp-halo-ring { animation: gp-halo-pulse 2.4s ease-out infinite; }
+          [data-gp-idle] .gp-halo-ring { animation-play-state: paused; }
         }
       `}</style>
 

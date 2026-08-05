@@ -6,7 +6,7 @@ import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
 import { useTranslations, useLocale } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
-import { createCharReveal } from '@/features/animation/charReveal'
+import { createCharReveal , bindSectionReveal, revealToggleActions } from '@/features/animation/charReveal'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { ARTICLES_DATA, Article } from '../data/articlesData'
@@ -128,12 +128,13 @@ export function ArticlePage({ slug }: ArticlePageProps) {
           gsap.set(blocks, { y: 30, opacity: 0 })
 
           blocks.forEach((block) => {
-            ScrollTrigger.create({
-              trigger: block,
-              start: 'top 85%',
-              once: true,
-              onEnter: () => {
-                gsap.to(block, { y: 0, opacity: 1, duration: 0.8, ease: EASE.reveal })
+            gsap.to(block, {
+              y: 0, opacity: 1, duration: 0.8, ease: EASE.reveal,
+              scrollTrigger: {
+                trigger: block,
+                start: 'top 85%',
+                end: 'bottom 15%',
+                toggleActions: revealToggleActions(),
               },
             })
           })
@@ -147,29 +148,26 @@ export function ArticlePage({ slug }: ArticlePageProps) {
           if (rTitle) gsap.set(rTitle, { y: 20, opacity: 0 })
           if (cards.length > 0) gsap.set(cards, { y: 30, opacity: 0 })
 
-          ScrollTrigger.create({
-            trigger: relatedRef.current,
-            start: 'top 80%',
-            once: true,
-            onEnter: () => {
+          bindSectionReveal(relatedRef.current, () => {
               const rTl = gsap.timeline()
               if (rTitle) rTl.to(rTitle, { y: 0, opacity: 1, duration: 0.6, ease: EASE.reveal })
               if (cards.length > 0) {
                 rTl.to(cards, { y: 0, opacity: 1, duration: 0.8, stagger: STAGGER.card, ease: EASE.reveal }, '<0.15')
               }
-            },
-          })
+            return rTl
+          }, { start: 'top 80%' })
         }
 
         // 4. CTA banner reveal
         if (ctaRef.current) {
           gsap.set(ctaRef.current, { y: 30, opacity: 0 })
-          ScrollTrigger.create({
-            trigger: ctaRef.current,
-            start: 'top 88%',
-            once: true,
-            onEnter: () => {
-              gsap.to(ctaRef.current, { y: 0, opacity: 1, duration: 0.8, ease: EASE.reveal })
+          gsap.to(ctaRef.current, {
+            y: 0, opacity: 1, duration: 0.8, ease: EASE.reveal,
+            scrollTrigger: {
+              trigger: ctaRef.current,
+              start: 'top 88%',
+              end: 'bottom 15%',
+              toggleActions: revealToggleActions(),
             },
           })
         }
