@@ -24,6 +24,7 @@ export function HomeCtaFinal() {
     const globe     = section.querySelector<HTMLElement>('[data-globe]')
     const container = section.querySelector<HTMLElement>('[data-cta-container]')
     let reveal: ReturnType<typeof createCharReveal> = null
+    let mm: gsap.MatchMedia | null = null
 
     if (container && globe) {
       const kicker = container.querySelector<HTMLElement>('[data-kicker]')
@@ -58,39 +59,93 @@ export function HomeCtaFinal() {
       if (line) gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
       if (desc) gsap.set(desc, { y: 20, opacity: 0 })
 
-      // Tudo preso ao scroll (scrub), não a um play-once — é o pedido: o
-      // globo já entra visível junto com a seção (start: 'top bottom', ou
-      // seja, o gatilho começa no instante em que o topo da seção toca a
-      // base da tela — mal a seção das matérias termina) e desce conforme
-      // o usuário rola, arrastando o azul e o texto atrás dele. `end: 'top
-      // top'` fecha o trajeto em 1 altura de tela — rolagem previsível, sem
-      // exigir dezenas de vh vazios. Sem toggleActions: scrub já cobre os
-      // dois sentidos sozinho, e diferente do play-once, NÃO reverte sozinho
-      // ao passar do fim — fica parado no estado final até vir scroll de volta.
-      const tl = gsap.timeline({
-        scrollTrigger: {
+      /* A coreografia é a mesma nos dois tamanhos — o globo sobe do rodapé até
+         o topo da seção arrastando o azul, e o texto entra atrás dele. O que
+         muda é QUEM conduz o tempo. */
+      const coreografia = (tl: gsap.core.Timeline, esc: number) => {
+        tl.to(globe, { y: 0, duration: 1 * esc }, 0)
+        if (bg) tl.to(bg, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1 * esc }, 0)
+        // O texto só entra depois que o globo desceu o bastante para sair de
+        // cima da área dele.
+        tl.to(container, { opacity: 1, filter: 'blur(0px)', duration: 0.35 * esc }, 0.55 * esc)
+        if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: 0.3 * esc }, 0.55 * esc)
+        reveal?.playIn(tl, 0.62 * esc)
+        if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: 0.15 * esc }, 0.78 * esc)
+        if (desc) tl.to(desc, { y: 0, opacity: 1, duration: 0.2 * esc }, 0.85 * esc)
+      }
+
+      mm = gsap.matchMedia()
+
+      /* ── Celular: a cena corre sozinha, uma vez ──────────────────────
+         Presa ao scroll, a seção só se completava depois de uma tela inteira
+         de rolagem: o globo subia devagar, o texto aparecia lá no fim, e para
+         ver a cena inteira era preciso insistir no dedo. Num aparelho de toque
+         isso não é controle, é trabalho.
+         Aqui o scroll apenas DISPARA — a partir daí a animação corre no seu
+         próprio tempo, contínua, e termina sozinha. Roda uma vez: quem volta
+         encontra a seção montada, sem repetir a subida do globo. */
+      mm.add('(max-width: 1023px)', () => {
+        const tl = gsap.timeline({ paused: true, defaults: { ease: 'power2.out' } })
+        coreografia(tl, 1.35) // segundos, não fração de scroll
+
+        const st = ScrollTrigger.create({
           trigger: section,
-          start: 'top bottom',
-          end: 'top top',
-          scrub: 0.5,
-          invalidateOnRefresh: true,
-        },
-        defaults: { ease: 'none' },
+          start: 'top 80%',
+          /* `end` explícito para que `progress` seja uma faixa, e não um ponto:
+             sem ele o trigger tem começo e fim no mesmo lugar, `isActive` é
+             falso quase sempre e a rede de segurança abaixo nunca pegava. */
+          end: 'bottom top',
+          once: true,
+          onEnter: () => tl.play(),
+          /* Se o start já ficou para trás quando os triggers foram remedidos —
+             e nesta página isso acontece, porque os trechos pinados acima
+             inserem espaçadores de milhares de pixels ao montar —, a cena não
+             pode perder a única chance que tem. */
+          onRefresh: (self) => {
+            if (self.progress > 0) tl.play()
+          },
+        })
+        return () => {
+          st.kill()
+          tl.kill()
+        }
       })
 
-      tl.to(globe, { y: 0, duration: 1 }, 0)
-      if (bg) tl.to(bg, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1 }, 0)
-
-      // Texto só aparece perto do fim do trajeto do globo — quando ele já
-      // desceu o bastante pra ter saído de cima da área do texto.
-      tl.to(container, { opacity: 1, filter: 'blur(0px)', duration: 0.35 }, 0.55)
-      if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: 0.3 }, 0.55)
-      reveal?.playIn(tl, 0.62)
-      if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: 0.15 }, 0.78)
-      if (desc) tl.to(desc, { y: 0, opacity: 1, duration: 0.2 }, 0.85)
+      /* ── Desktop: segue preso ao scroll, com um acabamento ───────────
+         O globo desce conforme o usuário rola — comportamento aprovado, sem
+         mudança. A única adição é o `snap`: parou de rolar já perto do fim, a
+         cena assenta sozinha no estado final em vez de ficar congelada no meio
+         do caminho. Abaixo do limiar o snap devolve o próprio progresso, ou
+         seja, não mexe em nada. */
+      mm.add('(min-width: 1024px)', () => {
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: section,
+            start: 'top bottom',
+            end: 'top top',
+            scrub: 0.5,
+            invalidateOnRefresh: true,
+            snap: {
+              snapTo: (valor) => (valor > 0.72 ? 1 : valor),
+              duration: { min: 0.15, max: 0.4 },
+              delay: 0.06,
+              ease: 'power2.inOut',
+            },
+          },
+          defaults: { ease: 'none' },
+        })
+        coreografia(tl, 1)
+        return () => {
+          tl.scrollTrigger?.kill()
+          tl.kill()
+        }
+      })
     }
 
-    return () => reveal?.revert()
+    return () => {
+      mm?.revert()
+      reveal?.revert()
+    }
   }, { scope: ref })
 
   return (
