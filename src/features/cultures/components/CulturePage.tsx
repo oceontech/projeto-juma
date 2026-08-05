@@ -396,7 +396,7 @@ export function CulturePage({ slug }: { slug: string }) {
           scrollTrigger: {
             trigger: section,
             start: 'top 85%',
-            end: 'top 10%',
+            end: 'bottom 15%',
             toggleActions: revealToggleActions(),
           },
           defaults: { ease: EASE.reveal }

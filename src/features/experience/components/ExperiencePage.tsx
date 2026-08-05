@@ -86,20 +86,7 @@ export function ExperiencePage() {
             if (pTitle) tlProg.to(pTitle, { y: 0, opacity: 1, duration: 0.7 }, 0.1)
             if (pIntro) tlProg.to(pIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.25)
           return tlProg
-        },         {
-          start: 'top 80%',
-          /* Saída própria, curta e simultânea. Com `reverse()` a despedida é a
-             chegada de trás para frente: quem entrou por último sai primeiro,
-             e o conteúdo do TOPO do bloco — que é o primeiro a deixar a tela —
-             só começava a sair no fim da reversão, quando já não estava
-             visível. Aqui tudo se despede junto, para cima, em ~0,3s. */
-          buildOut: () => {
-            const tlOut = gsap.timeline({ defaults: { ease: 'power2.in' } })
-            tlOut.to([pEyebrow, pIntro, pTitle].filter(Boolean), { y: -16, autoAlpha: 0, duration: 0.3, overwrite: 'auto' }, 0)
-            return tlOut
-          },
-        }
-      )
+        }, { start: 'top 80%' })
 
         if (pCards.length) {
           const mm = gsap.matchMedia()
@@ -111,7 +98,7 @@ export function ExperiencePage() {
               scrollTrigger: {
                 trigger: program,
                 start: 'top 50%',
-                end: 'top 10%',
+                end: 'bottom 15%',
                 toggleActions: revealToggleActions(),
               },
             })
@@ -129,7 +116,7 @@ export function ExperiencePage() {
                 scrollTrigger: {
                   trigger: card,
                   start: 'top 75%',
-                  end: 'top 10%',
+                  end: 'bottom 15%',
                   toggleActions: revealToggleActions(),
                 }
               })
@@ -169,22 +156,7 @@ export function ExperiencePage() {
               if (text) tlBen.to(text, { y: 0, opacity: 1, duration: 0.6 }, delay + 0.1)
             })
           return tlBen
-        },         {
-          start: 'top 80%',
-          /* Saída própria, curta e simultânea. Com `reverse()` a despedida é a
-             chegada de trás para frente: quem entrou por último sai primeiro,
-             e o conteúdo do TOPO do bloco — que é o primeiro a deixar a tela —
-             só começava a sair no fim da reversão, quando já não estava
-             visível. Aqui tudo se despede junto, para cima, em ~0,3s. */
-          buildOut: () => {
-            const tlOut = gsap.timeline({ defaults: { ease: 'power2.in' } })
-            // `bItems` cobre os cards inteiros; `icon` e `text` só existem
-            // dentro do forEach da entrada.
-            tlOut.to([bEyebrow, bIntro, bTitle, ...bItems].filter(Boolean), { y: -16, autoAlpha: 0, duration: 0.3, overwrite: 'auto' }, 0)
-            return tlOut
-          },
-        }
-      )
+        }, { start: 'top 80%' })
       }
 
       if (gallery) {
@@ -207,20 +179,7 @@ export function ExperiencePage() {
               tlGal.to(gImages, { y: 0, opacity: 1, duration: 0.9, stagger: STAGGER.card }, 0.4)
             }
           return tlGal
-        },         {
-          start: 'top 80%',
-          /* Saída própria, curta e simultânea. Com `reverse()` a despedida é a
-             chegada de trás para frente: quem entrou por último sai primeiro,
-             e o conteúdo do TOPO do bloco — que é o primeiro a deixar a tela —
-             só começava a sair no fim da reversão, quando já não estava
-             visível. Aqui tudo se despede junto, para cima, em ~0,3s. */
-          buildOut: () => {
-            const tlOut = gsap.timeline({ defaults: { ease: 'power2.in' } })
-            tlOut.to([gEyebrow, gImages, gIntro, gTitle].filter(Boolean), { y: -16, autoAlpha: 0, duration: 0.3, overwrite: 'auto' }, 0)
-            return tlOut
-          },
-        }
-      )
+        }, { start: 'top 80%' })
       }
 
       if (cta) {
@@ -229,7 +188,7 @@ export function ExperiencePage() {
           scrollTrigger: {
             trigger: cta,
             start: 'top 90%',
-            end: 'top 10%',
+            end: 'bottom 15%',
             toggleActions: revealToggleActions(),
           },
         })

@@ -112,7 +112,7 @@ export function CulturesGrid() {
             scrollTrigger: {
               trigger: grid,
               start: 'top 65%',
-              end: 'top 10%',
+              end: 'bottom 15%',
               toggleActions: revealToggleActions(),
             },
           })
@@ -130,7 +130,7 @@ export function CulturesGrid() {
               scrollTrigger: {
                 trigger: card,
                 start: 'top 75%',
-                end: 'top 10%',
+                end: 'bottom 15%',
                 toggleActions: revealToggleActions(),
               }
             })
@@ -158,19 +158,7 @@ export function CulturesGrid() {
               tlHow.to(stepCards, { y: 0, opacity: 1, duration: 0.8, stagger: STAGGER.card }, 0.4)
             }
           return tlHow
-        }, {
-          start: 'top 80%',
-          /* Saída própria: tudo se despede junto, para cima, em ~0,3s. Com
-             `reverse()` a despedida era a chegada de trás para frente — e o
-             cabeçalho, que é o primeiro a deixar a tela, só começava a sair no
-             fim da reversão, quando já não estava visível. */
-          buildOut: () => {
-            const tlOut = gsap.timeline({ defaults: { ease: 'power2.in' } })
-            tlOut.to([sectionEyebrow, sectionTitle, sectionIntro, ...stepCards].filter(Boolean),
-                     { y: -16, autoAlpha: 0, duration: 0.3, overwrite: 'auto' }, 0)
-            return tlOut
-          },
-        })
+        }, { start: 'top 80%' })
       }
 
       if (cta) {
@@ -179,7 +167,7 @@ export function CulturesGrid() {
           scrollTrigger: {
             trigger: cta,
             start: 'top 90%',
-            end: 'top 10%',
+            end: 'bottom 15%',
             toggleActions: revealToggleActions(),
           },
         })

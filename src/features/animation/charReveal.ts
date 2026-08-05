@@ -88,16 +88,6 @@ export type CharReveal = {
    * Anima o desfoque do container e a cascata das letras em paralelo.
    */
   playIn: (tl: gsap.core.Timeline, position?: gsap.Position) => void
-  /**
-   * Encaixa a SAÍDA numa timeline — e ela não é a entrada de trás para frente.
-   *
-   * Reverter a entrada devolve o texto letra a letra, no mesmo caminho e na
-   * mesma duração: lento e, pior, idêntico ao movimento de chegada, o que
-   * confunde quem está indo embora com quem está chegando. Aqui a saída tem
-   * gramática própria — o bloco sobe inteiro e desvanece, rápido, na direção
-   * em que o conteúdo está saindo. Nada de cascata: sair é um gesto só.
-   */
-  playOut: (tl: gsap.core.Timeline, position?: gsap.Position) => void
   /** Desfaz o split e devolve o texto original ao DOM. */
   revert: () => void
 }
@@ -154,11 +144,6 @@ export function createCharReveal(
     playIn: (tl, position = 0) => {
       if (!chars.length) return
 
-      /* Desfaz o que a saída deixou no container (ela o desloca e apaga como um
-         bloco só). Sem isto, a segunda entrada começaria com o título já
-         deslocado para cima e invisível. */
-      tl.set(el, { y: 0, autoAlpha: 1 }, position)
-
       if (blur > 0) {
         tl.to(
           el,
@@ -193,24 +178,6 @@ export function createCharReveal(
              home, passa de setecentos, todos com estilo inline e todos entrando
              em cada recálculo de layout que a página fizer daí em diante. */
           onComplete: cleansUp ? revert : undefined,
-        },
-        position,
-      )
-    },
-    playOut: (tl, position = 0) => {
-      if (!chars.length) return
-      /* Um gesto só, no elemento inteiro: sobe um pouco e some, em metade do
-         tempo da entrada. Anima o CONTAINER, não os caracteres — a saída não
-         precisa de cascata, e assim são duas propriedades num alvo em vez de
-         duas em sessenta. */
-      tl.to(
-        el,
-        {
-          y: -18,
-          autoAlpha: 0,
-          duration: 0.32,
-          ease: 'power2.in',
-          overwrite: 'auto',
         },
         position,
       )
@@ -266,34 +233,9 @@ export function revealRunsOnce(): boolean {
 export function bindSectionReveal(
   trigger: Element,
   build: () => gsap.core.Timeline,
-  options: {
-    start?: string
-    end?: string
-    /**
-     * Elemento que define o FIM, quando ele não é o mesmo que dispara a
-     * entrada. Serve para blocos altos: a entrada pode ser medida pela seção
-     * inteira, mas a saída precisa ser medida pelo conteúdo que de fato está
-     * saindo — senão ela dispara quando esse conteúdo já sumiu há tempo.
-     */
-    endTrigger?: Element
-    /**
-     * Timeline de SAÍDA própria. Sem ela, sair é a entrada revertida — mesmo
-     * caminho, mesma duração, só de trás para frente. Com ela, a seção tem uma
-     * gramática de saída diferente da de chegada.
-     */
-    buildOut?: () => gsap.core.Timeline
-  } = {},
+  options: { start?: string; end?: string } = {},
 ): ScrollTrigger {
-  /* O fim é ancorado no TOPO do gatilho, não no fundo.
-     Com `bottom 15%` (o valor antigo, espalhado por trinta lugares) a saída só
-     disparava quando a seção já havia sumido quase inteira pelo topo — a
-     animação rodava fora do campo de visão e, na prática, não existia. Trocar
-     para uma fração do fundo não resolve: as seções são altas, e para o
-     conteúdo que fica no ALTO delas o fundo ainda demora muito a chegar.
-     `top 10%` mede o começo do gatilho: a despedida acontece quando aquele
-     conteúdo está saindo pela borda de cima — que é exatamente quando o
-     usuário ainda o vê. */
-  const { start = 'top 85%', end = 'top 10%', endTrigger, buildOut } = options
+  const { start = 'top 85%', end = 'bottom 15%' } = options
 
   /* A timeline é construída sob demanda, na primeira entrada, e reaproveitada
      daí em diante: `play()` e `reverse()` na mesma instância, sem remontar nada
@@ -304,34 +246,14 @@ export function bindSectionReveal(
     return tl
   }
 
-  let out: gsap.core.Timeline | null = null
-  const sair = () => {
-    if (!buildOut) {
-      tl?.reverse()
-      return
-    }
-    // A saída própria roda do começo a cada vez; a entrada volta a valer no
-    // próximo `play()`, que reescreve o estado inicial.
-    if (!out) out = buildOut().pause()
-    tl?.pause()
-    out.restart()
-  }
-
   return ScrollTrigger.create({
     trigger,
     start,
     end,
-    ...(endTrigger ? { endTrigger } : {}),
-    onEnter: () => {
-      out?.pause(0)
-      ensure().play()
-    },
-    onEnterBack: () => {
-      out?.pause(0)
-      ensure().play()
-    },
-    onLeave: sair,
-    onLeaveBack: sair,
+    onEnter: () => ensure().play(),
+    onEnterBack: () => ensure().play(),
+    onLeave: () => tl?.reverse(),
+    onLeaveBack: () => tl?.reverse(),
     /* Se o start já ficou para trás quando os triggers foram remedidos, a
        entrada não pode se perder: a seção está em cena, então ela roda agora. */
     onRefresh: (self) => {

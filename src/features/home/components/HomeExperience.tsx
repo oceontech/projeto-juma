@@ -46,7 +46,7 @@ export function HomeExperience() {
       scrollTrigger: {
         trigger: ref.current,
         start: 'top 75%',
-        end: 'top 10%',
+        end: 'bottom 15%',
         toggleActions: revealToggleActions(),
       },
       defaults: { ease: EASE.reveal }

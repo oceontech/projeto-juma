@@ -82,7 +82,7 @@ export function Problem() {
           bodyTrigger = ScrollTrigger.create({
             trigger: body,
             start: 'top 85%',
-            end: 'top 10%',
+            end: 'bottom 15%',
             onEnter: () => gsap.to(body, { y: 0, opacity: 1, ...(isDesktop && { filter: 'blur(0px)' }), duration: 0.9, ease: EASE.reveal, overwrite: 'auto' }),
             onLeave: () => gsap.to(body, { y: 28, opacity: 0, ...(isDesktop && { filter: 'blur(8px)' }), duration: 0.5, overwrite: 'auto' }),
             onEnterBack: () => gsap.to(body, { y: 0, opacity: 1, ...(isDesktop && { filter: 'blur(0px)' }), duration: 0.9, ease: EASE.reveal, overwrite: 'auto' }),

@@ -100,7 +100,7 @@ export function HomeCalculator() {
         scrollTrigger: {
           trigger: header,
           start: 'top 85%',
-          end: 'top 10%',
+          end: 'bottom 15%',
           toggleActions: revealToggleActions(),
         },
         defaults: { ease: EASE.reveal }
@@ -117,7 +117,7 @@ export function HomeCalculator() {
       scrollTrigger: {
         trigger: formPanel,
         start: 'top 80%',
-        end: 'top 10%',
+        end: 'bottom 15%',
         toggleActions: revealToggleActions(),
       },
       defaults: { ease: EASE.reveal }

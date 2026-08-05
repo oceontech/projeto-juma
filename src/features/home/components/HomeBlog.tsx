@@ -6,7 +6,7 @@ import { useRef } from 'react'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { gsap, useGSAP } from '@/features/animation/gsap'
-import { bindSectionReveal, createCharReveal, revealToggleActions } from '@/features/animation/charReveal'
+import { createCharReveal, revealToggleActions } from '@/features/animation/charReveal'
 import { DUR, EASE, blurPx } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
@@ -65,29 +65,18 @@ export function HomeBlog() {
       reveal?.hide()
       if (line) gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
 
-      bindSectionReveal(
-        header,
-        () => {
-          const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
-          if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub })
-          reveal?.playIn(tl, '-=0.4')
-          if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: DUR.sub }, '-=0.4')
-          return tl
-        },
-        {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: header,
           start: 'top 85%',
-          end: 'top 10%',
-          // Saída com gramática própria: sobe e desvanece de uma vez, mais
-          // rápido que a chegada, em vez de refazer a cascata ao contrário.
-          buildOut: () => {
-            const tl = gsap.timeline({ defaults: { ease: 'power2.in' } })
-            if (kicker) tl.to(kicker, { y: -12, opacity: 0, duration: 0.28 }, 0)
-            reveal?.playOut(tl, 0)
-            if (line) tl.to(line, { scaleX: 0, opacity: 0, duration: 0.24 }, 0)
-            return tl
-          },
+          end: 'bottom 15%',
+          toggleActions: revealToggleActions(),
         },
-      )
+        defaults: { ease: EASE.reveal }
+      })
+      if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub })
+      reveal?.playIn(tl, '-=0.4')
+      if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: DUR.sub }, '-=0.4')
     }
 
     gsap.to(cards, {
@@ -100,7 +89,7 @@ export function HomeBlog() {
       scrollTrigger: {
         trigger: ref.current,
         start: 'top 78%',
-        end: 'top 10%',
+        end: 'bottom 15%',
         toggleActions: revealToggleActions(),
       }
     })
