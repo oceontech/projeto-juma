@@ -2659,7 +2659,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         {/* z-10 — still do trio do catálogo (fim da transição) */}
         <Image
           ref={trioImgRef}
-          src="/produtos/aminosan-catalogo.png"
+          src="/produtos/aminosan-catalogo.webp"
           alt=""
           aria-hidden
           fill sizes="(max-width: 1024px) 100vw, 100vw"
