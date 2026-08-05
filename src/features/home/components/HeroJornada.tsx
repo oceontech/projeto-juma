@@ -44,6 +44,14 @@ export function HeroJornada() {
   const cooldownRef      = useRef(0)
   const animationFrameRef = useRef<number | null>(null)
   const directionRef     = useRef<'forward' | 'backward' | null>(null)
+  /* Espelha `directionRef` em estado React — as fases (`PhaseLayout`/
+     `PhaseGotaLayout`) precisam do sentido em que a jornada estava indo como
+     PROP, para forçar a direção do próprio reveal de título (ver comentário
+     em `stopPlayback`, mais abaixo, e o mesmo problema já resolvido para o
+     título de repouso do hero). Uma ref não serve: elas não disparam
+     re-render, e é o re-render que entrega o valor a tempo do efeito da fase
+     que está prestes a aparecer. */
+  const [journeyDir, setJourneyDir] = useState<1 | -1>(1)
   const lastTimeRef      = useRef<number>(0)
   const entranceRanRef   = useRef(false)
   /** Handle do reveal do título, para a jornada poder reexecutá-lo no retorno. */
@@ -481,6 +489,12 @@ export function HeroJornada() {
         const video = getVideo()
         if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
         playingRef.current  = false
+        /* Guarda o sentido do segmento que ACABOU de tocar antes de zerar a
+           ref: é esse sentido que decide a direção do reveal da fase que está
+           prestes a aparecer (`isPaused` vira true logo abaixo, e é isso que
+           liga `show` na fase certa). Sem isto, a única leitura possível já
+           teria voltado a `null`. */
+        setJourneyDir(directionRef.current === 'backward' ? -1 : 1)
         directionRef.current = null
         setIsPaused(true)
         cooldownRef.current = performance.now() + 300
@@ -721,6 +735,7 @@ export function HeroJornada() {
         autoRewindRef.current = false
         stepRef.current = targetsLength
         setJourneyPhase('done')
+        setJourneyDir(1)
         setCap(4)
         setIsPaused(true)
         updateLeavesParallax(end)
@@ -1051,6 +1066,7 @@ export function HeroJornada() {
         <div className="pointer-events-none absolute inset-0 z-40 w-full h-full">
           <PhaseLayout
             show={cap === 2 && isPaused}
+            dir={journeyDir}
             kicker={tj('q2Kicker')}
             title={tj('q2Title')}
             titleHi={tj('q2TitleHi')}
@@ -1064,6 +1080,7 @@ export function HeroJornada() {
           />
           <PhaseLayout
             show={cap === 3 && isPaused}
+            dir={journeyDir}
             align="right"
             yShift="md:-translate-y-[14vh]"
             mobileYShift="bottom-40"
@@ -1074,6 +1091,7 @@ export function HeroJornada() {
           />
           <PhaseGotaLayout
             show={cap === 4 && isPaused}
+            dir={journeyDir}
             kicker={tj('q4Kicker')}
             title={tj('q4Title')}
             titleHi={tj('q4TitleHi')}
@@ -1127,8 +1145,8 @@ type PhaseItem = { icon: PhaseIconName; lead: string; sub: string }
 /** Fases Q2/Q3: pílula + título bicolor + benefícios + selo; micro-stagger GSAP na entrada.
  *  `align` espelha o bloco (esquerda na fase 2, direita na fase 3 onde a planta fica à esquerda).
  *  Mobile: headline flutua no topo, conteúdo ancora no canto inferior direito, seal como marca d'água. */
-function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, align = 'left', yShift = '', mobileYShift = '' }: {
-  show: boolean; kicker: string; title: string; titleHi?: string; subtitle: string
+function PhaseLayout({ show, dir = 1, kicker, title, titleHi, subtitle, items, seal, align = 'left', yShift = '', mobileYShift = '' }: {
+  show: boolean; dir?: 1 | -1; kicker: string; title: string; titleHi?: string; subtitle: string
   items?: PhaseItem[]; seal?: string; align?: 'left' | 'right'; yShift?: string; mobileYShift?: string
 }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -1156,8 +1174,15 @@ function PhaseLayout({ show, kicker, title, titleHi, subtitle, items, seal, alig
       const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
       if (kickerEl) tl.fromTo(kickerEl, { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0)
       if (reveal) {
-        reveal.hide()
-        reveal.playIn(tl, 0.05)
+        /* `dir` vem da jornada, não do rastreador global de scroll: a página
+           fica travada enquanto ela toca, sem nenhum evento de `scroll` real
+           disparando — o mesmo motivo pelo qual o título de repouso do hero
+           precisou do parâmetro forçado. Sem isto só a primeira fase (que
+           calha de coincidir com a direção que o rastreador já tinha) saía
+           com a cascata certa; a segunda e a terceira, tocadas por aqui,
+           ficavam sempre na ordem de ida mesmo voltando. */
+        reveal.hide(dir)
+        reveal.playIn(tl, 0.05, dir)
       }
       if (lineEl)   tl.fromTo(lineEl, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: DUR.sub, transformOrigin: lineOrigin }, 0.2)
       if (subEl)    tl.fromTo(subEl, { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0.28)
@@ -1304,8 +1329,8 @@ function Seal({ text, className }: { text: string; className?: string }) {
 
 /** Fase Q4 (Gota): reveal cinematográfico ao final da animação do vídeo — sem interação de mouse.
  *  Pílula de kicker + título bicolor em máscara por palavra (cortina sobe) + linha + subtítulo. */
-function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitle, onRevealComplete }: {
-  show: boolean; kicker: string; title: string; titleHi?: string; titleHiOptions?: string[]; subtitle: string; onRevealComplete?: (done: boolean) => void
+function PhaseGotaLayout({ show, dir = 1, kicker, title, titleHi, titleHiOptions, subtitle, onRevealComplete }: {
+  show: boolean; dir?: 1 | -1; kicker: string; title: string; titleHi?: string; titleHiOptions?: string[]; subtitle: string; onRevealComplete?: (done: boolean) => void
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const titleRef     = useRef<HTMLHeadingElement>(null)
@@ -1339,8 +1364,9 @@ function PhaseGotaLayout({ show, kicker, title, titleHi, titleHiOptions, subtitl
       })
       if (kickerEl) tl.fromTo(kickerEl, { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0)
       if (reveal) {
-        reveal.hide()
-        reveal.playIn(tl, 0.12)
+        // `dir`: mesmo motivo do `PhaseLayout` — a jornada não gera scroll real.
+        reveal.hide(dir)
+        reveal.playIn(tl, 0.12, dir)
       }
       if (lineEl)   tl.fromTo(lineEl, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: DUR.sub }, 0.55)
       if (subEl)    tl.fromTo(subEl, { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: DUR.sub }, 0.7)

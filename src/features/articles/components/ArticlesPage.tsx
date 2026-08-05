@@ -90,6 +90,7 @@ export function ArticlesPage() {
   const filtersRef = useRef<HTMLDivElement>(null)
 
   const featuredRef = useRef<HTMLDivElement>(null)
+  const gridHeaderRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
   const ctaRef = useRef<HTMLDivElement>(null)
 
@@ -107,6 +108,7 @@ export function ArticlesPage() {
 
       const reveal = createCharReveal(title)
       const chars = reveal?.chars ?? []
+      let ghReveal: ReturnType<typeof createCharReveal> = null
 
       if (eyebrow) gsap.set(eyebrow, { y: 15, opacity: 0 })
       if (title) gsap.set(title, { opacity: 0 })
@@ -133,6 +135,33 @@ export function ArticlesPage() {
             toggleActions: revealToggleActions(),
           },
         })
+      }
+
+      if (gridHeaderRef.current) {
+        const el = gridHeaderRef.current
+        const ghEyebrow = el.querySelector<HTMLElement>('[data-gh-eyebrow]')
+        const ghTitle = el.querySelector<HTMLElement>('[data-gh-title]')
+        const ghIntro = el.querySelector<HTMLElement>('[data-gh-intro]')
+
+        ghReveal = createCharReveal(ghTitle)
+        if (ghEyebrow) gsap.set(ghEyebrow, { y: 15, opacity: 0 })
+        if (ghTitle) gsap.set(ghTitle, { opacity: 0 })
+        ghReveal?.hide()
+        if (ghIntro) gsap.set(ghIntro, { y: 16, opacity: 0 })
+
+        const ghTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 85%',
+            end: 'bottom top',
+            toggleActions: revealToggleActions(),
+          },
+          defaults: { ease: EASE.reveal },
+        })
+        if (ghEyebrow) ghTl.to(ghEyebrow, { y: 0, opacity: 1, duration: 0.5 })
+        if (ghTitle) ghTl.set(ghTitle, { opacity: 1 }, 0.1)
+        ghReveal?.playIn(ghTl, 0.1)
+        if (ghIntro) ghTl.to(ghIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.35)
       }
 
       if (grid) {
@@ -163,6 +192,7 @@ export function ArticlesPage() {
 
       return () => {
         reveal?.revert()
+        ghReveal?.revert()
       }
     },
     { scope: containerRef, dependencies: [reduced] }
@@ -244,18 +274,18 @@ export function ArticlesPage() {
 
       {/* Grade de Artigos */}
       <div className="mb-24">
-        <div className="flex flex-col gap-12 mb-16">
+        <div ref={gridHeaderRef} className="flex flex-col gap-12 mb-16">
           <div className="md:w-1/3 shrink-0">
-            <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
+            <span data-gh-eyebrow className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
               <span className="h-1.5 w-1.5 rounded-full bg-primary" />
               {t('allArticlesEyebrow')}
             </span>
           </div>
           <div className="md:w-2/3 max-w-[64rem]">
-            <h2 className="font-montserrat uppercase text-3xl md:text-4xl font-black text-foreground tracking-tight mb-4 leading-[0.95]">
+            <h2 data-gh-title className="font-montserrat uppercase text-3xl md:text-4xl font-black text-foreground tracking-tight mb-4 leading-[0.95]">
               {t('allArticlesTitle')}
             </h2>
-            <p className="text-lg text-foreground/70 leading-relaxed">
+            <p data-gh-intro className="text-lg text-foreground/70 leading-relaxed">
               {t('allArticlesIntro')}
             </p>
           </div>
