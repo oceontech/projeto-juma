@@ -6,7 +6,7 @@ import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal, revealToggleActions , bindSectionReveal } from '@/features/animation/charReveal'
-import { onPreloaderDone } from '@/features/animation/preloaderGate'
+import { onPageEntrance } from '@/features/animation/pageEntrance'
 import { DUR, EASE, blurPx } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
@@ -77,7 +77,7 @@ export function AboutPage() {
       if (title) tl.set(title, { opacity: 1 }, 0.1)
       reveal?.playIn(tl, 0.1)
       if (intro) tl.to(intro, { y: 0, opacity: 1, duration: DUR.sub }, 0.4)
-      const soltarAbertura = onPreloaderDone(() => tl.play())
+      const soltarAbertura = onPageEntrance(() => tl.play())
 
       if (history) {
         const histEyebrow = history.querySelector('[data-hist-eyebrow]')

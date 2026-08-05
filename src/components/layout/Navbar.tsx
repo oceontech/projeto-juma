@@ -93,14 +93,25 @@ export function Navbar() {
        `nav:hide` com `lock` suspende a heurística até o próximo `nav:show`. */
     let navLocked = false
 
-    const handleScrollDirection = (direction: 'up' | 'down', currentY: number) => {
+    /* Quem ESCONDE a navbar é o gesto do usuário — roda, dedo ou tecla. O
+       evento `scroll` só serve para MOSTRAR.
+       A página se movimenta sozinha em vários pontos: o snap do CTA final
+       assenta a cena quando o usuário para perto do fim, o catálogo de produtos
+       reposiciona a cada troca, âncoras do menu rolam com o Lenis. Todos esses
+       ajustes chegam como um `scroll` para baixo — e escondiam o menu que o
+       usuário tinha acabado de trazer de volta, sem ele ter pedido nada.
+       Fazendo o esconder depender do gesto, "descendo some, subindo aparece"
+       passa a responder a quem está no controle, e nunca ao movimento que a
+       própria página faz. */
+    const handleScrollDirection = (direction: 'up' | 'down', currentY: number, doUsuario = false) => {
       if (navLocked) return
-      const isLocked = document.documentElement.style.overflow === 'hidden'
-      if (direction === 'down' && (currentY > 50 || isLocked)) {
-        setHidden(true)
-      } else if (direction === 'up') {
+      if (direction === 'up') {
         setHidden(false)
+        return
       }
+      if (!doUsuario) return
+      const isLocked = document.documentElement.style.overflow === 'hidden'
+      if (currentY > 50 || isLocked) setHidden(true)
     }
 
     const onScroll = () => {
@@ -120,10 +131,24 @@ export function Navbar() {
 
     const onWheel = (e: WheelEvent) => {
       if (e.deltaY > 10) {
-        handleScrollDirection('down', window.scrollY)
+        handleScrollDirection('down', window.scrollY, true)
       } else if (e.deltaY < -10) {
-        handleScrollDirection('up', window.scrollY)
+        handleScrollDirection('up', window.scrollY, true)
       }
+    }
+
+    /* Teclado conta como gesto: sem isto, quem rola com PageDown/setas (ou
+       barra de espaço) nunca veria a navbar sair do caminho, já que o `scroll`
+       resultante sozinho não esconde mais nada. */
+    const TECLAS_DOWN = new Set(['PageDown', 'ArrowDown', 'End', ' ', 'Spacebar'])
+    const TECLAS_UP = new Set(['PageUp', 'ArrowUp', 'Home'])
+    const onKeyDown = (e: KeyboardEvent) => {
+      const alvo = e.target as HTMLElement | null
+      // Digitando num campo, as mesmas teclas movem o cursor, não a página.
+      if (alvo && /^(INPUT|TEXTAREA|SELECT)$/.test(alvo.tagName)) return
+      if (alvo?.isContentEditable) return
+      if (TECLAS_DOWN.has(e.key)) handleScrollDirection('down', window.scrollY, true)
+      else if (TECLAS_UP.has(e.key)) handleScrollDirection('up', window.scrollY, true)
     }
 
     let touchY = 0
@@ -135,9 +160,9 @@ export function Navbar() {
       const endY = e.changedTouches[0]?.clientY || touchY
       const diff = touchY - endY
       if (diff > 40) {
-        handleScrollDirection('down', window.scrollY)
+        handleScrollDirection('down', window.scrollY, true)
       } else if (diff < -40) {
-        handleScrollDirection('up', window.scrollY)
+        handleScrollDirection('up', window.scrollY, true)
       }
     }
 
@@ -145,10 +170,13 @@ export function Navbar() {
       if ((e as CustomEvent<{ lock?: boolean }>).detail?.lock) navLocked = true
       setHidden(true)
     }
-    // Qualquer `nav:show` destrava — serve de válvula de segurança se a seção
-    // que travou sair de cena sem avisar (troca de rota, breakpoint, etc.).
-    const handleNavShow = () => {
-      navLocked = false
+    /* `nav:show` destrava por padrão — válvula de segurança para quando a seção
+       que travou sai de cena sem avisar (troca de rota, breakpoint, etc.).
+       Com `lock: true` ele apenas MOSTRA e mantém a trava: é o que a seção
+       imersiva usa quando o usuário pede pra voltar (gesto pra cima) sem que a
+       heurística volte a reagir aos scrolls programáticos dela. */
+    const handleNavShow = (e: Event) => {
+      if (!(e as CustomEvent<{ lock?: boolean }>).detail?.lock) navLocked = false
       setHidden(false)
     }
     /* Devolve o controle à heurística SEM mexer no estado atual: é o que a
@@ -160,6 +188,7 @@ export function Navbar() {
 
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('wheel', onWheel, { passive: true })
+    window.addEventListener('keydown', onKeyDown)
     window.addEventListener('touchstart', onTouchStart, { passive: true })
     window.addEventListener('touchend', onTouchEnd, { passive: true })
     window.addEventListener('nav:hide', handleNavHide)
@@ -169,6 +198,7 @@ export function Navbar() {
     return () => {
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('wheel', onWheel)
+      window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('touchstart', onTouchStart)
       window.removeEventListener('touchend', onTouchEnd)
       window.removeEventListener('nav:hide', handleNavHide)
@@ -262,7 +292,7 @@ export function Navbar() {
                 <Link
                   id="nav-cta-btn"
                   href="/contato"
-                  className="whitespace-nowrap rounded-full btn-metallic-blue px-md py-[8px] font-bold uppercase tracking-wider text-sm items-center justify-center gap-1.5 hidden xl:inline-flex shrink-0 transition-transform duration-200 hover:scale-[1.03] active:scale-95"
+                  className="whitespace-nowrap rounded-full btn-metallic-blue px-md py-[8px] text-body-regular text-[10px] xl:text-[11px] uppercase tracking-wider items-center justify-center gap-1.5 hidden xl:inline-flex shrink-0 transition-transform duration-200 hover:scale-[1.03] active:scale-95"
                 >
                   <span>{tc('contactCta')}</span>
                   <ArrowRight className="h-3.5 w-3.5 shrink-0" />
@@ -339,7 +369,7 @@ export function Navbar() {
               <Link
                 href="/contato"
                 onClick={() => setOpen(false)}
-                className="rounded-full btn-metallic-blue px-md py-[10px] font-bold uppercase tracking-wider text-sm inline-flex items-center justify-center gap-1.5"
+                className="rounded-full btn-metallic-blue px-md py-[10px] text-body-regular text-[10px] uppercase tracking-wider inline-flex items-center justify-center gap-1.5"
               >
                 <span>{tc('contactCta')}</span>
                 <ArrowRight className="h-3.5 w-3.5 shrink-0" />

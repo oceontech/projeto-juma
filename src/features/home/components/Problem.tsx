@@ -64,6 +64,25 @@ export function Problem() {
           },
         })
 
+        /* O desfoque de entrada precisa SAIR, e aqui ele não saía.
+           `createCharReveal` aplica o `filter: blur()` no título inteiro dentro
+           do `hide()`, e quem o desfaz é o `playIn()` — que esta seção não
+           chama: a cascata é montada à mão, palavra a palavra, presa ao scrub.
+           Resultado no desktop: a frase ficava desfocada e ilegível do começo
+           ao fim (no celular passava batido porque `blurPx` desliga o filtro
+           em aparelho de toque). O foco entra agora no início do trajeto, bem
+           antes de a primeira palavra acender. */
+        tl.to(
+          title,
+          {
+            filter: 'blur(0px)',
+            duration: step * 1.2,
+            ease: 'power2.out',
+            onComplete: () => gsap.set(title, { clearProps: 'filter' }),
+          },
+          0,
+        )
+
         words.forEach((word, i) => {
           tl.to(word, { opacity: 1, duration: step * 0.9 }, i * step)
         })

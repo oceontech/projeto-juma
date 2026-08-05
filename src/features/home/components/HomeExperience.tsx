@@ -186,7 +186,7 @@ export function HomeExperience() {
             <Link
               data-cta
               href="/juma-experience"
-              className="text-body-regular inline-flex items-center gap-3 rounded-full px-10 py-3 text-sm font-bold uppercase tracking-wider transition-colors"
+              className="btn-type inline-flex items-center gap-3 rounded-full px-10 py-3 transition-colors"
               style={{ backgroundColor: '#F0E27A', color: '#1A1A1A' }}
             >
               {t('cta')}

@@ -324,6 +324,27 @@ html.lenis body { height: auto; }
   font-weight: 400;
 }
 
+/* Tipografia única de TODO botão/CTA do site.
+   A referência é o botão "Falar no WhatsApp" do formulário de contato
+   (`ContactPage`), e a família é parte da referência: aquele botão vive
+   dentro de um bloco `.text-subtitle`, então herda a fonte TÉCNICA
+   (Space Grotesk) — não a Montserrat do body.
+   Isso importa porque a Montserrat carregada em `[locale]/layout.tsx` tem os
+   pesos 300/400/500/600/900 e NÃO tem o 700: um `font-bold` solto num botão
+   caía num bold sintetizado pelo navegador a partir do 600, visivelmente mais
+   fraco e mais estreito que a referência. A Space Grotesk carrega o 700 real.
+   Por isso a família entra aqui junto do peso — as duas coisas andam juntas.
+   `white-space: nowrap` faz parte do contrato: botão do site não quebra linha. */
+@utility btn-type {
+  font-family: var(--font-tech);
+  font-weight: 700;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 /* Destaque: palavra ou linha em cor de marca dentro de um título Montserrat. */
 @utility text-highlight {
   font-family: var(--font-heading);
@@ -1007,10 +1028,15 @@ html.lenis body { height: auto; }
   background: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(6px);
   color: rgba(255, 255, 255, 0.75);
+  /* Mesma tipografia do `btn-type` (referência: CTA do formulário de contato).
+     A família precisa vir junto do peso: sem ela este botão cairia na
+     Montserrat do body, que não tem o 700 — ver o comentário do `btn-type`. */
+  font-family: var(--font-tech);
   font-size: 0.875rem;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  white-space: nowrap;
   cursor: pointer;
   transition: background 0.2s, color 0.2s, border-color 0.2s;
 }

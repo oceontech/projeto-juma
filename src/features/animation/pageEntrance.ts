@@ -1,25 +1,32 @@
 'use client'
 
 /**
- * Portão de abertura: segura a timeline de entrada até a tela do preloader sair.
+ * Portão de abertura de página: solta a timeline de entrada na hora certa e no
+ * sentido certo.
  *
- * ── O problema ─────────────────────────────────────────────────────────
- * O overlay branco do preloader fica de pé por até 2,5s (fontes, imagens,
- * `load`). Uma timeline que parte no mount roda inteira ATRÁS dele — quando o
- * overlay finalmente sai, a cascata já terminou (ou está nos últimos quadros) e
- * o usuário vê o título parado, ou entrando "pela metade".
+ * ── Duas coisas davam errado numa abertura solta no mount ───────────────
  *
- * O hero da home já resolvia isso por conta própria, ouvindo `preloader:done`.
- * As páginas internas não ouviam nada, e era exatamente ali que a entrada do
- * primeiro título sumia. Este módulo é aquela mesma lógica, num lugar só.
+ * 1. TEMPO. Onde existe tela de espera (hoje só a home, por causa do vídeo e do
+ *    pôster em tela cheia), uma timeline que parte no mount roda inteira ATRÁS
+ *    do overlay. Quando ele sai, a cascata já terminou e o usuário vê o título
+ *    parado — ou pegando o finalzinho.
+ *
+ * 2. SENTIDO. `createCharReveal` decide a ORDEM da cascata pelo rastreador
+ *    global de scroll: descendo, do primeiro caractere ao último; subindo, do
+ *    último ao primeiro (a seção reaparece pela borda de cima). Esse rastreador
+ *    é de módulo e sobrevive à navegação — se o usuário rolou pra cima antes de
+ *    clicar no link, a página seguinte ABRIA de trás para frente, sem nenhum
+ *    scroll para justificar. Abertura de página é sempre "para frente": é a
+ *    primeira coisa que se lê.
  *
  * ── Como usar ──────────────────────────────────────────────────────────
  *     const tl = gsap.timeline({ paused: true })
  *     ...
- *     return onPreloaderDone(() => tl.play())
- *
- * O retorno é a função de limpeza — devolva-a do `useGSAP`/`useEffect`.
+ *     const soltar = onPageEntrance(() => tl.play())
+ *     return () => soltar()
  */
+
+import { setScrollDirection } from './device'
 
 /** Sinal disparado pelo `Preloader` quando o overlay termina de sair. */
 export const PRELOADER_DONE_EVENT = 'preloader:done'
@@ -50,13 +57,13 @@ export function isPreloaderActive() {
 }
 
 /**
- * Executa `start` quando o preloader sair — ou já no próximo quadro, se ele não
- * estiver de pé (navegação em que o overlay já foi dispensado, rota sem
- * preloader, reduced-motion).
+ * Executa `start` quando a página estiver pronta para se apresentar: já no
+ * próximo quadro se não há tela de espera (o caso de todas as páginas internas),
+ * ou quando o overlay do preloader sair (home).
  *
  * @returns função de limpeza (remove listener e cancela o timeout de segurança).
  */
-export function onPreloaderDone(start: () => void): () => void {
+export function onPageEntrance(start: () => void): () => void {
   if (typeof window === 'undefined') return () => {}
 
   let done = false
@@ -69,10 +76,13 @@ export function onPreloaderDone(start: () => void): () => void {
     window.clearTimeout(timeout)
     if (frame !== undefined) window.cancelAnimationFrame(frame)
     window.removeEventListener(PRELOADER_DONE_EVENT, fire)
+    /* Zera o sentido herdado da página anterior: a abertura corre para frente,
+       e o primeiro scroll de verdade reescreve isto em seguida. */
+    setScrollDirection(1)
     start()
   }
 
-  /* Overlay já saiu: nada a esperar. Um quadro de folga para o layout assentar
+  /* Sem overlay: nada a esperar. Um quadro de folga para o layout assentar
      antes de o SplitText medir as linhas. */
   if (!isPreloaderActive()) {
     frame = window.requestAnimationFrame(fire)
@@ -83,9 +93,9 @@ export function onPreloaderDone(start: () => void): () => void {
   }
 
   window.addEventListener(PRELOADER_DONE_EVENT, fire, { once: true })
-  /* Rede de segurança: se o sinal se perder (rota sem preloader montado, evento
-     disparado entre o render e este efeito), a abertura não pode ficar parada
-     para sempre. O limite acompanha o teto do próprio preloader. */
+  /* Rede de segurança: se o sinal se perder (overlay desmontado entre o render
+     e este efeito), a abertura não pode ficar parada para sempre. O limite
+     acompanha o teto do próprio preloader. */
   timeout = window.setTimeout(fire, 2600)
 
   return () => {

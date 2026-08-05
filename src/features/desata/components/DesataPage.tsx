@@ -6,7 +6,7 @@ import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal, createTextReveal, revealToggleActions } from '@/features/animation/charReveal'
-import { onPreloaderDone } from '@/features/animation/preloaderGate'
+import { onPageEntrance } from '@/features/animation/pageEntrance'
 import { DUR, EASE, STAGGER, TRIGGER_START, blurPx } from '@/features/animation/motion'
 import { isLowPower } from '@/features/animation/device'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
@@ -68,13 +68,13 @@ export function DesataPage() {
       const espera = compacto ? 0.2 : 0.4
       const textoEm = compacto ? 0.28 : 0.42
 
-      /* Pausada: quem solta é o portão do preloader (ver `preloaderGate`).
+      /* Pausada: quem solta é o portão do preloader (ver `pageEntrance`).
          Sem ele, a abertura rodava inteira atrás do overlay branco. */
       const heroTl = gsap.timeline({ paused: true, delay: espera, defaults: { ease: EASE.reveal } })
       if (heroTitle) heroTl.set(heroTitle, { opacity: 1 }, 0.1)
       heroReveal?.playIn(heroTl, 0.1)
       if (heroDesc) heroTl.to(heroDesc, { y: 0, opacity: 1, duration: DUR.sub }, textoEm)
-      const soltarAbertura = onPreloaderDone(() => heroTl.play())
+      const soltarAbertura = onPageEntrance(() => heroTl.play())
 
       // Topics — mesmo mecanismo de reveal reversível usado no resto do site
       if (topicsRef.current) {

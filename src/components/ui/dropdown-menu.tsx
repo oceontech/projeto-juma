@@ -60,7 +60,7 @@ const DropdownMenu = ({ options, children, className, triggerClassName, menuClas
         onClick={toggleDropdown}
         aria-haspopup="menu"
         aria-expanded={isOpen}
-        className={`px-4 py-2 flex items-center justify-between gap-2 bg-background hover:bg-foreground/5 shadow-sm border border-foreground/20 rounded-xl backdrop-blur-sm transition-all font-bold uppercase tracking-wider text-sm ${triggerClassName || ''}`}
+        className={`px-4 py-2 flex items-center justify-between gap-2 bg-background hover:bg-foreground/5 shadow-sm border border-foreground/20 rounded-xl backdrop-blur-sm transition-all ${triggerClassName || ''}`}
       >
         {children ?? "Menu"}
         <span
@@ -102,9 +102,9 @@ const DropdownMenu = ({ options, children, className, triggerClassName, menuClas
                 opacity: isOpen ? 1 : 0,
                 transform: isOpen ? "translateX(0)" : "translateX(8px)",
               }}
-              className={`px-3 py-2.5 cursor-pointer text-sm font-bold uppercase tracking-wider rounded-lg w-full text-left flex items-center justify-between gap-x-2 transition-colors active:scale-[0.98] ${
+              className={`px-3 py-2.5 cursor-pointer text-sm rounded-lg w-full text-left flex items-center justify-between gap-x-2 transition-colors active:scale-[0.98] ${
                 option.active
-                  ? "bg-primary/10 text-primary"
+                  ? "bg-primary/10 text-primary font-medium"
                   : "text-foreground/80 hover:bg-foreground/5"
               }`}
             >

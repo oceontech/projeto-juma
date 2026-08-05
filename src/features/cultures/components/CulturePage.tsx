@@ -6,7 +6,7 @@ import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
 import { gsap, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal, revealToggleActions } from '@/features/animation/charReveal'
-import { onPreloaderDone } from '@/features/animation/preloaderGate'
+import { onPageEntrance } from '@/features/animation/pageEntrance'
 import { DUR, EASE } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Leaf, Target, AlertTriangle, ListChecks, Package, Rocket } from 'lucide-react'
@@ -360,11 +360,11 @@ export function CulturePage({ slug }: { slug: string }) {
       
       gsap.set(els, { y: 24, opacity: 0 })
       
-      /* Pausada: quem solta é o portão do preloader (ver `preloaderGate`). */
+      /* Pausada: quem solta é o portão do preloader (ver `pageEntrance`). */
       const tl = gsap.timeline({ paused: true, delay: 0.15 })
       tl.to(els, { y: 0, opacity: 1, duration: DUR.sub, stagger: 0.04, ease: EASE.reveal })
       reveal?.playIn(tl, '<0.1')
-      const soltarAbertura = onPreloaderDone(() => tl.play())
+      const soltarAbertura = onPageEntrance(() => tl.play())
 
       return () => {
         soltarAbertura()
@@ -457,7 +457,7 @@ export function CulturePage({ slug }: { slug: string }) {
                 href={WHATSAPP}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2.5 h-[54px] px-[28px] rounded-full font-bold uppercase tracking-wider text-sm text-white bg-[#004B26] hover:bg-[#003A1D] transition-all hover:-translate-y-px shadow-lg"
+                className="inline-flex items-center gap-2.5 h-[54px] px-[28px] rounded-full btn-type text-white bg-[#004B26] hover:bg-[#003A1D] transition-all hover:-translate-y-px shadow-lg"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="w-4 h-4">
                   <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
@@ -466,7 +466,7 @@ export function CulturePage({ slug }: { slug: string }) {
               </a>
               <a
                 href="#manejo"
-                className="inline-flex items-center gap-2.5 h-[54px] px-[28px] rounded-full font-bold uppercase tracking-wider text-sm text-white border border-white/30 hover:bg-white/10 transition-all hover:-translate-y-px"
+                className="inline-flex items-center gap-2.5 h-[54px] px-[28px] rounded-full btn-type text-white border border-white/30 hover:bg-white/10 transition-all hover:-translate-y-px"
               >
                 {tPage('seeManagementBtn')}
                 <ArrowIcon />

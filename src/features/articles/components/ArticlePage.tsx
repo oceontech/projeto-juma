@@ -7,7 +7,7 @@ import { Container } from '@/components/layout/Container'
 import { useTranslations, useLocale } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal , bindSectionReveal, revealToggleActions } from '@/features/animation/charReveal'
-import { onPreloaderDone } from '@/features/animation/preloaderGate'
+import { onPageEntrance } from '@/features/animation/pageEntrance'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { ARTICLES_DATA, Article } from '../data/articlesData'
@@ -129,7 +129,7 @@ export function ArticlePage({ slug }: ArticlePageProps) {
         reveal?.playIn(tl, '<0.1')
         if (subtitle) tl.to(subtitle, { y: 0, opacity: 1, duration: DUR.sub, ease: EASE.reveal }, '<0.2')
         if (author) tl.to(author, { y: 0, opacity: 1, duration: 0.5, ease: EASE.reveal }, '<0.15')
-        const soltarAbertura = onPreloaderDone(() => tl.play())
+        const soltarAbertura = onPageEntrance(() => tl.play())
 
         // 2. Content elements reveal on scroll
         if (contentRef.current) {
@@ -249,7 +249,7 @@ export function ArticlePage({ slug }: ArticlePageProps) {
               <Link
                 href="/materias"
                 data-back-btn
-                className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 bg-black/20 text-white font-bold text-sm uppercase tracking-wider backdrop-blur-md transition-all hover:bg-white/10 hover:border-white/40"
+                className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 bg-black/20 text-white btn-type backdrop-blur-md transition-all hover:bg-white/10 hover:border-white/40"
               >
                 <ArrowLeftIcon className="h-4 w-4" /> {t('backButton')}
               </Link>
@@ -431,7 +431,7 @@ export function ArticlePage({ slug }: ArticlePageProps) {
               href="https://wa.me/5519999648186"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 bg-white text-primary px-8 py-4 rounded-full font-bold uppercase tracking-wider text-sm transition-transform hover:scale-105 shadow-xl hover:shadow-yellow-400/20"
+              className="inline-flex items-center gap-3 bg-white text-primary px-8 py-4 rounded-full btn-type transition-transform hover:scale-105 shadow-xl hover:shadow-yellow-400/20"
             >
               {t('ctaButton')}
               <ArrowTopRightIcon className="h-4 w-4" />

@@ -7,7 +7,7 @@ import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal, revealToggleActions } from '@/features/animation/charReveal'
-import { onPreloaderDone } from '@/features/animation/preloaderGate'
+import { onPageEntrance } from '@/features/animation/pageEntrance'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { DropdownMenu } from '@/components/ui/dropdown-menu'
@@ -119,14 +119,14 @@ export function ArticlesPage() {
       if (filters) gsap.set(filters, { y: 20, opacity: 0 })
       if (cta) gsap.set(cta, { y: 24, opacity: 0 })
 
-      /* Pausada: quem solta é o portão do preloader (ver `preloaderGate`). */
+      /* Pausada: quem solta é o portão do preloader (ver `pageEntrance`). */
       const tl = gsap.timeline({ paused: true, defaults: { ease: EASE.reveal } })
       if (eyebrow) tl.to(eyebrow, { y: 0, opacity: 1, duration: 0.5 })
       if (title) tl.set(title, { opacity: 1 }, 0.1)
       reveal?.playIn(tl, 0.1)
       if (intro) tl.to(intro, { y: 0, opacity: 1, duration: DUR.sub }, 0.4)
       if (filters) tl.to(filters, { y: 0, opacity: 1, duration: DUR.sub }, 0.5)
-      const soltarAbertura = onPreloaderDone(() => tl.play())
+      const soltarAbertura = onPageEntrance(() => tl.play())
 
       if (featured) {
         gsap.set(featured, { y: 24, opacity: 0 })
@@ -352,7 +352,7 @@ export function ArticlesPage() {
 
         {filteredArticles.length > 0 && activeCategory === 'all' && (
           <div className="mt-12 flex justify-center">
-            <button className="inline-flex items-center gap-2 bg-transparent text-primary border border-primary px-8 py-4 rounded-full font-bold uppercase tracking-wider text-sm transition-colors hover:bg-primary/5">
+            <button className="inline-flex items-center gap-2 bg-transparent text-primary border border-primary px-8 py-4 rounded-full btn-type transition-colors hover:bg-primary/5">
               {t('loadMore')} <ArrowTopRightIcon className="h-4 w-4" />
             </button>
           </div>
@@ -377,7 +377,7 @@ export function ArticlesPage() {
         <div className="relative z-10 shrink-0">
           <Link
             href="/contato"
-            className="inline-flex items-center gap-3 bg-white text-primary px-8 py-4 rounded-full font-bold uppercase tracking-wider text-sm transition-transform hover:scale-105 shadow-xl hover:shadow-yellow-400/20"
+            className="inline-flex items-center gap-3 bg-white text-primary px-8 py-4 rounded-full btn-type transition-transform hover:scale-105 shadow-xl hover:shadow-yellow-400/20"
           >
             {t('ctaButton')}
             <ArrowTopRightIcon className="h-4 w-4" />

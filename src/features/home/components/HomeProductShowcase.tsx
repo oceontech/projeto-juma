@@ -1216,7 +1216,11 @@ export function HomeProductShowcase() {
               consumeWheelGesture()
               armScrollFloor()
               lockLenis()
-              window.dispatchEvent(new CustomEvent('nav:hide', { detail: { lock: true } }))
+              /* `onEnterBack` só acontece SUBINDO — e subindo a navbar
+                 reaparece, como em qualquer outro ponto do site. O `lock`
+                 continua de pé: dentro do catálogo quem comanda o menu é o
+                 passo do usuário (ver `stepCatalog`), não o scroll. */
+              window.dispatchEvent(new CustomEvent('nav:show', { detail: { lock: true } }))
               if (currentIndexRef.current !== COUNT - 1 && !isTransitioning && !stepLocked) {
                 applyIndex(COUNT - 1)
               }
@@ -1233,7 +1237,10 @@ export function HomeProductShowcase() {
                 if (!insidePin()) return
                 armScrollFloor()
                 lockLenis()
-                window.dispatchEvent(new CustomEvent('nav:hide', { detail: { lock: true } }))
+                // Mesma regra do resto do site: descendo esconde, subindo mostra.
+                window.dispatchEvent(
+                  new CustomEvent(self.direction === -1 ? 'nav:show' : 'nav:hide', { detail: { lock: true } }),
+                )
                 return
               }
               // Saiu do pin numa rolagem normal: devolve o scroll ao Lenis.
@@ -1710,6 +1717,17 @@ export function HomeProductShowcase() {
             if (leavingUp || handingOff || aminosanVideoHandoff || isTransitioning || stepLocked) return
             holdStepLock()
             hideHint()
+
+            /* A navbar segue a regra do site inteiro — some indo pra frente,
+               volta ao voltar —, e aqui quem informa o sentido é o PASSO, não o
+               scroll: dentro do pin cada troca de produto é um scroll
+               programático, e a heurística global lia esse vai-e-vem como
+               usuário subindo e descendo (era por isso que a seção travava a
+               navbar). O `lock` permanece de pé nos dois casos: só este gesto
+               manda no menu enquanto o catálogo estiver conduzindo. */
+            window.dispatchEvent(
+              new CustomEvent(dir > 0 ? 'nav:hide' : 'nav:show', { detail: { lock: true } }),
+            )
 
             const current = currentIndexRef.current
             if (dir > 0) {

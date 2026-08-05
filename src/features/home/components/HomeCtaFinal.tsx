@@ -156,9 +156,12 @@ export function HomeCtaFinal() {
       /* Sem backgroundColor aqui de propósito: o azul vive na camada
          [data-bg-reveal] (z-0) para o clip-path da entrada poder revelá-lo
          de trás do globo. Padding inferior grande reserva o espaço do globo. */
+      /* O teto do padding inferior acompanha a altura que o globo passa a ter
+         em tela larga (26,05vw — ver a caixa dele abaixo). Preso em 440px, num
+         monitor de 1920 o globo media 500px e subia por cima do parágrafo. */
       style={{
         paddingTop: 'clamp(80px, 7.5vw, 120px)',
-        paddingBottom: 'clamp(260px, 30vw, 440px)',
+        paddingBottom: 'clamp(260px, 30vw, 560px)',
       }}
     >
       {/* z-0 — fundo azul: plano isolado só pra poder animar o clip-path
@@ -197,10 +200,18 @@ export function HomeCtaFinal() {
           z-20 (à frente do fundo E do texto): no repouso não faz diferença,
           eles não se tocam mais — mas durante o trajeto é o que deixa o
           azul e o texto "nascendo atrás dele" de verdade. */}
+      {/* No desktop a altura é a PROPORÇÃO da arte (1920×500 → 26,05vw), não um
+          valor fixo. Com 420px cravados, qualquer tela mais larga que ~1610px
+          fazia o `object-cover` ampliar a imagem além da caixa; como a âncora é
+          `object-bottom`, o excedente saía todo pelo topo — e o que se via era
+          a atmosfera decepada numa linha reta. Casando altura e proporção, o
+          cover não tem o que cortar em nenhuma largura.
+          Abaixo de lg as alturas fixas continuam: em tela estreita o corte
+          lateral é justamente o que mantém a curva da Terra em escala. */}
       <div
         data-globe
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[220px] sm:h-[280px] md:h-[360px] lg:h-[420px]"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[220px] sm:h-[280px] md:h-[360px] lg:h-[26.05vw]"
       >
         <Image
           src="/cta-final/globo-terra.webp"

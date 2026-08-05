@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal } from '@/features/animation/charReveal'
+import { onPageEntrance } from '@/features/animation/pageEntrance'
 import { DUR, EASE, FADE_Y, STAGGER } from '@/features/animation/motion'
 import { useLenis } from '@/features/animation/SmoothScroll'
 import { Link } from '@/i18n/navigation'
@@ -203,17 +204,12 @@ export function HeroJornada() {
          Antes ela partia no mount e rodava inteira ATRÁS do overlay branco,
          que fica de pé por até 2,5s — quando ele saía, a timeline já havia
          terminado e o hero aparecia parado. Era por isso que a entrada
-         "não existia", sobretudo no celular, onde o preloader espera mais. */
-      let startHandle: number | undefined
-      const startEntrance = () => {
-        window.clearTimeout(startHandle)
-        window.removeEventListener('preloader:done', startEntrance)
-        tl.play()
-      }
-      window.addEventListener('preloader:done', startEntrance, { once: true })
-      // Rede de segurança: se o preloader não existir nesta rota (ou já tiver
-      // saído antes de este efeito montar), a abertura não pode ficar parada.
-      startHandle = window.setTimeout(startEntrance, 2600)
+         "não existia", sobretudo no celular, onde o preloader espera mais.
+
+         O portão é o mesmo das páginas internas: sem overlay de pé (voltar
+         para a home por um link já dispensado, por exemplo) ele solta no
+         quadro seguinte, em vez de esperar o antigo timeout de 2,6s. */
+      const soltarAbertura = onPageEntrance(() => tl.play())
 
       // 1. Navbar — pílula surge suavemente com blur-in (unificado para mobile e desktop)
       if (mainNav) {
@@ -271,8 +267,7 @@ export function HeroJornada() {
       tl.to(scrollInd, { opacity: 1, duration: 0.4, ease: EASE.micro }, 1.0)
 
       return () => {
-        window.clearTimeout(startHandle)
-        window.removeEventListener('preloader:done', startEntrance)
+        soltarAbertura()
         titleReveal?.revert()
         titleRevealRef.current = null
       }
@@ -1038,7 +1033,7 @@ export function HeroJornada() {
                 <div className={`flex flex-col gap-sm mx-auto w-full lg:mx-0 items-start lg:items-end text-left lg:text-right`}>
                   <Link
                     href="/contato"
-                    className="font-bold uppercase tracking-wider pointer-events-auto inline-flex items-center justify-center rounded-full bg-primary px-lg py-sm text-sm text-white transition-colors hover:bg-primary-light"
+                    className="btn-type pointer-events-auto inline-flex items-center justify-center rounded-full bg-primary px-lg py-sm text-white transition-colors hover:bg-primary-light"
                   >
                     {t('cta')}
                   </Link>
@@ -1130,7 +1125,7 @@ function Support({ t, className = '' }: { t: TFn; className?: string }) {
       <div className="mt-sm flex flex-col gap-sm items-start lg:items-end">
         <Link
           href="/contato"
-          className="text-body-regular pointer-events-auto inline-flex items-center justify-center rounded-full bg-primary px-lg py-sm text-sm text-white transition-colors hover:bg-primary-light"
+          className="btn-type pointer-events-auto inline-flex items-center justify-center rounded-full bg-primary px-lg py-sm text-white transition-colors hover:bg-primary-light"
         >
           {t('cta')}
         </Link>

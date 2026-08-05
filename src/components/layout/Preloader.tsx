@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { gsap, ScrollTrigger } from '@/features/animation/gsap'
-import { PRELOADER_DONE_EVENT, setPreloaderActive } from '@/features/animation/preloaderGate'
+import { PRELOADER_DONE_EVENT, setPreloaderActive } from '@/features/animation/pageEntrance'
+import { routing } from '@/i18n/routing'
 
 /**
  * Aquecedor e pré-carregador de recursos críticos.
@@ -61,13 +62,33 @@ const preloadCriticalAssets = async () => {
   await Promise.allSettled([...imgPromises, videoPromise])
 }
 
+/**
+ * A home é a única rota que precisa da tela de espera: ela abre com vídeo,
+ * pôster em tela cheia e uma jornada que só faz sentido depois de tudo
+ * decodificado. Nas outras páginas o conteúdo é texto e imagem comum — segurar
+ * a tela ali só atrasa a leitura e engole a animação de entrada, que passa a
+ * rodar atrás do overlay.
+ *
+ * O roteamento usa `localePrefix: 'always'`, então TODA rota carrega o idioma
+ * no caminho — inclusive pt-BR (`/pt-BR`, `/en`, `/es`). Home é o caminho que
+ * não tem nada depois disso.
+ */
+const ehHome = (pathname: string) => {
+  const semLocale = pathname.replace(
+    new RegExp(`^/(?:${routing.locales.join('|')})(?=/|$)`),
+    '',
+  )
+  return semLocale === '' || semLocale === '/'
+}
+
 export function Preloader() {
   const pathname = usePathname()
   const overlayRef = useRef<HTMLDivElement>(null)
-  const [visible, setVisible] = useState(true)
+  const naHome = ehHome(pathname)
+  const [visible, setVisible] = useState(naHome)
   const [cycle, setCycle] = useState(0)
   const prevPathnameRef = useRef(pathname)
-  const showingRef = useRef(true)
+  const showingRef = useRef(naHome)
 
   const showOverlay = () => {
     if (showingRef.current) return
@@ -77,15 +98,14 @@ export function Preloader() {
     setCycle((c) => c + 1)
   }
 
-  /* O overlay nasce visível (`useState(true)`), então a bandeira precisa nascer
-     de pé também — antes de qualquer página montar e perguntar se pode animar.
-     Sem isto, a primeira carga passava direto pelo portão e a abertura rodava
-     atrás da tela branca, que é justamente o que ele existe para evitar. */
+  /* O overlay nasce visível na home, então a bandeira precisa nascer de pé
+     junto — antes de o hero montar e perguntar se pode animar. Fora da home ela
+     nasce baixa: a abertura da página roda no mount, do começo. */
   if (typeof window !== 'undefined' && window.__jumaPreloaderActive === undefined) {
-    setPreloaderActive(true)
+    setPreloaderActive(naHome)
   }
 
-  // Início da navegação: clique num link interno
+  // Início da navegação: clique num link que leva DE VOLTA à home
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       if (e.defaultPrevented || e.button !== 0) return
@@ -104,17 +124,22 @@ export function Preloader() {
       }
       if (url.origin !== window.location.origin) return
       if (url.pathname === window.location.pathname && url.search === window.location.search) return
+      /* Só o caminho de volta para a home levanta o overlay. Indo para uma
+         página interna não há nada pesado a esperar, e a tela branca só
+         atrasaria a leitura. */
+      if (!ehHome(url.pathname)) return
       showOverlay()
     }
     document.addEventListener('click', onClick)
     return () => document.removeEventListener('click', onClick)
   }, [])
 
-  // Fim da navegação (fallback): troca de pathname
+  /* Fim da navegação (fallback do clique acima): troca de pathname. Mesma
+     regra — só a home levanta o overlay. */
   useEffect(() => {
     if (prevPathnameRef.current === pathname) return
     prevPathnameRef.current = pathname
-    showOverlay()
+    if (ehHome(pathname)) showOverlay()
   }, [pathname])
 
   // Gerenciamento de dispensa após carregamento completo

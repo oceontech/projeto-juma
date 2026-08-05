@@ -7,7 +7,7 @@ import { DropdownMenu } from '@/components/ui/dropdown-menu'
 import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal , bindSectionReveal, revealToggleActions } from '@/features/animation/charReveal'
-import { onPreloaderDone } from '@/features/animation/preloaderGate'
+import { onPageEntrance } from '@/features/animation/pageEntrance'
 import { DUR, EASE } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
@@ -108,13 +108,13 @@ export function ContactPage() {
       if (intro) gsap.set(intro, { y: 20, opacity: 0 })
       if (cta) gsap.set(cta, { y: 24, opacity: 0 })
 
-      /* Pausada: quem solta é o portão do preloader (ver `preloaderGate`). */
+      /* Pausada: quem solta é o portão do preloader (ver `pageEntrance`). */
       const tl = gsap.timeline({ paused: true, defaults: { ease: EASE.reveal } })
       if (eyebrow) tl.to(eyebrow, { y: 0, opacity: 1, duration: 0.5 })
       if (title) tl.set(title, { opacity: 1 }, 0.1)
       reveal?.playIn(tl, 0.1)
       if (intro) tl.to(intro, { y: 0, opacity: 1, duration: DUR.sub }, 0.4)
-      const soltarAbertura = onPreloaderDone(() => tl.play())
+      const soltarAbertura = onPageEntrance(() => tl.play())
 
       if (grid) {
         const formTitle = grid.querySelector<HTMLElement>('[data-form-title]')
@@ -275,7 +275,7 @@ export function ContactPage() {
               </p>
               <button
                 type="submit"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-white px-8 py-4 rounded-full font-bold uppercase tracking-wider text-sm transition-transform hover:scale-105 shadow-md"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-white px-8 py-4 rounded-full btn-type transition-transform hover:scale-105 shadow-md"
               >
                 {t('submitButton')}
                 <WhatsAppIcon className="h-4 w-4" />
@@ -384,7 +384,7 @@ export function ContactPage() {
           <Link
             href="https://wa.me/5519999648186"
             target="_blank"
-            className="inline-flex items-center gap-3 bg-white text-primary px-8 py-4 rounded-full font-bold uppercase tracking-wider text-sm transition-transform hover:scale-105 shadow-xl hover:shadow-yellow-400/20"
+            className="inline-flex items-center gap-3 bg-white text-primary px-8 py-4 rounded-full btn-type transition-transform hover:scale-105 shadow-xl hover:shadow-yellow-400/20"
           >
             {t('ctaButton')}
             <WhatsAppIcon className="h-4 w-4" />
