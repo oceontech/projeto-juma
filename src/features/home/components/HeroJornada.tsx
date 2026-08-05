@@ -6,7 +6,6 @@ import { useTranslations } from 'next-intl'
 
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal } from '@/features/animation/charReveal'
-import { setScrollDirection } from '@/features/animation/device'
 import { DUR, EASE, FADE_Y, STAGGER } from '@/features/animation/motion'
 import { useLenis } from '@/features/animation/SmoothScroll'
 import { Link } from '@/i18n/navigation'
@@ -328,14 +327,18 @@ export function HeroJornada() {
           const reveal = titleRevealRef.current
           if (reveal) {
             /* Este retorno ao repouso só acontece arrastando para CIMA — mas o
-               gesto nunca gera um evento de `scroll` real (ver
-               `setScrollDirection`), então sem isto o reveal lia o sentido
-               "descendo" de antes de entrar na jornada e a cascata invertida
-               nunca aparecia aqui. */
-            setScrollDirection(-1)
+               gesto nunca gera um evento de `scroll` real (a página fica
+               travada, tudo é conduzido por JS), então o rastreador global de
+               direção não tem como aprender sozinho que o sentido foi
+               "subindo". `forceDir` avisa isto direto para ESTA instância,
+               sem escrever no estado global: uma primeira versão fazia isso
+               (`setScrollDirection` global) e vazava — o valor forçado ficava
+               de pé até o próximo scroll real, e qualquer título de OUTRA
+               seção que animasse nesse meio-tempo herdava "subindo" mesmo
+               descendo a página pela primeira vez. */
             const tl = gsap.timeline()
-            reveal.hide()
-            reveal.playIn(tl, 0.05)
+            reveal.hide(-1)
+            reveal.playIn(tl, 0.05, -1)
           }
         }
       }

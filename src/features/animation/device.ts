@@ -93,17 +93,16 @@ export function scrollDirection(): 1 | -1 {
 }
 
 /**
- * Força o sentido rastreado, para interações que sabem a direção real mas não
- * produzem scroll nativo.
- *
- * O hero trava a página (`Lenis.stop()` + `preventDefault`) e conduz a
- * "jornada" só por JS enquanto o usuário gira a roda ou arrasta o dedo — não
- * há evento de `scroll` nenhum disparando durante isso, então o rastreador
- * global nunca vê o gesto. Quando a jornada volta ao repouso (usuário
- * arrastou para cima, saindo da fase final de volta ao início), o reveal do
- * título lia o último sentido real de scroll — quase sempre "descendo", de
- * antes do usuário ter entrado na jornada — e a cascata invertida nunca
- * aparecia ali, mesmo com o mecanismo já correto no resto do site.
+ * Sincroniza o sentido rastreado com uma fonte mais precisa que o listener
+ * de scroll genérico deste módulo — hoje, o `self.direction` que cada
+ * `ScrollTrigger` mede no próprio instante em que dispara (ver
+ * `bindSectionReveal`). Existe para MANTER o rastreador global correto, não
+ * para desviar dele: uma interação que sabe a direção real mas não pode
+ * confiar neste valor (a jornada do hero, que trava a página e não gera
+ * `scroll` nativo) deve passar a direção direto para a própria chamada de
+ * reveal (`forceDir` em `createCharReveal`), nunca escrever aqui — um valor
+ * forçado globalmente fica de pé até o próximo scroll real e vaza para
+ * qualquer outra seção que anime nesse meio-tempo.
  */
 export function setScrollDirection(dir: 1 | -1): void {
   direcao = dir

@@ -3,9 +3,9 @@
 /**
  * "NOSSA HISTÓRIA" — vem logo depois da seção branca de texto centralizado da
  * jornada (fase GOTA). Família fundadora (foto) à esquerda, conteúdo à direita.
- * Entrada e saída em timelines separadas (eases diferentes, doc do briefing):
- * power3.out ao entrar na viewport, power2.in ao sair — para dar continuidade
- * suave com a seção anterior e a próxima, sem corte seco.
+ * Entra uma vez, na primeira vez que a seção aparece; a inclinação 3D do card
+ * continua acompanhando o scroll (`enterTilt`/`leaveTilt`, mais abaixo), essa
+ * sim contínua, ligada à posição.
  */
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
@@ -115,13 +115,11 @@ export function OurStory() {
           ? gsap.utils.toArray<HTMLElement>('[data-vline]', labelsRootRef.current)
           : []
 
-      // Título em linhas mascaradas (mesma voz do Hero/PhaseLayout). O split
-      // roda uma única vez aqui fora das timelines — re-tригgar é só reanimar
-      // yPercent dos spans já existentes, sem custo de novo split a cada ciclo.
-      // `autoRevert: false`: as timelines de entrada e saída são pausadas e
-      // reiniciadas pelo ScrollTrigger, então os alvos precisam sobreviver ao
-      // fim da primeira passagem.
-      const reveal = createCharReveal(title, { autoRevert: false })
+      // Título em linhas mascaradas (mesma voz do Hero/PhaseLayout). Entra
+      // uma vez só (ver `trigger`, abaixo), então os spans do split podem ser
+      // desfeitos normalmente ao fim da cascata — não precisam sobreviver a
+      // uma reentrada que não existe mais.
+      const reveal = createCharReveal(title)
 
       // ── Estado inicial ──────────────────────────────────────────────
       gsap.set(photo, { y: 24, opacity: 0 })
@@ -148,32 +146,25 @@ export function OurStory() {
       entry.to(cta, { y: 0, opacity: 1, duration: 0.45 }, 0.45)
       entry.to(stats, { y: 0, opacity: 1, duration: 0.45, stagger: 0.06 }, 0.5)
 
-      // ── Saída: fade simples, sem y para evitar "giro" pesado ────────
-      const exit = gsap.timeline({ paused: true, defaults: { ease: 'power2.in' } })
-      exit.to([title, body, cta, stats], { opacity: 0, duration: 0.25 }, 0)
-      if (reveal) exit.set(reveal.chars, reveal.hidden, 0.25)
-      if (isDesktop) exit.to(labels, { opacity: 0, duration: 0.2 }, 0)
-      exit.to(photo, { y: -10, opacity: 0, duration: 0.3 }, 0.05)
-
+      /* Entra uma vez só, na primeira vez que a seção aparece — igual ao
+         resto do site. Sair e voltar a rolar por cima não reanima nada; a
+         versão anterior tinha uma timeline de saída própria (fade ao sair,
+         reentrada completa ao voltar), e isso lia como o título e a foto
+         "piscando" a cada pequena ida-e-volta de scroll. */
+      let played = false
       const trigger = ScrollTrigger.create({
         trigger: section,
         start: 'top 75%',
         end: 'bottom top',
         onEnter: () => {
-          exit.pause(0)
+          if (played) return
+          played = true
           entry.restart()
         },
         onEnterBack: () => {
-          exit.pause(0)
+          if (played) return
+          played = true
           entry.restart()
-        },
-        onLeave: () => {
-          entry.pause(0)
-          exit.restart()
-        },
-        onLeaveBack: () => {
-          entry.pause(0)
-          exit.restart()
         },
       })
 
@@ -221,7 +212,6 @@ export function OurStory() {
       return () => {
         trigger.kill()
         entry.kill()
-        exit.kill()
         tiltTriggers.forEach((t) => t.kill())
         reveal?.revert()
       }

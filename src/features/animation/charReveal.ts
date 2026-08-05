@@ -41,7 +41,7 @@
 
 import { gsap, ScrollTrigger, SplitText } from './gsap'
 import { DUR, EASE, STAGGER, blurPx } from './motion'
-import { scrollDirection } from './device'
+import { scrollDirection, setScrollDirection } from './device'
 
 export type CharRevealOptions = {
   /** Deslocamento horizontal inicial, em px (default: 20 — o valor do site). */
@@ -82,13 +82,21 @@ export type CharReveal = {
   stagger: number
   /** Estado escondido — para `gsap.set` ou para uma tween de saída. */
   hidden: gsap.TweenVars
-  /** Aplica o estado escondido agora (inclui o desfoque do container). */
-  hide: () => void
+  /**
+   * Aplica o estado escondido agora (inclui o desfoque do container).
+   * `forceDir` — ver o mesmo parâmetro em `playIn`.
+   */
+  hide: (forceDir?: 1 | -1) => void
   /**
    * Encaixa a entrada numa timeline, na posição dada.
    * Anima o desfoque do container e a cascata das letras em paralelo.
+   *
+   * `forceDir`: direção conhecida de antemão, para quando o rastreador
+   * global de scroll não é confiável no momento da chamada (interações sem
+   * `scroll` nativo, como a jornada do hero). Sem isto, lê o rastreador
+   * global.
    */
-  playIn: (tl: gsap.core.Timeline, position?: gsap.Position) => void
+  playIn: (tl: gsap.core.Timeline, position?: gsap.Position, forceDir?: 1 | -1) => void
   /** Desfaz o split e devolve o texto original ao DOM. */
   revert: () => void
 }
@@ -140,9 +148,9 @@ export function createCharReveal(
      `ScrollTrigger.direction` vale 1 descendo e -1 subindo. O sinal do
      deslocamento segue essa direção, então a mesma animação serve aos dois
      caminhos sem nenhuma timeline extra. */
-  const deslocamento = () => (scrollDirection() === -1 ? -distance : distance)
+  const deslocamento = (dir: 1 | -1) => (dir === -1 ? -distance : distance)
 
-  const hidden: gsap.TweenVars = { [axis]: deslocamento, [alphaKey]: 0 }
+  const hidden: gsap.TweenVars = { [axis]: () => deslocamento(scrollDirection()), [alphaKey]: 0 }
 
   /* Só limpa sozinho onde o reveal roda uma vez. No desktop a seção reanima ao
      voltar para a tela, e para isso os spans precisam continuar existindo. */
@@ -158,11 +166,16 @@ export function createCharReveal(
     chars,
     stagger,
     hidden,
-    hide: () => {
+    /**
+     * `forceDir` — quando quem chama já SABE o sentido real e o rastreador
+     * global não é confiável ali (ver `playIn`).
+     */
+    hide: (forceDir?: 1 | -1) => {
+      const dir = forceDir ?? scrollDirection()
       if (blurAtivo > 0) gsap.set(el, { filter: `blur(${blurAtivo}px)` })
-      if (chars.length) gsap.set(chars, { [axis]: deslocamento(), [alphaKey]: 0 })
+      if (chars.length) gsap.set(chars, { [axis]: deslocamento(dir), [alphaKey]: 0 })
     },
-    playIn: (tl, position = 0) => {
+    playIn: (tl, position = 0, forceDir?: 1 | -1) => {
       if (!chars.length) return
 
       /* O estado inicial COMPLETO é reescrito a cada execução — posição e
@@ -172,8 +185,19 @@ export function createCharReveal(
          animava de 1 para 1: nenhuma entrada perceptível. Era o que deixava o
          título parado enquanto o resto da seção animava. E o deslocamento
          precisa ser recalculado porque depende do sentido no momento da
-         entrada — um `fromTo` fixo congelaria a direção da primeira vez. */
-      tl.set(chars, { [axis]: deslocamento(), [alphaKey]: 0 }, position)
+         entrada — um `fromTo` fixo congelaria a direção da primeira vez.
+
+         `forceDir` serve a interações como a jornada do hero: o retorno ao
+         repouso é conduzido só por JS (o gesto trava a página, sem
+         `scroll` nativo nenhum), então o rastreador global nunca aprende o
+         sentido daquele momento — e pior, ESCREVER nele para compensar
+         vazava para o resto do site: o valor forçado ficava de pé até o
+         próximo scroll real, e qualquer outro título que animasse nesse
+         meio-tempo herdava o sentido errado, sem relação nenhuma com para
+         onde ELE estava indo. Um parâmetro local resolve sem tocar em nada
+         fora desta instância. */
+      const dirNoSet = forceDir ?? scrollDirection()
+      tl.set(chars, { [axis]: deslocamento(dirNoSet), [alphaKey]: 0 }, position)
 
       if (blurAtivo > 0) {
         /* O filtro precisa sumir do elemento nos DOIS sentidos.
@@ -211,7 +235,8 @@ export function createCharReveal(
          texto que surge primeiro, então a cascata começa pela última palavra. */
       tl.call(
         () => {
-          const alvos = scrollDirection() === -1 ? [...chars].reverse() : chars
+          const dirNaCascata = forceDir ?? scrollDirection()
+          const alvos = dirNaCascata === -1 ? [...chars].reverse() : chars
           gsap.to(alvos, {
             [axis]: 0,
             [alphaKey]: 1,
@@ -238,53 +263,55 @@ export function createCharReveal(
 }
 
 /**
- * `toggleActions` padrão dos reveals de conteúdo: ENTRADA nos dois sentidos,
- * sem animação de saída.
+ * `toggleActions` padrão dos reveals de conteúdo: entra UMA vez, na primeira
+ * vez que a seção aparece, e nunca mais é tocado.
  *
- * `restart none restart none` — reinicia ao entrar descendo, reinicia de novo
- * ao reentrar subindo, e nunca reverte. Quem volta a uma seção já vista a vê
- * entrar outra vez; quem passa por ela não vê o conteúdo se desmanchar.
+ * `play none none none` — só o `onEnter` faz algo, e só na primeira vez que
+ * dispara: `play()` numa timeline já concluída não tem para onde avançar, é
+ * um no-op. Sair da seção e voltar (nos dois sentidos) não reanima nada; o
+ * conteúdo fica exatamente como o usuário deixou.
  *
- * `restart`, e não `play`: uma timeline que já chegou ao fim ignora `play()` —
- * ela não tem para onde avançar. Era essa a razão de a entrada não reexecutar
- * na volta, e por tabela de a cascata invertida nunca aparecer: a animação
- * simplesmente não rodava de novo. `restart` volta ao tempo zero, o que
- * reaplica o estado escondido e cria a cascata outra vez, já lendo o sentido
- * atual do scroll.
+ * Existiu uma versão anterior deste helper que reiniciava a entrada toda vez
+ * que a seção voltava a aparecer (`restart none restart none`) — pedida para
+ * dar uma cascata invertida ao subir a página. Na prática lia como a home
+ * inteira reanimando toda hora: title da seção de matérias, de depoimentos,
+ * cards de cultura, todos re-entrando a cada pequena ida-e-volta de scroll.
+ * O pedido real era mais simples — texto anima uma vez, na primeira visita à
+ * seção, do jeito que o site já fazia antes desse experimento.
  *
- * A saída animada faz sentido onde o movimento CONTA alguma coisa: a jornada
- * do hero, os atos da Aminosan, a troca de produto no catálogo — ali uma fase
- * precisa sair para a próxima entrar, e esse trecho tem mecânica própria. Para
- * um título ou uma foto de seção, o desmanche não informa nada: só apaga
- * conteúdo que o usuário ainda pode estar lendo.
+ * A saída/reentrada animada continua fazendo sentido onde o movimento CONTA
+ * alguma coisa e tem mecânica própria fora deste helper: a jornada do hero,
+ * os atos da Aminosan, a troca de produto no catálogo.
  */
 export function revealToggleActions(): string {
-  return 'restart none restart none'
+  return 'play none none none'
 }
 
 /**
- * `false` desde que a entrada e a saída passaram a valer em todo aparelho:
- * reverter o split ao fim da cascata apagaria justamente os alvos que a
- * animação de saída precisa encontrar.
+ * `true`: a entrada roda uma vez só, então os spans do `SplitText` podem ser
+ * desfeitos assim que a cascata termina — o texto volta a ser um nó só, sem
+ * ficar com dezenas de elementos extras no DOM pelo resto da visita.
+ *
+ * Quem precisa dos spans sobrevivendo (uma entrada/saída própria, reiniciada
+ * pelo próprio componente — hero, Aminosan, Nossa História, CTA final) já
+ * passa `autoRevert: false` para `createCharReveal` e ignora este valor.
  */
 export function revealRunsOnce(): boolean {
-  return false
+  return true
 }
 
 /**
- * Liga uma timeline pausada ao scroll, com entrada E saída nos dois sentidos.
+ * Liga uma timeline de entrada ao scroll, tocada uma única vez.
  *
- * É o equivalente de `toggleActions: 'play reverse play reverse'` para os casos
- * em que a timeline não pode ser criada junto com o ScrollTrigger — tipicamente
- * porque ela é montada dentro de um callback, medindo o layout já assentado.
+ * Existe porque `ScrollTrigger.create({ once: true, onEnter })` sozinho tem um
+ * furo: se o `start` for recalculado ANTES de disparar (os trechos pinados da
+ * home inserem espaçadores de milhares de pixels ao montar), a única chance
+ * do `once` pode ser gasta sem o callback rodar — a seção fica presa
+ * invisível. O `onRefresh` abaixo cobre esse caso.
  *
- * Substitui o padrão `ScrollTrigger.create({ once: true, onEnter })`, que
- * espalhamos por dez seções: `once` roda a animação uma única vez na vida da
- * página, então quem descia, voltava e descia de novo encontrava a seção parada
- * no estado final, sem entrada e sem saída. Pior, quando o start era
- * recalculado (os trechos pinados da home inserem espaçadores de milhares de
- * pixels ao montar) a única chance podia ser gasta sem que o callback rodasse —
- * e a seção ficava presa invisível.
+ * "Uma vez" vale para os dois sentidos: se o primeiro encontro do usuário com
+ * a seção for subindo a página (voltou por um link do menu, por exemplo), é
+ * `onEnterBack` que dispara, na mesma regra de "só a primeira vez".
  */
 export function bindSectionReveal(
   trigger: Element,
@@ -300,82 +327,31 @@ export function bindSectionReveal(
     start?: string
     end?: string
     /**
-     * Timeline de SAÍDA própria, curta e simultânea.
-     *
-     * Sem ela a despedida é `reverse()` — a chegada de trás para frente. Isso
-     * tem um efeito colateral que não se percebe no código e salta aos olhos na
-     * tela: quem entrou por ÚLTIMO sai PRIMEIRO. Como as timelines começam pelo
-     * topo do bloco, o conteúdo de cima — justamente o primeiro a deixar a
-     * tela — só começava a se despedir no fim da reversão, quando já não estava
-     * visível.
-     */
-    buildOut?: () => gsap.core.Timeline
-    /**
      * Elemento que define o FIM, quando ele não é o que dispara a entrada.
      *
      * Serve para blocos altos: a entrada pode ser medida pela seção inteira,
-     * mas a saída precisa ser medida pelo conteúdo que de fato está indo
-     * embora. Numa seção com três cards empilhados, o fundo só cruza o gatilho
-     * muito depois de o cabeçalho ter deixado a tela.
+     * mas o `end` só importa aqui para a reentrada ao subir (`onEnterBack`) —
+     * numa seção com três cards empilhados, medir pelo bloco inteiro faz a
+     * reentrada demorar bem mais que medir só pelo cabeçalho.
      */
     endTrigger?: Element
   } = {},
 ): ScrollTrigger {
-  /* `end` marca dois pontos ao mesmo tempo: onde o conteúdo se despede
-     descendo (`onLeave`) e onde ele reaparece subindo (`onEnterBack`) — ver
-     comentário do parâmetro `build`, acima.
+  const { start = 'top 85%', end = 'bottom top', endTrigger } = options
 
-     `bottom 45%` — o valor herdado — cai no MEIO da tela. Descendo, isso
-     reseta o bloco (mesmo sem `buildOut`, o `pause(0)` abaixo é um corte seco)
-     enquanto boa parte dele ainda está visível: para qualquer elemento mais
-     baixo que ~55% da viewport (a maioria dos títulos, parágrafos e cards), a
-     saída "no meio da seção" apontada como bug era exatamente isto. Subindo, o
-     mesmo ponto mid-tela faz o efeito oposto: a reentrada (`onEnterBack`) só
-     dispara depois de quase metade do bloco já ter voltado à vista — a tela
-     fica vazia por mais tempo do que devia antes de qualquer coisa animar.
-
-     `bottom top`: o bloco só é dado como "foi embora" quando sua base cruza o
-     topo da viewport — genuinely fora de tela, ninguém vê o corte — e pelo
-     mesmo motivo a reentrada dispara no primeiro pixel que volta a aparecer,
-     o mais cedo possível. Um único valor resolve os dois lados. */
-  const { start = 'top 85%', end = 'bottom top', buildOut, endTrigger } = options
-
-  /* A timeline é construída sob demanda, na primeira entrada, e reaproveitada
-     daí em diante: `play()` e `reverse()` na mesma instância, sem remontar nada
-     a cada passagem de scroll. */
-  let tl: gsap.core.Timeline | null = null
-  let construidaPara: 1 | -1 | null = null
-  /* A direção vem do PRÓPRIO trigger (`self.direction`), não do rastreador
-     global: dentro do callback ele é a fonte exata do sentido daquele cruzamento,
-     enquanto o rastreador global pode estar um evento atrasado — o bastante para
-     a timeline ser montada na ordem errada justamente na virada. */
-  const ensure = (dirForcada?: 1 | -1) => {
-    const dir = dirForcada ?? scrollDirection()
-    /* Reconstrói quando o sentido muda: a ordem dos blocos faz parte da
-       timeline, e uma timeline já montada carrega a ordem do sentido anterior. */
-    if (!tl || construidaPara !== dir) {
-      tl?.kill()
-      tl = build(dir).pause()
-      construidaPara = dir
-    }
-    return tl
-  }
-
-  let out: gsap.core.Timeline | null = null
-  const sair = () => {
-    if (!buildOut) {
-      /* Sem saída animada: a timeline volta ao tempo zero de uma vez.
-         Isso acontece com a seção JÁ fora da tela, então ninguém vê o corte —
-         e é o que deixa a próxima entrada pronta para animar de novo. Reverter
-         aqui seria desmanchar na frente do usuário um conteúdo que ele ainda
-         pode estar lendo; a saída animada fica para onde o movimento conta
-         alguma coisa, e nesses lugares vem por `buildOut`. */
-      tl?.pause(0)
-      return
-    }
-    const saida = out ?? (out = buildOut().pause())
-    tl?.pause()
-    saida.restart()
+  let played = false
+  const play = (dir: 1 | -1) => {
+    if (played) return
+    played = true
+    /* Sincroniza o rastreador global com o sentido que o PRÓPRIO trigger
+       acabou de medir — mais confiável que o listener de scroll genérico
+       neste instante exato. `build(dir)` já recebe o valor certo por
+       parâmetro, mas o reveal de caractere de dentro dele (título/parágrafo)
+       lê o rastreador global por conta própria; sem este sync os dois podem
+       discordar — bloco entrando na ordem certa com a cascata de dentro na
+       ordem errada. */
+    setScrollDirection(dir)
+    build(dir).play()
   }
 
   return ScrollTrigger.create({
@@ -383,31 +359,13 @@ export function bindSectionReveal(
     start,
     end,
     ...(endTrigger ? { endTrigger } : {}),
-    // A entrada sempre no ritmo próprio; só a saída é acelerada.
-    /* `invalidate()` descarta os valores já resolvidos para que as funções
-       (deslocamento e ordem da cascata) sejam recalculadas — é o que permite a
-       entrada mudar de sentido conforme o usuário sobe ou desce. */
-    onEnter: (self) => {
-      out?.pause(0)
-      ensure(self.direction === -1 ? -1 : 1).timeScale(1).invalidate().restart()
-    },
-    onEnterBack: (self) => {
-      out?.pause(0)
-      // Reentrada vindo de baixo: o sentido é sempre "subindo".
-      ensure(self.direction === 1 ? 1 : -1).timeScale(1).invalidate().restart()
-    },
-    /* A saída corre mais rápido que a entrada.
-       Revertendo no mesmo ritmo, a despedida dura o tempo inteiro da chegada —
-       e como `reverse()` desfaz na ordem inversa, o conteúdo do TOPO do bloco
-       (justamente o primeiro a deixar a tela) só começava a sair no fim da
-       reversão, quando já não estava visível. Em velocidade dobrada a
-       despedida cabe na janela em que o bloco ainda aparece. */
-    onLeave: sair,
-    onLeaveBack: sair,
+    onEnter: (self) => play(self.direction === -1 ? -1 : 1),
+    // Reentrada vindo de baixo: o sentido é sempre "subindo".
+    onEnterBack: (self) => play(self.direction === 1 ? 1 : -1),
     /* Se o start já ficou para trás quando os triggers foram remedidos, a
        entrada não pode se perder: a seção está em cena, então ela roda agora. */
     onRefresh: (self) => {
-      if (self.isActive) ensure().play()
+      if (!played && self.isActive) play(1)
     },
   })
 }

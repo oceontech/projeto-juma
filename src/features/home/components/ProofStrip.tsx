@@ -52,92 +52,92 @@ export function ProofStrip() {
         if (metaEl)  gsap.set(metaEl,  { y: 14, opacity: 0 })
 
         const delay = i * 0.12
+        /* Conta uma vez só — recontar do zero toda vez que o card volta a
+           aparecer (o desenho anterior, com `onLeave`/`onEnterBack` fazendo
+           fade e o `onEnter` reiniciando o count-up) lia como o número
+           "piscando" a cada pequena ida-e-volta de scroll. */
+        let played = false
+        const countUp = () => {
+          if (played) return
+          played = true
+
+          gsap.to(card, { opacity: 1, duration: 0.01 })
+
+          // Número emerge de baixo via clip-path (range e count-up) com blur
+          if (numWrap) {
+            gsap.to(numWrap, {
+              clipPath: 'inset(0 0 0% 0)',
+              filter: blurPx(0),
+              duration: 1.0,
+              delay,
+              ease: EASE.reveal,
+            })
+          }
+
+          // Count-up: animação para números reais ou intervalos (range)
+          if (numEl) {
+            const isRange = numEl.dataset.isRange === 'true'
+            const decs   = parseInt(numEl.dataset.decimals || '0')
+            const pfx    = numEl.dataset.prefix || ''
+
+            if (isRange) {
+              const targets = (numEl.dataset.rangeTargets || '0,0').split(',').map(Number)
+              const obj = { v1: 0, v2: 0 }
+              gsap.to(obj, {
+                v1: targets[0],
+                v2: targets[1],
+                duration: 2.2,
+                delay: delay + 0.15,
+                ease: 'power2.out',
+                onUpdate: () => {
+                  numEl.textContent = `+${Math.round(obj.v1)} a +${Math.round(obj.v2)}`
+                },
+              })
+            } else {
+              const target = parseFloat(numEl.dataset.count || '0')
+              const obj    = { v: 0 }
+              gsap.to(obj, {
+                v: target,
+                duration: 2.2,
+                delay: delay + 0.15,
+                ease: 'power2.out',
+                onUpdate: () => {
+                  const n = obj.v
+                  numEl.textContent = pfx + (decs > 0
+                    ? n.toFixed(decs).replace('.', ',')
+                    : Math.round(n).toString())
+                },
+              })
+            }
+          }
+
+          // Linha acento: cresce da esquerda
+          if (barEl) {
+            gsap.to(barEl, {
+              scaleX: 1,
+              duration: 1.1,
+              delay: delay + 0.35,
+              ease: 'power3.out',
+            })
+          }
+
+          // Label + fonte: sobem suavemente
+          if (metaEl) {
+            gsap.to(metaEl, {
+              y: 0, opacity: 1,
+              duration: 0.6,
+              delay: delay + 0.45,
+              ease: EASE.reveal,
+            })
+          }
+        }
 
         ScrollTrigger.create({
           trigger: card,
           start: 'top 85%',
           end: 'bottom top',
-          toggleActions: 'play reverse play reverse',
-          onEnter: () => {
-            gsap.to(card, { opacity: 1, duration: 0.01 })
-
-            // Número emerge de baixo via clip-path (range e count-up) com blur
-            if (numWrap) {
-              gsap.to(numWrap, {
-                clipPath: 'inset(0 0 0% 0)',
-                filter: blurPx(0),
-                duration: 1.0,
-                delay,
-                ease: EASE.reveal,
-              })
-            }
-
-            // Count-up: animação para números reais ou intervalos (range)
-            if (numEl) {
-              const isRange = numEl.dataset.isRange === 'true'
-              const decs   = parseInt(numEl.dataset.decimals || '0')
-              const pfx    = numEl.dataset.prefix || ''
-
-              if (isRange) {
-                const targets = (numEl.dataset.rangeTargets || '0,0').split(',').map(Number)
-                const obj = { v1: 0, v2: 0 }
-                gsap.to(obj, {
-                  v1: targets[0],
-                  v2: targets[1],
-                  duration: 2.2,
-                  delay: delay + 0.15,
-                  ease: 'power2.out',
-                  onUpdate: () => {
-                    numEl.textContent = `+${Math.round(obj.v1)} a +${Math.round(obj.v2)}`
-                  },
-                })
-              } else {
-                const target = parseFloat(numEl.dataset.count || '0')
-                const obj    = { v: 0 }
-                gsap.to(obj, {
-                  v: target,
-                  duration: 2.2,
-                  delay: delay + 0.15,
-                  ease: 'power2.out',
-                  onUpdate: () => {
-                    const n = obj.v
-                    numEl.textContent = pfx + (decs > 0
-                      ? n.toFixed(decs).replace('.', ',')
-                      : Math.round(n).toString())
-                  },
-                })
-              }
-            }
-
-            // Linha acento: cresce da esquerda
-            if (barEl) {
-              gsap.to(barEl, {
-                scaleX: 1,
-                duration: 1.1,
-                delay: delay + 0.35,
-                ease: 'power3.out',
-              })
-            }
-
-            // Label + fonte: sobem suavemente
-            if (metaEl) {
-              gsap.to(metaEl, {
-                y: 0, opacity: 1,
-                duration: 0.6,
-                delay: delay + 0.45,
-                ease: EASE.reveal,
-              })
-            }
-          },
-          onLeave: () => {
-            gsap.to(card, { opacity: 0, duration: 0.5 })
-          },
-          onEnterBack: () => {
-            gsap.to(card, { opacity: 1, duration: 0.5 })
-          },
-          onLeaveBack: () => {
-            gsap.to(card, { opacity: 0, duration: 0.5 })
-          }
+          onEnter: countUp,
+          onEnterBack: countUp,
         })
       })
 
@@ -149,11 +149,9 @@ export function ProofStrip() {
           trigger: kicker,
           start: 'top 85%',
           end: 'bottom top',
-          toggleActions: 'play reverse play reverse',
+          once: true,
           onEnter: () => gsap.to(kicker, { y: 0, opacity: 1, duration: 0.8, ease: EASE.reveal }),
-          onLeave: () => gsap.to(kicker, { y: -14, opacity: 0, duration: 0.5 }),
           onEnterBack: () => gsap.to(kicker, { y: 0, opacity: 1, duration: 0.8, ease: EASE.reveal }),
-          onLeaveBack: () => gsap.to(kicker, { y: 14, opacity: 0, duration: 0.5 }),
         })
       }
     },
