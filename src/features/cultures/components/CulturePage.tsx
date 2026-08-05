@@ -6,6 +6,7 @@ import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
 import { gsap, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal, revealToggleActions } from '@/features/animation/charReveal'
+import { onPreloaderDone } from '@/features/animation/preloaderGate'
 import { DUR, EASE } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Leaf, Target, AlertTriangle, ListChecks, Package, Rocket } from 'lucide-react'
@@ -359,11 +360,16 @@ export function CulturePage({ slug }: { slug: string }) {
       
       gsap.set(els, { y: 24, opacity: 0 })
       
-      const tl = gsap.timeline({ delay: 0.15 })
+      /* Pausada: quem solta é o portão do preloader (ver `preloaderGate`). */
+      const tl = gsap.timeline({ paused: true, delay: 0.15 })
       tl.to(els, { y: 0, opacity: 1, duration: DUR.sub, stagger: 0.04, ease: EASE.reveal })
       reveal?.playIn(tl, '<0.1')
+      const soltarAbertura = onPreloaderDone(() => tl.play())
 
-      return () => reveal?.revert()
+      return () => {
+        soltarAbertura()
+        reveal?.revert()
+      }
     },
     { scope: heroRef, dependencies: [reduced] },
   )
@@ -480,7 +486,7 @@ export function CulturePage({ slug }: { slug: string }) {
               <SectionHead
                 icon={Target}
                 eyebrow={tPage('actuaEyebrow')}
-                title={tPage.rich('actuaTitle', { name: culture.name.toLowerCase(), br: () => <br /> })}
+                title={tPage.rich('actuaTitle', { highlight: (chunks) => <span className="text-highlight text-[#004B26] inline-block">{chunks}</span>, name: culture.name.toLowerCase(), br: () => <br /> })}
                 lede={tPage('actuaLede')}
               />
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-3.5 list-none p-0 m-0">
@@ -508,7 +514,7 @@ export function CulturePage({ slug }: { slug: string }) {
               <SectionHead
                 icon={AlertTriangle}
                 eyebrow={tPage('challengesEyebrow')}
-                title={tPage.rich('challengesTitle', { name: culture.name.toLowerCase(), br: () => <br /> })}
+                title={tPage.rich('challengesTitle', { highlight: (chunks) => <span className="text-highlight text-[#004B26] inline-block">{chunks}</span>, name: culture.name.toLowerCase(), br: () => <br /> })}
                 lede={tPage('challengesLede')}
               />
               <div
@@ -542,7 +548,7 @@ export function CulturePage({ slug }: { slug: string }) {
               <SectionHead
                 icon={ListChecks}
                 eyebrow={tPage('managementEyebrow')}
-                title={tPage.rich('managementTitle', { name: culture.name.toLowerCase(), br: () => <br /> })}
+                title={tPage.rich('managementTitle', { highlight: (chunks) => <span className="text-highlight text-[#004B26] inline-block">{chunks}</span>, name: culture.name.toLowerCase(), br: () => <br /> })}
                 lede={tPage('managementLede')}
               />
               <div
@@ -591,7 +597,7 @@ export function CulturePage({ slug }: { slug: string }) {
               <SectionHead
                 icon={Package}
                 eyebrow={tPage('recommendedEyebrow')}
-                title={tPage.rich('recommendedTitle', { name: culture.name.toLowerCase(), br: () => <br /> })}
+                title={tPage.rich('recommendedTitle', { highlight: (chunks) => <span className="text-highlight text-[#004B26] inline-block">{chunks}</span>, name: culture.name.toLowerCase(), br: () => <br /> })}
                 lede={tPage('recommendedLede')}
               />
               <div

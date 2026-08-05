@@ -7,6 +7,7 @@ import { DropdownMenu } from '@/components/ui/dropdown-menu'
 import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal , bindSectionReveal, revealToggleActions } from '@/features/animation/charReveal'
+import { onPreloaderDone } from '@/features/animation/preloaderGate'
 import { DUR, EASE } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
@@ -98,6 +99,8 @@ export function ContactPage() {
 
       const reveal = createCharReveal(title)
       const chars = reveal?.chars ?? []
+      let formReveal: ReturnType<typeof createCharReveal> = null
+      let ctaReveal: ReturnType<typeof createCharReveal> = null
 
       if (eyebrow) gsap.set(eyebrow, { y: 15, opacity: 0 })
       if (title) gsap.set(title, { opacity: 0 })
@@ -105,13 +108,20 @@ export function ContactPage() {
       if (intro) gsap.set(intro, { y: 20, opacity: 0 })
       if (cta) gsap.set(cta, { y: 24, opacity: 0 })
 
-      const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
+      /* Pausada: quem solta é o portão do preloader (ver `preloaderGate`). */
+      const tl = gsap.timeline({ paused: true, defaults: { ease: EASE.reveal } })
       if (eyebrow) tl.to(eyebrow, { y: 0, opacity: 1, duration: 0.5 })
       if (title) tl.set(title, { opacity: 1 }, 0.1)
       reveal?.playIn(tl, 0.1)
       if (intro) tl.to(intro, { y: 0, opacity: 1, duration: DUR.sub }, 0.4)
+      const soltarAbertura = onPreloaderDone(() => tl.play())
 
       if (grid) {
+        const formTitle = grid.querySelector<HTMLElement>('[data-form-title]')
+        formReveal = createCharReveal(formTitle)
+        if (formTitle) gsap.set(formTitle, { opacity: 0 })
+        formReveal?.hide()
+
         const form = grid.querySelector('[data-contact-form]')
         const sidebar = grid.querySelector('[data-contact-sidebar]')
         const sidebarItems = sidebar ? gsap.utils.toArray<HTMLElement>('[data-contact-item]', sidebar) : []
@@ -122,6 +132,8 @@ export function ContactPage() {
         bindSectionReveal(grid, () => {
             const tlGrid = gsap.timeline({ defaults: { ease: EASE.reveal } })
             if (form) tlGrid.to(form, { y: 0, opacity: 1, duration: 0.8 })
+            if (formTitle) tlGrid.set(formTitle, { opacity: 1 }, 0.15)
+            formReveal?.playIn(tlGrid, 0.15)
             if (sidebarItems.length) {
               tlGrid.to(sidebarItems, { y: 0, opacity: 1, duration: 0.7, stagger: 0.1 }, 0.2)
             }
@@ -130,19 +142,28 @@ export function ContactPage() {
       }
 
       if (cta) {
-        gsap.to(cta, {
-          y: 0, opacity: 1, duration: 0.7, ease: EASE.reveal,
+        const ctaTitle = cta.querySelector<HTMLElement>('[data-cta-title]')
+        ctaReveal = createCharReveal(ctaTitle)
+        ctaReveal?.hide()
+
+        const ctaTl = gsap.timeline({
           scrollTrigger: {
             trigger: cta,
             start: 'top 90%',
             end: 'bottom top',
             toggleActions: revealToggleActions(),
           },
+          defaults: { ease: EASE.reveal },
         })
+        ctaTl.to(cta, { y: 0, opacity: 1, duration: 0.7 })
+        ctaReveal?.playIn(ctaTl, 0.15)
       }
 
       return () => {
+        soltarAbertura()
         reveal?.revert()
+        formReveal?.revert()
+        ctaReveal?.revert()
       }
     },
     { scope: containerRef, dependencies: [reduced] }
@@ -177,8 +198,8 @@ export function ContactPage() {
             onSubmit={handleWhatsAppSubmit}
             className="bg-white rounded-3xl p-8 md:p-12 border border-foreground/10 shadow-sm"
           >
-            <h2 className="text-subtitle text-2xl font-black text-foreground mb-8">
-              {t('formTitle')}
+            <h2 data-form-title className="font-montserrat uppercase text-2xl md:text-3xl font-black text-foreground tracking-tight mb-8 leading-[0.95]">
+              {t('formTitleStart')} <em className="text-highlight text-primary">{t('formTitleHighlight')}</em>
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -351,9 +372,9 @@ export function ContactPage() {
             <span className="h-1.5 w-1.5 rounded-full bg-white" />
             {t('ctaEyebrow')}
           </span>
-          <h2 className="font-montserrat text-2xl md:text-4xl font-black uppercase text-white tracking-tight mb-4 leading-[0.95]">
+          <h2 data-cta-title className="font-montserrat text-2xl md:text-4xl font-black uppercase text-white tracking-tight mb-4 leading-[0.95]">
             {t('ctaTitleLine1')}<br />
-            <em className="text-highlight text-white">{t('ctaTitleHighlight')}</em> {t('ctaTitleLine2')}
+            <em className="text-highlight text-[#F0E27A]">{t('ctaTitleHighlight')} {t('ctaTitleLine2')}</em>
           </h2>
           <p className="text-white text-lg">
             {t('ctaBody')}

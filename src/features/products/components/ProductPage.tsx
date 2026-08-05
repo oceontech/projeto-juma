@@ -7,6 +7,7 @@ import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
 import { gsap, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal, revealToggleActions } from '@/features/animation/charReveal'
+import { onPreloaderDone } from '@/features/animation/preloaderGate'
 import { DUR, EASE } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { AlertTriangle, Star, Activity, BarChart3, Clock, LayoutGrid, Camera, Package, Rocket, ListChecks } from 'lucide-react'
@@ -442,11 +443,16 @@ export function ProductPage({ slug }: { slug: string }) {
       
       gsap.set(els, { y: 24, opacity: 0 })
       
-      const tl = gsap.timeline({ delay: 0.15 })
+      /* Pausada: quem solta é o portão do preloader (ver `preloaderGate`). */
+      const tl = gsap.timeline({ paused: true, delay: 0.15 })
       tl.to(els, { y: 0, opacity: 1, duration: DUR.sub, stagger: 0.04, ease: EASE.reveal })
       reveal?.playIn(tl, '<0.1')
+      const soltarAbertura = onPreloaderDone(() => tl.play())
 
-      return () => reveal?.revert()
+      return () => {
+        soltarAbertura()
+        reveal?.revert()
+      }
     },
     { scope: heroRef, dependencies: [reduced] },
   )
@@ -666,7 +672,7 @@ export function ProductPage({ slug }: { slug: string }) {
               <SectionHead
                 icon={AlertTriangle}
                 eyebrow={tPage("problemsEyebrow")}
-                title={tPage.rich("problemsTitle", { name: nameShort, br: () => <br /> })}
+                title={tPage.rich("problemsTitle", { highlight: (chunks) => <span className="text-highlight text-[#004B26] inline-block">{chunks}</span>, name: nameShort, br: () => <br /> })}
                 lede={tPage("problemsLede")}
               />
               <div
@@ -701,7 +707,7 @@ export function ProductPage({ slug }: { slug: string }) {
               <SectionHead
                 icon={Star}
                 eyebrow={tPage("benefitsEyebrow")}
-                title={tPage.rich("benefitsTitle", { name: nameShort, br: () => <br /> })}
+                title={tPage.rich("benefitsTitle", { highlight: (chunks) => <span className="text-highlight text-[#004B26] inline-block">{chunks}</span>, name: nameShort, br: () => <br /> })}
                 lede={tPage("benefitsLede")}
               />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -732,7 +738,7 @@ export function ProductPage({ slug }: { slug: string }) {
               <SectionHead
                 icon={ListChecks}
                 eyebrow={tPage('applicationsEyebrow')}
-                title={tPage.rich('applicationsTitle', { name: nameShort, br: () => <br /> })}
+                title={tPage.rich('applicationsTitle', { highlight: (chunks) => <span className="text-highlight text-[#004B26] inline-block">{chunks}</span>, name: nameShort, br: () => <br /> })}
                 lede={tPage('applicationsLede')}
               />
 
@@ -809,7 +815,7 @@ export function ProductPage({ slug }: { slug: string }) {
               <SectionHead
                 icon={Activity}
                 eyebrow={tPage("resultsEyebrow")}
-                title={tPage.rich("resultsTitle", { name: nameShort, br: () => <br /> })}
+                title={tPage.rich("resultsTitle", { highlight: (chunks) => <span className="text-highlight text-[#004B26] inline-block">{chunks}</span>, name: nameShort, br: () => <br /> })}
                 lede={tPage("resultsLede")}
               />
               <div
@@ -855,7 +861,7 @@ export function ProductPage({ slug }: { slug: string }) {
             <SectionHead
               icon={Camera}
               eyebrow={tPage("galleryEyebrow")}
-              title={tPage.rich("galleryTitle", { name: nameShort, br: () => <br /> })}
+              title={tPage.rich("galleryTitle", { highlight: (chunks) => <span className="text-highlight text-[#004B26] inline-block">{chunks}</span>, name: nameShort, br: () => <br /> })}
               lede={tPage("galleryLede")}
             />
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-[60vh] md:h-[80vh]">
@@ -882,7 +888,7 @@ export function ProductPage({ slug }: { slug: string }) {
               <SectionHead
                 icon={Package}
                 eyebrow={tPage("relatedEyebrow")}
-                title={tPage.rich("relatedTitle", { name: nameShort, br: () => <br /> })}
+                title={tPage.rich("relatedTitle", { highlight: (chunks) => <span className="text-highlight text-[#004B26] inline-block">{chunks}</span>, name: nameShort, br: () => <br /> })}
               />
               <div
                 className="grid gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"

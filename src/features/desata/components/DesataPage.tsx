@@ -6,6 +6,7 @@ import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal, createTextReveal, revealToggleActions } from '@/features/animation/charReveal'
+import { onPreloaderDone } from '@/features/animation/preloaderGate'
 import { DUR, EASE, STAGGER, TRIGGER_START, blurPx } from '@/features/animation/motion'
 import { isLowPower } from '@/features/animation/device'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
@@ -25,11 +26,11 @@ export function DesataPage() {
   const videoRef = useRef<HTMLDivElement>(null)
 
   const topics = [
-    { title: t('topics.t1Title'), desc: t('topics.t1Desc'), image: '/desata/maquina-hidratacao-agricola.webp', reverse: false },
-    { title: t('topics.t2Title'), desc: t('topics.t2Desc'), image: '/desata/maquina-aplicacao-agricola.webp', reverse: true },
+    { titleStart: t('topics.t1TitleStart'), titleHighlight: t('topics.t1TitleHighlight'), alt: t('topics.t1Title'), desc: t('topics.t1Desc'), image: '/desata/maquina-hidratacao-agricola.webp', reverse: false },
+    { titleStart: t('topics.t2TitleStart'), titleHighlight: t('topics.t2TitleHighlight'), alt: t('topics.t2Title'), desc: t('topics.t2Desc'), image: '/desata/maquina-aplicacao-agricola.webp', reverse: true },
     // Reaproveita a foto do hero: o placeholder do Unsplash saiu (era um
     // stock photo genérico, sem foto real da Juma disponível para este bloco).
-    { title: t('topics.t3Title'), desc: t('topics.t3Desc'), image: '/desata/maquina-agricola.webp', reverse: false },
+    { titleStart: t('topics.t3TitleStart'), titleHighlight: t('topics.t3TitleHighlight'), alt: t('topics.t3Title'), desc: t('topics.t3Desc'), image: '/desata/maquina-agricola.webp', reverse: false },
   ]
 
   const team = [
@@ -67,10 +68,13 @@ export function DesataPage() {
       const espera = compacto ? 0.2 : 0.4
       const textoEm = compacto ? 0.28 : 0.42
 
-      const heroTl = gsap.timeline({ delay: espera, defaults: { ease: EASE.reveal } })
+      /* Pausada: quem solta é o portão do preloader (ver `preloaderGate`).
+         Sem ele, a abertura rodava inteira atrás do overlay branco. */
+      const heroTl = gsap.timeline({ paused: true, delay: espera, defaults: { ease: EASE.reveal } })
       if (heroTitle) heroTl.set(heroTitle, { opacity: 1 }, 0.1)
       heroReveal?.playIn(heroTl, 0.1)
       if (heroDesc) heroTl.to(heroDesc, { y: 0, opacity: 1, duration: DUR.sub }, textoEm)
+      const soltarAbertura = onPreloaderDone(() => heroTl.play())
 
       // Topics — mesmo mecanismo de reveal reversível usado no resto do site
       if (topicsRef.current) {
@@ -173,6 +177,8 @@ export function DesataPage() {
           })
         }
       }
+
+      return () => soltarAbertura()
     },
     { scope: containerRef },
   )
@@ -217,11 +223,11 @@ export function DesataPage() {
                 className={`flex flex-col items-center gap-8 md:gap-16 ${topic.reverse ? 'md:flex-row-reverse' : 'md:flex-row'}`}
               >
                 <div data-topic-media className="w-full md:w-1/2 relative h-[300px] md:h-[450px] rounded-3xl overflow-hidden shadow-xl">
-                  <Image src={topic.image} alt={topic.title} fill className="object-cover" />
+                  <Image src={topic.image} alt={topic.alt} fill className="object-cover" />
                 </div>
                 <div className="w-full md:w-1/2 flex flex-col gap-6">
-                  <h3 data-topic-title className="text-3xl md:text-4xl font-black uppercase tracking-wide font-montserrat text-[#004C26]">
-                    {topic.title}
+                  <h3 data-topic-title className="text-3xl md:text-4xl font-black uppercase tracking-wide font-montserrat text-foreground">
+                    {topic.titleStart} <em className="text-highlight text-primary">{topic.titleHighlight}</em>
                   </h3>
                   <p data-topic-desc className="text-lg md:text-xl text-[#5A5A57] leading-relaxed">
                     {topic.desc}
@@ -237,8 +243,8 @@ export function DesataPage() {
       <section ref={teamRef} className="w-full bg-muted/30 py-24">
         <Container>
           <div className="flex flex-col items-center text-center mb-16">
-            <h2 data-team-title className="text-3xl md:text-4xl font-black uppercase font-montserrat tracking-tight mb-4">
-              {t('team.title')}
+            <h2 data-team-title className="text-3xl md:text-4xl font-black uppercase font-montserrat tracking-tight text-foreground mb-4">
+              {t('team.titleStart')} <em className="text-highlight text-primary">{t('team.titleHighlight')}</em>
             </h2>
           </div>
 
@@ -262,8 +268,8 @@ export function DesataPage() {
       <section ref={partnersRef} className="w-full py-12">
         <Container>
           <div className="flex flex-col items-center text-center mb-12">
-            <h2 data-partners-title className="text-2xl md:text-3xl font-black uppercase font-montserrat tracking-tight">
-              {t('partners.title')}
+            <h2 data-partners-title className="text-2xl md:text-3xl font-black uppercase font-montserrat tracking-tight text-foreground">
+              {t('partners.titleStart')} <em className="text-highlight text-primary">{t('partners.titleHighlight')}</em>
             </h2>
           </div>
 

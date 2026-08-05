@@ -6,6 +6,7 @@ import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal, revealToggleActions , bindSectionReveal } from '@/features/animation/charReveal'
+import { onPreloaderDone } from '@/features/animation/preloaderGate'
 import { DUR, EASE, blurPx } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
@@ -68,11 +69,15 @@ export function AboutPage() {
       reveal?.hide()
       if (intro) gsap.set(intro, { y: 20, opacity: 0 })
 
-      const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
+      /* Pausada de propósito: quem solta é o portão do preloader, logo abaixo.
+         Rodando no mount, a abertura acontecia inteira atrás do overlay branco
+         e o título aparecia já montado. */
+      const tl = gsap.timeline({ paused: true, defaults: { ease: EASE.reveal } })
       if (eyebrow) tl.to(eyebrow, { y: 0, opacity: 1, duration: 0.5 })
       if (title) tl.set(title, { opacity: 1 }, 0.1)
       reveal?.playIn(tl, 0.1)
       if (intro) tl.to(intro, { y: 0, opacity: 1, duration: DUR.sub }, 0.4)
+      const soltarAbertura = onPreloaderDone(() => tl.play())
 
       if (history) {
         const histEyebrow = history.querySelector('[data-hist-eyebrow]')
@@ -203,14 +208,18 @@ export function AboutPage() {
         const vIntro = values.querySelector('[data-val-intro]')
         const vCards = gsap.utils.toArray<HTMLElement>('[data-val-card]', values)
 
+        const vReveal = createCharReveal(vTitle as HTMLElement | null)
+
         if (vEyebrow) gsap.set(vEyebrow, { y: 15, opacity: 0 })
-        if (vTitle) gsap.set(vTitle, { y: 20, opacity: 0 })
+        if (vTitle) gsap.set(vTitle, { opacity: 0 })
+        vReveal?.hide()
         if (vIntro) gsap.set(vIntro, { y: 20, opacity: 0 })
         bindSectionReveal(values, () => {
             const tlVal = gsap.timeline({ defaults: { ease: EASE.reveal } })
             if (vEyebrow) tlVal.to(vEyebrow, { y: 0, opacity: 1, duration: 0.5 })
-            if (vTitle) tlVal.to(vTitle, { y: 0, opacity: 1, duration: 0.7 }, 0.1)
-            if (vIntro) tlVal.to(vIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.25)
+            if (vTitle) tlVal.set(vTitle, { opacity: 1 }, 0.1)
+            vReveal?.playIn(tlVal, 0.1)
+            if (vIntro) tlVal.to(vIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.4)
           return tlVal
         }, { start: 'top 80%' })
 
@@ -290,16 +299,20 @@ export function AboutPage() {
         const galIntro = gallery.querySelector('[data-gal-intro]')
         const galImgs = gsap.utils.toArray<HTMLElement>('[data-gal-img]', gallery)
 
+        const galReveal = createCharReveal(galTitle as HTMLElement | null)
+
         if (galEyebrow) gsap.set(galEyebrow, { y: 15, opacity: 0 })
-        if (galTitle) gsap.set(galTitle, { y: 20, opacity: 0 })
+        if (galTitle) gsap.set(galTitle, { opacity: 0 })
+        galReveal?.hide()
         if (galIntro) gsap.set(galIntro, { y: 20, opacity: 0 })
         if (galImgs.length) gsap.set(galImgs, { y: 30, opacity: 0 })
 
         bindSectionReveal(gallery, () => {
             const tlGal = gsap.timeline({ defaults: { ease: EASE.reveal } })
             if (galEyebrow) tlGal.to(galEyebrow, { y: 0, opacity: 1, duration: 0.5 })
-            if (galTitle) tlGal.to(galTitle, { y: 0, opacity: 1, duration: 0.7 }, 0.1)
-            if (galIntro) tlGal.to(galIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.25)
+            if (galTitle) tlGal.set(galTitle, { opacity: 1 }, 0.1)
+            galReveal?.playIn(tlGal, 0.1)
+            if (galIntro) tlGal.to(galIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.35)
             if (galImgs.length) {
               tlGal.to(galImgs, { y: 0, opacity: 1, duration: 0.8, stagger: 0.1 }, 0.35)
             }
@@ -313,22 +326,27 @@ export function AboutPage() {
         const mDesc = mission.querySelector('[data-mis-desc]')
         const mVisual = mission.querySelector('[data-mis-visual]')
 
+        const mReveal = createCharReveal(mTitle as HTMLElement | null)
+
         if (mEyebrow) gsap.set(mEyebrow, { y: 15, opacity: 0 })
-        if (mTitle) gsap.set(mTitle, { y: 20, opacity: 0 })
+        if (mTitle) gsap.set(mTitle, { opacity: 0 })
+        mReveal?.hide()
         if (mDesc) gsap.set(mDesc, { y: 20, opacity: 0 })
         if (mVisual) gsap.set(mVisual, { scale: 0.95, opacity: 0 })
 
         bindSectionReveal(mission, () => {
             const tlMis = gsap.timeline({ defaults: { ease: EASE.reveal } })
             if (mEyebrow) tlMis.to(mEyebrow, { y: 0, opacity: 1, duration: 0.5 })
-            if (mTitle) tlMis.to(mTitle, { y: 0, opacity: 1, duration: 0.7 }, 0.1)
-            if (mDesc) tlMis.to(mDesc, { y: 0, opacity: 1, duration: DUR.sub }, 0.2)
+            if (mTitle) tlMis.set(mTitle, { opacity: 1 }, 0.1)
+            mReveal?.playIn(tlMis, 0.1)
+            if (mDesc) tlMis.to(mDesc, { y: 0, opacity: 1, duration: DUR.sub }, 0.35)
             if (mVisual) tlMis.to(mVisual, { scale: 1, opacity: 1, duration: 0.8 }, 0.25)
           return tlMis
         }, { start: 'top 80%' })
       }
 
       return () => {
+        soltarAbertura()
         reveal?.revert()
       }
     },
@@ -366,7 +384,7 @@ export function AboutPage() {
                 {t('historyEyebrow')}
               </span>
               <h2 data-hist-title className="font-montserrat uppercase text-3xl md:text-4xl lg:text-5xl font-black text-foreground tracking-tight mb-3 md:mb-4 leading-[0.95] mx-auto">
-                {t('historyTitle')}
+                {t('historyTitleStart')} <em className="text-highlight text-primary">{t('historyTitleHighlight')}</em>
               </h2>
               <p data-hist-intro className="text-sm md:text-base lg:text-lg text-foreground/70 leading-relaxed mx-auto max-w-[600px]">
                 {t('historyIntro')}
@@ -456,7 +474,7 @@ export function AboutPage() {
             </div>
             <div className="md:w-2/3 max-w-[64rem]">
               <h2 data-val-title className="font-montserrat uppercase text-2xl md:text-4xl font-black text-foreground tracking-tight mb-2 leading-[0.95]">
-                {t('valuesTitle')}
+                {t('valuesTitleStart')} <em className="text-highlight text-primary">{t('valuesTitleHighlight')}</em>
               </h2>
               <p data-val-intro className="text-sm md:text-base text-foreground/70 leading-relaxed">
                 {t('valuesIntro')}
@@ -542,7 +560,7 @@ export function AboutPage() {
             <div data-mis-visual className="order-2 lg:order-1 lg:col-span-5 relative h-[300px] sm:h-[400px] lg:h-[450px] rounded-[2rem] overflow-hidden group shadow-xl">
               <Image 
                 src="/assets/about/bento/mission-sustentavel.webp?v=20260731c"
-                alt={t('missionTitle')}
+                alt={`${t('missionTitleStart')} ${t('missionTitleHighlight')}`}
                 fill
                 className="object-cover object-center group-hover:scale-105 transition-transform duration-[1.2s] ease-out"
                 sizes="(min-width: 1024px) 40vw, 100vw"
@@ -565,7 +583,7 @@ export function AboutPage() {
                 {t('missionEyebrow')}
               </span>
               <h2 data-mis-title className="font-montserrat uppercase text-3xl md:text-4xl lg:text-5xl font-black text-foreground tracking-tight mb-6 leading-[0.95]">
-                {t('missionTitle')}
+                {t('missionTitleStart')} <em className="text-highlight text-primary">{t('missionTitleHighlight')}</em>
               </h2>
               <div data-mis-desc className="relative border-l-4 border-primary pl-6 py-2">
                 <p className="text-base sm:text-lg md:text-xl text-foreground/85 leading-relaxed font-medium">
@@ -593,8 +611,8 @@ export function AboutPage() {
               </span>
             </div>
             <div className="md:w-2/3 max-w-[64rem]">
-              <h2 data-gal-title className="font-montserrat text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-[0.95]">
-                {t('galleryTitle')}
+              <h2 data-gal-title className="font-montserrat uppercase text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-[0.95]">
+                {t('galleryTitleStart')} <em className="text-highlight text-primary">{t('galleryTitleHighlight')}</em>
               </h2>
               <p data-gal-intro className="text-lg text-foreground/70 leading-relaxed">
                 {t('galleryIntro')}
@@ -662,7 +680,7 @@ export function AboutPage() {
                 {t('purposeEyebrow')}
               </span>
               <h2 data-hl-title className="font-montserrat text-4xl md:text-7xl lg:text-[100px] font-black uppercase tracking-tighter mb-8 leading-[0.95] text-white">
-                {t('purposeTitleStart')} <em className="text-highlight text-yellow-400">{t('purposeTitleHighlight')}</em><br />
+                {t('purposeTitleStart')} <em className="text-highlight text-[#F0E27A]">{t('purposeTitleHighlight')}</em><br />
                 {t('purposeTitleEnd')}
               </h2>
               <p data-hl-intro className="text-white/85 text-lg md:text-xl max-w-[64rem] mx-auto leading-relaxed">
