@@ -112,7 +112,7 @@ export function CulturesGrid() {
             scrollTrigger: {
               trigger: grid,
               start: 'top 65%',
-              end: 'bottom 45%',
+              end: 'bottom top',
               toggleActions: revealToggleActions(),
             },
           })
@@ -130,7 +130,7 @@ export function CulturesGrid() {
               scrollTrigger: {
                 trigger: card,
                 start: 'top 75%',
-                end: 'bottom 45%',
+                end: 'bottom top',
                 toggleActions: revealToggleActions(),
               }
             })
@@ -160,11 +160,13 @@ export function CulturesGrid() {
           return tlHow
         }, {
           start: 'top 80%',
-          /* O fim mede o CABEÇALHO, não o bloco: `how` tem três cards
-             empilhados e, no celular, o fundo dele só cruza o gatilho muito
-             depois de o texto de cima ter saído da tela. */
-          endTrigger: (sectionIntro as HTMLElement) ?? undefined,
-          end: 'bottom 20%'
+          /* Sem `endTrigger` próprio: media pelo CABEÇALHO (`sectionIntro`)
+             fazia o bloco inteiro resetar assim que aquele parágrafo curto
+             saía de tela — com os três cards (bem mais baixos) ainda
+             totalmente visíveis. Era exatamente o "sumindo no meio da tela"
+             relatado aqui. Medindo `how` (o bloco inteiro) com o novo default
+             de `bindSectionReveal` (`bottom top`), o reset só acontece quando
+             os cards também já foram embora. */
         })
       }
 
@@ -174,7 +176,7 @@ export function CulturesGrid() {
           scrollTrigger: {
             trigger: cta,
             start: 'top 90%',
-            end: 'bottom 45%',
+            end: 'bottom top',
             toggleActions: revealToggleActions(),
           },
         })

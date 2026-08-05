@@ -321,7 +321,24 @@ export function bindSectionReveal(
     endTrigger?: Element
   } = {},
 ): ScrollTrigger {
-  const { start = 'top 85%', end = 'bottom 45%', buildOut, endTrigger } = options
+  /* `end` marca dois pontos ao mesmo tempo: onde o conteúdo se despede
+     descendo (`onLeave`) e onde ele reaparece subindo (`onEnterBack`) — ver
+     comentário do parâmetro `build`, acima.
+
+     `bottom 45%` — o valor herdado — cai no MEIO da tela. Descendo, isso
+     reseta o bloco (mesmo sem `buildOut`, o `pause(0)` abaixo é um corte seco)
+     enquanto boa parte dele ainda está visível: para qualquer elemento mais
+     baixo que ~55% da viewport (a maioria dos títulos, parágrafos e cards), a
+     saída "no meio da seção" apontada como bug era exatamente isto. Subindo, o
+     mesmo ponto mid-tela faz o efeito oposto: a reentrada (`onEnterBack`) só
+     dispara depois de quase metade do bloco já ter voltado à vista — a tela
+     fica vazia por mais tempo do que devia antes de qualquer coisa animar.
+
+     `bottom top`: o bloco só é dado como "foi embora" quando sua base cruza o
+     topo da viewport — genuinely fora de tela, ninguém vê o corte — e pelo
+     mesmo motivo a reentrada dispara no primeiro pixel que volta a aparecer,
+     o mais cedo possível. Um único valor resolve os dois lados. */
+  const { start = 'top 85%', end = 'bottom top', buildOut, endTrigger } = options
 
   /* A timeline é construída sob demanda, na primeira entrada, e reaproveitada
      daí em diante: `play()` e `reverse()` na mesma instância, sem remontar nada

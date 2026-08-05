@@ -46,7 +46,7 @@ export function Lines() {
         scrollTrigger: {
           trigger: titleRef.current?.parentElement || ref.current,
           start: 'top 75%',
-          end: 'bottom 30%',
+          end: 'bottom top',
           toggleActions: revealToggleActions(),
         },
       })
@@ -80,7 +80,7 @@ export function Lines() {
               scrollTrigger: {
                 trigger: card,
                 start: 'top 75%',
-                end: 'bottom 30%',
+                end: 'bottom top',
                 toggleActions: revealToggleActions(),
               },
               opacity: 1,
@@ -102,7 +102,7 @@ export function Lines() {
               scrollTrigger: {
                 trigger: card,
                 start: 'top 80%',
-                end: 'bottom 30%',
+                end: 'bottom top',
                 toggleActions: revealToggleActions(),
               },
               opacity: 1,

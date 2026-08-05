@@ -270,7 +270,7 @@ export function ProductGrid() {
           scrollTrigger: {
             trigger: cta,
             start: 'top 90%',
-            end: 'bottom 45%',
+            end: 'bottom top',
             toggleActions: revealToggleActions(),
           },
         })

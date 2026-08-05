@@ -52,7 +52,7 @@ export function HomeTestimonials() {
         scrollTrigger: {
           trigger: header,
           start: 'top 85%',
-          end: 'bottom 45%',
+          end: 'bottom top',
           toggleActions: revealToggleActions(),
         },
         defaults: { ease: EASE.reveal }

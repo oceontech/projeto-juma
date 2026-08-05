@@ -5,38 +5,56 @@ import Image from 'next/image'
 import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
-import { createCharReveal } from '@/features/animation/charReveal'
-import { DUR, EASE, blurPx } from '@/features/animation/motion'
+import { createCharReveal, createTextReveal, revealToggleActions } from '@/features/animation/charReveal'
+import { DUR, EASE, STAGGER, TRIGGER_START, blurPx } from '@/features/animation/motion'
 import { isLowPower } from '@/features/animation/device'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
+import { HomeCtaFinal } from '@/features/home/components/HomeCtaFinal'
 
 export function DesataPage() {
   const t = useTranslations('desataPage')
   const reduced = useReducedMotion()
 
   const containerRef = useRef<HTMLDivElement>(null)
-  const heroRef = useRef<HTMLDivElement>(null)
   const heroTitleRef = useRef<HTMLHeadingElement>(null)
   const heroDescRef = useRef<HTMLParagraphElement>(null)
-  
+
   const topicsRef = useRef<HTMLDivElement>(null)
   const teamRef = useRef<HTMLDivElement>(null)
   const partnersRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLDivElement>(null)
 
+  const topics = [
+    { title: t('topics.t1Title'), desc: t('topics.t1Desc'), image: '/desata/maquina-hidratacao-agricola.webp', reverse: false },
+    { title: t('topics.t2Title'), desc: t('topics.t2Desc'), image: '/desata/maquina-aplicacao-agricola.webp', reverse: true },
+    // Reaproveita a foto do hero: o placeholder do Unsplash saiu (era um
+    // stock photo genérico, sem foto real da Juma disponível para este bloco).
+    { title: t('topics.t3Title'), desc: t('topics.t3Desc'), image: '/desata/maquina-agricola.webp', reverse: false },
+  ]
+
+  const team = [
+    { name: t('team.member1Name'), role: t('team.member1Role'), image: '/desata/team-1.webp' },
+    { name: t('team.member2Name'), role: t('team.member2Role'), image: '/desata/team-2.webp' },
+  ]
+
+  const partners = [
+    { src: '/desata/logo_nitec.webp', alt: 'NITEC' },
+    { src: '/desata/logo_uenp.webp', alt: 'UENP' },
+    { src: '/brand/logo-juma-agro.png', alt: 'Juma Agro' },
+  ]
+
   useGSAP(
     () => {
       if (reduced || !containerRef.current) return
 
-      // Hero Animation
+      // Hero
       const heroTitle = heroTitleRef.current
       const heroDesc = heroDescRef.current
 
-      const reveal = createCharReveal(heroTitle as HTMLElement | null, { by: 'words', axis: 'y', distance: 24 })
-      const words = reveal?.chars ?? []
+      const heroReveal = createCharReveal(heroTitle as HTMLElement | null, { by: 'words', axis: 'y', distance: 24 })
 
       if (heroTitle) gsap.set(heroTitle, { opacity: 0 })
-      reveal?.hide()
+      heroReveal?.hide()
       if (heroDesc) gsap.set(heroDesc, { y: 20, opacity: 0 })
 
       /* A abertura somava 1,4s antes de o texto de apoio começar a aparecer:
@@ -49,103 +67,120 @@ export function DesataPage() {
       const espera = compacto ? 0.2 : 0.4
       const textoEm = compacto ? 0.28 : 0.42
 
-      const tl = gsap.timeline({ delay: espera, defaults: { ease: EASE.reveal } })
-      if (heroTitle) tl.set(heroTitle, { opacity: 1 }, 0.1)
-      reveal?.playIn(tl, 0.1)
-      if (heroDesc) tl.to(heroDesc, { y: 0, opacity: 1, duration: DUR.sub }, textoEm)
+      const heroTl = gsap.timeline({ delay: espera, defaults: { ease: EASE.reveal } })
+      if (heroTitle) heroTl.set(heroTitle, { opacity: 1 }, 0.1)
+      heroReveal?.playIn(heroTl, 0.1)
+      if (heroDesc) heroTl.to(heroDesc, { y: 0, opacity: 1, duration: DUR.sub }, textoEm)
 
-      // Topics Section
+      // Topics — mesmo mecanismo de reveal reversível usado no resto do site
       if (topicsRef.current) {
-        const section = topicsRef.current
-        const rows = gsap.utils.toArray<HTMLElement>('.fade-up', section)
+        const rows = gsap.utils.toArray<HTMLElement>('[data-topic-row]', topicsRef.current)
         rows.forEach((row) => {
-          gsap.set(row, { y: 50, opacity: 0, scale: 0.98, filter: blurPx(8) })
-          ScrollTrigger.create({
-            trigger: row,
-            start: 'top 85%',
-            animation: gsap.to(row, {
-              y: 0,
-              opacity: 1,
-              scale: 1,
-              filter: blurPx(0),
-              duration: 1.2,
-              ease: 'power3.out'
-            })
+          const title = row.querySelector<HTMLElement>('[data-topic-title]')
+          const desc = row.querySelector<HTMLElement>('[data-topic-desc]')
+          const media = row.querySelector<HTMLElement>('[data-topic-media]')
+
+          const titleReveal = createCharReveal(title)
+          const descReveal = createTextReveal(desc)
+
+          titleReveal?.hide()
+          descReveal?.hide()
+          if (media) gsap.set(media, { y: 30, opacity: 0, scale: 0.97, filter: blurPx(8) })
+
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: row,
+              start: TRIGGER_START,
+              end: 'bottom top',
+              toggleActions: revealToggleActions(),
+            },
+            defaults: { ease: EASE.reveal },
           })
+
+          if (media) tl.to(media, { y: 0, opacity: 1, scale: 1, filter: blurPx(0), duration: DUR.title }, 0)
+          titleReveal?.playIn(tl, 0)
+          descReveal?.playIn(tl, '<0.1')
         })
       }
 
-      // Team Section
+      // Team
       if (teamRef.current) {
         const section = teamRef.current
-        const title = section.querySelector('h2')
-        const members = gsap.utils.toArray<HTMLElement>('.fade-up', section)
-        const images = section.querySelectorAll('.rounded-full')
+        const title = section.querySelector<HTMLElement>('[data-team-title]')
+        const cards = gsap.utils.toArray<HTMLElement>('[data-team-card]', section)
+        const photos = gsap.utils.toArray<HTMLElement>('[data-team-photo]', section)
 
-        if (title) gsap.set(title, { y: 20, opacity: 0 })
-        if (members.length) gsap.set(members, { y: 30, opacity: 0 })
-        if (images.length) gsap.set(images, { scale: 0.5, opacity: 0 })
+        const titleReveal = createCharReveal(title)
+        titleReveal?.hide()
+        if (cards.length) gsap.set(cards, { y: 30, opacity: 0 })
+        if (photos.length) gsap.set(photos, { scale: 0.5, opacity: 0 })
 
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: section,
-            start: 'top 80%',
-          }
+            start: TRIGGER_START,
+            end: 'bottom top',
+            toggleActions: revealToggleActions(),
+          },
+          defaults: { ease: EASE.reveal },
         })
 
-        if (title) tl.to(title, { y: 0, opacity: 1, duration: 0.8, ease: EASE.reveal })
-        if (members.length) tl.to(members, { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: EASE.reveal }, '-=0.4')
-        if (images.length) tl.to(images, { scale: 1, opacity: 1, duration: 1.2, stagger: 0.15, ease: 'back.out(1.4)' }, '<0.2')
+        titleReveal?.playIn(tl, 0)
+        if (cards.length) tl.to(cards, { y: 0, opacity: 1, duration: DUR.sub, stagger: STAGGER.card }, '<0.1')
+        if (photos.length) tl.to(photos, { scale: 1, opacity: 1, duration: DUR.title, stagger: STAGGER.card, ease: 'back.out(1.4)' }, '<0.2')
       }
 
-      // Partners Section
+      // Partners
       if (partnersRef.current) {
         const section = partnersRef.current
-        const title = section.querySelector('h2')
-        const logos = gsap.utils.toArray<HTMLElement>('.partner-logo', section)
+        const title = section.querySelector<HTMLElement>('[data-partners-title]')
+        const logos = gsap.utils.toArray<HTMLElement>('[data-partner-logo]', section)
 
-        if (title) gsap.set(title, { y: 20, opacity: 0 })
+        const titleReveal = createCharReveal(title)
+        titleReveal?.hide()
         if (logos.length) gsap.set(logos, { y: 20, opacity: 0, scale: 0.8 })
 
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: section,
-            start: 'top 85%',
-          }
+            start: TRIGGER_START,
+            end: 'bottom top',
+            toggleActions: revealToggleActions(),
+          },
+          defaults: { ease: EASE.reveal },
         })
-        if (title) tl.to(title, { y: 0, opacity: 1, duration: 0.8, ease: EASE.reveal })
-        if (logos.length) tl.to(logos, { y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.1, ease: 'back.out(1.5)' }, '-=0.4')
+
+        titleReveal?.playIn(tl, 0)
+        if (logos.length) tl.to(logos, { y: 0, opacity: 1, scale: 1, duration: DUR.sub, stagger: STAGGER.card, ease: 'back.out(1.5)' }, '<0.1')
       }
 
-      // Video Section
+      // Video
       if (videoRef.current) {
-        const section = videoRef.current
-        const videoWrapper = section.querySelector('.aspect-video')
+        const videoWrapper = videoRef.current.querySelector<HTMLElement>('[data-video-wrapper]')
         if (videoWrapper) {
           gsap.set(videoWrapper, { clipPath: 'inset(10% 5% 10% 5% round 24px)', scale: 0.95, opacity: 0, filter: blurPx(10) })
           ScrollTrigger.create({
-            trigger: section,
-            start: 'top 85%',
+            trigger: videoRef.current,
+            start: TRIGGER_START,
             animation: gsap.to(videoWrapper, {
               clipPath: 'inset(0% 0% 0% 0% round 24px)',
               scale: 1,
               opacity: 1,
               filter: blurPx(0),
               duration: 1.5,
-              ease: 'power3.inOut'
-            })
+              ease: EASE.inOut,
+            }),
           })
         }
       }
     },
-    { scope: containerRef }
+    { scope: containerRef },
   )
 
   return (
     <div ref={containerRef} className="flex flex-col gap-24 md:gap-32">
-      {/* 1. Hero Section */}
-      <section ref={heroRef} className="relative w-full min-h-[90vh] flex flex-col justify-center items-center pt-[140px] pb-[80px] overflow-hidden bg-black">
-        {/* Background Image Placeholder from Unsplash */}
+      {/* 1. Hero */}
+      <section className="relative w-full min-h-[90vh] flex flex-col justify-center items-center pt-[140px] pb-[80px] overflow-hidden bg-black">
         <Image
           src="/desata/maquina-agricola.webp"
           alt="Desata Background"
@@ -156,12 +191,12 @@ export function DesataPage() {
         <div className="absolute inset-0 bg-black/10 pointer-events-none" />
 
         <Container className="relative z-10 w-full flex flex-col items-center">
-          {/* Glassmorphism Card */}
           <div className="bg-black/30 backdrop-blur-md border border-white/20 p-8 md:p-14 rounded-3xl flex flex-col items-center text-center max-w-[840px] w-full shadow-2xl">
-            <h1 ref={heroTitleRef} className="text-4xl md:text-6xl lg:text-7xl font-bold uppercase tracking-tight font-montserrat text-white drop-shadow-md mb-6">
-              {/* `text-highlight` alinha este destaque ao padrão do resto do
-                  site (itálico, peso 500). A cor continua a verde clara desta
-                  página, que vive sobre foto escura. */}
+            <h1
+              ref={heroTitleRef}
+              className="m-0 mb-6 font-black uppercase leading-[1.05] tracking-tight text-white drop-shadow-md"
+              style={{ fontSize: 'clamp(2rem, 5vw, 4.5rem)' }}
+            >
               {t.rich('hero.title', { highlight: (chunks) => <span className="text-highlight text-[#00A859] drop-shadow-md">{chunks}</span> })}
             </h1>
             <p ref={heroDescRef} className="text-lg md:text-xl max-w-[48rem] text-white/90 drop-shadow-sm">
@@ -171,129 +206,95 @@ export function DesataPage() {
         </Container>
       </section>
 
-      {/* 2. Topics Section */}
+      {/* 2. Topics */}
       <section ref={topicsRef} className="w-full">
         <Container>
           <div className="flex flex-col gap-16 md:gap-32">
-            
-            {/* Topic 1 - Image Left, Text Right */}
-            <div className="fade-up flex flex-col md:flex-row items-center gap-8 md:gap-16">
-              <div className="w-full md:w-1/2 relative h-[300px] md:h-[450px] rounded-3xl overflow-hidden shadow-xl">
-                <Image src="/desata/maquina-hidratacao-agricola.webp" alt="Quem Somos" fill className="object-cover" />
+            {topics.map((topic, i) => (
+              <div
+                key={i}
+                data-topic-row
+                className={`flex flex-col items-center gap-8 md:gap-16 ${topic.reverse ? 'md:flex-row-reverse' : 'md:flex-row'}`}
+              >
+                <div data-topic-media className="w-full md:w-1/2 relative h-[300px] md:h-[450px] rounded-3xl overflow-hidden shadow-xl">
+                  <Image src={topic.image} alt={topic.title} fill className="object-cover" />
+                </div>
+                <div className="w-full md:w-1/2 flex flex-col gap-6">
+                  <h3 data-topic-title className="text-3xl md:text-4xl font-black uppercase tracking-wide font-montserrat text-[#004C26]">
+                    {topic.title}
+                  </h3>
+                  <p data-topic-desc className="text-lg md:text-xl text-[#5A5A57] leading-relaxed">
+                    {topic.desc}
+                  </p>
+                </div>
               </div>
-              <div className="w-full md:w-1/2 flex flex-col gap-6">
-                <h3 className="text-3xl md:text-4xl font-bold uppercase tracking-wide font-montserrat text-[#004C26]">{t('topics.t1Title')}</h3>
-                <p className="text-lg md:text-xl text-[#5A5A57] leading-relaxed">{t('topics.t1Desc')}</p>
-              </div>
-            </div>
-
-            {/* Topic 2 - Image Right, Text Left */}
-            <div className="fade-up flex flex-col md:flex-row-reverse items-center gap-8 md:gap-16">
-              <div className="w-full md:w-1/2 relative h-[300px] md:h-[450px] rounded-3xl overflow-hidden shadow-xl">
-                <Image src="/desata/maquina-aplicacao-agricola.webp" alt="Nosso Propósito" fill className="object-cover" />
-              </div>
-              <div className="w-full md:w-1/2 flex flex-col gap-6">
-                <h3 className="text-3xl md:text-4xl font-bold uppercase tracking-wide font-montserrat text-[#004C26]">{t('topics.t2Title')}</h3>
-                <p className="text-lg md:text-xl text-[#5A5A57] leading-relaxed">{t('topics.t2Desc')}</p>
-              </div>
-            </div>
-
-            {/* Topic 3 - Image Left, Text Right */}
-            <div className="fade-up flex flex-col md:flex-row items-center gap-8 md:gap-16">
-              <div className="w-full md:w-1/2 relative h-[300px] md:h-[450px] rounded-3xl overflow-hidden shadow-xl">
-                <Image src="https://images.unsplash.com/photo-1586771107445-d3ca888129ff?q=80&w=1200&auto=format&fit=crop" alt="Por Que Nascemos" fill className="object-cover" />
-              </div>
-              <div className="w-full md:w-1/2 flex flex-col gap-6">
-                <h3 className="text-3xl md:text-4xl font-bold uppercase tracking-wide font-montserrat text-[#004C26]">{t('topics.t3Title')}</h3>
-                <p className="text-lg md:text-xl text-[#5A5A57] leading-relaxed">{t('topics.t3Desc')}</p>
-              </div>
-            </div>
-
+            ))}
           </div>
         </Container>
       </section>
 
-      {/* 3. Team Section */}
+      {/* 3. Team */}
       <section ref={teamRef} className="w-full bg-muted/30 py-24">
         <Container>
-          <div className="fade-up flex flex-col items-center text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold uppercase font-montserrat tracking-tight mb-4">
+          <div className="flex flex-col items-center text-center mb-16">
+            <h2 data-team-title className="text-3xl md:text-4xl font-black uppercase font-montserrat tracking-tight mb-4">
               {t('team.title')}
             </h2>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-[56rem] mx-auto">
-            <div className="fade-up flex flex-col items-center gap-6">
-              <div className="relative w-[16rem] h-[16rem] rounded-full overflow-hidden border-4 border-primary/20">
-                <Image
-                  src="/desata/team-1.webp"
-                  alt={t('team.member1Name')}
-                  fill
-                  className="object-cover"
-                />
+            {team.map((member, i) => (
+              <div key={i} data-team-card className="flex flex-col items-center gap-6">
+                <div data-team-photo className="relative w-[16rem] h-[16rem] rounded-full overflow-hidden border-4 border-primary/20">
+                  <Image src={member.image} alt={member.name} fill className="object-cover" />
+                </div>
+                <div className="text-center">
+                  <h4 className="text-xl font-black font-montserrat">{member.name}</h4>
+                  <p className="text-muted-foreground mt-2">{member.role}</p>
+                </div>
               </div>
-              <div className="text-center">
-                <h4 className="text-xl font-bold font-montserrat">{t('team.member1Name')}</h4>
-                <p className="text-muted-foreground mt-2">{t('team.member1Role')}</p>
-              </div>
-            </div>
-            
-            <div className="fade-up flex flex-col items-center gap-6">
-              <div className="relative w-[16rem] h-[16rem] rounded-full overflow-hidden border-4 border-primary/20">
-                <Image
-                  src="/desata/team-2.webp"
-                  alt={t('team.member2Name')}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="text-center">
-                <h4 className="text-xl font-bold font-montserrat">{t('team.member2Name')}</h4>
-                <p className="text-muted-foreground mt-2">{t('team.member2Role')}</p>
-              </div>
-            </div>
+            ))}
           </div>
         </Container>
       </section>
 
-      {/* 4. Partners Section */}
+      {/* 4. Partners */}
       <section ref={partnersRef} className="w-full py-12">
         <Container>
-          <div className="fade-up flex flex-col items-center text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold uppercase font-montserrat tracking-tight">
+          <div className="flex flex-col items-center text-center mb-12">
+            <h2 data-partners-title className="text-2xl md:text-3xl font-black uppercase font-montserrat tracking-tight">
               {t('partners.title')}
             </h2>
           </div>
-          
-          <div className="fade-up flex flex-wrap justify-center items-center gap-12 md:gap-24 opacity-80">
-            <div className="partner-logo relative w-[12rem] md:w-[16rem] h-[6rem] md:h-[8rem]">
-              <Image src="/desata/logo_nitec.webp" alt="NITEC" fill className="object-contain" />
-            </div>
-            <div className="partner-logo relative w-[12rem] md:w-[16rem] h-[6rem] md:h-[8rem]">
-              <Image src="/desata/logo_uenp.webp" alt="UENP" fill className="object-contain" />
-            </div>
-            <div className="partner-logo relative w-[12rem] md:w-[16rem] h-[6rem] md:h-[8rem]">
-              <Image src="/brand/logo-juma-agro.png" alt="Juma Agro" fill className="object-contain" />
-            </div>
+
+          <div className="flex flex-wrap justify-center items-center gap-12 md:gap-24 opacity-80">
+            {partners.map((partner, i) => (
+              <div key={i} data-partner-logo className="relative w-[12rem] md:w-[16rem] h-[6rem] md:h-[8rem]">
+                <Image src={partner.src} alt={partner.alt} fill className="object-contain" />
+              </div>
+            ))}
           </div>
         </Container>
       </section>
 
-      {/* 5. Video Section */}
+      {/* 5. Video */}
       <section ref={videoRef} className="w-full pb-24">
         <Container>
-          <div className="fade-up w-full max-w-[64rem] mx-auto rounded-3xl overflow-hidden shadow-2xl relative aspect-video bg-black">
-            <iframe 
+          <div data-video-wrapper className="w-full max-w-[64rem] mx-auto rounded-3xl overflow-hidden shadow-2xl relative aspect-video bg-black">
+            <iframe
               className="absolute inset-0 w-full h-full"
-              src="https://www.youtube.com/embed/82rGv7Kv5Vw?si=pTp4nEsyxi4QJrq4&rel=0" 
+              src="https://www.youtube.com/embed/82rGv7Kv5Vw?si=pTp4nEsyxi4QJrq4&rel=0"
               title="Programa Desata"
-              frameBorder="0" 
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-              allowFullScreen>
-            </iframe>
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            ></iframe>
           </div>
         </Container>
       </section>
+
+      {/* 6. CTA final — mesmo fechamento de conversão das outras páginas internas */}
+      <HomeCtaFinal />
     </div>
   )
 }

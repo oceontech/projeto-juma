@@ -75,7 +75,7 @@ export function HomeBlog() {
         scrollTrigger: {
           trigger: header,
           start: 'top 85%',
-          end: 'bottom 45%',
+          end: 'bottom top',
           toggleActions: revealToggleActions(),
         },
         defaults: { ease: EASE.reveal }
@@ -96,7 +96,7 @@ export function HomeBlog() {
       scrollTrigger: {
         trigger: ref.current,
         start: 'top 78%',
-        end: 'bottom 45%',
+        end: 'bottom top',
         toggleActions: revealToggleActions(),
       }
     })

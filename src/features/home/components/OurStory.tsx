@@ -158,7 +158,7 @@ export function OurStory() {
       const trigger = ScrollTrigger.create({
         trigger: section,
         start: 'top 75%',
-        end: 'bottom 20%',
+        end: 'bottom top',
         onEnter: () => {
           exit.pause(0)
           entry.restart()

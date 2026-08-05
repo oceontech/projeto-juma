@@ -56,7 +56,7 @@ export function ProofStrip() {
         ScrollTrigger.create({
           trigger: card,
           start: 'top 85%',
-          end: 'bottom 45%',
+          end: 'bottom top',
           toggleActions: 'play reverse play reverse',
           onEnter: () => {
             gsap.to(card, { opacity: 1, duration: 0.01 })
@@ -148,7 +148,7 @@ export function ProofStrip() {
         ScrollTrigger.create({
           trigger: kicker,
           start: 'top 85%',
-          end: 'bottom 45%',
+          end: 'bottom top',
           toggleActions: 'play reverse play reverse',
           onEnter: () => gsap.to(kicker, { y: 0, opacity: 1, duration: 0.8, ease: EASE.reveal }),
           onLeave: () => gsap.to(kicker, { y: -14, opacity: 0, duration: 0.5 }),

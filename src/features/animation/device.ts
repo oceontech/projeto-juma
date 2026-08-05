@@ -91,3 +91,20 @@ export function scrollDirection(): 1 | -1 {
   rastrearScroll()
   return direcao as 1 | -1
 }
+
+/**
+ * Força o sentido rastreado, para interações que sabem a direção real mas não
+ * produzem scroll nativo.
+ *
+ * O hero trava a página (`Lenis.stop()` + `preventDefault`) e conduz a
+ * "jornada" só por JS enquanto o usuário gira a roda ou arrasta o dedo — não
+ * há evento de `scroll` nenhum disparando durante isso, então o rastreador
+ * global nunca vê o gesto. Quando a jornada volta ao repouso (usuário
+ * arrastou para cima, saindo da fase final de volta ao início), o reveal do
+ * título lia o último sentido real de scroll — quase sempre "descendo", de
+ * antes do usuário ter entrado na jornada — e a cascata invertida nunca
+ * aparecia ali, mesmo com o mecanismo já correto no resto do site.
+ */
+export function setScrollDirection(dir: 1 | -1): void {
+  direcao = dir
+}

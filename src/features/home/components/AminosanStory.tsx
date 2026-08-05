@@ -96,11 +96,26 @@ export function AminosanStory() {
     timeouts.push(window.setTimeout(scheduleRefresh, 300))
     document.fonts?.ready.then(scheduleRefresh).catch(() => {})
 
+    /* `{ once: true }` é o ponto — sem ele, cada listener continua vivo pelo
+       resto da visita. `loadeddata` não é um evento de "carregou uma vez": ele
+       volta a disparar sempre que o vídeo precisa rebufferizar depois de um
+       seek para um trecho ainda não baixado, o que É o vídeo desta seção — a
+       história é conduzida pelo usuário arrastando/rolando por cima dele.
+       Cada refire agendava um `ScrollTrigger.refresh()` global, sem nenhuma
+       guarda de "pin ativo" (a de baixo, no `HomeProductShowcase`, tem essa
+       guarda; esta não tinha), e um refresh remede o documento inteiro e
+       reposiciona qualquer pin — inclusive o desta própria seção e o do
+       catálogo logo abaixo — embaixo do usuário no meio de um gesto de
+       scroll. Era esse o "às vezes a rolagem fica mais rápida e pula
+       conteúdo" relatado a partir daqui pra baixo: o listener só devia
+       corrigir a medida INICIAL (altura do vídeo ainda desconhecida no
+       primeiro layout, ver comentário do `isMobile` acima), não continuar
+       reagindo pelo resto da visita. */
     const media = Array.from(document.querySelectorAll<HTMLImageElement | HTMLVideoElement>('#sec-origem img, #sec-origem video'))
     media.forEach((el) => {
-      el.addEventListener('load', scheduleRefresh)
-      el.addEventListener('loadedmetadata', scheduleRefresh)
-      el.addEventListener('loadeddata', scheduleRefresh)
+      el.addEventListener('load', scheduleRefresh, { once: true })
+      el.addEventListener('loadedmetadata', scheduleRefresh, { once: true })
+      el.addEventListener('loadeddata', scheduleRefresh, { once: true })
     })
 
     // Só re-agenda refresh em resize de LARGURA (rotação, redimensionar janela).

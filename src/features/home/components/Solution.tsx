@@ -54,7 +54,7 @@ export function Solution() {
         scrollTrigger: {
           trigger: title ?? ref.current,
           start: 'top 85%',
-          end: 'bottom 45%',
+          end: 'bottom top',
           toggleActions: revealToggleActions(),
         },
       })
