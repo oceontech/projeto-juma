@@ -7,6 +7,7 @@ import { Container } from '@/components/layout/Container'
 import { useTranslations, useLocale } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal , bindSectionReveal, revealToggleActions } from '@/features/animation/charReveal'
+import { onPreloaderDone } from '@/features/animation/preloaderGate'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { ARTICLES_DATA, Article } from '../data/articlesData'
@@ -72,6 +73,9 @@ export function ArticlePage({ slug }: ArticlePageProps) {
     () => {
       if (!article) return
 
+      let relatedReveal: ReturnType<typeof createCharReveal> = null
+      let ctaReveal: ReturnType<typeof createCharReveal> = null
+
       // 1. Initial State / Setup
       if (!reduced) {
         // Hero image initial scale and opacity
@@ -98,12 +102,16 @@ export function ArticlePage({ slug }: ArticlePageProps) {
           })
         }
 
-        // Header content elements
+        /* Busca na página inteira, não no `headerContentRef`: só o botão de
+           voltar mora ali. Título, meta, subtítulo e assinatura ficam no cartão
+           sobreposto, uma `Container` adiante — procurando no escopo errado,
+           todos vinham `null` e a abertura da matéria simplesmente não existia. */
+        const scope = containerRef.current
         const backBtn = headerContentRef.current?.querySelector('[data-back-btn]')
-        const meta = headerContentRef.current?.querySelector('[data-meta]')
-        const title = headerContentRef.current?.querySelector('[data-title]')
-        const subtitle = headerContentRef.current?.querySelector('[data-subtitle]')
-        const author = headerContentRef.current?.querySelector('[data-author]')
+        const meta = scope?.querySelector('[data-meta]')
+        const title = scope?.querySelector('[data-title]')
+        const subtitle = scope?.querySelector('[data-subtitle]')
+        const author = scope?.querySelector('[data-author]')
 
         // Split text for title
         const reveal = createCharReveal(title as HTMLElement | null, { blur: 8 })
@@ -114,13 +122,14 @@ export function ArticlePage({ slug }: ArticlePageProps) {
         if (subtitle) gsap.set(subtitle, { y: 20, opacity: 0 })
         if (author) gsap.set(author, { y: 15, opacity: 0 })
 
-        // Timeline for header text reveal
-        const tl = gsap.timeline({ delay: 0.2 })
+        // Timeline for header text reveal — pausada até o preloader sair.
+        const tl = gsap.timeline({ paused: true, delay: 0.2 })
         if (backBtn) tl.to(backBtn, { y: 0, opacity: 1, duration: 0.5, ease: EASE.reveal })
         if (meta) tl.to(meta, { y: 0, opacity: 1, duration: 0.5, ease: EASE.reveal }, '<0.1')
         reveal?.playIn(tl, '<0.1')
         if (subtitle) tl.to(subtitle, { y: 0, opacity: 1, duration: DUR.sub, ease: EASE.reveal }, '<0.2')
         if (author) tl.to(author, { y: 0, opacity: 1, duration: 0.5, ease: EASE.reveal }, '<0.15')
+        const soltarAbertura = onPreloaderDone(() => tl.play())
 
         // 2. Content elements reveal on scroll
         if (contentRef.current) {
@@ -142,17 +151,23 @@ export function ArticlePage({ slug }: ArticlePageProps) {
 
         // 3. Related articles reveal
         if (relatedRef.current) {
-          const rTitle = relatedRef.current.querySelector('[data-related-title]')
+          const rKicker = relatedRef.current.querySelector('[data-related-kicker]')
+          const rTitle = relatedRef.current.querySelector<HTMLElement>('[data-related-title]')
           const cards = relatedRef.current.querySelectorAll('[data-related-card]')
 
-          if (rTitle) gsap.set(rTitle, { y: 20, opacity: 0 })
+          relatedReveal = createCharReveal(rTitle)
+          if (rKicker) gsap.set(rKicker, { y: 15, opacity: 0 })
+          if (rTitle) gsap.set(rTitle, { opacity: 0 })
+          relatedReveal?.hide()
           if (cards.length > 0) gsap.set(cards, { y: 30, opacity: 0 })
 
           bindSectionReveal(relatedRef.current, () => {
-              const rTl = gsap.timeline()
-              if (rTitle) rTl.to(rTitle, { y: 0, opacity: 1, duration: 0.6, ease: EASE.reveal })
+              const rTl = gsap.timeline({ defaults: { ease: EASE.reveal } })
+              if (rKicker) rTl.to(rKicker, { y: 0, opacity: 1, duration: 0.5 })
+              if (rTitle) rTl.set(rTitle, { opacity: 1 }, 0.1)
+              relatedReveal?.playIn(rTl, 0.1)
               if (cards.length > 0) {
-                rTl.to(cards, { y: 0, opacity: 1, duration: 0.8, stagger: STAGGER.card, ease: EASE.reveal }, '<0.15')
+                rTl.to(cards, { y: 0, opacity: 1, duration: 0.8, stagger: STAGGER.card }, 0.3)
               }
             return rTl
           }, { start: 'top 80%' })
@@ -160,20 +175,29 @@ export function ArticlePage({ slug }: ArticlePageProps) {
 
         // 4. CTA banner reveal
         if (ctaRef.current) {
+          const ctaTitle = ctaRef.current.querySelector<HTMLElement>('[data-cta-title]')
+          ctaReveal = createCharReveal(ctaTitle)
           gsap.set(ctaRef.current, { y: 30, opacity: 0 })
-          gsap.to(ctaRef.current, {
-            y: 0, opacity: 1, duration: 0.8, ease: EASE.reveal,
+          ctaReveal?.hide()
+
+          const ctaTl = gsap.timeline({
             scrollTrigger: {
               trigger: ctaRef.current,
               start: 'top 88%',
               end: 'bottom top',
               toggleActions: revealToggleActions(),
             },
+            defaults: { ease: EASE.reveal },
           })
+          ctaTl.to(ctaRef.current, { y: 0, opacity: 1, duration: 0.8 })
+          ctaReveal?.playIn(ctaTl, 0.15)
         }
 
         return () => {
+          soltarAbertura()
           reveal?.revert()
+          relatedReveal?.revert()
+          ctaReveal?.revert()
         }
       } else {
         // If reduced motion is enabled, make everything visible
@@ -324,13 +348,13 @@ export function ArticlePage({ slug }: ArticlePageProps) {
       <div ref={relatedRef} className="border-t border-foreground/10 bg-[#F2F6F2] py-24">
         <Container>
           <div className="flex flex-col md:flex-row justify-between items-baseline gap-4 mb-12">
-            <div data-related-title>
-              <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary mb-2">
+            <div>
+              <span data-related-kicker className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary mb-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                {t('relatedTitle')}
+                {t('relatedEyebrow')}
               </span>
-              <h2 className="font-montserrat text-3xl md:text-4xl font-black uppercase text-foreground tracking-tight leading-[0.95]">
-                {t('relatedTitle')}
+              <h2 data-related-title className="font-montserrat text-3xl md:text-4xl font-black uppercase text-foreground tracking-tight leading-[0.95]">
+                {t('relatedTitleStart')} <em className="text-highlight text-primary">{t('relatedTitleHighlight')}</em>
               </h2>
             </div>
             <Link
@@ -395,8 +419,8 @@ export function ArticlePage({ slug }: ArticlePageProps) {
               <span className="h-1.5 w-1.5 rounded-full bg-white" />
               {t('author')}
             </span>
-            <h2 className="font-montserrat text-3xl md:text-4xl font-black uppercase tracking-tight mb-4 leading-[0.95] text-white">
-              {t('ctaTitleStart')} <em className="text-[#F0E27A] not-italic">{t('ctaTitleHighlight')}</em>
+            <h2 data-cta-title className="font-montserrat text-3xl md:text-4xl font-black uppercase tracking-tight mb-4 leading-[0.95] text-white">
+              {t('ctaTitleStart')} <em className="text-highlight text-[#F0E27A]">{t('ctaTitleHighlight')}</em>
             </h2>
             <p className="text-white/80 text-base md:text-lg">
               {t('ctaBody')}

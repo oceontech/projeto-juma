@@ -369,7 +369,8 @@
       "pastagem": "Pastura"
     },
     "howEyebrow": "Cómo funciona",
-    "howTitle": "De la fase correcta al manejo completo.",
+    "howTitleStart": "De la fase correcta al",
+    "howTitleHighlight": "manejo completo.",
     "howIntro": "Cada cultivo tiene sus exigencias por fase. Nuestros programas nutricionales se elaboran junto a los agrónomos de Juma-Agro para su manejo, su región y su suelo.",
     "steps": {
       "diagnosis": {
@@ -399,7 +400,8 @@
     "btnParticipate": "Quiero ser cliente",
     "btnProgram": "Ver programa",
     "programEyebrow": "Cómo es el día",
-    "programTitle": "Un día entero dentro de la operación Juma-Agro.",
+    "programTitleStart": "Un día entero dentro de la",
+    "programTitleHighlight": "operación Juma-Agro.",
     "programIntro": "Un programa completo en un solo día: historia, cultura, recorrido por la operación y una conversación con el fundador.",
     "steps": {
       "step1": {
@@ -424,7 +426,8 @@
       }
     },
     "benefitsEyebrow": "Lo que usted vivencia",
-    "benefitsTitle": "Resultado para llevar a su campo.",
+    "benefitsTitleStart": "Resultado para llevar",
+    "benefitsTitleHighlight": "a su campo.",
     "benefitsIntro": "Sale del programa con diagnóstico, conocimiento técnico y relación directa con nuestro equipo agronómico.",
     "benefits": {
       "b1": {
@@ -445,7 +448,8 @@
       }
     },
     "galleryEyebrow": "Cómo es por aquí",
-    "galleryTitle": "El programa en fotos.",
+    "galleryTitleStart": "El programa",
+    "galleryTitleHighlight": "en fotos.",
     "galleryIntro": "Imágenes de las últimas ediciones — sala de investigación, ensayos en campo e intercambio entre productores.",
     "ctaEyebrow": "Acceso exclusivo",
     "ctaTitleStart": "Vive la",
@@ -460,7 +464,8 @@
     "titleHighlight": "producen.",
     "intro": "Juma-Agro nació de la inquietud de un hombre de campo. Fundada por el Sr. Julio Matino, la empresa creció transformando el conocimiento agronómico en productos que aumentan la productividad del productor brasileño — sin perder nunca el contacto con el campo.",
     "historyEyebrow": "Nuestra historia",
-    "historyTitle": "Cuatro décadas contadas en el campo.",
+    "historyTitleStart": "Cuatro décadas contadas",
+    "historyTitleHighlight": "en el campo.",
     "historyIntro": "Hitos que muestran cómo Juma-Agro creció junto al productor brasileño.",
     "timeline": {
       "y1985": {
@@ -485,7 +490,8 @@
       }
     },
     "valuesEyebrow": "Lo que nos mueve",
-    "valuesTitle": "Valores que nacen en el campo.",
+    "valuesTitleStart": "Valores que nacen",
+    "valuesTitleHighlight": "en el campo.",
     "valuesIntro": "Principios que sostienen a Juma-Agro desde hace cuatro décadas — y siguen guiándonos.",
     "values": {
       "v1": {
@@ -523,7 +529,8 @@
     "purposeTitleEnd": "el mundo.",
     "purposeBody": "Más que un eslogan. Es lo que sustenta cada decisión que tomamos — del laboratorio al primer pulverizador que sale de madrugada en una propiedad.",
     "galleryEyebrow": "En el campo",
-    "galleryTitle": "Dónde estamos.",
+    "galleryTitleStart": "Dónde",
+    "galleryTitleHighlight": "estamos.",
     "galleryIntro": "Sede en Mogi Mirim, SP — equipo técnico actuando en más de 10 estados brasileños.",
     "ctaEyebrow": "Próximo paso",
     "ctaTitleStart": "¿Cultivamos",
@@ -531,7 +538,8 @@
     "ctaBody": "40 años de experiencia listos para trabajar por su próxima zafra.",
     "ctaButton": "Hablar por WhatsApp",
     "missionEyebrow": "Misión",
-    "missionTitle": "Compromiso con el mañana.",
+    "missionTitleStart": "Compromiso con el",
+    "missionTitleHighlight": "mañana.",
     "missionBadge": "Tecnología y respeto",
     "missionText": "Ser una empresa honesta, social y financieramente saludable, siempre innovando, creando y diversificando tecnologías a favor de la agricultura y la ganadería, sin vulnerar jamás nuestros valores morales y culturales, contribuyendo a un crecimiento sostenible del Planeta."
   },
@@ -555,7 +563,8 @@
     "featuredBody": "Tres decisiones de manejo nutricional que mantienen su cultivo activo cuando el cielo se cierra. Una guía práctica basada en ensayos reales realizados con productores en MT, GO y BA.",
     "readArticle": "Leer artículo",
     "allArticlesEyebrow": "Todos los artículos",
-    "allArticlesTitle": "Últimas publicaciones.",
+    "allArticlesTitleStart": "Últimas",
+    "allArticlesTitleHighlight": "publicaciones.",
     "allArticlesIntro": "Actualizamos semanalmente — reciba directo en WhatsApp.",
     "readingTime": "DE LECTURA",
     "emptyState": "No se encontraron artículos en esta categoría.",
@@ -570,21 +579,24 @@
   "articleDetailPage": {
     "backButton": "Volver a las materias",
     "readingTime": "DE LECTURA",
-    "relatedTitle": "Lea también",
+    "relatedTitleStart": "Más contenido para",
+    "relatedTitleHighlight": "su cultivo.",
     "relatedSubtitle": "Contenidos seleccionados sobre nutrición y manejo para su cultivo.",
     "author": "Equipo Técnico Juma-Agro",
     "publishedAt": "Publicado el",
     "ctaTitleStart": "Hable con nuestros",
     "ctaTitleHighlight": "especialistas.",
     "ctaBody": "¿Dudas sobre el manejo correcto para su cultivo? Nuestro equipo agronómico está listo para ayudar.",
-    "ctaButton": "Hablar por WhatsApp"
+    "ctaButton": "Hablar por WhatsApp",
+    "relatedEyebrow": "Lea también"
   },
   "contactPage": {
     "eyebrow": "Contacto",
     "titleStart": "Hablemos sobre",
     "titleHighlight": "su zafra.",
     "intro": "Cuéntenos qué produce y dónde está — elaboramos una recomendación técnica a medida para usted o programamos una visita de nuestro equipo agronómico.",
-    "formTitle": "Hable con Juma-Agro.",
+    "formTitleStart": "Hable con",
+    "formTitleHighlight": "Juma-Agro.",
     "labelName": "Nombre completo",
     "placeholderName": "Juan García",
     "labelWhatsApp": "WhatsApp",
@@ -861,16 +873,16 @@
     "whatsappBtn": "Hablar en WhatsApp",
     "seeManagementBtn": "Ver manejo por fase",
     "actuaEyebrow": "Cómo actúa Juma-Agro",
-    "actuaTitle": "Lo que Juma-Agro entrega<br></br>en {name}.",
+    "actuaTitle": "Lo que Juma-Agro entrega<br></br><highlight>en {name}.</highlight>",
     "actuaLede": "Cinco frentes de acción que se reflejan en la producción — y en los ingresos del productor.",
     "challengesEyebrow": "Desafíos por fase",
-    "challengesTitle": "Dónde el ciclo de<br></br>{name} exige atención.",
+    "challengesTitle": "Dónde el ciclo de<br></br><highlight>{name} exige atención.</highlight>",
     "challengesLede": "Ventanas críticas en las que el manejo nutricional define el tamaño de la cosecha.",
     "managementEyebrow": "Manejo por fase",
-    "managementTitle": "Programa nutricional<br></br>de {name} Juma-Agro.",
+    "managementTitle": "Programa nutricional<br></br><highlight>de {name} Juma-Agro.</highlight>",
     "managementLede": "Combinaciones de productos pensadas para cada ventana crítica del ciclo.",
     "recommendedEyebrow": "Productos recomendados",
-    "recommendedTitle": "La línea indicada<br></br>para {name}.",
+    "recommendedTitle": "La línea indicada<br></br><highlight>para {name}.</highlight>",
     "recommendedLede": "Los productos que aparecen con más frecuencia en el manejo con Juma-Agro.",
     "calcEyebrow": "Calcula tu ganancia",
     "calcTitle": "¿Cuánto rinde Juma-Agro<br></br>en tu {name}?",
@@ -1511,23 +1523,23 @@
     "relatedBtn": "Ver producto",
     "cropsLabel": "Cultivos indicados",
     "problemsEyebrow": "Qué resuelve",
-    "problemsTitle": "Problemas que el<br></br>{name} trata.",
+    "problemsTitle": "Problemas que el<br></br><highlight>{name} trata.</highlight>",
     "problemsLede": "Dónde el cultivo sufre pérdidas y cómo actúa el producto para revertir la situación.",
     "benefitsEyebrow": "Beneficios",
-    "benefitsTitle": "Lo que {name}<br></br>entrega en la práctica.",
+    "benefitsTitle": "Lo que {name}<br></br><highlight>entrega en la práctica.</highlight>",
     "benefitsLede": "Resultados fisiológicos y agronómicos que se reflejan en la productividad.",
     "resultsEyebrow": "Resultados de campo",
-    "resultsTitle": "Rendimiento de {name}<br></br>en la cosecha.",
+    "resultsTitle": "Rendimiento de {name}<br></br><highlight>en la cosecha.</highlight>",
     "resultsLede": "Ganancias reales medidas en áreas comerciales y ensayos con socios.",
     "relatedEyebrow": "Soluciones complementarias",
-    "relatedTitle": "Productos que trabajan<br></br>junto con {name}.",
+    "relatedTitle": "Productos que trabajan<br></br><highlight>junto con {name}.</highlight>",
     "galleryEyebrow": "En el campo",
-    "galleryTitle": "{name} en acción.",
+    "galleryTitle": "{name} <highlight>en acción.</highlight>",
     "galleryLede": "Fotos de campos y ensayos reales realizados con productores asociados.",
     "sizesLabel": "Envases disponibles",
     "cropsMore": "+{count} cultivos",
     "applicationsEyebrow": "Aplicaciones",
-    "applicationsTitle": "Cómo aplicar el {name}<br></br>en cada cultivo.",
+    "applicationsTitle": "Cómo aplicar el {name}<br></br><highlight>en cada cultivo.</highlight>",
     "applicationsLede": "Momento de aplicación según la etiqueta 2026.",
     "appCropCol": "Cultivo",
     "appWhenCol": "Cuándo aplicar",
@@ -3168,21 +3180,31 @@
     },
     "topics": {
       "t1Title": "QUIÉNES SOMOS",
+      "t1TitleStart": "QUIÉNES",
+      "t1TitleHighlight": "SOMOS",
       "t1Desc": "Un proyecto innovador que nace de la alianza público-privada entre Juma-Agro, empresa con más de 40 años en el agronegocio brasileño, y la Universidad Estatal del Norte de Paraná (UENP) y su Núcleo de Investigación en Tecnología de Aplicación y Máquinas Agrícolas (NITEC).",
       "t2Title": "NUESTRO PROPÓSITO",
+      "t2TitleStart": "NUESTRO",
+      "t2TitleHighlight": "PROPÓSITO",
       "t2Desc": "Transformar la forma en que las personas entienden y utilizan la tecnología de aplicación.",
       "t3Title": "POR QUÉ NACIMOS",
+      "t3TitleStart": "POR QUÉ",
+      "t3TitleHighlight": "NACIMOS",
       "t3Desc": "Observando la necesidad de ayudar al hombre de campo a entender cómo utilizar la tecnología de aplicación en el control fitosanitario y aprovechamiento nutricional, aliando la preservación ambiental y económica de una forma en que la información técnica sea asimilada por todos."
     },
     "team": {
       "title": "EQUIPO DEL PROYECTO",
+      "titleStart": "EQUIPO DEL",
+      "titleHighlight": "PROYECTO",
       "member1Name": "Ing. Agrónomo Anderson Souza de Jesus",
       "member1Role": "Gestor de Proyecto Juma-Agro",
       "member2Name": "Dr. Rone Batista de Oliveira",
       "member2Role": "Coordinador de Proyecto UENP"
     },
     "partners": {
-      "title": "SOCIOS"
+      "title": "SOCIOS",
+      "titleStart": "NUESTROS",
+      "titleHighlight": "SOCIOS"
     }
   }
 }

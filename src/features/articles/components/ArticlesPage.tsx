@@ -7,6 +7,7 @@ import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal, revealToggleActions } from '@/features/animation/charReveal'
+import { onPreloaderDone } from '@/features/animation/preloaderGate'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { DropdownMenu } from '@/components/ui/dropdown-menu'
@@ -109,6 +110,7 @@ export function ArticlesPage() {
       const reveal = createCharReveal(title)
       const chars = reveal?.chars ?? []
       let ghReveal: ReturnType<typeof createCharReveal> = null
+      let ctaReveal: ReturnType<typeof createCharReveal> = null
 
       if (eyebrow) gsap.set(eyebrow, { y: 15, opacity: 0 })
       if (title) gsap.set(title, { opacity: 0 })
@@ -117,12 +119,14 @@ export function ArticlesPage() {
       if (filters) gsap.set(filters, { y: 20, opacity: 0 })
       if (cta) gsap.set(cta, { y: 24, opacity: 0 })
 
-      const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
+      /* Pausada: quem solta é o portão do preloader (ver `preloaderGate`). */
+      const tl = gsap.timeline({ paused: true, defaults: { ease: EASE.reveal } })
       if (eyebrow) tl.to(eyebrow, { y: 0, opacity: 1, duration: 0.5 })
       if (title) tl.set(title, { opacity: 1 }, 0.1)
       reveal?.playIn(tl, 0.1)
       if (intro) tl.to(intro, { y: 0, opacity: 1, duration: DUR.sub }, 0.4)
       if (filters) tl.to(filters, { y: 0, opacity: 1, duration: DUR.sub }, 0.5)
+      const soltarAbertura = onPreloaderDone(() => tl.play())
 
       if (featured) {
         gsap.set(featured, { y: 24, opacity: 0 })
@@ -179,20 +183,30 @@ export function ArticlesPage() {
       }
 
       if (cta) {
-        gsap.to(cta, {
-          y: 0, opacity: 1, duration: 0.7, ease: EASE.reveal,
+        /* O bloco inteiro sobe e, dentro dele, o título entra letra a letra —
+           o mesmo desenho dos títulos de seção. Antes o CTA só aparecia. */
+        const ctaTitle = cta.querySelector<HTMLElement>('[data-cta-title]')
+        ctaReveal = createCharReveal(ctaTitle)
+        ctaReveal?.hide()
+
+        const ctaTl = gsap.timeline({
           scrollTrigger: {
             trigger: cta,
             start: 'top 90%',
             end: 'bottom top',
             toggleActions: revealToggleActions(),
           },
+          defaults: { ease: EASE.reveal },
         })
+        ctaTl.to(cta, { y: 0, opacity: 1, duration: 0.7 })
+        ctaReveal?.playIn(ctaTl, 0.15)
       }
 
       return () => {
+        soltarAbertura()
         reveal?.revert()
         ghReveal?.revert()
+        ctaReveal?.revert()
       }
     },
     { scope: containerRef, dependencies: [reduced] }
@@ -283,7 +297,7 @@ export function ArticlesPage() {
           </div>
           <div className="md:w-2/3 max-w-[64rem]">
             <h2 data-gh-title className="font-montserrat uppercase text-3xl md:text-4xl font-black text-foreground tracking-tight mb-4 leading-[0.95]">
-              {t('allArticlesTitle')}
+              {t('allArticlesTitleStart')} <em className="text-highlight text-primary">{t('allArticlesTitleHighlight')}</em>
             </h2>
             <p data-gh-intro className="text-lg text-foreground/70 leading-relaxed">
               {t('allArticlesIntro')}
@@ -353,8 +367,8 @@ export function ArticlesPage() {
             <span className="h-1.5 w-1.5 rounded-full bg-white" />
             {t('ctaEyebrow')}
           </span>
-          <h2 className="font-montserrat text-3xl md:text-4xl font-black uppercase tracking-tight mb-4 leading-[0.95] text-white">
-            {t('ctaTitleStart')} {t('ctaTitleEnd')}
+          <h2 data-cta-title className="font-montserrat text-3xl md:text-4xl font-black uppercase tracking-tight mb-4 leading-[0.95] text-white">
+            {t('ctaTitleStart')} <em className="text-highlight text-[#F0E27A]">{t('ctaTitleEnd')}</em>
           </h2>
           <p className="text-white text-lg">
             {t('ctaBody')}

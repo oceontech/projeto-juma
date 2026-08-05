@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { gsap, ScrollTrigger } from '@/features/animation/gsap'
+import { PRELOADER_DONE_EVENT, setPreloaderActive } from '@/features/animation/preloaderGate'
 
 /**
  * Aquecedor e pré-carregador de recursos críticos.
@@ -71,8 +72,17 @@ export function Preloader() {
   const showOverlay = () => {
     if (showingRef.current) return
     showingRef.current = true
+    setPreloaderActive(true)
     setVisible(true)
     setCycle((c) => c + 1)
+  }
+
+  /* O overlay nasce visível (`useState(true)`), então a bandeira precisa nascer
+     de pé também — antes de qualquer página montar e perguntar se pode animar.
+     Sem isto, a primeira carga passava direto pelo portão e a abertura rodava
+     atrás da tela branca, que é justamente o que ele existe para evitar. */
+  if (typeof window !== 'undefined' && window.__jumaPreloaderActive === undefined) {
+    setPreloaderActive(true)
   }
 
   // Início da navegação: clique num link interno
@@ -118,8 +128,9 @@ export function Preloader() {
        parado, sem entrada nenhuma. */
     const finish = () => {
       showingRef.current = false
+      setPreloaderActive(false)
       setVisible(false)
-      window.dispatchEvent(new CustomEvent('preloader:done'))
+      window.dispatchEvent(new CustomEvent(PRELOADER_DONE_EVENT))
     }
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {

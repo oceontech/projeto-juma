@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal , bindSectionReveal, revealToggleActions } from '@/features/animation/charReveal'
+import { onPreloaderDone } from '@/features/animation/preloaderGate'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
@@ -55,6 +56,7 @@ export function ExperiencePage() {
 
       const reveal = createCharReveal(title)
       const chars = reveal?.chars ?? []
+      const sectionReveals: NonNullable<ReturnType<typeof createCharReveal>>[] = []
 
       if (eyebrow) gsap.set(eyebrow, { y: 15, opacity: 0 })
       if (title) gsap.set(title, { opacity: 0 })
@@ -63,12 +65,14 @@ export function ExperiencePage() {
       if (buttons) gsap.set(buttons, { y: 15, opacity: 0 })
       if (cta) gsap.set(cta, { y: 24, opacity: 0 })
 
-      const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
+      /* Pausada: quem solta é o portão do preloader (ver `preloaderGate`). */
+      const tl = gsap.timeline({ paused: true, defaults: { ease: EASE.reveal } })
       if (eyebrow) tl.to(eyebrow, { y: 0, opacity: 1, duration: 0.5 })
       if (title) tl.set(title, { opacity: 1 }, 0.1)
       reveal?.playIn(tl, 0.1)
       if (intro) tl.to(intro, { y: 0, opacity: 1, duration: DUR.sub }, 0.4)
       if (buttons) tl.to(buttons, { y: 0, opacity: 1, duration: DUR.sub }, 0.55)
+      const soltarAbertura = onPreloaderDone(() => tl.play())
 
       if (program) {
         const pEyebrow = program.querySelector('[data-prog-eyebrow]')
@@ -76,15 +80,20 @@ export function ExperiencePage() {
         const pIntro = program.querySelector('[data-prog-intro]')
         const pCards = gsap.utils.toArray<HTMLElement>('[data-prog-card]', program)
 
+        const pReveal = createCharReveal(pTitle as HTMLElement | null)
+        if (pReveal) sectionReveals.push(pReveal)
+
         if (pEyebrow) gsap.set(pEyebrow, { y: 15, opacity: 0 })
-        if (pTitle) gsap.set(pTitle, { y: 20, opacity: 0 })
+        if (pTitle) gsap.set(pTitle, { opacity: 0 })
+        pReveal?.hide()
         if (pIntro) gsap.set(pIntro, { y: 20, opacity: 0 })
 
         bindSectionReveal(program, () => {
             const tlProg = gsap.timeline({ defaults: { ease: EASE.reveal } })
             if (pEyebrow) tlProg.to(pEyebrow, { y: 0, opacity: 1, duration: 0.5 })
-            if (pTitle) tlProg.to(pTitle, { y: 0, opacity: 1, duration: 0.7 }, 0.1)
-            if (pIntro) tlProg.to(pIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.25)
+            if (pTitle) tlProg.set(pTitle, { opacity: 1 }, 0.1)
+            pReveal?.playIn(tlProg, 0.1)
+            if (pIntro) tlProg.to(pIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.35)
           return tlProg
         }, { start: 'top 80%' })
 
@@ -131,8 +140,12 @@ export function ExperiencePage() {
         const bIntro = benefits.querySelector('[data-ben-intro]')
         const bItems = gsap.utils.toArray<HTMLElement>('[data-ben-item]', benefits)
 
+        const bReveal = createCharReveal(bTitle as HTMLElement | null)
+        if (bReveal) sectionReveals.push(bReveal)
+
         if (bEyebrow) gsap.set(bEyebrow, { y: 15, opacity: 0 })
-        if (bTitle) gsap.set(bTitle, { y: 20, opacity: 0 })
+        if (bTitle) gsap.set(bTitle, { opacity: 0 })
+        bReveal?.hide()
         if (bIntro) gsap.set(bIntro, { y: 20, opacity: 0 })
 
         bItems.forEach(item => {
@@ -145,8 +158,9 @@ export function ExperiencePage() {
         bindSectionReveal(benefits, () => {
             const tlBen = gsap.timeline({ defaults: { ease: EASE.reveal } })
             if (bEyebrow) tlBen.to(bEyebrow, { y: 0, opacity: 1, duration: 0.5 })
-            if (bTitle) tlBen.to(bTitle, { y: 0, opacity: 1, duration: 0.7 }, 0.1)
-            if (bIntro) tlBen.to(bIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.25)
+            if (bTitle) tlBen.set(bTitle, { opacity: 1 }, 0.1)
+            bReveal?.playIn(tlBen, 0.1)
+            if (bIntro) tlBen.to(bIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.35)
 
             bItems.forEach((item, index) => {
               const icon = item.querySelector('[data-ben-icon]')
@@ -165,16 +179,21 @@ export function ExperiencePage() {
         const gIntro = gallery.querySelector('[data-gal-intro]')
         const gImages = gsap.utils.toArray<HTMLElement>('[data-gal-img]', gallery)
 
+        const gReveal = createCharReveal(gTitle as HTMLElement | null)
+        if (gReveal) sectionReveals.push(gReveal)
+
         if (gEyebrow) gsap.set(gEyebrow, { y: 15, opacity: 0 })
-        if (gTitle) gsap.set(gTitle, { y: 20, opacity: 0 })
+        if (gTitle) gsap.set(gTitle, { opacity: 0 })
+        gReveal?.hide()
         if (gIntro) gsap.set(gIntro, { y: 20, opacity: 0 })
         if (gImages.length) gsap.set(gImages, { y: 30, opacity: 0 })
 
         bindSectionReveal(gallery, () => {
             const tlGal = gsap.timeline({ defaults: { ease: EASE.reveal } })
             if (gEyebrow) tlGal.to(gEyebrow, { y: 0, opacity: 1, duration: 0.5 })
-            if (gTitle) tlGal.to(gTitle, { y: 0, opacity: 1, duration: 0.7 }, 0.1)
-            if (gIntro) tlGal.to(gIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.25)
+            if (gTitle) tlGal.set(gTitle, { opacity: 1 }, 0.1)
+            gReveal?.playIn(tlGal, 0.1)
+            if (gIntro) tlGal.to(gIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.35)
             if (gImages.length) {
               tlGal.to(gImages, { y: 0, opacity: 1, duration: 0.9, stagger: STAGGER.card }, 0.4)
             }
@@ -183,19 +202,28 @@ export function ExperiencePage() {
       }
 
       if (cta) {
-        gsap.to(cta, {
-          y: 0, opacity: 1, duration: 0.7, ease: EASE.reveal,
+        const ctaTitle = cta.querySelector<HTMLElement>('[data-cta-title]')
+        const ctaReveal = createCharReveal(ctaTitle)
+        if (ctaReveal) sectionReveals.push(ctaReveal)
+        ctaReveal?.hide()
+
+        const ctaTl = gsap.timeline({
           scrollTrigger: {
             trigger: cta,
             start: 'top 90%',
             end: 'bottom top',
             toggleActions: revealToggleActions(),
           },
+          defaults: { ease: EASE.reveal },
         })
+        ctaTl.to(cta, { y: 0, opacity: 1, duration: 0.7 })
+        ctaReveal?.playIn(ctaTl, 0.15)
       }
 
       return () => {
+        soltarAbertura()
         reveal?.revert()
+        sectionReveals.forEach((r) => r.revert())
       }
     },
     { scope: containerRef, dependencies: [reduced] }
@@ -247,7 +275,7 @@ export function ExperiencePage() {
           </div>
           <div className="md:w-2/3 max-w-[64rem]">
             <h2 data-prog-title className="font-montserrat uppercase text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-[0.95]">
-              {t('programTitle')}
+              {t('programTitleStart')} <em className="text-highlight text-primary">{t('programTitleHighlight')}</em>
             </h2>
             <p data-prog-intro className="text-lg text-foreground/70 leading-relaxed">
               {t('programIntro')}
@@ -308,7 +336,7 @@ export function ExperiencePage() {
           </div>
           <div className="md:w-2/3 max-w-[64rem]">
             <h2 data-ben-title className="font-montserrat uppercase text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-[0.95]">
-              {t('benefitsTitle')}
+              {t('benefitsTitleStart')} <em className="text-highlight text-primary">{t('benefitsTitleHighlight')}</em>
             </h2>
             <p data-ben-intro className="text-lg text-foreground/70 leading-relaxed">
               {t('benefitsIntro')}
@@ -346,7 +374,7 @@ export function ExperiencePage() {
           </div>
           <div className="md:w-2/3 max-w-[64rem]">
             <h2 data-gal-title className="font-montserrat uppercase text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-[0.95]">
-              {t('galleryTitle')}
+              {t('galleryTitleStart')} <em className="text-highlight text-primary">{t('galleryTitleHighlight')}</em>
             </h2>
             <p data-gal-intro className="text-lg text-foreground/70 leading-relaxed">
               {t('galleryIntro')}
@@ -412,8 +440,8 @@ export function ExperiencePage() {
             <span className="h-1.5 w-1.5 rounded-full bg-white" />
             {t('ctaEyebrow')}
           </span>
-          <h2 className="font-montserrat text-3xl md:text-4xl font-black uppercase text-white tracking-tight mb-4 leading-[0.95]">
-            {t('ctaTitleStart')} <em className="text-highlight text-white">{t('ctaTitleHighlight')}</em><br />
+          <h2 data-cta-title className="font-montserrat text-3xl md:text-4xl font-black uppercase text-white tracking-tight mb-4 leading-[0.95]">
+            {t('ctaTitleStart')} <em className="text-highlight text-[#F0E27A]">{t('ctaTitleHighlight')}</em><br />
             {t('ctaTitleEnd')}
           </h2>
           <p className="text-white text-lg">

@@ -7,6 +7,7 @@ import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal , bindSectionReveal, revealToggleActions } from '@/features/animation/charReveal'
+import { onPreloaderDone } from '@/features/animation/preloaderGate'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 
@@ -88,6 +89,8 @@ export function CulturesGrid() {
 
       const reveal = createCharReveal(title)
       const chars = reveal?.chars ?? []
+      let howReveal: ReturnType<typeof createCharReveal> = null
+      let ctaReveal: ReturnType<typeof createCharReveal> = null
 
       if (eyebrow) gsap.set(eyebrow, { y: 15, opacity: 0 })
       if (title) gsap.set(title, { opacity: 0 })
@@ -95,11 +98,13 @@ export function CulturesGrid() {
       if (intro) gsap.set(intro, { y: 20, opacity: 0 })
       if (cta) gsap.set(cta, { y: 24, opacity: 0 })
 
-      const tl = gsap.timeline({ defaults: { ease: EASE.reveal } })
+      /* Pausada: quem solta é o portão do preloader (ver `preloaderGate`). */
+      const tl = gsap.timeline({ paused: true, defaults: { ease: EASE.reveal } })
       if (eyebrow) tl.to(eyebrow, { y: 0, opacity: 1, duration: 0.5 })
       if (title) tl.set(title, { opacity: 1 }, 0.1)
       reveal?.playIn(tl, 0.1)
       if (intro) tl.to(intro, { y: 0, opacity: 1, duration: DUR.sub }, 0.4)
+      const soltarAbertura = onPreloaderDone(() => tl.play())
 
       if (grid) {
         const cards = gsap.utils.toArray<HTMLElement>('[data-culture-card]', grid)
@@ -144,16 +149,20 @@ export function CulturesGrid() {
         const sectionIntro = how.querySelector('[data-how-intro]')
         const stepCards = gsap.utils.toArray<HTMLElement>('[data-how-step]', how)
 
+        howReveal = createCharReveal(sectionTitle as HTMLElement | null)
+
         if (sectionEyebrow) gsap.set(sectionEyebrow, { y: 15, opacity: 0 })
-        if (sectionTitle) gsap.set(sectionTitle, { y: 20, opacity: 0 })
+        if (sectionTitle) gsap.set(sectionTitle, { opacity: 0 })
+        howReveal?.hide()
         if (sectionIntro) gsap.set(sectionIntro, { y: 20, opacity: 0 })
         if (stepCards.length) gsap.set(stepCards, { y: 24, opacity: 0 })
 
         bindSectionReveal(how, () => {
             const tlHow = gsap.timeline({ defaults: { ease: EASE.reveal } })
             if (sectionEyebrow) tlHow.to(sectionEyebrow, { y: 0, opacity: 1, duration: 0.5 })
-            if (sectionTitle) tlHow.to(sectionTitle, { y: 0, opacity: 1, duration: 0.7 }, 0.1)
-            if (sectionIntro) tlHow.to(sectionIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.25)
+            if (sectionTitle) tlHow.set(sectionTitle, { opacity: 1 }, 0.1)
+            howReveal?.playIn(tlHow, 0.1)
+            if (sectionIntro) tlHow.to(sectionIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.35)
             if (stepCards.length) {
               tlHow.to(stepCards, { y: 0, opacity: 1, duration: 0.8, stagger: STAGGER.card }, 0.4)
             }
@@ -171,19 +180,28 @@ export function CulturesGrid() {
       }
 
       if (cta) {
-        gsap.to(cta, {
-          y: 0, opacity: 1, duration: 0.7, ease: EASE.reveal,
+        const ctaTitle = cta.querySelector<HTMLElement>('[data-cta-title]')
+        ctaReveal = createCharReveal(ctaTitle)
+        ctaReveal?.hide()
+
+        const ctaTl = gsap.timeline({
           scrollTrigger: {
             trigger: cta,
             start: 'top 90%',
             end: 'bottom top',
             toggleActions: revealToggleActions(),
           },
+          defaults: { ease: EASE.reveal },
         })
+        ctaTl.to(cta, { y: 0, opacity: 1, duration: 0.7 })
+        ctaReveal?.playIn(ctaTl, 0.15)
       }
 
       return () => {
+        soltarAbertura()
         reveal?.revert()
+        howReveal?.revert()
+        ctaReveal?.revert()
       }
     },
     { scope: containerRef, dependencies: [reduced] }
@@ -265,7 +283,7 @@ export function CulturesGrid() {
           </div>
           <div className="md:w-2/3 max-w-[64rem]">
             <h2 data-how-title className="font-montserrat uppercase text-3xl md:text-5xl font-black text-foreground tracking-tight mb-6 leading-[0.95]">
-              {t('howTitle')}
+              {t('howTitleStart')} <em className="text-highlight text-primary">{t('howTitleHighlight')}</em>
             </h2>
             <p data-how-intro className="text-lg text-foreground/70 leading-relaxed">
               {t('howIntro')}
@@ -306,8 +324,8 @@ export function CulturesGrid() {
             <span className="h-1.5 w-1.5 rounded-full bg-white" />
             {t('ctaEyebrow')}
           </span>
-          <h2 className="font-montserrat text-3xl md:text-4xl font-black uppercase text-white tracking-tight mb-4 leading-[0.95]">
-            {t('ctaTitleStart')} <em className="text-highlight text-white">{t('ctaTitleHighlight')}</em>
+          <h2 data-cta-title className="font-montserrat text-3xl md:text-4xl font-black uppercase text-white tracking-tight mb-4 leading-[0.95]">
+            {t('ctaTitleStart')} <em className="text-highlight text-[#F0E27A]">{t('ctaTitleHighlight')}</em>
           </h2>
           <p className="text-white text-lg">
             {t('ctaBody')}
