@@ -165,10 +165,15 @@ export function createCharReveal(
     playIn: (tl, position = 0) => {
       if (!chars.length) return
 
-      /* O ponto de partida é reescrito a cada execução, porque ele depende do
-         sentido do scroll no momento em que a seção entra. Um `fromTo` fixo
-         congelaria a direção da primeira vez. */
-      tl.set(chars, { [axis]: deslocamento() }, position)
+      /* O estado inicial COMPLETO é reescrito a cada execução — posição e
+         opacidade, não só a posição.
+         Sem a opacidade aqui, uma timeline reconstruída (o que acontece quando
+         o sentido do scroll muda) encontrava os caracteres já visíveis e
+         animava de 1 para 1: nenhuma entrada perceptível. Era o que deixava o
+         título parado enquanto o resto da seção animava. E o deslocamento
+         precisa ser recalculado porque depende do sentido no momento da
+         entrada — um `fromTo` fixo congelaria a direção da primeira vez. */
+      tl.set(chars, { [axis]: deslocamento(), [alphaKey]: 0 }, position)
 
       if (blurAtivo > 0) {
         /* O filtro precisa sumir do elemento nos DOIS sentidos.
@@ -199,7 +204,21 @@ export function createCharReveal(
           [alphaKey]: 1,
           duration,
           ease,
-          stagger,
+          /* A cascata também acompanha o sentido do scroll.
+             Descendo, ela corre do primeiro caractere para o último — a ordem
+             natural da leitura. SUBINDO, a seção reaparece pela borda de cima e
+             é o fim do texto que surge primeiro; começar pelo primeiro
+             caractere ali contraria o que o olho vê chegando.
+
+             O atraso é uma FUNÇÃO, e não `{ each, from }`, porque precisa ser
+             reavaliado a cada execução: a timeline é construída uma vez e
+             reproduzida muitas, e um objeto de stagger fixa a ordem na
+             construção — congelando o sentido do primeiro encontro. */
+          stagger: (indice: number, _alvo: Element, lista: Element[]) => {
+            const total = lista.length
+            const ordem = scrollDirection() === -1 ? total - 1 - indice : indice
+            return ordem * stagger
+          },
           /* A promessa de transformação vale só enquanto a cascata corre; ao
              fim, `clearProps` devolve a memória de vídeo dos caracteres. */
           willChange: 'transform, opacity',
@@ -264,7 +283,14 @@ export function revealRunsOnce(): boolean {
  */
 export function bindSectionReveal(
   trigger: Element,
-  build: () => gsap.core.Timeline,
+  /**
+   * Monta a timeline de entrada. Recebe o sentido do scroll (`1` descendo,
+   * `-1` subindo) para poder inverter a ORDEM dos blocos — o que nenhuma
+   * geometria resolve sozinha: ao subir, a reentrada de um trigger é governada
+   * pelo `end`, não pelo `start`, e a ordem em que os gatilhos disparam não
+   * corresponde à ordem em que o olho vê o conteúdo chegar.
+   */
+  build: (direcao: 1 | -1) => gsap.core.Timeline,
   options: {
     start?: string
     end?: string
@@ -296,8 +322,20 @@ export function bindSectionReveal(
      daí em diante: `play()` e `reverse()` na mesma instância, sem remontar nada
      a cada passagem de scroll. */
   let tl: gsap.core.Timeline | null = null
-  const ensure = () => {
-    if (!tl) tl = build().pause()
+  let construidaPara: 1 | -1 | null = null
+  /* A direção vem do PRÓPRIO trigger (`self.direction`), não do rastreador
+     global: dentro do callback ele é a fonte exata do sentido daquele cruzamento,
+     enquanto o rastreador global pode estar um evento atrasado — o bastante para
+     a timeline ser montada na ordem errada justamente na virada. */
+  const ensure = (dirForcada?: 1 | -1) => {
+    const dir = dirForcada ?? scrollDirection()
+    /* Reconstrói quando o sentido muda: a ordem dos blocos faz parte da
+       timeline, e uma timeline já montada carrega a ordem do sentido anterior. */
+    if (!tl || construidaPara !== dir) {
+      tl?.kill()
+      tl = build(dir).pause()
+      construidaPara = dir
+    }
     return tl
   }
 
@@ -318,13 +356,17 @@ export function bindSectionReveal(
     end,
     ...(endTrigger ? { endTrigger } : {}),
     // A entrada sempre no ritmo próprio; só a saída é acelerada.
-    onEnter: () => {
+    /* `invalidate()` descarta os valores já resolvidos para que as funções
+       (deslocamento e ordem da cascata) sejam recalculadas — é o que permite a
+       entrada mudar de sentido conforme o usuário sobe ou desce. */
+    onEnter: (self) => {
       out?.pause(0)
-      ensure().timeScale(1).play()
+      ensure(self.direction === -1 ? -1 : 1).timeScale(1).invalidate().restart()
     },
-    onEnterBack: () => {
+    onEnterBack: (self) => {
       out?.pause(0)
-      ensure().timeScale(1).play()
+      // Reentrada vindo de baixo: o sentido é sempre "subindo".
+      ensure(self.direction === 1 ? 1 : -1).timeScale(1).invalidate().restart()
     },
     /* A saída corre mais rápido que a entrada.
        Revertendo no mesmo ritmo, a despedida dura o tempo inteiro da chegada —
@@ -340,4 +382,46 @@ export function bindSectionReveal(
       if (self.isActive) ensure().play()
     },
   })
+}
+
+/**
+ * Reveal de texto corrido — parágrafos, descrições, textos de apoio.
+ *
+ * Deliberadamente mais simples que o dos títulos: o bloco inteiro sobe e
+ * aparece, sem quebrar em caracteres. Um título é um elemento gráfico e
+ * suporta cascata; um parágrafo é para ler, e letra a letra ali só atrasa a
+ * leitura e multiplica o custo por algumas centenas de caracteres.
+ *
+ * Como nos títulos, o sentido acompanha o scroll: descendo o texto sobe para
+ * entrar; subindo, ele desce.
+ */
+export function createTextReveal(
+  el: HTMLElement | null | undefined,
+  options: { distance?: number; duration?: number; ease?: string } = {},
+) {
+  if (!el) return null
+  const { distance = 18, duration = DUR.sub, ease = EASE.reveal } = options
+
+  const deslocamento = () => (scrollDirection() === -1 ? -distance : distance)
+
+  return {
+    el,
+    hide: () => gsap.set(el, { y: deslocamento(), opacity: 0 }),
+    playIn: (tl: gsap.core.Timeline, position: gsap.Position = 0) => {
+      // Estado inicial completo: ver o comentário equivalente em `createCharReveal`.
+      tl.set(el, { y: deslocamento(), opacity: 0 }, position)
+      tl.to(
+        el,
+        {
+          y: 0,
+          opacity: 1,
+          duration,
+          ease,
+          willChange: 'transform, opacity',
+          clearProps: 'willChange',
+        },
+        position,
+      )
+    },
+  }
 }

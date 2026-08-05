@@ -6,8 +6,8 @@ import { useRef } from 'react'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { gsap, useGSAP } from '@/features/animation/gsap'
-import { createCharReveal, revealToggleActions } from '@/features/animation/charReveal'
-import { DUR, EASE } from '@/features/animation/motion'
+import { bindSectionReveal, createCharReveal, createTextReveal } from '@/features/animation/charReveal'
+import { DUR, EASE, blurPx } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
@@ -22,10 +22,10 @@ export function HomeExperience() {
     const visual = ref.current.querySelector<HTMLElement>('[data-exp-visual]')
     const body = ref.current.querySelector<HTMLElement>('[data-exp-body]')
     
-    const isMobile = window.innerWidth < 1024
-    if (visual) gsap.set(visual, { x: -40, opacity: 0, ...(!isMobile && { filter: 'blur(10px)' }) })
+    if (visual) gsap.set(visual, { x: -40, opacity: 0, filter: blurPx(10) })
     
     let reveal: ReturnType<typeof createCharReveal> = null
+    let descReveal: ReturnType<typeof createTextReveal> = null
     if (body) {
       const kicker = body.querySelector<HTMLElement>('[data-kicker]')
       const title = body.querySelector<HTMLElement>('[data-title]')
@@ -34,40 +34,102 @@ export function HomeExperience() {
       const cta = body.querySelector<HTMLElement>('[data-cta]')
 
       reveal = createCharReveal(title)
+      descReveal = createTextReveal(desc)
 
       if (kicker) gsap.set(kicker, { y: 14, opacity: 0 })
       reveal?.hide()
       if (line) gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
-      if (desc) gsap.set(desc, { y: 20, opacity: 0 })
+      descReveal?.hide()
       if (cta) gsap.set(cta, { y: 20, opacity: 0 })
     }
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: ref.current,
-        start: 'top 75%',
-        end: 'bottom 45%',
-        toggleActions: revealToggleActions(),
-      },
-      defaults: { ease: EASE.reveal }
-    })
-    
-    if (visual) tl.to(visual, { x: 0, opacity: 1, ...(!isMobile && { filter: 'blur(0px)' }), duration: 0.9 })
-    
-    if (body) {
-      const kicker = body.querySelector<HTMLElement>('[data-kicker]')
-      const line = body.querySelector<HTMLElement>('[data-gline]')
-      const desc = body.querySelector<HTMLElement>('[data-desc]')
-      const cta = body.querySelector<HTMLElement>('[data-cta]')
+    /* ── Celular: cada bloco entra quando é a vez DELE ────────────────
+       No desktop a imagem e o texto estão lado a lado e entram na mesma tela —
+       uma timeline só, na ordem escrita, resolve.
 
-      if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub }, '-=0.5')
-      reveal?.playIn(tl, '-=0.4')
-      if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: DUR.sub }, '-=0.4')
-      if (desc) tl.to(desc, { y: 0, opacity: 1, duration: DUR.sub }, '-=0.4')
-      if (cta) tl.to(cta, { y: 0, opacity: 1, duration: DUR.sub }, '-=0.4')
+       No celular o layout empilha: imagem, depois título, depois o parágrafo e
+       o botão. Com uma timeline única a ordem é sempre a mesma, escrita no
+       código — o que está certo na descida e errado na volta. Subindo, quem
+       reaparece primeiro pela borda de baixo é o PARÁGRAFO, mas ele continuava
+       esperando o título entrar antes, porque era essa a ordem da timeline.
+
+       A correção não é detectar a direção e inverter a lista: é dar a cada
+       bloco o seu próprio gatilho. Aí a ordem deixa de ser uma decisão do
+       código e passa a ser consequência da posição na página — descendo entra
+       primeiro quem está em cima, subindo entra primeiro quem está embaixo,
+       nos dois casos sem nenhuma lógica de direção. */
+    const empilhado = window.matchMedia('(max-width: 1023px)').matches
+
+    const kicker = body?.querySelector<HTMLElement>('[data-kicker]') ?? null
+    const line = body?.querySelector<HTMLElement>('[data-gline]') ?? null
+    const desc = body?.querySelector<HTMLElement>('[data-desc]') ?? null
+    const cta = body?.querySelector<HTMLElement>('[data-cta]') ?? null
+    const titleEl = body?.querySelector<HTMLElement>('[data-title]') ?? null
+
+    // Bloco de cima: pré-título, título e a linha de acento.
+    const animaTitulo = (tl: gsap.core.Timeline, em = 0) => {
+      if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub }, em)
+      if (reveal) reveal.playIn(tl, em + 0.1)
+      if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: DUR.sub }, em + 0.25)
+    }
+    // Bloco de baixo: parágrafo e chamada.
+    const animaCorpo = (tl: gsap.core.Timeline, em = 0) => {
+      if (descReveal) descReveal.playIn(tl, em)
+      else if (desc) tl.to(desc, { y: 0, opacity: 1, duration: DUR.sub }, em)
+      if (cta) tl.to(cta, { y: 0, opacity: 1, duration: DUR.sub }, em + 0.1)
+    }
+    const animaVisual = (tl: gsap.core.Timeline, em = 0) => {
+      if (visual) tl.to(visual, { x: 0, opacity: 1, filter: blurPx(0), duration: 0.9 }, em)
     }
 
-    return () => reveal?.revert()
+    const gatilhos: ScrollTrigger[] = []
+    const cfg = { defaults: { ease: EASE.reveal } }
+
+    if (empilhado && body && visual) {
+      gatilhos.push(bindSectionReveal(visual, () => {
+        const tl = gsap.timeline(cfg); animaVisual(tl); return tl
+      }))
+      /* Um gatilho para o bloco de texto, com a ORDEM decidida pelo sentido.
+         Descendo, o olho encontra o título primeiro e o parágrafo depois.
+         Subindo, a seção reaparece pela borda de cima e é o parágrafo — que
+         está mais abaixo — o primeiro a surgir; o título entra em seguida. */
+      /* Título e parágrafo com gatilhos SEPARADOS.
+         A ordem deixa de ser uma decisão escrita no código e passa a ser
+         consequência da posição de cada um na página: descendo, o título cruza
+         o gatilho primeiro (está mais acima); subindo, quem cruza primeiro é o
+         parágrafo, porque é ele que reaparece antes pela borda de baixo.
+         Cada bloco leva a própria saída, para voltar ao estado escondido quando
+         deixa a tela — sem isso, um bloco que ficasse visível "apareceria
+         primeiro" na volta apenas por nunca ter sumido. */
+      const esconde = (alvos: (Element | null)[]) => () => {
+        const tlOut = gsap.timeline({ defaults: { ease: 'power2.in' } })
+        tlOut.to(alvos.filter(Boolean) as Element[],
+                 { y: -12, autoAlpha: 0, duration: 0.28, overwrite: 'auto' }, 0)
+        return tlOut
+      }
+
+      gatilhos.push(bindSectionReveal(titleEl ?? body, () => {
+        const tl = gsap.timeline(cfg); animaTitulo(tl); return tl
+      }, { buildOut: esconde([kicker, titleEl, line]) }))
+
+      gatilhos.push(bindSectionReveal(desc ?? body, () => {
+        const tl = gsap.timeline(cfg); animaCorpo(tl); return tl
+      }, { buildOut: esconde([desc, cta]) }))
+
+    } else {
+      gatilhos.push(bindSectionReveal(ref.current, () => {
+        const tl = gsap.timeline(cfg)
+        animaVisual(tl, 0)
+        animaTitulo(tl, 0.1)
+        animaCorpo(tl, 0.42)
+        return tl
+      }, { start: 'top 75%' }))
+    }
+
+    return () => {
+      gatilhos.forEach((g) => g.kill())
+      reveal?.revert()
+    }
   }, { scope: ref })
 
   return (

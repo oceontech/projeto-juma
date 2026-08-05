@@ -43,10 +43,16 @@ export function Solution() {
       if (intro) gsap.set(intro, { y: 20, opacity: 0 })
       if (cta) gsap.set(cta, { y: 16, opacity: 0 })
 
-      // Cabeçalho: revela quando entra no viewport
+      /* O gatilho mede o TÍTULO, não a seção.
+         Esta seção é altíssima — três passos de 60 a 75vh cada, mais de dois
+         mil pixels. Ancorado nela, o `top 85%` disparava assim que a BORDA de
+         cima da seção aparecia, com o título ainda lá embaixo: quando o usuário
+         finalmente chegava a ele para ler, a animação havia terminado fazia
+         tempo, e a impressão era de que ela não existia. Medindo o título, a
+         entrada acontece quando é ele que chega. */
       const tlHead = gsap.timeline({
         scrollTrigger: {
-          trigger: ref.current,
+          trigger: title ?? ref.current,
           start: 'top 85%',
           end: 'bottom 45%',
           toggleActions: revealToggleActions(),

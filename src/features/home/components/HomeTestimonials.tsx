@@ -4,7 +4,7 @@ import { CheckCircle2 } from 'lucide-react'
 
 import React, { useRef, useState, useEffect } from 'react'
 import { gsap } from '@/features/animation/gsap'
-import { createCharReveal, revealToggleActions } from '@/features/animation/charReveal'
+import { createCharReveal, createTextReveal, revealToggleActions } from '@/features/animation/charReveal'
 import { DUR, EASE } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { useGSAP } from '@/features/animation/gsap'
@@ -37,9 +37,15 @@ export function HomeTestimonials() {
       const line = header.querySelector<HTMLElement>('[data-gline]')
 
       reveal = createCharReveal(title)
+      /* O texto de apoio ao lado do título também entra — antes ele
+         simplesmente aparecia junto com a página. Movimento simples de
+         propósito: um parágrafo é para ler, e cascata por letra ali só atrasa
+         a leitura. */
+      const descReveal = createTextReveal(header.parentElement?.querySelector<HTMLElement>('[data-desc]') ?? null)
 
       if (kicker) gsap.set(kicker, { y: 14, opacity: 0 })
       reveal?.hide()
+      descReveal?.hide()
       if (line) gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'left center' })
 
       const tl = gsap.timeline({
@@ -52,6 +58,7 @@ export function HomeTestimonials() {
         defaults: { ease: EASE.reveal }
       })
       if (kicker) tl.to(kicker, { y: 0, opacity: 1, duration: DUR.sub })
+      descReveal?.playIn(tl, 0.18)
       reveal?.playIn(tl, '-=0.4')
       if (line) tl.to(line, { scaleX: 1, opacity: 1, duration: DUR.sub }, '-=0.4')
     }
@@ -93,7 +100,7 @@ export function HomeTestimonials() {
             <span data-gline aria-hidden className="mt-8 block h-[3px] w-12 rounded-full bg-[#004B26]" />
           </div>
           {/* pr no desktop: afasta o texto dos traços fixos do SectionNav */}
-          <p className="max-w-[38ch] text-[17px] leading-[1.6] lg:pr-10" style={{ color: '#3d4d35' }}>
+          <p data-desc className="max-w-[38ch] text-[17px] leading-[1.6] lg:pr-10" style={{ color: '#3d4d35' }}>
             {t('desc')}
           </p>
         </div>
