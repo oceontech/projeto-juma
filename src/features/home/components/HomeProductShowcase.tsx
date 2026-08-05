@@ -616,14 +616,19 @@ export function HomeProductShowcase() {
           })
           gsap.set(handoffStillRef.current, { autoAlpha: 0, scale: 1, filter: 'blur(0px)' })
 
-          // Spotlight: fade-in inicial — desktop
-          gsap.set(spotlightRef.current, { opacity: 0 })
-          gsap.to(spotlightRef.current, {
-            opacity: 0.5,
-            duration: 0.75,
-            delay: 0.75,
-            ease: 'power2.out',
-          })
+          // Spotlight: fade-in inicial — só desktop. No mobile o elemento é
+          // `hidden` via CSS (ver `.pcs-spotlight-mobile`, sempre ligado,
+          // opacidade fixa) — animar o SVG escondido aqui era trabalho
+          // jogado fora, sem efeito visual, mas mantido por hábito.
+          if (!isMobile) {
+            gsap.set(spotlightRef.current, { opacity: 0 })
+            gsap.to(spotlightRef.current, {
+              opacity: 0.5,
+              duration: 0.75,
+              delay: 0.75,
+              ease: 'power2.out',
+            })
+          }
 
           // Visibilidade inicial dos painéis de texto
           products.forEach((el, i) => {
@@ -799,6 +804,23 @@ export function HomeProductShowcase() {
             paintEdge(next.mid)
 
             transitionTl?.kill()
+            /* Um swipe rápido no mobile pode disparar um novo `applyIndex`
+               antes do anterior terminar — `kill()` para a timeline no meio
+               do tween e deixa `--pcs-accent`/`--pcs-base`/`--pcs-mid` (e a
+               opacidade do `.pcs-bg-next`) presos num valor intermediário:
+               nem a cor de origem nem a de destino. Era isto que lia como o
+               halo dourado "sumindo" ao arrastar — o núcleo de cor do fundo
+               (`.pcs-bg`, que lê `--pcs-accent-bg`) parava de refletir a cor
+               real do produto em cena. Resincronizar pro estado limpo do
+               produto ATUAL antes de iniciar o próximo tween garante que ele
+               sempre parte de um ponto correto, mesmo depois de um kill. */
+            gsap.set(root, {
+              '--pcs-base': PRODUCTS[from].base,
+              '--pcs-mid': PRODUCTS[from].mid,
+              '--pcs-accent': PRODUCTS[from].accent,
+              '--pcs-accent-bg': PRODUCTS[from].accent,
+            })
+            gsap.set(bgNextRef.current, { opacity: 0 })
 
             const tl = gsap.timeline({
               defaults: { overwrite: 'auto' },
@@ -843,31 +865,50 @@ export function HomeProductShowcase() {
                `.pcs-bg`/`.pcs-bg-next` lessem essa MESMA var ao vivo, o
                fundo inteiro voltaria a repintar a cada frame por causa dela
                — só que agora por 0,35s em vez de 0,8s. */
-            gsap.set(root, {
-              '--pcs-base-next': next.base,
-              '--pcs-mid-next': next.mid,
-              '--pcs-accent-next': next.accent,
-            })
-            tl.to(bgNextRef.current, { opacity: 1, duration: 0.62, ease: 'power2.inOut' }, 0)
-            tl.set(
-              root,
-              { '--pcs-base': next.base, '--pcs-mid': next.mid, '--pcs-accent-bg': next.accent },
-              0.62,
-            )
-            tl.set(bgNextRef.current, { opacity: 0 }, 0.62)
-            tl.to(
-              root,
-              {
-                '--pcs-accent': next.accent,
-                duration: 0.35,
-                ease: 'power2.out',
-              },
-              0,
-            )
+            if (!isMobile) {
+              gsap.set(root, {
+                '--pcs-base-next': next.base,
+                '--pcs-mid-next': next.mid,
+                '--pcs-accent-next': next.accent,
+              })
+              tl.to(bgNextRef.current, { opacity: 1, duration: 0.62, ease: 'power2.inOut' }, 0)
+              tl.set(
+                root,
+                { '--pcs-base': next.base, '--pcs-mid': next.mid, '--pcs-accent-bg': next.accent },
+                0.62,
+              )
+              tl.set(bgNextRef.current, { opacity: 0 }, 0.62)
+              tl.to(
+                root,
+                {
+                  '--pcs-accent': next.accent,
+                  duration: 0.35,
+                  ease: 'power2.inOut',
+                },
+                0,
+              )
+            } else {
+              tl.to(
+                root,
+                {
+                  '--pcs-base': next.base,
+                  '--pcs-mid': next.mid,
+                  '--pcs-accent': next.accent,
+                  '--pcs-accent-bg': next.accent,
+                  duration: 0.48,
+                  ease: 'power2.inOut',
+                },
+                0,
+              )
+            }
 
-            // Spotlight: dim rápido, volta devagar — só desktop (mobile é estático)
-            tl.to(spotlightRef.current, { opacity: 0.2, duration: 0.15, ease: 'power2.in' }, 0)
-              .to(spotlightRef.current, { opacity: 0.5, duration: 0.35, ease: 'power2.out' }, 0.35)
+            // Spotlight: dim rápido, volta devagar — só desktop (mobile é
+            // estático, ver `.pcs-spotlight-mobile`; a guarda evita animar
+            // um elemento `hidden` sem necessidade).
+            if (!isMobile) {
+              tl.to(spotlightRef.current, { opacity: 0.2, duration: 0.15, ease: 'power2.in' }, 0)
+                .to(spotlightRef.current, { opacity: 0.5, duration: 0.35, ease: 'power2.out' }, 0.35)
+            }
 
             // Carrossel de frascos
             if (from === 0 && index !== 0) {
@@ -1010,7 +1051,7 @@ export function HomeProductShowcase() {
               '--pcs-accent': PRODUCTS[i].accent,
               '--pcs-accent-bg': PRODUCTS[i].accent,
             })
-            gsap.to(spotlightRef.current, { opacity: 0.5, duration: 0.4, overwrite: 'auto' })
+            if (!isMobile) gsap.to(spotlightRef.current, { opacity: 0.5, duration: 0.4, overwrite: 'auto' })
             bottles.forEach((b, bi) => gsap.set(b, getCatalogBottleProps(bi, i, isMobile)))
             gsap.set(handoffStillRef.current, { autoAlpha: 0 })
             const p = parts(products[i])
@@ -1043,7 +1084,7 @@ export function HomeProductShowcase() {
               zIndex: 30,
             })
             gsap.set([p0.text, p0.cta, ...p0.stats], { autoAlpha: 0 })
-            gsap.set(spotlightRef.current, { opacity: 0 })
+            if (!isMobile) gsap.set(spotlightRef.current, { opacity: 0 })
             bottles.forEach((bottle, i) =>
               gsap.set(bottle, {
                 ...getCatalogBottleProps(i, 0, isMobile),
@@ -1373,7 +1414,7 @@ export function HomeProductShowcase() {
               '--pcs-accent-bg': PRODUCTS[0].accent,
             })
             gsap.set([p0.text, p0.cta, ...p0.stats], { autoAlpha: 0 })
-            gsap.set(spotlightRef.current, { opacity: 0 })
+            if (!isMobile) gsap.set(spotlightRef.current, { opacity: 0 })
             // Durante o handoff o frame 16:9 cobre o produto 0; depois o teatro assume.
             products.forEach((el, i) => {
               if (i === 0) return
@@ -1455,7 +1496,7 @@ export function HomeProductShowcase() {
               },
               0,
             )
-            tl.to(spotlightRef.current, { opacity: 0.5, duration: 0.85, ease: 'power2.out' }, 0.18)
+            if (!isMobile) tl.to(spotlightRef.current, { opacity: 0.5, duration: 0.85, ease: 'power2.out' }, 0.18)
             if (isMotion) {
               tl.fromTo(
                 p0.text,
@@ -1591,11 +1632,13 @@ export function HomeProductShowcase() {
               },
               0,
             )
-            tl.to(
-              spotlightRef.current,
-              { opacity: 0, duration: 0.32, ease: 'power2.inOut' },
-              0,
-            )
+            if (!isMobile) {
+              tl.to(
+                spotlightRef.current,
+                { opacity: 0, duration: 0.32, ease: 'power2.inOut' },
+                0,
+              )
+            }
             tl.to(
               [p0.text, p0.cta, ...p0.stats],
               { autoAlpha: 0, duration: 0.26, ease: 'power2.in' },
