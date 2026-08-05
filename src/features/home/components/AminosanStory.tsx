@@ -20,6 +20,7 @@ import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal } from '@/features/animation/charReveal'
 import { useLenis } from '@/features/animation/SmoothScroll'
+import { killMomentumScroll } from '@/features/animation/killMomentumScroll'
 import { EASE, STAGGER, blurPx } from '@/features/animation/motion'
 import { StaggerGroup } from '@/features/animation/StaggerGroup'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
@@ -695,19 +696,13 @@ function MobileVersion({ t }: { t: TFn }) {
          abortar qualquer animação de inércia em andamento; ao devolver o
          overflow, o scroll já está parado e `snapToPhase()` (chamado logo
          em seguida) alinha no pixel exato da fase 1 — sem inércia residual
-         pra brigar com o próximo gesto do usuário. */
-      const killMomentumScroll = () => {
-        const de = document.documentElement
-        const body = document.body
-        const prevHtml = de.style.overflow
-        const prevBody = body.style.overflow
-        de.style.overflow = 'hidden'
-        body.style.overflow = 'hidden'
-        requestAnimationFrame(() => {
-          de.style.overflow = prevHtml
-          body.style.overflow = prevBody
-        })
-      }
+         pra brigar com o próximo gesto do usuário.
+
+         A implementação vive em `@/features/animation/killMomentumScroll`:
+         o catálogo de produtos chama a mesma coisa, e duas cópias com estado
+         próprio (uma por seção) se atropelavam — a segunda guardava o
+         `overflow: hidden` da primeira como valor a restaurar e a página
+         ficava sem scroll nativo. */
 
       pinTrigger = ScrollTrigger.create({
         trigger: root.current,

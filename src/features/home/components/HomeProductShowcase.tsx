@@ -21,6 +21,7 @@ import {
 import type { LucideIcon } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
+import { killMomentumScroll, releaseMomentumLock } from '@/features/animation/killMomentumScroll'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { useLenis } from '@/features/animation/SmoothScroll'
 import { Spotlight } from '@/components/ui/Spotlight'
@@ -669,21 +670,43 @@ export function HomeProductShowcase() {
              evento seguinte caía no `stepCatalog(-1)` com o índice já em 0 —
              que é o `runHandoffOut()`, o salto pro Aminosan. Daí a sensação
              de ser cuspido pra seção de cima sem passar pelo catálogo.
-             O gesto só acaba depois de `WHEEL_GESTURE_GAP` ms de silêncio da
-             roda, e `wheelLastTime` é atualizado em TODO evento (inclusive
-             fora do pin) — então a cauda de inércia mantém o mesmo gesto vivo
-             e não vira passo nenhum. */
+             Um gesto acaba com `WHEEL_GESTURE_GAP` ms de SILÊNCIO da roda —
+             mas isso sozinho não basta, e a primeira versão desta trava
+             prendia o usuário dentro da seção: quem está rolando de verdade
+             não faz pausa nenhuma, e como `wheelLastTime` é atualizado em todo
+             evento, a "rajada" nunca terminava. O usuário rolava sem parar
+             pra sair pra Cultures, nenhum evento virava passo, e a tela ficava
+             congelada. Só que a cauda de inércia é feita EXATAMENTE dos mesmos
+             eventos — não dá pra separar por silêncio.
+
+             O que separa uma coisa da outra é o formato do fluxo, e os dois
+             aparelhos mentem de jeitos diferentes:
+             — RODA DE MOUSE manda um evento por dente, sempre com o MESMO
+               delta. Não tem cauda nenhuma; quem a identifica é o
+               ESPAÇAMENTO (`WHEEL_SPARSE_GAP`), largo entre dentes.
+             — TRACKPAD manda um fluxo denso, e a inércia só DESACELERA. Um
+               delta maior que o anterior é dedo novo na superfície, nunca
+               inércia.
+             Daí a regra: o primeiro evento significativo do gesto dá um passo;
+             depois disso, só libera outro quem passar do piso de tempo
+             (`WHEEL_STEP_COOLDOWN`) E parecer empurrão novo por um dos dois
+             sinais. A cauda de inércia falha nos dois e não anda nada. */
           const WHEEL_GESTURE_GAP = 160
+          const WHEEL_STEP_COOLDOWN = 300
+          const WHEEL_SPARSE_GAP = 45
           let wheelLastTime = 0
+          let wheelPrevAbs = 0
+          let wheelLastStepAt = 0
           let wheelStepped = false
           /** Marca o gesto de roda em curso como já gasto. Usado nas ENTRADAS
            *  na seção: a rajada que trouxe o usuário até aqui não pode virar
            *  passo, senão ele chega no catálogo e o produto da borda já sai de
-           *  cena antes de ele ver. Não mexe em `wheelLastTime` de propósito:
-           *  se a roda já estava em silêncio, o próximo evento é um gesto novo
-           *  e destrava sozinho (nenhum passo legítimo é engolido). */
+           *  cena antes de ele ver. Conta como um passo recém-dado (mesmo piso
+           *  de tempo), então o usuário não fica preso: basta um empurrão novo
+           *  depois do cooldown pra seguir. */
           const consumeWheelGesture = () => {
             wheelStepped = true
+            wheelLastStepAt = performance.now()
           }
 
           /* Estado do piso de scroll (a lógica vive em `enforceScrollFloor`,
@@ -1065,18 +1088,14 @@ export function HomeProductShowcase() {
              É a peça que faltava aqui: no mobile não há Lenis (SmoothScroll só
              instancia no desktop), então `lockLenis()` sempre foi no-op e
              ninguém nunca tomou posse do scroll de verdade na entrada. */
-          const killMomentumScroll = () => {
-            const de = document.documentElement
-            const body = document.body
-            const prevHtml = de.style.overflow
-            const prevBody = body.style.overflow
-            de.style.overflow = 'hidden'
-            body.style.overflow = 'hidden'
-            requestAnimationFrame(() => {
-              de.style.overflow = prevHtml
-              body.style.overflow = prevBody
-            })
-          }
+          /* A implementação vive em `@/features/animation/killMomentumScroll`
+             porque o estado precisa ser ÚNICO: aqui dentro dois caminhos
+             chamam isto na mesma rajada de inércia (`anchorOnEnter` e
+             `enforceScrollFloor`), e a seção Aminosan chama do lado de fora.
+             Com uma cópia por fechamento, a segunda chamada guardava o
+             `overflow: hidden` da primeira como "valor anterior" e a página
+             ficava sem scroll nativo pro resto da visita — ver o comentário
+             longo no módulo. */
 
           /** Entrada no pin com scroll NATIVO: mata a inércia do gesto que
            *  trouxe o usuário até aqui e ancora no produto de chegada. Sem
@@ -1186,10 +1205,14 @@ export function HomeProductShowcase() {
                  borda de cima sem passar pelo `runHandoffOut` é exatamente a
                  corrida que o piso existe pra desfazer — soltá-lo aqui seria
                  desarmar a rede no único instante em que ela importa. */
-              // `self.end` e não `pinTrigger.end`: o onToggle pode disparar
-              // durante o próprio `ScrollTrigger.create`, quando a const
-              // `pinTrigger` ainda está na zona morta temporal.
-              if (window.scrollY > self.end) disarmScrollFloor()
+              /* Metade da faixa como divisor, e não `> self.end` cravado: no
+                 frame em que o toggle dispara o scrollY costuma estar EM cima
+                 da borda (ou 1px antes), e a comparação exata deixava o piso
+                 armado numa saída legítima pra baixo.
+                 `self.end` e não `pinTrigger.end`: o onToggle pode disparar
+                 durante o próprio `ScrollTrigger.create`, quando a const
+                 `pinTrigger` ainda está na zona morta temporal. */
+              if (window.scrollY > (self.start + self.end) / 2) disarmScrollFloor()
               leavingDown = false
               unlockLenis()
               // O catálogo não dirige mais o scroll: a navbar volta a decidir
@@ -1313,7 +1336,10 @@ export function HomeProductShowcase() {
             leavingDown = true
             disarmScrollFloor()
             unlockLenis()
-            scrollToY(pinTrigger.end + 2, 0.65)
+            // `end + vh` e não `end + 2`: em `end` o pin apenas solta, com o
+            // catálogo ainda cobrindo a tela toda (ver a zona de saída no
+            // `settle`). Pular tem que pousar na Cultures, não na borda.
+            scrollToY(pinTrigger.end + window.innerHeight, 0.65)
           }
 
           /* ── Handoff vindo da seção Aminosan ───────────────────────
@@ -1619,12 +1645,21 @@ export function HomeProductShowcase() {
               scrollToY(lastDir > 0 ? pinTrigger.start : Math.max(0, pinTrigger.start - vh), 0.7)
               return
             }
-            // Zona de saída (próxima seção espiando por baixo do catálogo)
-            // No mobile o controle dessa transição fica só com o usuário —
-            // sem completar o movimento sozinho.
+            /* Zona de saída — a faixa em que o catálogo ainda está SAINDO da
+               tela. Com `pinSpacing`, o spacer vale 100vh + 300vh de duração:
+               em `pinTrigger.end` o pin solta com o topo do elemento no topo
+               da viewport, ou seja o catálogo ainda cobre a tela inteira, e
+               só em `end + 1vh` a Cultures aparece de fato.
+               Descendo, portanto, completar o movimento é ir pra `end + vh` —
+               era isto que estava errado: o alvo era `end + 2`, que devolvia o
+               catálogo pra tela cheia. Quem tentava sair rolando pra baixo
+               dava alguns px, parava, e o settle puxava de volta pra borda a
+               cada pausa. Lido de fora: "a seção não me deixa seguir".
+               No mobile o controle dessa transição fica só com o usuário —
+               sem completar o movimento sozinho. */
             if (scroll > pinTrigger.end && scroll < pinTrigger.end + vh) {
               if (isMobile) return
-              scrollToY(lastDir > 0 ? pinTrigger.end + 2 : pinTrigger.end, 0.6)
+              scrollToY(lastDir > 0 ? pinTrigger.end + vh : pinTrigger.end, 0.6)
             }
           }
 
@@ -1654,7 +1689,7 @@ export function HomeProductShowcase() {
              tenta de novo, então um flick que chega em cima de uma transição
              não se perde. Assim que um passo sai de verdade, o resto da
              rajada — inclusive a inércia do trackpad — é ignorado. */
-          const stepFromWheel = (dir: 1 | -1) => {
+          const stepFromWheel = (dir: 1 | -1, now: number) => {
             if (wheelStepped) return
             const before = currentIndexRef.current
             stepCatalog(dir)
@@ -1665,6 +1700,7 @@ export function HomeProductShowcase() {
               handingOff
             ) {
               wheelStepped = true
+              wheelLastStepAt = now
             }
           }
 
@@ -1679,9 +1715,23 @@ export function HomeProductShowcase() {
                justamente a continuação dele (rajada + inércia) que não pode
                virar passo aqui dentro. Ver `WHEEL_GESTURE_GAP`. */
             const now = e.timeStamp || performance.now()
-            if (now - wheelLastTime > WHEEL_GESTURE_GAP) wheelStepped = false
+            const sinceLast = now - wheelLastTime
             wheelLastTime = now
+            const abs = Math.abs(e.deltaY)
+            const prevAbs = wheelPrevAbs
+            wheelPrevAbs = abs
             noteGesture()
+            if (sinceLast > WHEEL_GESTURE_GAP) {
+              // Roda em silêncio: gesto novo, começa limpo.
+              wheelStepped = false
+            } else if (wheelStepped && now - wheelLastStepAt > WHEEL_STEP_COOLDOWN) {
+              // Mesmo fluxo, mas já passou o piso de tempo: libera de novo se
+              // não tiver cara de cauda de inércia. Ver o bloco do
+              // `WHEEL_GESTURE_GAP` pros dois sinais e por que são dois.
+              if (sinceLast > WHEEL_SPARSE_GAP || abs > prevAbs * 1.15 + 2) {
+                wheelStepped = false
+              }
+            }
             /* `pinTrigger.isActive` sozinho falha bem no instante de chegar
                vindo do handoff do vídeo: o salto de scroll pousa o scrollY
                DENTRO da faixa do pin, mas o ScrollTrigger ainda não rodou o
@@ -1718,8 +1768,8 @@ export function HomeProductShowcase() {
             // Mesmo contrato da seção Aminosan: a cauda de inércia do
             // trackpad chega em deltas minúsculos e não conta como gesto —
             // sem este piso, um flick só atravessava vários produtos.
-            if (Math.abs(e.deltaY) < 8) return
-            stepFromWheel(e.deltaY > 0 ? 1 : -1)
+            if (abs < 8) return
+            stepFromWheel(e.deltaY > 0 ? 1 : -1, now)
           }
 
           /* Posse do gesto, decidida no PRIMEIRO touchmove e mantida até o dedo
@@ -1942,6 +1992,9 @@ export function HomeProductShowcase() {
             clearStepLockTimers()
             catalogBusyRef.current = false
             pinActiveRef.current = false
+            // Nunca sair daqui com o documento não-rolável (troca de
+            // breakpoint no meio de uma rajada de inércia).
+            releaseMomentumLock()
             sectionEl?.style.removeProperty('background-color')
             // Nunca deixar o Lenis parado atrás de nós (troca de breakpoint,
             // navegação): o resto da página ficaria sem scroll.
