@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic'
 
 import { HeroJornada }      from '@/features/home/components/HeroJornada'
 import { SectionNav }       from '@/features/home/components/SectionNav'
+import { SectionPull }     from '@/features/animation/SectionPull'
 
 // Seções abaixo da dobra do "filme contínuo": code-split em chunks separados
 // (continuam com SSR normal — só tiram peso do bundle inicial de hidratação).
@@ -43,33 +44,33 @@ export default async function HomePage(props: {
       <div id="sec-produtos" data-nav-theme="dark" className="bg-[#030817] scroll-mt-24">
         <HomeProductShowcase />
       </div>
-      <div id="sec-culturas" className="scroll-mt-24">
+      <SectionPull id="sec-culturas" className="scroll-mt-24">
         <HomeCultures />
-      </div>
-      <div id="sec-numeros" data-nav-theme="dark" className="scroll-mt-24">
+      </SectionPull>
+      <SectionPull id="sec-numeros" data-nav-theme="dark" className="scroll-mt-24">
         <ProofStrip />
-      </div>
+      </SectionPull>
       <div id="sec-desafio" className="scroll-mt-24">
         <Problem />
       </div>
       <div id="sec-programa" className="scroll-mt-24">
         <Solution />
       </div>
-      <div id="sec-linhas" className="scroll-mt-24">
+      <SectionPull id="sec-linhas" className="scroll-mt-24">
         <Lines />
-      </div>
-      <div id="sec-experience" data-nav-theme="dark" className="scroll-mt-24">
+      </SectionPull>
+      <SectionPull id="sec-experience" data-nav-theme="dark" className="scroll-mt-24">
         <HomeExperience />
-      </div>
-      <div id="sec-presenca" className="scroll-mt-24">
+      </SectionPull>
+      <SectionPull id="sec-presenca" className="scroll-mt-24">
         <GlobalPresence />
-      </div>
-      <div id="sec-depoimentos" className="scroll-mt-24">
+      </SectionPull>
+      <SectionPull id="sec-depoimentos" className="scroll-mt-24">
         <HomeTestimonials />
-      </div>
-      <div id="sec-materias" className="scroll-mt-24">
+      </SectionPull>
+      <SectionPull id="sec-materias" className="scroll-mt-24">
         <HomeBlog />
-      </div>
+      </SectionPull>
       <div id="sec-contato" data-nav-theme="dark" className="scroll-mt-24">
         <HomeCtaFinal />
       </div>
