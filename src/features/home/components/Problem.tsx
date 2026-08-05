@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal } from '@/features/animation/charReveal'
-import { EASE } from '@/features/animation/motion'
+import { EASE, blurPx } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
 
@@ -63,6 +63,10 @@ export function Problem() {
             scrub: 0.9,
           },
         })
+
+        if (blurPx(12) !== 'none') {
+          tl.to(title, { filter: blurPx(0), duration: step * 2.5, ease: 'power2.out' }, 0)
+        }
 
         words.forEach((word, i) => {
           tl.to(word, { opacity: 1, duration: step * 0.9 }, i * step)
