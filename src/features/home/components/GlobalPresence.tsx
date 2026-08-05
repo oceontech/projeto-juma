@@ -98,7 +98,10 @@ export function GlobalPresence({ variant = 'section' }: { variant?: 'section' | 
       /* O globo nasce bem pequeno e transparente e cresce até o tamanho certo,
          ganhando corpo no caminho. Antes partia de 0.9 — quase o tamanho final,
          o que fazia a entrada passar despercebida. */
-      if (globeWrap) gsap.set(globeWrap, { scale: 0.55, opacity: 0 })
+      /* Bem pequeno e transparente: a entrada precisa ser vista. Em 0.55 o
+         globo já nascia com mais da metade do tamanho e o crescimento passava
+         despercebido. */
+      if (globeWrap) gsap.set(globeWrap, { scale: 0.3, opacity: 0 })
       if (cards.length) gsap.set(cards, { y: 14, opacity: 0 })
       if (halos.length) gsap.set(halos, { scale: 0, opacity: 0 })
 
@@ -133,7 +136,9 @@ export function GlobalPresence({ variant = 'section' }: { variant?: 'section' | 
         if (support) tl.to(support, { y: 0, opacity: 1, duration: DUR.sub }, 0.5)
         // O globo cresce de 0.55 até 1 enquanto ganha opacidade — a entrada
         // acompanha o texto em vez de aparecer pronta.
-        if (globeWrap) tl.to(globeWrap, { scale: 1, opacity: 1, duration: 1.2, ease: 'power2.out' }, 0.2)
+        /* Cresce e ganha corpo num movimento só. `back.out` dá o leve
+           ultrapasse no fim, que é o que torna a chegada perceptível. */
+        if (globeWrap) tl.to(globeWrap, { scale: 1, opacity: 1, duration: 1.5, ease: 'back.out(1.4)' }, 0.15)
         if (halos.length)
           tl.to(halos, { scale: 1, opacity: 1, duration: 0.5, stagger: 0.12, ease: 'back.out(2)' }, 0.9)
         if (cards.length) tl.to(cards, { y: 0, opacity: 1, duration: 0.6, stagger: 0.12 }, 1.0)

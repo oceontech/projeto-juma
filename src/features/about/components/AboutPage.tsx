@@ -104,7 +104,20 @@ export function AboutPage() {
             histReveal?.playIn(tlHist, 0.1)
             if (histIntro) tlHist.to(histIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.4)
           return tlHist
-        }, { start: 'top 80%' })
+        },         {
+          start: 'top 80%',
+          /* Saída própria, curta e simultânea. Com `reverse()` a despedida é a
+             chegada de trás para frente: quem entrou por último sai primeiro,
+             e o conteúdo do TOPO do bloco — que é o primeiro a deixar a tela —
+             só começava a sair no fim da reversão, quando já não estava
+             visível. Aqui tudo se despede junto, para cima, em ~0,3s. */
+          buildOut: () => {
+            const tlOut = gsap.timeline({ defaults: { ease: 'power2.in' } })
+            tlOut.to([histEyebrow, histIntro].filter(Boolean), { y: -16, autoAlpha: 0, duration: 0.3, overwrite: 'auto' }, 0)
+            return tlOut
+          },
+        }
+      )
 
         if (track && line && cards.length && pinElement) {
           const scrubTl = gsap.timeline({
@@ -212,7 +225,20 @@ export function AboutPage() {
             if (vTitle) tlVal.to(vTitle, { y: 0, opacity: 1, duration: 0.7 }, 0.1)
             if (vIntro) tlVal.to(vIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.25)
           return tlVal
-        }, { start: 'top 80%' })
+        },         {
+          start: 'top 80%',
+          /* Saída própria, curta e simultânea. Com `reverse()` a despedida é a
+             chegada de trás para frente: quem entrou por último sai primeiro,
+             e o conteúdo do TOPO do bloco — que é o primeiro a deixar a tela —
+             só começava a sair no fim da reversão, quando já não estava
+             visível. Aqui tudo se despede junto, para cima, em ~0,3s. */
+          buildOut: () => {
+            const tlOut = gsap.timeline({ defaults: { ease: 'power2.in' } })
+            tlOut.to([vEyebrow, vIntro, vTitle].filter(Boolean), { y: -16, autoAlpha: 0, duration: 0.3, overwrite: 'auto' }, 0)
+            return tlOut
+          },
+        }
+      )
 
         if (vCards.length > 0) {
           const mm = gsap.matchMedia()
@@ -225,7 +251,7 @@ export function AboutPage() {
               scrollTrigger: {
                 trigger: vCards[0].parentElement || values,
                 start: 'top 85%',
-                end: 'bottom 15%',
+                end: 'top 10%',
                 toggleActions: revealToggleActions(),
               }
             })
@@ -248,7 +274,7 @@ export function AboutPage() {
                 scrollTrigger: {
                   trigger: card,
                   start: 'top 85%',
-                  end: 'bottom 15%',
+                  end: 'top 10%',
                   toggleActions: revealToggleActions(),
                 },
                 opacity: 1,
@@ -281,7 +307,20 @@ export function AboutPage() {
             revealHL?.playIn(tlHl, 0.1)
             if (hlIntro) tlHl.to(hlIntro, { y: 0, opacity: 1, duration: DUR.sub }, 0.4)
           return tlHl
-        }, { start: 'top 75%' })
+        },         {
+          start: 'top 75%',
+          /* Saída própria, curta e simultânea. Com `reverse()` a despedida é a
+             chegada de trás para frente: quem entrou por último sai primeiro,
+             e o conteúdo do TOPO do bloco — que é o primeiro a deixar a tela —
+             só começava a sair no fim da reversão, quando já não estava
+             visível. Aqui tudo se despede junto, para cima, em ~0,3s. */
+          buildOut: () => {
+            const tlOut = gsap.timeline({ defaults: { ease: 'power2.in' } })
+            tlOut.to([hlEyebrow, hlIntro].filter(Boolean), { y: -16, autoAlpha: 0, duration: 0.3, overwrite: 'auto' }, 0)
+            return tlOut
+          },
+        }
+      )
       }
 
       if (gallery) {
@@ -304,7 +343,20 @@ export function AboutPage() {
               tlGal.to(galImgs, { y: 0, opacity: 1, duration: 0.8, stagger: 0.1 }, 0.35)
             }
           return tlGal
-        }, { start: 'top 80%' })
+        },         {
+          start: 'top 80%',
+          /* Saída própria, curta e simultânea. Com `reverse()` a despedida é a
+             chegada de trás para frente: quem entrou por último sai primeiro,
+             e o conteúdo do TOPO do bloco — que é o primeiro a deixar a tela —
+             só começava a sair no fim da reversão, quando já não estava
+             visível. Aqui tudo se despede junto, para cima, em ~0,3s. */
+          buildOut: () => {
+            const tlOut = gsap.timeline({ defaults: { ease: 'power2.in' } })
+            tlOut.to([galEyebrow, galImgs, galIntro, galTitle].filter(Boolean), { y: -16, autoAlpha: 0, duration: 0.3, overwrite: 'auto' }, 0)
+            return tlOut
+          },
+        }
+      )
       }
 
       if (mission) {
@@ -325,7 +377,20 @@ export function AboutPage() {
             if (mDesc) tlMis.to(mDesc, { y: 0, opacity: 1, duration: DUR.sub }, 0.2)
             if (mVisual) tlMis.to(mVisual, { scale: 1, opacity: 1, duration: 0.8 }, 0.25)
           return tlMis
-        }, { start: 'top 80%' })
+        },         {
+          start: 'top 80%',
+          /* Saída própria, curta e simultânea. Com `reverse()` a despedida é a
+             chegada de trás para frente: quem entrou por último sai primeiro,
+             e o conteúdo do TOPO do bloco — que é o primeiro a deixar a tela —
+             só começava a sair no fim da reversão, quando já não estava
+             visível. Aqui tudo se despede junto, para cima, em ~0,3s. */
+          buildOut: () => {
+            const tlOut = gsap.timeline({ defaults: { ease: 'power2.in' } })
+            tlOut.to([mDesc, mEyebrow, mTitle, mVisual].filter(Boolean), { y: -16, autoAlpha: 0, duration: 0.3, overwrite: 'auto' }, 0)
+            return tlOut
+          },
+        }
+      )
       }
 
       return () => {

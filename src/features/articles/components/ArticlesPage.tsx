@@ -129,7 +129,7 @@ export function ArticlesPage() {
           scrollTrigger: {
             trigger: featured,
             start: 'top 85%',
-            end: 'bottom 15%',
+            end: 'top 10%',
             toggleActions: revealToggleActions(),
           },
         })
@@ -143,7 +143,7 @@ export function ArticlesPage() {
           scrollTrigger: {
             trigger: grid,
             start: 'top 85%',
-            end: 'bottom 15%',
+            end: 'top 10%',
             toggleActions: revealToggleActions(),
           },
         })
@@ -155,7 +155,7 @@ export function ArticlesPage() {
           scrollTrigger: {
             trigger: cta,
             start: 'top 90%',
-            end: 'bottom 15%',
+            end: 'top 10%',
             toggleActions: revealToggleActions(),
           },
         })

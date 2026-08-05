@@ -126,7 +126,20 @@ export function ContactPage() {
               tlGrid.to(sidebarItems, { y: 0, opacity: 1, duration: 0.7, stagger: 0.1 }, 0.2)
             }
           return tlGrid
-        }, { start: 'top 80%' })
+        },         {
+          start: 'top 80%',
+          /* Saída própria, curta e simultânea. Com `reverse()` a despedida é a
+             chegada de trás para frente: quem entrou por último sai primeiro,
+             e o conteúdo do TOPO do bloco — que é o primeiro a deixar a tela —
+             só começava a sair no fim da reversão, quando já não estava
+             visível. Aqui tudo se despede junto, para cima, em ~0,3s. */
+          buildOut: () => {
+            const tlOut = gsap.timeline({ defaults: { ease: 'power2.in' } })
+            tlOut.to([form, sidebarItems].filter(Boolean), { y: -16, autoAlpha: 0, duration: 0.3, overwrite: 'auto' }, 0)
+            return tlOut
+          },
+        }
+      )
       }
 
       if (cta) {
@@ -135,7 +148,7 @@ export function ContactPage() {
           scrollTrigger: {
             trigger: cta,
             start: 'top 90%',
-            end: 'bottom 15%',
+            end: 'top 10%',
             toggleActions: revealToggleActions(),
           },
         })
