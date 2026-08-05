@@ -1589,7 +1589,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         0
       )
       introTl.to(brandMarkRef.current, { y: 0, autoAlpha: 1, filter: bl(0), duration: 0.7, ease: 'power3.out' }, 0.1)
-      introTl.to(titleChars,       { x: 0, autoAlpha: 1, filter: bl(0), duration: 0.72, stagger: titleStagger, ease: 'power2.out' }, 0.16)
+      introTl.to(titleChars,       { x: 0, autoAlpha: 1, duration: 0.72, stagger: titleStagger, ease: 'power2.out' }, 0.16)
       introTl.to(act1Items,        { y: 0, autoAlpha: 1, filter: bl(0), duration: 0.72, stagger: 0.12, ease: 'power2.out' }, 0.28)
       introTl.to(calloutLine,      { scaleX: 1, duration: 0.55, transformOrigin: 'left', ease: 'power2.out' }, 0.62)
       introTl.to(calloutDot,       { scale: 1, autoAlpha: 1, duration: 0.35, ease: 'back.out(1.8)' }, 0.92)
@@ -1634,7 +1634,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         const tl = currentTl = gsap.timeline({ delay })
 
         tl.to(a3Eyebrow, { y: 0, autoAlpha: 1, filter: bl(0), duration: 0.6, ease: 'power2.out' }, 0)
-        tl.to(a3Title, { y: 0, autoAlpha: 1, filter: bl(0), duration: 0.6, ease: 'power2.out' }, 0.1)
+        tl.to(a3Title, { y: 0, autoAlpha: 1, duration: 0.6, ease: 'power2.out' }, 0.1)
         tl.to(a3Body, { autoAlpha: 1, filter: bl(0), duration: 0.6, ease: 'power2.out' }, 0.2)
         tl.to(a3Line, { scaleX: 1, duration: 0.5, ease: 'power2.out' }, 0.3)
         tl.to(newCalloutLine, { scaleX: 1, duration: 0.45, transformOrigin: 'left', ease: 'power2.out' }, 0.52)
@@ -1661,10 +1661,10 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         gsap.killTweensOf([linePanelRef.current, lineBodyRef.current, ...lineItems, ...lineTitleChars])
         const tl = lineTl = gsap.timeline({ delay })
 
-        tl.to(linePanelRef.current, { y: 0, autoAlpha: 1, filter: bl(0), duration: 0.38, ease: 'power2.out' }, 0)
-        tl.to(lineItems, { y: 0, autoAlpha: 1, filter: bl(0), duration: 0.38, stagger: 0.05, ease: 'power2.out' }, 0.04)
-        tl.to(lineTitleChars, { x: 0, autoAlpha: 1, filter: bl(0), duration: 0.5, stagger: lineTitleStagger, ease: 'power2.out' }, 0.08)
-        tl.to(lineBodyRef.current, { y: 0, autoAlpha: 1, filter: bl(0), duration: 0.4, ease: 'power2.out' }, 0.18)
+        tl.to(linePanelRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.38, ease: 'power2.out' }, 0)
+        tl.to(lineItems, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.38, stagger: 0.05, ease: 'power2.out' }, 0.04)
+        tl.to(lineTitleChars, { x: 0, autoAlpha: 1, duration: 0.5, stagger: lineTitleStagger, ease: 'power2.out' }, 0.08)
+        tl.to(lineBodyRef.current, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.4, ease: 'power2.out' }, 0.18)
       }
 
       const hideLineUI = (delay = 0) => {
@@ -2659,7 +2659,7 @@ function CinematicVersion({ t, isMobile }: { t: TFn; isMobile: boolean }) {
         {/* z-10 — still do trio do catálogo (fim da transição) */}
         <Image
           ref={trioImgRef}
-          src="/produtos/aminosan-catalogo.webp"
+          src="/produtos/aminosan-catalogo.png"
           alt=""
           aria-hidden
           fill sizes="(max-width: 1024px) 100vw, 100vw"

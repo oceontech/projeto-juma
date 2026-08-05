@@ -2113,7 +2113,7 @@ export function HomeProductShowcase() {
               de confundir com o tranco de performance que já resolvemos). */}
           <Image
             ref={handoffStillRef as any}
-            src={narrowStill ? '/heritage/mobile/aminosan-catalogo-mobile.webp' : '/produtos/aminosan-catalogo.webp'}
+            src={narrowStill ? '/heritage/mobile/aminosan-catalogo-mobile.webp' : '/produtos/aminosan-catalogo.png'}
             alt=""
             aria-hidden="true"
             draggable={false}
