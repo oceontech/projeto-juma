@@ -175,6 +175,22 @@ export function Footer() {
             {tf('privacy')}
           </Link>
         </div>
+
+        <a
+            href="https://instagram.com/oceontech"
+            target="_blank"
+            rel="noopener"
+            className="flex items-center justify-center mt-10 gap-2 text-white transition-colors hover:text-gold-light"
+          >
+            <span className="text-xs">{tf('developedBy')}</span>
+            <Image
+              src="/brand/logo-oceon.png"
+              alt="Oceon"
+              width={116}
+              height={24}
+              className="h-4 w-auto opacity-80 transition-opacity hover:opacity-100"
+            />
+          </a>
         </FooterReveal>
       </Container>
     </footer>
