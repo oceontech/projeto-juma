@@ -270,7 +270,7 @@ export function Solution() {
                     a largura muda de lugar, o layout mobile (coluna única,
                     imagem cheia) continua igual. */}
                 <div
-                  className={`relative w-full aspect-[4/3] lg:aspect-auto lg:h-[75vh] lg:w-[70%] flex ${
+                  className={`relative w-full aspect-[4/5] sm:aspect-[4/3] lg:aspect-auto lg:h-[70vh] lg:min-h-[460px] xl:h-[75vh] lg:w-[85%] xl:w-[75%] 2xl:w-[70%] flex ${
                     n % 2 === 0 ? 'lg:mr-auto' : 'lg:ml-auto'
                   }`}
                 >
@@ -279,7 +279,7 @@ export function Solution() {
                       src={images[n - 1]}
                       alt={t(`step${n}.title` as any)}
                       fill
-                      sizes="(max-width: 1024px) 100vw, 70vw"
+                      sizes="(max-width: 1024px) 100vw, (max-width: 1280px) 85vw, 70vw"
                       className="object-cover"
                       priority={n === 1}
                       quality={60}
@@ -288,28 +288,28 @@ export function Solution() {
                     <div className="absolute inset-0 bg-black/20 pointer-events-none" />
                   </div>
                   
-                  {/* Posicionamento alternado do card de vidro */}
-                  <div className={`relative z-10 w-full h-full p-6 lg:p-12 flex flex-col ${
-                    n === 1 ? 'justify-start items-start' : 
-                    n === 2 ? 'justify-center items-end' : 
-                    'justify-end items-start'
+                  {/* Posicionamento alternado do card de vidro (no mobile, sempre centralizado) */}
+                  <div className={`relative z-10 w-full h-full p-4 sm:p-6 lg:p-8 xl:p-10 flex flex-col justify-center items-center ${
+                    n === 1 ? 'lg:justify-start lg:items-start' : 
+                    n === 2 ? 'lg:justify-center lg:items-end' : 
+                    'lg:justify-end lg:items-start'
                   } pointer-events-none`}>
                     {/* Sem backdrop-blur no celular: estes cards ficam por cima
                         do fundo que o ScrollTrigger escala e desfoca durante o
                         scrub da seção, então o desfoque de fundo era recalculado
                         a cada passo do scroll. `bg-black/60` mantém a legibilidade
                         do texto branco sem reler o que está atrás. */}
-                    <div data-step-card className="bg-black/60 md:bg-black/35 md:backdrop-blur-md border border-white/20 p-6 lg:p-10 rounded-2xl flex flex-col max-w-[95%] lg:max-w-[65%] pointer-events-auto shadow-xl">
-                      <span className="font-tech text-xs lg:text-sm font-semibold tracking-widest text-white/80 uppercase mb-3">
+                    <div data-step-card className="bg-black/60 md:bg-black/35 md:backdrop-blur-md border border-white/20 p-4 sm:p-6 lg:p-7 xl:p-9 rounded-2xl flex flex-col max-w-[92%] sm:max-w-[95%] lg:max-w-[85%] xl:max-w-[75%] 2xl:max-w-[65%] pointer-events-auto shadow-xl">
+                      <span className="font-tech text-[10px] sm:text-xs lg:text-sm font-semibold tracking-widest text-white/80 uppercase mb-2 sm:mb-3">
                         {String(t('stepsTitle')).split(',')[0]} {String(n).padStart(2, '0')}
                       </span>
                       <h3
-                        className="font-black uppercase tracking-tight text-white m-0 mb-4 drop-shadow-md leading-tight"
-                        style={{ fontSize: 'clamp(1.5rem, 2vw, 2.25rem)' }}
+                        className="font-black uppercase tracking-tight text-white m-0 mb-2 sm:mb-3 lg:mb-4 drop-shadow-md leading-tight"
+                        style={{ fontSize: 'clamp(1.125rem, 2.2vw, 2.25rem)' }}
                       >
                         {t(`step${n}.title` as any)}
                       </h3>
-                      <p className="text-white/95 m-0 text-base lg:text-lg leading-relaxed drop-shadow-sm font-medium">
+                      <p className="text-white/95 m-0 text-xs sm:text-base lg:text-base xl:text-lg leading-relaxed drop-shadow-sm font-medium">
                         {t(`step${n}.body` as any)}
                       </p>
                     </div>
