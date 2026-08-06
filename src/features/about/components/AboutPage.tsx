@@ -134,67 +134,70 @@ export function AboutPage() {
           }, 0)
 
           // Calculate and insert card blur animations and icon updates
-          // Using a short delay inside requestAnimationFrame to ensure layout is done
           requestAnimationFrame(() => {
             const maxScroll = track.scrollWidth - window.innerWidth
-            
-            const p_values = cards.map(card => {
-              // No mobile, dispara logo que o card entra na tela (80% da tela)
-              // No desktop, dispara um pouco antes do centro
-              const isMobile = window.innerWidth < 768
-              const triggerOffset = isMobile 
-                ? window.innerWidth * 0.8 
-                : (window.innerWidth - card.offsetWidth) / 2 + (window.innerWidth * 0.05)
-              
-              let p = (card.offsetLeft - triggerOffset) / maxScroll
-              return Math.max(0, Math.min(1, p))
+            if (maxScroll <= 0) return
+
+            // Calculate progress value for when each card appears in view on screen
+            const s_active = cards.map((card, i) => {
+              if (i === 0) return 0
+              // Card enters right side (~85% viewport width)
+              const enterP = (card.offsetLeft - window.innerWidth * 0.85) / maxScroll
+              // Card is active and readable in view
+              const activeP = enterP + 0.08
+              return Math.max(0, Math.min(1, activeP))
             })
-            
+
             let prevP = 0
 
             cards.forEach((card, i) => {
-              const p = p_values[i]
-              const nodeP = i / (cards.length - 1)
-              
+              const activeP = s_active[i]
+              const nodePercent = (i / (cards.length - 1)) * 100
+
               // Set node position on fixed bar
               if (nodes[i]) {
-                gsap.set(nodes[i], { left: `${nodeP * 100}%`, xPercent: -50, yPercent: -50 })
+                gsap.set(nodes[i], { left: `${nodePercent}%`, xPercent: -50, yPercent: -50 })
               }
 
-              // Animate line to this node
-              if (p > prevP) {
-                scrubTl.to(line, {
-                  width: `${nodeP * 100}%`,
-                  ease: 'none',
-                  duration: p - prevP
-                }, prevP)
-              }
-              prevP = p
+              // Card starts revealing when it enters the right side (~85% viewport width)
+              const revealStartP = i === 0 ? 0 : Math.max(0, (card.offsetLeft - window.innerWidth * 0.85) / maxScroll)
+              const revealDuration = Math.max(0.04, activeP - revealStartP)
 
-              // Blur in and scale card
+              // Reveal card as it emerges from right
               scrubTl.to(card, {
                 opacity: 1,
                 filter: blurPx(0),
                 y: 0,
                 scale: 1,
-                duration: 0.15,
-                ease: 'power3.out',
+                duration: revealDuration,
+                ease: 'power2.out',
                 force3D: true
-              }, p)
+              }, revealStartP)
 
-              // Light up node
+              // Progress line advances to this node as card appears on screen
+              if (activeP >= prevP) {
+                scrubTl.to(line, {
+                  width: `${nodePercent}%`,
+                  ease: 'none',
+                  duration: Math.max(0.01, activeP - prevP)
+                }, prevP)
+              }
+
+              // Light up node as soon as card appears & becomes active on screen
               if (nodes[i]) {
                 scrubTl.to(nodes[i], {
                   borderColor: '#004C26',
                   color: '#ffffff',
                   backgroundColor: '#004C26',
-                  duration: 0.05,
+                  duration: 0.04,
                   ease: 'power1.inOut'
-                }, p)
+                }, activeP)
               }
+
+              prevP = activeP
             })
 
-            // Finish the line if needed
+            // Finish line for remainder of horizontal track
             if (prevP < 1) {
               scrubTl.to(line, { width: '100%', ease: 'none', duration: 1 - prevP }, prevP)
             }
@@ -374,84 +377,85 @@ export function AboutPage() {
 
       {/* Linha do Tempo */}
       <div ref={historyRef} className="mb-8 relative h-[400vh]">
-        <div data-hist-pin className="h-screen w-full flex flex-col justify-center overflow-hidden bg-background">
+        <div data-hist-pin className="h-screen w-full flex flex-col justify-start overflow-hidden bg-background pt-2 sm:pt-3 md:pt-4">
           
-          {/* INTRO TEXT (FIXED ABOVE PROGRESS BAR) */}
-          <div className="absolute top-[2%] left-0 w-full z-30 flex justify-center px-4 pointer-events-none">
-            <div className="text-center max-w-[800px] pointer-events-auto">
-              <span data-hist-eyebrow className="inline-flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary mb-3 md:mb-4">
+          {/* HEADER + PROGRESS BAR FLEX CONTAINER */}
+          <div className="w-full shrink-0 z-30 flex flex-col items-center gap-2 sm:gap-3 md:gap-4 px-4 pointer-events-none">
+            {/* INTRO TEXT */}
+            <div className="text-center max-w-[750px] pointer-events-auto">
+              <span data-hist-eyebrow className="inline-flex items-center justify-center gap-2 text-[11px] sm:text-xs font-semibold uppercase tracking-widest text-primary mb-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                 {t('historyEyebrow')}
               </span>
-              <h2 data-hist-title className="font-montserrat uppercase text-3xl md:text-4xl lg:text-5xl font-black text-foreground tracking-tight mb-3 md:mb-4 leading-[0.95] mx-auto">
+              <h2 data-hist-title className="font-montserrat uppercase text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-foreground tracking-tight mb-1 leading-[0.95] mx-auto">
                 {t('historyTitleStart')} <em className="text-highlight text-primary">{t('historyTitleHighlight')}</em>
               </h2>
-              <p data-hist-intro className="text-sm md:text-base lg:text-lg text-foreground/70 leading-relaxed mx-auto max-w-[600px]">
+              <p data-hist-intro className="text-xs sm:text-xs md:text-sm lg:text-base text-foreground/70 leading-normal sm:leading-relaxed mx-auto max-w-[550px]">
                 {t('historyIntro')}
               </p>
             </div>
-          </div>
 
-          {/* FIXED PROGRESS BAR */}
-          <div className="absolute top-[32%] md:top-[38%] left-0 w-full z-30 pointer-events-none flex justify-center">
-            <Container>
-              <div className="px-[5vw] md:px-[10vw] w-full">
-                <div className="relative w-full flex items-center h-16">
-                {/* Background Line */}
-                <div className="absolute left-0 right-0 h-1 bg-foreground/10" />
-                {/* Animated Line */}
-                <div data-hist-line className="absolute left-0 h-1 bg-[#004C26] origin-left z-10" style={{ width: '0%' }} />
+            {/* FIXED PROGRESS BAR */}
+            <div className="w-full pointer-events-none flex justify-center pt-1 md:pt-2">
+              <Container>
+                <div className="px-[5vw] md:px-[10vw] w-full">
+                  <div className="relative w-full flex items-center h-10 md:h-12">
+                  {/* Background Line */}
+                  <div className="absolute left-0 right-0 h-1 bg-foreground/10" />
+                  {/* Animated Line */}
+                  <div data-hist-line className="absolute left-0 h-1 bg-[#004C26] origin-left z-10" style={{ width: '0%' }} />
 
-                {/* Nodes Container */}
-                <div className="absolute left-0 right-0 h-full">
-                  {TIMELINE_KEYS.map((key, i) => {
-                    const Icon = TIMELINE_ICONS[key]
-                    return (
-                      <div 
-                        key={`node-${key}`}
-                        data-hist-node={i}
-                        className="absolute top-1/2 w-10 h-10 md:w-14 md:h-14 rounded-full border-[3px] border-[#004C26]/20 bg-background flex items-center justify-center text-[#004C26]/40 transition-colors duration-300 shadow-sm z-20 pointer-events-auto"
-                        style={{ left: `${(i / (TIMELINE_KEYS.length - 1)) * 100}%`, transform: 'translate(-50%, -50%)' }}
-                      >
-                        <span className="absolute bottom-full mb-2 md:mb-3 text-[10px] md:text-xs font-bold font-montserrat text-[#004C26]">
-                          {TIMELINE_YEARS[i]}
-                        </span>
-                        <Icon className="w-5 h-5 md:w-6 md:h-6" />
-                      </div>
-                    )
-                  })}
+                  {/* Nodes Container */}
+                  <div className="absolute left-0 right-0 h-full">
+                    {TIMELINE_KEYS.map((key, i) => {
+                      const Icon = TIMELINE_ICONS[key]
+                      return (
+                        <div 
+                          key={`node-${key}`}
+                          data-hist-node={i}
+                          className="absolute top-1/2 w-8 h-8 md:w-10 md:h-10 rounded-full border-[2.5px] border-[#004C26]/20 bg-background flex items-center justify-center text-[#004C26]/40 transition-colors duration-300 shadow-sm z-20 pointer-events-auto"
+                          style={{ left: `${(i / (TIMELINE_KEYS.length - 1)) * 100}%`, transform: 'translate(-50%, -50%)' }}
+                        >
+                          <span className="absolute bottom-full mb-1 text-[9px] md:text-[11px] font-bold font-montserrat text-[#004C26]">
+                            {TIMELINE_YEARS[i]}
+                          </span>
+                          <Icon className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
-              </div>
-              </div>
-            </Container>
+                </div>
+              </Container>
+            </div>
           </div>
 
           {/* SCROLLING TRACK */}
-          <div data-hist-track className="flex flex-col justify-start pt-[42vh] md:pt-[48vh] h-full w-max pb-8 md:pb-16 will-change-transform [transform:translateZ(0)]">
-              <div className="flex gap-16 md:gap-32 px-[5vw] md:px-[10vw] w-max relative z-10 items-start">
+          <div data-hist-track className="flex flex-col justify-start pt-2 sm:pt-3 md:pt-4 h-full w-max pb-4 md:pb-8 will-change-transform [transform:translateZ(0)]">
+              <div className="flex gap-8 sm:gap-12 md:gap-20 pl-[35vw] sm:pl-[45vw] md:pl-[55vw] pr-[35vw] sm:pr-[45vw] md:pr-[55vw] w-max relative z-10 items-stretch">
                 {/* Cards */}
                 {TIMELINE_KEYS.map((key, i) => (
                   <div 
                     key={`card-${key}`} 
                     data-hist-card 
-                    className="w-[85vw] sm:w-[60vw] md:w-[40vw] max-w-[550px] shrink-0 flex flex-col justify-start bg-white border border-foreground/5 dark:border-white/10 rounded-[2rem] md:rounded-[2.5rem] p-6 sm:p-8 md:p-10 lg:p-12 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden"
+                    className="w-[85vw] sm:w-[55vw] md:w-[38vw] max-w-[480px] h-[270px] sm:h-[290px] md:h-[300px] shrink-0 flex flex-col justify-start bg-white border border-foreground/5 dark:border-white/10 rounded-[1.5rem] md:rounded-[1.8rem] p-4 sm:p-5 md:p-6 lg:p-7 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] relative overflow-hidden"
                   >
                     {/* Marca d'água estourando nas bordas */}
-                    <div className="absolute -bottom-6 -right-6 md:-bottom-8 md:-right-8 pointer-events-none opacity-[0.05] select-none">
-                      <span className="text-subtitle text-[6rem] md:text-[8rem] lg:text-[10rem] font-black leading-none text-primary">
+                    <div className="absolute -bottom-4 -right-4 md:-bottom-6 md:-right-6 pointer-events-none opacity-[0.04] select-none">
+                      <span className="text-subtitle text-[4rem] sm:text-[5rem] md:text-[6rem] lg:text-[7rem] font-black leading-none text-primary">
                         {TIMELINE_YEARS[i]}
                       </span>
                     </div>
                     
                     <div className="relative z-10 w-full">
-                      <div className="font-mono text-lg md:text-xl lg:text-2xl font-bold text-primary mb-2 md:mb-4 flex items-center gap-4">
-                        <span className="w-8 md:w-10 h-1 bg-primary rounded-full"></span>
+                      <div className="font-mono text-sm md:text-base font-bold text-primary mb-1 md:mb-1.5 flex items-center gap-2.5 md:gap-3">
+                        <span className="w-5 md:w-7 h-1 bg-primary rounded-full"></span>
                         {TIMELINE_YEARS[i]}
                       </div>
-                      <h3 className="font-montserrat uppercase text-xl md:text-2xl lg:text-3xl font-bold text-foreground mb-3 md:mb-4 leading-[0.95] drop-shadow-sm">
+                      <h3 className="font-montserrat uppercase text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-foreground mb-1.5 md:mb-2 leading-[0.95] drop-shadow-sm">
                         {t(`timeline.${key}.title`)}
                       </h3>
-                      <p className="text-foreground/80 text-sm md:text-base lg:text-lg leading-relaxed drop-shadow-sm font-medium">
+                      <p className="text-foreground/80 text-xs sm:text-xs md:text-sm lg:text-base leading-normal sm:leading-relaxed drop-shadow-sm font-medium">
                         {t(`timeline.${key}.desc`)}
                       </p>
                     </div>
