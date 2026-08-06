@@ -1018,7 +1018,7 @@ export function HeroJornada() {
         {/* z-40 — Subtítulo + CTA (repouso) */}
         <div data-rest className="absolute inset-x-0 -top-8 lg:top-25 z-40">
           {/* pr extra no desktop: os traços do SectionNav ficam colados na borda direita */}
-          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] flex lg:justify-end justify-start pt-[16rem] md:pt-[20rem] lg:pt-[6rem] min-[1600px]:pt-[10.5rem] !px-8 lg:!px-[4rem] xl:!px-[6rem] lg:!pr-14 min-[1600px]:!pr-md">
+          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] flex lg:justify-end justify-start pt-[16rem] md:pt-[20rem] lg:pt-[6rem] min-[1600px]:pt-[10.5rem] !px-lg lg:!px-[4rem] xl:!px-[6rem] lg:!pr-14 min-[1600px]:!pr-md">
               {/* O `backdrop-blur-[2px]` daqui era EXCLUSIVO do mobile
                   (`md:backdrop-blur-none` desligava no desktop): 2px de blur
                   sobre um fundo já transparente, invisível na prática, mas
@@ -1026,14 +1026,14 @@ export function HeroJornada() {
                   reamostrada enquanto o vídeo da jornada toca atrás. */}
               <div
                 ref={supportRef}
-                className={`lg:w-1/3 flex flex-col lg:gap-md rounded-2xl bg-transparent items-start lg:items-end text-left lg:text-right`}
+                className="w-full lg:w-1/3 flex flex-col lg:gap-md rounded-2xl bg-transparent items-start lg:items-end text-left lg:text-right"
               >
                 <span ref={accentLineRef} aria-hidden className="block h-1 w-12 rounded-full bg-primary" />
                 <p className="text-subtitle mt-5 mb-6 text-balance text-base text-foreground/70 sm:text-lg">{t('subtitle')}</p>
-                <div className={`flex flex-col gap-sm mx-auto w-full lg:mx-0 items-start lg:items-end text-left lg:text-right`}>
+                <div className="w-full flex flex-col gap-sm items-start lg:items-end text-left lg:text-right">
                   <Link
                     href="/contato"
-                    className="btn-type pointer-events-auto inline-flex items-center justify-center rounded-full bg-primary px-lg py-sm text-white transition-colors hover:bg-primary-light"
+                    className="btn-type pointer-events-auto inline-flex items-center justify-center rounded-full bg-primary px-5 py-3 sm:px-lg sm:py-sm text-white transition-colors hover:bg-primary-light max-w-full whitespace-normal text-center text-xs sm:text-sm leading-tight"
                   >
                     {t('cta')}
                   </Link>
@@ -1125,7 +1125,7 @@ function Support({ t, className = '' }: { t: TFn; className?: string }) {
       <div className="mt-sm flex flex-col gap-sm items-start lg:items-end">
         <Link
           href="/contato"
-          className="btn-type pointer-events-auto inline-flex items-center justify-center rounded-full bg-primary px-lg py-sm text-white transition-colors hover:bg-primary-light"
+          className="btn-type pointer-events-auto inline-flex items-center justify-center rounded-full bg-primary px-5 py-3 sm:px-lg sm:py-sm text-white transition-colors hover:bg-primary-light max-w-full whitespace-normal text-center text-xs sm:text-sm leading-tight"
         >
           {t('cta')}
         </Link>
