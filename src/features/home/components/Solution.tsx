@@ -76,11 +76,13 @@ export function Solution() {
 
       // Timeline Progress e animações dos passos
       if (stepsRef.current) {
+        const steps = gsap.utils.toArray<HTMLElement>('[data-step]', stepsRef.current)
+
         // Preenchimento da linha de progresso e indicador da ponta
         const timelineProgress = stepsRef.current.querySelector('[data-timeline-progress]')
         const timelineTip = stepsRef.current.querySelector('[data-timeline-tip]')
-        
-        if (timelineProgress && timelineTip) {
+
+        if (timelineProgress && timelineTip && steps.length > 0) {
           gsap.set(timelineProgress, { scaleY: 0, transformOrigin: 'top center' })
           gsap.set(timelineTip, { top: 0 })
 
@@ -93,9 +95,17 @@ export function Solution() {
              — cada evento de scroll deixava DOIS tweens de inércia terminando
              de assentar em vez de um, e era esse acúmulo que fazia a rolagem
              "acelerar" ao passar por aqui e continuar pesada logo depois. */
+          /* No desktop o wrapper dos passos vira `display:contents` (os
+             passos entram direto no grid da seção para poder cruzar de lado
+             da linha) e perde a própria caixa — medir `stepsRef.current`
+             não funciona mais ali. Medindo do topo do primeiro passo ao
+             fundo do último em vez do wrapper, o resultado é idêntico no
+             mobile (onde o wrapper ainda é uma caixa normal) e continua
+             funcionando no desktop. */
           const progressTl = gsap.timeline({
             scrollTrigger: {
-              trigger: stepsRef.current,
+              trigger: isMobile ? stepsRef.current : steps[0],
+              endTrigger: isMobile ? undefined : steps[steps.length - 1],
               start: 'top 50%', // Inicia quando o topo da timeline chega próximo do centro
               end: 'bottom 50%', // Termina quando o fundo chega próximo do centro
               scrub: 0.5,
@@ -104,8 +114,6 @@ export function Solution() {
           progressTl.to(timelineProgress, { scaleY: 1, ease: 'none' }, 0)
           progressTl.to(timelineTip, { top: '100%', ease: 'none' }, 0)
         }
-
-        const steps = gsap.utils.toArray<HTMLElement>('[data-step]', stepsRef.current)
 
         steps.forEach((step, index) => {
           const bg = step.querySelector<HTMLElement>('[data-step-bg]')
@@ -180,10 +188,11 @@ export function Solution() {
   return (
     <section ref={ref} className="bg-[#F7F8F6] py-4xl lg:py-5xl">
       <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
-        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1.8fr] gap-12 lg:gap-20 items-start relative">
-          
-          {/* Coluna Esquerda: Informações Fixas/Sticky no Desktop */}
-          <div className="lg:sticky lg:top-24 flex flex-col justify-between py-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start relative">
+
+          {/* Texto: no desktop entra como item da mesma grid dos passos (linha 1,
+              coluna 1), ao lado da imagem do passo 1 — não é mais sticky. */}
+          <div className="flex flex-col py-4 lg:col-start-1 lg:row-start-1">
             <div>
               <div className="mb-8">
                 <span className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 mb-6 border border-primary/20 bg-primary/5 text-primary">
@@ -211,7 +220,7 @@ export function Solution() {
               </p>
             </div>
 
-            {/* Botão de CTA integrado na barra lateral sticky */}
+            {/* Botão de CTA */}
             <div ref={ctaRef} className="mt-10 lg:mt-12">
               <Link
                 href="/contato"
@@ -222,64 +231,86 @@ export function Solution() {
             </div>
           </div>
 
-          {/* Coluna Direita: Passos Roláveis */}
-          <div ref={stepsRef} className="relative pl-[60px] lg:pl-[100px] mt-8 lg:mt-0">
-            {/* Linha vertical da timeline */}
-            <div className="absolute left-[29px] lg:left-[49px] top-0 bottom-0 w-[2px] bg-foreground/10" />
+          {/* Passos: no mobile continua um wrapper normal (coluna única, linha
+              à esquerda, exatamente como antes). No desktop vira
+              `display:contents` — some como caixa e deixa cada passo (e a
+              própria linha) entrar direto na grid da seção, ao lado do
+              texto, para poder cruzar para o lado esquerdo da linha. */}
+          <div ref={stepsRef} className="relative pl-[60px] mt-8 lg:contents">
+            {/* Linha vertical da timeline. No desktop fica centralizada no
+                vão entre as duas colunas (a coluna do texto e a dos passos
+                têm a mesma largura), não mais colada à esquerda. */}
+            <div className="absolute left-[29px] lg:left-1/2 lg:-ml-px top-0 bottom-0 w-[2px] bg-foreground/10" />
 
             {/* Linha vertical de progresso (preenchimento no scroll) */}
             <div
               data-timeline-progress
-              className="absolute left-[29px] lg:left-[49px] top-0 bottom-0 w-[2px] bg-primary origin-top scale-y-0"
+              className="absolute left-[29px] lg:left-1/2 lg:-ml-px top-0 bottom-0 w-[2px] bg-primary origin-top scale-y-0"
             />
 
             {/* Indicador móvel na ponta da linha (O Pulso Verde) */}
             <div
               data-timeline-tip
-              className="absolute left-[30px] lg:left-[50px] top-0 w-10 h-10 -ml-5 -mt-5 rounded-full bg-primary shadow-[0_0_15px_rgba(0,76,38,0.5)] z-20 pointer-events-none"
+              className="absolute left-[30px] lg:left-1/2 top-0 w-10 h-10 -ml-5 -mt-5 rounded-full bg-primary shadow-[0_0_15px_rgba(0,76,38,0.5)] z-20 pointer-events-none"
               style={{ transform: 'scale(0.2)' }}
             />
 
-            {/* Cada um dos 3 Passos */}
-            {([1, 2, 3] as const).map((n) => (
+            {/* Cada um dos 3 Passos.
+                No desktop, cada passo ocupa a linha (`row-start`) que
+                corresponde ao seu número — o passo 1 divide a linha 1 com o
+                texto — e alterna de coluna: ímpar fica à direita da linha
+                (mesmo lado do passo 1), par cruza para o lado esquerdo,
+                ocupando o espaço abaixo do texto. O ponto/ícone acompanha:
+                fica sempre virado para a linha, então inverte de lado junto
+                com a coluna. No mobile nada disso se aplica — continua
+                coluna única com a linha à esquerda, como antes. */}
+            {([1, 2, 3] as const).map((n) => {
+              const isRightColumn = n % 2 === 1
+              const rowStart =
+                n === 1 ? 'lg:row-start-1' : n === 2 ? 'lg:row-start-2' : 'lg:row-start-3'
+
+              return (
               <div
                 key={n}
                 data-step
-                className="relative flex items-center py-12 lg:py-16 first:pt-4 last:pb-4"
+                className={`relative flex items-center py-12 lg:py-16 first:pt-4 last:pb-4 ${rowStart} ${
+                  isRightColumn ? 'lg:col-start-2' : 'lg:col-start-1'
+                }`}
               >
                 {/* Fundo fixo da bolinha da timeline (z-10) */}
                 <div
                   data-step-dot
-                  className="absolute left-[-30px] lg:left-[-50px] top-1/2 -mt-5 w-10 h-10 -ml-5 rounded-full border-2 border-foreground/10 bg-[#F7F8F6] z-10 transition-all duration-300"
+                  className={`absolute left-[-30px] top-1/2 -mt-5 w-10 h-10 rounded-full border-2 border-foreground/10 bg-[#F7F8F6] z-10 transition-all duration-300 ${
+                    isRightColumn
+                      ? 'lg:left-[-40px] -ml-5'
+                      : 'lg:left-auto lg:right-[-40px] -ml-5 lg:ml-0 lg:-mr-5'
+                  }`}
                 />
 
                 {/* Ícone fixo da bolinha (z-30) sobrepõe o pulso */}
                 <div
                   data-step-icon
-                  className="absolute left-[-30px] lg:left-[-50px] top-1/2 -mt-5 w-10 h-10 -ml-5 flex items-center justify-center text-foreground/20 z-30 pointer-events-none transition-colors duration-300"
+                  className={`absolute left-[-30px] top-1/2 -mt-5 w-10 h-10 flex items-center justify-center text-foreground/20 z-30 pointer-events-none transition-colors duration-300 ${
+                    isRightColumn
+                      ? 'lg:left-[-40px] -ml-5'
+                      : 'lg:left-auto lg:right-[-40px] -ml-5 lg:ml-0 lg:-mr-5'
+                  }`}
                 >
                   {n === 1 && <Search size={20} />}
                   {n === 2 && <Sprout size={20} />}
                   {n === 3 && <LineChart size={20} />}
                 </div>
 
-                {/* Conteúdo do Passo.
-                    No desktop, alterna de lado a cada passo — a primeira
-                    imagem fica à direita (longe da linha do tempo), a
-                    segunda à esquerda (perto dela), e assim por diante — só
-                    a largura muda de lugar, o layout mobile (coluna única,
-                    imagem cheia) continua igual. */}
-                <div
-                  className={`relative w-full aspect-[4/3] lg:aspect-auto lg:h-[75vh] lg:w-[70%] flex ${
-                    n % 2 === 0 ? 'lg:mr-auto' : 'lg:ml-auto'
-                  }`}
-                >
+                {/* Conteúdo do Passo: preenche toda a largura da sua coluna
+                    no desktop (bem mais largo que antes), e continua cheio
+                    no mobile como já era. */}
+                <div className="relative w-full aspect-[4/3] lg:aspect-auto lg:h-[75vh] flex">
                   <div data-step-bg className="absolute inset-0 origin-center rounded-[24px] overflow-hidden shadow-2xl">
                     <Image
                       src={images[n - 1]}
                       alt={t(`step${n}.title` as any)}
                       fill
-                      sizes="(max-width: 1024px) 100vw, 70vw"
+                      sizes="(max-width: 1024px) 100vw, 50vw"
                       className="object-cover"
                       priority={n === 1}
                       quality={60}
@@ -316,7 +347,8 @@ export function Solution() {
                   </div>
                 </div>
               </div>
-            ))}
+              )
+            })}
           </div>
 
         </div>
