@@ -857,7 +857,7 @@ export function HeroJornada() {
           />
         </div>
 
-        <Container className="grid grid-cols-1 items-start gap-xl pb-2xl pt-[9rem] lg:pt-[7.5rem] lg:grid-cols-12 min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] !px-lg lg:!px-[4rem] xl:!px-[6rem]">
+        <Container className="grid grid-cols-1 items-start gap-xl pb-2xl pt-[9rem] lg:pt-[7.5rem] lg:grid-cols-12 min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] !px-lg lg:!px-[4rem] xl:!px-[6rem] min-[1600px]:!px-[4rem]">
           <div className="lg:col-span-7 text-left">
             <Headline t={t} className="w-full" />
           </div>
@@ -989,7 +989,10 @@ export function HeroJornada() {
             />
           </div>
 
-          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pt-[7rem] md:pt-[8rem] lg:pt-[10rem] !px-lg lg:!px-[4rem] xl:!px-[6rem]">
+          {/* `min-[1600px]:!px-[4rem]`: os `!px` acima são important e passariam por
+              cima do respiro da faixa ≥1600 do Container, deixando a headline 32px
+              para dentro da borda esquerda da navbar. */}
+          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] pt-[7rem] md:pt-[8rem] lg:pt-[10rem] !px-lg lg:!px-[4rem] xl:!px-[6rem] min-[1600px]:!px-[4rem]">
             <div className="relative max-w-[60rem] min-[1600px]:max-w-[76rem] min-[2000px]:max-w-[92rem]">
 
               {/* Glow radial suave atrás do título */}
@@ -1055,12 +1058,13 @@ export function HeroJornada() {
         {/* z-40 — Subtítulo + CTA (repouso) */}
         <div data-rest className="absolute inset-x-0 -top-8 lg:top-25 z-40">
           {/* pr extra no desktop: os traços do SectionNav ficam colados na borda direita.
-              De 1600px para cima o respiro passa a ser o MESMO da navbar (6rem, ver
+              De 1600px para cima o respiro passa a ser o MESMO da navbar (4rem, ver
               Container e Navbar): o `pr-md` que estava aqui deixava a borda direita
               deste bloco 80px além da pílula do menu — o texto de apoio e o botão
-              saíam do alinhamento de toda a página. 6rem já passa longe dos traços
-              do SectionNav, então o respiro extra não é mais necessário nessa faixa. */}
-          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] flex lg:justify-end justify-start pt-[16rem] md:pt-[20rem] lg:pt-[6rem] min-[1600px]:pt-[10.5rem] !px-lg lg:!px-[4rem] xl:!px-[6rem] lg:!pr-14 min-[1600px]:!pr-[6rem]">
+              saíam do alinhamento de toda a página. 4rem já passa dos traços do
+              SectionNav (52px no pior caso), então o respiro extra não é mais
+              necessário nessa faixa. */}
+          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] flex lg:justify-end justify-start pt-[16rem] md:pt-[20rem] lg:pt-[6rem] min-[1600px]:pt-[10.5rem] !px-lg lg:!px-[4rem] xl:!px-[6rem] lg:!pr-14 min-[1600px]:!px-[4rem]">
               {/* O `backdrop-blur-[2px]` daqui era EXCLUSIVO do mobile
                   (`md:backdrop-blur-none` desligava no desktop): 2px de blur
                   sobre um fundo já transparente, invisível na prática, mas
