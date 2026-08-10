@@ -412,6 +412,26 @@ export function HeroJornada() {
         return isMobile ? [0.0, 3.06, 6.10, safeEnd] : [0.0, 3.06, 7.10, safeEnd]
       }
 
+      /* Vigia de travamento da jornada.
+
+         Enquanto um segmento toca, a página fica travada: todo `wheel` e todo
+         `touchmove` levam preventDefault, e quem destrava é o vídeo chegar no
+         alvo. Se ele não chega, ninguém destrava — e não havia nenhum limite
+         de tempo aqui. Num celular em rede lenta o clipe da jornada (4,4 MB)
+         simplesmente não tem dados para tocar: `currentTime` fica parado perto
+         de zero, o laço reemite `play()` a cada frame, e a página inteira fica
+         presa no hero, sem saída nenhuma pelo gesto. Foi assim que se chegou em
+         "no mobile o usuário não consegue sair da hero" (reproduzido em 3G:
+         dez gestos, `scrollY` sempre 0).
+
+         Se o tempo do vídeo não anda por STALL_MS, a jornada abre mão do
+         scroll (`release`): a animação não acontece, mas a página volta a
+         rolar. Vale para rede lenta, decodificador ocupado e autoplay negado —
+         qualquer motivo pelo qual o clipe não ande. */
+      const STALL_MS = 2500
+      let lastPlayheadPos = -1
+      let lastPlayheadAt  = 0
+
       const tick = (now: number) => {
         const video = getVideo()
         if (!video) { stopPlayback(); return }
@@ -430,6 +450,13 @@ export function HeroJornada() {
           }
           if (video.paused && !video.ended) {
             void video.play().catch(() => {})
+          }
+          if (current > lastPlayheadPos + 0.01) {
+            lastPlayheadPos = current
+            lastPlayheadAt  = now
+          } else if (now - lastPlayheadAt > STALL_MS) {
+            release()
+            return
           }
           updateActivePhase(current)
           updateLeavesParallax(current)
@@ -477,6 +504,10 @@ export function HeroJornada() {
           }
         }
         lastTimeRef.current = performance.now()
+        // Cada segmento recomeça com o vigia zerado — o relógio de travamento
+        // é do trecho que está tocando agora, não da jornada inteira.
+        lastPlayheadPos = -1
+        lastPlayheadAt  = lastTimeRef.current
         animationFrameRef.current = requestAnimationFrame(tick)
       }
 
@@ -876,12 +907,18 @@ export function HeroJornada() {
     <section ref={root} className="bg-white overflow-x-hidden">
       {/* Altura em `--vh-stable` (não em 100dvh): no mobile o dvh muda quando a
           barra do navegador recolhe, e o hero inteiro crescia/encolhia ~96px
-          empurrando toda a página abaixo dele de uma vez. A variável é
-          congelada na primeira medida pelo SmoothScroll; no desktop ela não
-          existe e o fallback 100dvh vale normalmente. */}
+          empurrando toda a página abaixo dele de uma vez. A variável vale a
+          viewport grande (`100lvh`) e é congelada pelo SmoothScroll; no desktop
+          ela não existe e o fallback 100dvh vale normalmente.
+
+          O `minHeight` é a rede de segurança: se por qualquer motivo a variável
+          ficar menor que a tela (medida antiga, barra de aviso do navegador
+          fechando), o palco ainda cobre a viewport inteira. Sem ele, cada pixel
+          de diferença vira uma faixa branca da seção seguinte aparecendo por
+          baixo da imagem do hero. */}
       <div
         className="relative w-full overflow-hidden"
-        style={{ height: 'var(--vh-stable, 100dvh)' }}
+        style={{ height: 'var(--vh-stable, 100dvh)', minHeight: '100dvh' }}
       >
 
         {/* Desktop Poster Image */}
@@ -963,7 +1000,7 @@ export function HeroJornada() {
                 style={{ background: 'radial-gradient(ellipse 75% 55% at 38% 52%, rgba(0,76,38,0.12), transparent 70%)' }}
               />
 
-              <h1 ref={titleWrapRef} className="relative font-black uppercase leading-[0.92] tracking-tight text-[clamp(2.2rem, 6.5vw, 5rem)] md:text-[clamp(2.8rem, 7.5vw, 5rem)] min-[1600px]:text-[7.5rem] min-[2000px]:text-[9rem] text-left">
+              <h1 ref={titleWrapRef} className="relative font-black uppercase leading-[0.92] tracking-tight text-[clamp(2.2rem,6.5vw,5rem)] md:text-[clamp(2.8rem,7.5vw,5rem)] min-[1600px]:text-[7.5rem] min-[2000px]:text-[9rem] text-left">
                 <span className="block text-foreground">{t('headlineLine1')}</span>
                 <span className="block text-foreground">{t('headlineLine2')}</span>
                 <span className="block">
@@ -1017,8 +1054,13 @@ export function HeroJornada() {
 
         {/* z-40 — Subtítulo + CTA (repouso) */}
         <div data-rest className="absolute inset-x-0 -top-8 lg:top-25 z-40">
-          {/* pr extra no desktop: os traços do SectionNav ficam colados na borda direita */}
-          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] flex lg:justify-end justify-start pt-[16rem] md:pt-[20rem] lg:pt-[6rem] min-[1600px]:pt-[10.5rem] !px-lg lg:!px-[4rem] xl:!px-[6rem] lg:!pr-14 min-[1600px]:!pr-md">
+          {/* pr extra no desktop: os traços do SectionNav ficam colados na borda direita.
+              De 1600px para cima o respiro passa a ser o MESMO da navbar (6rem, ver
+              Container e Navbar): o `pr-md` que estava aqui deixava a borda direita
+              deste bloco 80px além da pílula do menu — o texto de apoio e o botão
+              saíam do alinhamento de toda a página. 6rem já passa longe dos traços
+              do SectionNav, então o respiro extra não é mais necessário nessa faixa. */}
+          <Container className="min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] flex lg:justify-end justify-start pt-[16rem] md:pt-[20rem] lg:pt-[6rem] min-[1600px]:pt-[10.5rem] !px-lg lg:!px-[4rem] xl:!px-[6rem] lg:!pr-14 min-[1600px]:!pr-[6rem]">
               {/* O `backdrop-blur-[2px]` daqui era EXCLUSIVO do mobile
                   (`md:backdrop-blur-none` desligava no desktop): 2px de blur
                   sobre um fundo já transparente, invisível na prática, mas
@@ -1106,7 +1148,7 @@ type TFn = ReturnType<typeof useTranslations>
 
 function Headline({ t, className = '' }: { t: TFn; className?: string }) {
   return (
-    <h1 className={`text-[clamp(2.2rem, 6.5vw, 5rem)] md:text-[clamp(2.75rem, 7.5vw, 5rem)] min-[1600px]:text-[7.5rem] min-[2000px]:text-[9rem] font-black uppercase leading-[0.92] tracking-tight ${className}`}>
+    <h1 className={`text-[clamp(2.2rem,6.5vw,5rem)] md:text-[clamp(2.75rem,7.5vw,5rem)] min-[1600px]:text-[7.5rem] min-[2000px]:text-[9rem] font-black uppercase leading-[0.92] tracking-tight ${className}`}>
       <span className="block text-foreground">{t('headlineLine1')}</span>
       <span className="block text-foreground">{t('headlineLine2')}</span>
       <span className="block">
@@ -1210,7 +1252,7 @@ function PhaseLayout({ show, dir = 1, kicker, title, titleHi, subtitle, items, s
             <LeafGlyph className="h-3 w-3 text-primary" />
             <span className="text-eyebrow text-primary uppercase tracking-widest text-[10px]">{kicker}</span>
           </span>
-          <h2 data-pt-m className="font-black uppercase leading-[0.88] tracking-tight text-[clamp(2rem, 8.5vw, 3rem)] mb-3">
+          <h2 data-pt-m className="font-black uppercase leading-[0.88] tracking-tight text-[clamp(2rem,8.5vw,3rem)] mb-3">
             <span className="text-foreground">{lead}</span>
             {titleHi && <span className="block italic font-semibold text-primary">{titleHi}</span>}
           </h2>
@@ -1248,7 +1290,7 @@ function PhaseLayout({ show, dir = 1, kicker, title, titleHi, subtitle, items, s
             <span className="text-eyebrow text-primary text-[9px] xl:text-[11px] uppercase tracking-widest">{kicker}</span>
           </span>
 
-          <h2 data-pt className="font-black uppercase leading-[0.92] tracking-tight text-[clamp(1.75rem, 2.7vw, 3.75rem)] mb-sm">
+          <h2 data-pt className="font-black uppercase leading-[0.92] tracking-tight text-[clamp(1.75rem,2.7vw,3.75rem)] mb-sm">
             <span className="text-foreground">{lead}</span>
             {titleHi && <> <span className="text-highlight text-primary">{titleHi}</span></>}
           </h2>
@@ -1380,7 +1422,7 @@ function PhaseGotaLayout({ show, dir = 1, kicker, title, titleHi, titleHiOptions
   return (
     <div
       ref={containerRef}
-      className={`absolute inset-0 flex flex-col items-center justify-center text-center px-[clamp(1.5rem, 4.5vw, 5rem)] transition-opacity duration-700 ease-out ${
+      className={`absolute inset-0 flex flex-col items-center justify-center text-center px-[clamp(1.5rem,4.5vw,5rem)] transition-opacity duration-700 ease-out ${
         show ? 'opacity-100 pointer-events-auto bg-white' : 'opacity-0 pointer-events-none'
       }`}
     >
@@ -1390,7 +1432,7 @@ function PhaseGotaLayout({ show, dir = 1, kicker, title, titleHi, titleHiOptions
           <span className="text-eyebrow text-primary text-[11px] uppercase tracking-widest">{kicker}</span>
         </span>
 
-        <h2 className="font-black uppercase leading-[1.05] tracking-tight text-[clamp(2rem, 4.5vw, 4.25rem)] flex flex-wrap items-center justify-center gap-x-[1ch]">
+        <h2 className="font-black uppercase leading-[1.05] tracking-tight text-[clamp(2rem,4.5vw,4.25rem)] flex flex-wrap items-center justify-center gap-x-[1ch]">
           <span ref={titleRef} className="text-foreground">{lead}</span>
           {titleHiOptions && titleHiOptions.length > 1 ? (
              <FlipFadeText key={String(show)} words={titleHiOptions} interval={2500} letterDuration={0.3} staggerDelay={0.04} />
@@ -1465,7 +1507,7 @@ function OrbitalCards({ items, mobile = false }: { items: PhaseItem[], mobile?: 
 function PhaseText({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div className="text-left py-md border-b border-foreground/5 last:border-0">
-      <h2 className="text-balance text-[clamp(1.75rem, 3.5vw, 2.5rem)] font-black leading-tight tracking-tight text-foreground uppercase">{title}</h2>
+      <h2 className="text-balance text-[clamp(1.75rem,3.5vw,2.5rem)] font-black leading-tight tracking-tight text-foreground uppercase">{title}</h2>
       <p className="text-subtitle text-balance mt-sm text-foreground/75 sm:text-lg">{subtitle}</p>
     </div>
   )

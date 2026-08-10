@@ -47,18 +47,41 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
    * corte seco para cima ou para baixo só ali. Num arrasto lento, com a barra
    * indo e voltando, o deslocamento anula o gesto e a página parece presa.
    *
-   * A altura é congelada na primeira medida e só recalculada quando a LARGURA
-   * muda (rotação ou redimensionamento real) — nunca no vai-e-vem da barra. Só
-   * vale para ponteiro grosso; no desktop a variável não é definida e o CSS cai
-   * no `100dvh` nativo, que lá acompanha a janela como deve.
+   * O valor é o da viewport GRANDE (`100lvh`), não o `innerHeight` do momento.
+   * Os dois são estáveis, mas `innerHeight` congela a altura que a tela tinha
+   * na primeira medida — e essa medida quase sempre acontece com a barra do
+   * navegador ABERTA, ou seja, a menor das duas alturas. Assim que a barra
+   * recolhia, a tela ficava ~90px mais alta que o hero e o branco da seção
+   * seguinte aparecia por baixo dele: era a "linha branca embaixo da imagem".
+   * Com `lvh` o hero tem sempre a altura da tela com a barra recolhida — no
+   * pior caso o rodapé da imagem fica um pouco cortado enquanto a barra está
+   * de pé, que é o comportamento normal de qualquer hero de tela cheia, e
+   * nunca sobra fundo aparecendo.
+   *
+   * A altura só é recalculada quando a LARGURA muda (rotação ou
+   * redimensionamento real) — nunca no vai-e-vem da barra. Só vale para
+   * ponteiro grosso; no desktop a variável não é definida e o CSS cai no
+   * `100dvh` nativo, que lá acompanha a janela como deve.
    */
   useEffect(() => {
     const coarse = window.matchMedia('(pointer: coarse)')
     const root = document.documentElement
     let lastWidth = window.innerWidth
 
+    /** `100lvh` em px. Sonda no DOM porque não há como ler a unidade direto. */
+    const largeViewportHeight = () => {
+      const probe = document.createElement('div')
+      probe.style.cssText =
+        'position:absolute;top:0;left:0;width:0;height:100lvh;visibility:hidden;pointer-events:none'
+      root.appendChild(probe)
+      const h = probe.getBoundingClientRect().height
+      probe.remove()
+      // Navegador sem `lvh`: o innerHeight é o melhor palpite disponível.
+      return h > 0 ? h : window.innerHeight
+    }
+
     const apply = () => {
-      if (coarse.matches) root.style.setProperty('--vh-stable', `${window.innerHeight}px`)
+      if (coarse.matches) root.style.setProperty('--vh-stable', `${largeViewportHeight()}px`)
       else root.style.removeProperty('--vh-stable')
     }
 
