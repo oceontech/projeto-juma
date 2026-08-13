@@ -8,7 +8,7 @@
 - Sede: R. Victor Acierini, 2.370 — Distrito Industrial, Mogi Guaçu - SP, CEP 13.849-106
 - Filial EUA: Juma-Agro Fertilizer LLC — 3928 Anchuca Drive, Suite 11, Lakeland, FL 33811
 - Propósito: **"Juntos alimentamos o mundo"**
-- Diferenciais: laboratório próprio de controle de qualidade, departamento técnico em fisiologia e nutrição vegetal, parceria com UENP (Projeto DESATA / NITEC)
+- Diferenciais: laboratório próprio de controle de qualidade, departamento técnico em fisiologia e nutrição vegetal, programa Olho no Alvo
 - Avaliação Google Maps: 4.9 ★ (31 avaliações)
 
 ## Stakeholders

@@ -60,8 +60,8 @@ export type CharRevealOptions = {
   autoAlpha?: boolean
   /**
    * Quebra por palavra em vez de caractere. Só para títulos onde o desenho
-   * aprovado já era por palavra (Problem, Desata) — o padrão continua sendo
-   * caractere.
+   * aprovado já era por palavra (Problem, Olho no Alvo) — o padrão continua
+   * sendo caractere.
    */
   by?: 'chars' | 'words'
   /**

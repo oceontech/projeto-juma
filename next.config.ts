@@ -80,6 +80,13 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // O programa "Desata" virou "Olho no Alvo" — redirect permanente pra quem
+  // ainda tem o link antigo salvo/indexado (busca, favoritos, materiais impressos).
+  async redirects() {
+    return [
+      { source: '/:locale/desata', destination: '/:locale/olho-no-alvo', permanent: true },
+    ]
+  },
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {
       '.cjs': ['.cts', '.cjs'],

@@ -237,9 +237,15 @@ export function ExperiencePage() {
       <div ref={containerRef}>
         {/* Cabeçalho */}
         <div className="mb-24">
-          <span ref={eyebrowRef} className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary mb-6">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-            {t('eyebrow')}
+          <span ref={eyebrowRef} className="inline-block mb-6">
+            <Image
+              src="/brand/logo-juma-experience.webp"
+              alt={t('eyebrow')}
+              width={800}
+              height={300}
+              className="h-10 w-auto sm:h-12"
+              priority
+            />
           </span>
           <h1 ref={titleRef} className="font-montserrat text-4xl md:text-5xl lg:text-6xl font-black uppercase text-foreground tracking-tight mb-6 max-w-[64rem] leading-[0.95]">
             {t('titleStart')} <em className="text-highlight text-primary">{t('titleHighlight')}</em>

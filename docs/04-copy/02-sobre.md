@@ -20,7 +20,7 @@ No fim dos anos 80, Julio Matino observava uma contradição no campo paulista: 
 
 Da observação nasceu o Aminosan, fertilizante foliar à base de aminoácidos de origem vegetal, numa época em que essa conversa soava estranha em revenda. E do Aminosan nasceu a Juma Agro, fundada em 1988 em Mogi Guaçu, interior de São Paulo.
 
-Hoje a estrutura inclui laboratório próprio de controle de qualidade, um departamento técnico dedicado a fisiologia e nutrição vegetal, pesquisa em parceria com a UENP no Projeto DESATA e uma filial na Flórida, atendendo o mercado americano. O Sr. Julio segue por perto: é ele quem conversa com os visitantes da Juma Experience.
+Hoje a estrutura inclui laboratório próprio de controle de qualidade, um departamento técnico dedicado a fisiologia e nutrição vegetal, o programa Olho no Alvo e uma filial na Flórida, atendendo o mercado americano. O Sr. Julio segue por perto: é ele quem conversa com os visitantes da Juma Experience.
 
 ---
 
@@ -31,7 +31,7 @@ Hoje a estrutura inclui laboratório próprio de controle de qualidade, um depar
 | Fundação em 1988 | Quase quatro décadas de campo acumuladas em produto |
 | Aminosan há mais de 40 anos | Um foliar que atravessou gerações de produtores e segue em ensaio |
 | Laboratório próprio | Controle de qualidade lote a lote, dentro de casa |
-| Projeto DESATA (UENP/NITEC) | Pesquisa universitária em tecnologia de aplicação |
+| Programa Olho no Alvo | Tecnologia de aplicação, direto no campo |
 | Juma-Agro Fertilizer LLC, Flórida | A mesma tecnologia vendida e validada nos EUA |
 | Ensaios com fonte nomeada | DETEC, Rehagro, NITEC/UNESP, JP Agrícola. Você pode conferir |
 

@@ -12,8 +12,8 @@ import { isLowPower } from '@/features/animation/device'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { HomeCtaFinal } from '@/features/home/components/HomeCtaFinal'
 
-export function DesataPage() {
-  const t = useTranslations('desataPage')
+export function OlhoNoAlvoPage() {
+  const t = useTranslations('olhoNoAlvoPage')
   const reduced = useReducedMotion()
 
   const containerRef = useRef<HTMLDivElement>(null)
@@ -22,7 +22,6 @@ export function DesataPage() {
 
   const topicsRef = useRef<HTMLDivElement>(null)
   const teamRef = useRef<HTMLDivElement>(null)
-  const partnersRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLDivElement>(null)
 
   const topics = [
@@ -33,15 +32,9 @@ export function DesataPage() {
     { titleStart: t('topics.t3TitleStart'), titleHighlight: t('topics.t3TitleHighlight'), alt: t('topics.t3Title'), desc: t('topics.t3Desc'), image: '/desata/maquina-agricola.webp', reverse: false },
   ]
 
+  // Só o time Juma-Agro — o programa não é mais uma parceria com a UENP.
   const team = [
     { name: t('team.member1Name'), role: t('team.member1Role'), image: '/desata/team-1.webp' },
-    { name: t('team.member2Name'), role: t('team.member2Role'), image: '/desata/team-2.webp' },
-  ]
-
-  const partners = [
-    { src: '/desata/logo_nitec.webp', alt: 'NITEC' },
-    { src: '/desata/logo_uenp.webp', alt: 'UENP' },
-    { src: '/brand/logo-juma-agro.png', alt: 'Juma Agro' },
   ]
 
   useGSAP(
@@ -134,30 +127,6 @@ export function DesataPage() {
         if (photos.length) tl.to(photos, { scale: 1, opacity: 1, duration: DUR.title, stagger: STAGGER.card, ease: 'back.out(1.4)' }, '<0.2')
       }
 
-      // Partners
-      if (partnersRef.current) {
-        const section = partnersRef.current
-        const title = section.querySelector<HTMLElement>('[data-partners-title]')
-        const logos = gsap.utils.toArray<HTMLElement>('[data-partner-logo]', section)
-
-        const titleReveal = createCharReveal(title)
-        titleReveal?.hide()
-        if (logos.length) gsap.set(logos, { y: 20, opacity: 0, scale: 0.8 })
-
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: section,
-            start: TRIGGER_START,
-            end: 'bottom top',
-            toggleActions: revealToggleActions(),
-          },
-          defaults: { ease: EASE.reveal },
-        })
-
-        titleReveal?.playIn(tl, 0)
-        if (logos.length) tl.to(logos, { y: 0, opacity: 1, scale: 1, duration: DUR.sub, stagger: STAGGER.card, ease: 'back.out(1.5)' }, '<0.1')
-      }
-
       // Video
       if (videoRef.current) {
         const videoWrapper = videoRef.current.querySelector<HTMLElement>('[data-video-wrapper]')
@@ -189,7 +158,7 @@ export function DesataPage() {
       <section className="relative w-full min-h-[90vh] flex flex-col justify-center items-center pt-[140px] pb-[80px] overflow-hidden bg-black">
         <Image
           src="/desata/maquina-agricola.webp"
-          alt="Desata Background"
+          alt="Olho no Alvo Background"
           fill
           className="object-cover"
           priority
@@ -248,7 +217,7 @@ export function DesataPage() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-[56rem] mx-auto">
+          <div className="flex flex-wrap justify-center gap-12 max-w-[56rem] mx-auto">
             {team.map((member, i) => (
               <div key={i} data-team-card className="flex flex-col items-center gap-6">
                 <div data-team-photo className="relative w-[16rem] h-[16rem] rounded-full overflow-hidden border-4 border-primary/20">
@@ -264,33 +233,14 @@ export function DesataPage() {
         </Container>
       </section>
 
-      {/* 4. Partners */}
-      <section ref={partnersRef} className="w-full py-12">
-        <Container>
-          <div className="flex flex-col items-center text-center mb-12">
-            <h2 data-partners-title className="text-2xl md:text-3xl font-black uppercase font-montserrat tracking-tight text-foreground">
-              {t('partners.titleStart')} <em className="text-highlight text-primary">{t('partners.titleHighlight')}</em>
-            </h2>
-          </div>
-
-          <div className="flex flex-wrap justify-center items-center gap-12 md:gap-24 opacity-80">
-            {partners.map((partner, i) => (
-              <div key={i} data-partner-logo className="relative w-[12rem] md:w-[16rem] h-[6rem] md:h-[8rem]">
-                <Image src={partner.src} alt={partner.alt} fill className="object-contain" />
-              </div>
-            ))}
-          </div>
-        </Container>
-      </section>
-
-      {/* 5. Video */}
+      {/* 4. Video */}
       <section ref={videoRef} className="w-full pb-24">
         <Container>
           <div data-video-wrapper className="w-full max-w-[64rem] mx-auto rounded-3xl overflow-hidden shadow-2xl relative aspect-video bg-black">
             <iframe
               className="absolute inset-0 w-full h-full"
               src="https://www.youtube.com/embed/82rGv7Kv5Vw?si=pTp4nEsyxi4QJrq4&rel=0"
-              title="Programa Desata"
+              title="Programa Olho no Alvo"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
@@ -299,7 +249,7 @@ export function DesataPage() {
         </Container>
       </section>
 
-      {/* 6. CTA final — mesmo fechamento de conversão das outras páginas internas */}
+      {/* 5. CTA final — mesmo fechamento de conversão das outras páginas internas */}
       <HomeCtaFinal />
     </div>
   )

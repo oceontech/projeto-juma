@@ -74,7 +74,7 @@ Programa de imersão institucional:
 
 - Fundada em **1988**, Mogi Guaçu/SP, por **Julio Matino** (ou "Sr. Julio Matino" no tratamento institucional).
 - O Aminosan tem **mais de 40 anos** de mercado — confirmar a cronologia exata antes do go-live (a fundação da empresa e o lançamento do Aminosan podem não ter a mesma data).
-- Hoje: laboratório próprio, departamento técnico, pesquisa com a UENP (Projeto DESATA, parceria com NITEC/UNESP), filial nos EUA (Juma-Agro Fertilizer LLC, Flórida).
+- Hoje: laboratório próprio, departamento técnico, programa Olho no Alvo, filial nos EUA (Juma-Agro Fertilizer LLC, Flórida).
 - Gestão familiar: o fundador e os filhos seguem à frente da empresa.
 - Fontes de ensaio citáveis: DETEC, Rehagro, NITEC/UNESP, JP Agrícola, Terras Gerais, além de ensaios internos da própria Juma.
 

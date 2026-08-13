@@ -44,7 +44,7 @@
 | `/produtos` | `/produtos` |
 | `/culturas` | `/culturas` |
 | `/eventos` + posts `/2019/…`, `/2020/…` | `/materias` (ou post equivalente se migrado) |
-| `/desata` | `/sobre#desata` ou página própria (decidir) |
+| `/desata` | `/olho-no-alvo` (programa renomeado; `/desata` redireciona) |
 | `/area/*` (administrativo, rh, comercial, faturamento, contas-a-receber, rh-curriculo) | `/contato` |
 | `/en/*` (árvore inteira, inclusive slugs com sufixo `-2`) | rota equivalente em `/en/…` |
 | PDFs (`/Prospectos/*`, `/Publicacoes_Tecnicas/*`, `/Artigos/*`) | **manter URLs ou redirecionar para nova seção de materiais — decidir com cliente** |

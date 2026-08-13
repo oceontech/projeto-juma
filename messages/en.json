@@ -27,7 +27,7 @@
     "articles": "Articles",
     "contact": "Contact",
     "jobs": "Careers",
-    "desata": "Desata"
+    "olhoNoAlvo": "Olho no Alvo"
   },
   "hero": {
     "headlineLead": "Together we feed the",
@@ -3174,16 +3174,16 @@
       }
     }
   },
-  "desataPage": {
+  "olhoNoAlvoPage": {
     "hero": {
-      "title": "PROGRAM <highlight>DESATA</highlight>",
-      "description": "An innovative project born from a public-private partnership between Juma-Agro, a company with over 40 years in Brazilian agribusiness, and the State University of Northern Paraná (UENP) and its Center for Research in Application Technology and Agricultural Machinery (NITEC)."
+      "title": "PROGRAM <highlight>OLHO NO ALVO</highlight>",
+      "description": "An innovative project from Juma-Agro, a company with over 40 years in Brazilian agribusiness."
     },
     "topics": {
       "t1Title": "WHO WE ARE",
       "t1TitleStart": "WHO",
       "t1TitleHighlight": "WE ARE",
-      "t1Desc": "An innovative project born from a public-private partnership between Juma-Agro, a company with over 40 years in Brazilian agribusiness, and the State University of Northern Paraná (UENP) and its Center for Research in Application Technology and Agricultural Machinery (NITEC).",
+      "t1Desc": "An innovative project from Juma-Agro, a company with over 40 years in Brazilian agribusiness.",
       "t2Title": "OUR PURPOSE",
       "t2TitleStart": "OUR",
       "t2TitleHighlight": "PURPOSE",
@@ -3198,14 +3198,7 @@
       "titleStart": "PROJECT",
       "titleHighlight": "TEAM",
       "member1Name": "Agronomist Anderson Souza de Jesus",
-      "member1Role": "Juma-Agro Project Manager",
-      "member2Name": "Dr. Rone Batista de Oliveira",
-      "member2Role": "UENP Project Coordinator"
-    },
-    "partners": {
-      "title": "PARTNERS",
-      "titleStart": "OUR",
-      "titleHighlight": "PARTNERS"
+      "member1Role": "Juma-Agro Project Manager"
     }
   }
 }

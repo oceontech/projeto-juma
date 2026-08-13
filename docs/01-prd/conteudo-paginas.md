@@ -115,9 +115,9 @@ Hero: convite a uma visita da fábrica à conversa com o fundador. **Para quem �
 
 Abertura/crença: o campo é quem aprova os produtos — todo resultado passou por ensaio comparado com testemunha antes de qualquer rótulo ir para a embalagem. Essa é a regra da casa desde 1988.
 
-**História de origem:** Julio Matino, fim dos anos 80, o problema no metabolismo da planta, o nascimento do produto histórico (Aminosan) e da empresa em 1988, em Mogi Guaçu/SP. Hoje: laboratório próprio, departamento técnico, pesquisa acadêmica (Projeto DESATA), filial nos EUA; o fundador recebe pessoalmente os visitantes da Juma Experience. Usar foto real do fundador.
+**História de origem:** Julio Matino, fim dos anos 80, o problema no metabolismo da planta, o nascimento do produto histórico (Aminosan) e da empresa em 1988, em Mogi Guaçu/SP. Hoje: laboratório próprio, departamento técnico, programa Olho no Alvo, filial nos EUA; o fundador recebe pessoalmente os visitantes da Juma Experience. Usar foto real do fundador.
 
-**Marcos (linha do tempo, 1988 até hoje):** fundação em 1988 · produto histórico com mais de 40 anos · laboratório próprio · parceria acadêmica (Projeto DESATA) · filial nos EUA · ensaios com fonte nomeada (DETEC, Rehagro, NITEC/UNESP, JP Agrícola).
+**Marcos (linha do tempo, 1988 até hoje):** fundação em 1988 · produto histórico com mais de 40 anos · laboratório próprio · programa Olho no Alvo · filial nos EUA · ensaios com fonte nomeada (DETEC, Rehagro, NITEC/UNESP, JP Agrícola).
 
 **Propósito:** "Juntos, alimentamos o mundo" — você produz o alimento, a empresa cuida para que cada fase da lavoura renda o que pode render. Ponte para a Juma Experience + CTA final "Falar com um especialista".
 

@@ -14,7 +14,7 @@ export const navLinks = [
   { key: 'products', href: '/produtos' },
   { key: 'cultures', href: '/culturas' },
   { key: 'experience', href: '/juma-experience' },
-  { key: 'desata', href: '/desata' },
+  { key: 'olhoNoAlvo', href: '/olho-no-alvo' },
   { key: 'about', href: '/sobre' },
   { key: 'articles', href: '/materias' },
   { key: 'contact', href: '/contato' },
