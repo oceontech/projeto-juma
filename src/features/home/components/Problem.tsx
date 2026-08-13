@@ -13,7 +13,7 @@ export function Problem() {
   const t = useTranslations('problem')
   const reduced = useReducedMotion()
   const sectionRef = useRef<HTMLElement>(null)
-  const pinRef     = useRef<HTMLDivElement>(null)
+  const titleBoxRef = useRef<HTMLDivElement>(null)
   const titleRef   = useRef<HTMLHeadingElement>(null)
   const bodyRef    = useRef<HTMLDivElement>(null)
 
@@ -22,29 +22,40 @@ export function Problem() {
       if (reduced) return
 
       const title = titleRef.current
-      const pin   = pinRef.current
+      const titleBox = titleBoxRef.current
       const body  = bodyRef.current
       if (!title) return
 
       const isDesktop = window.innerWidth >= 1024
 
-      if (pin) {
+      if (titleBox) {
         /*
          * Técnica "lâmpada por palavra".
-         * A seção pina em top: top e o ScrollTrigger com scrub
-         * drive o progress da timeline. Cada palavra parte de
-         * opacity 0.08 e vai para 1 conforme o usuário desce.
-         */
-        /* Este título acende palavra a palavra (não letra a letra) — desenho
-           original da seção, preservado com `by: 'words'`. O desfoque continua
-           existindo, agora no título inteiro em vez de em cada palavra. */
+         * Cada palavra parte de opacity 0 (apagada de vez, não só fraca) e
+         * vai para 1 conforme o usuário desce — preso a um `scrub`, então a
+         * velocidade do aceso acompanha a velocidade do dedo/roda.
+         *
+         * SEM pin. A versão original pinava a seção em `top: top` — o efeito
+         * só começava a rodar quando a caixa do título já estava colada no
+         * topo da viewport. Só que o título é centralizado dentro de uma
+         * caixa de 88vh (`justify-center`), então ele já está bem posicionado
+         * na tela BEM antes disso — a caixa começa a entrar pela base da tela
+         * e o título passa a maior parte da aproximação já no lugar certo,
+         * só que com `opacity: 0`. O pin não escondia o título por precisar
+         * escondê-lo; ele só atrasava o INÍCIO do aceso pro momento tardio
+         * (`top top`), e é esse atraso — não a opacidade em si — que lia como
+         * "tela em branco por um bom trecho de scroll".
+         * Medindo pelo TÍTULO (mesma lição do `Solution.tsx`: gatilho na
+         * seção alta mede tarde demais) com `start: 'top 85%'` — o padrão do
+         * resto do site —, o aceso começa assim que a primeira fatia do
+         * título aparece vindo de baixo, e naturalmente. */
         const reveal = createCharReveal(title, { by: 'words', axis: 'y', distance: 0, blur: 12, autoRevert: false })
         const words = reveal ? reveal.chars : []
 
         // Distribui as 4 cores pelo total de palavras (4 blocos proporcionais)
         const textColors = ['var(--color-foreground)', 'var(--color-primary)', 'var(--color-accent)', 'var(--color-secondary)']
         const wordsPerColor = Math.ceil(words.length / textColors.length)
-        
+
         words.forEach((word, index) => {
           const colorIndex = Math.min(Math.floor(index / wordsPerColor), textColors.length - 1)
           gsap.set(word, { color: textColors[colorIndex] })
@@ -56,10 +67,9 @@ export function Problem() {
         const step = words.length > 1 ? 7 / (words.length - 1) : 7
         const tl = gsap.timeline({
           scrollTrigger: {
-            trigger: pin,
-            start: 'top top',
-            end: isDesktop ? '+=720' : '+=400',
-            pin: true,
+            trigger: title,
+            start: 'top 85%',
+            end: 'top 20%',
             scrub: 0.9,
           },
         })
@@ -88,13 +98,13 @@ export function Problem() {
         })
 
         // Anima a linha dinamicamente no final do scrub
-        const line = pin.querySelector<HTMLElement>('[data-gline]')
+        const line = titleBox.querySelector<HTMLElement>('[data-gline]')
         if (line) {
           gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: 'center' })
           tl.to(line, { scaleX: 1, opacity: 1, duration: step * 2 }, (words.length - 1) * step)
         }
 
-        // Corpo: revela após o pin liberar (trigger proprio)
+        // Corpo: gatilho próprio, revela ao entrar na tela
         let bodyTrigger: ScrollTrigger | null = null
         if (body) {
           gsap.set(body, { y: 28, opacity: 0, ...(isDesktop && { filter: 'blur(8px)' }) })
@@ -121,11 +131,11 @@ export function Problem() {
   return (
     <section ref={sectionRef} className="bg-white">
       {/*
-       * Area pinada no desktop. min-h-[88vh] garante que o corpo
-       * fique abaixo do fold enquanto o pin está ativo.
+       * min-h-[88vh] dá ao título espaço pra respirar e mantém o corpo
+       * abaixo do fold enquanto o "aceso" palavra a palavra ainda corre.
        */}
       <div
-        ref={pinRef}
+        ref={titleBoxRef}
         className="flex min-h-[88vh] flex-col justify-center py-3xl lg:py-5xl"
       >
         <Container className="max-w-[72rem] min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem] flex flex-col items-center text-left">
@@ -141,7 +151,7 @@ export function Problem() {
         </Container>
       </div>
 
-      {/* Corpo: dois parágrafos abaixo da área pinada */}
+      {/* Corpo: dois parágrafos abaixo do título */}
       <div ref={bodyRef} className="pb-4xl lg:pb-5xl">
         <Container className="max-w-[72rem] min-[1600px]:max-w-[100rem] min-[2000px]:max-w-[120rem]">
           <div className="grid grid-cols-1 gap-xl border-t border-foreground/8 pt-xl lg:grid-cols-2 lg:gap-3xl lg:pt-2xl">

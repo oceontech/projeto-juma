@@ -42,7 +42,11 @@ export function RevealText({
     () => {
       if (reduced || !ref.current) return
 
-      const typeStr = splitBy === 'chars' ? 'chars,lines' : splitBy === 'words' ? 'words' : 'lines'
+      // `lines` só entra quando É o alvo (`split.lines`, abaixo) — nos outros
+      // dois casos ele só embrulharia cada linha medida num `<div>` extra sem
+      // necessidade, arriscando uma quebra diferente da nativa (ver o mesmo
+      // ajuste, com o motivo completo, em `createCharReveal`).
+      const typeStr = splitBy === 'chars' ? 'chars' : splitBy === 'words' ? 'words' : 'lines'
 
       const split = new SplitText(ref.current, {
         type: typeStr,

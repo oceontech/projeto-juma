@@ -128,8 +128,40 @@ export function createCharReveal(
      letra, que é o que define o efeito, continua igual nos dois casos. */
   const blurAtivo = blurPx(blur) !== 'none' ? blur : 0
 
-  const split = new SplitText(el, { type: by === 'words' ? 'words,lines' : 'chars,lines' })
-  const chars = by === 'words' ? split.words : split.chars
+  /* SEM `,lines`. Só `split.chars`/`split.words` são lidos abaixo — o
+     `lines` nunca é usado pra nada aqui. `SplitText` com `lines` insere um
+     `<div>` embrulhando CADA linha que ele mede NO MOMENTO do split, e essa
+     medição pode fechar a quebra num ponto ligeiramente diferente do que o
+     navegador faria com o texto puro (mais visível quanto mais apertada a
+     largura — exatamente o caso de um título Black/tracking-tight numa tela
+     de celular). Sem `lines`, os spans de char/word ficam soltos no fluxo
+     inline — o texto quebra do MESMO jeito que quebraria sem split nenhum. */
+  /* SEM split nenhum, no celular, pro reveal padrão (letra a letra).
+     O ajuste do `,lines` acima não bastou: o texto original (SSR) pinta ANTES
+     da webfont terminar de carregar; o `SplitText` monta os spans (frames)
+     depois, e se a fonte real chegou nesse meio-tempo, os spans recém-criados
+     já nascem no peso/largura NOVOS enquanto o layout ao redor ainda reflete
+     o que a fonte anterior media — o título carrega numa quebra e "salta"
+     pra outra pouco depois. Cinquenta caracteres, cada um sua própria caixa,
+     é a pior superfície possível pra esse descompasso se acumular; e é
+     exatamente o caso do reveal padrão (`by: 'chars'`), o único que já
+     reproduziu o problema.
+     Não dá pra confiar em reduzir o número de caixas (palavra em vez de
+     letra) — é melhor, mas ainda são caixas NOVAS podendo nascer com uma
+     largura que o layout ao redor não previu. A única garantia de verdade é
+     não criar caixa nenhuma: no celular, o título INTEIRO vira o único alvo
+     da animação (entra em bloco — desliza, desfoca, aparece — sem cascata
+     letra a letra), e como o texto nunca é desmontado em spans, ele só pode
+     quebrar do jeito que o navegador quebraria de qualquer forma, na hora
+     que for. Desktop mantém a cascata original (nunca reproduziu o bug, e é
+     lá que a largura sobra pra abrigar uma letra nova sem trocar de linha).
+     `by: 'words'` (a lâmpada de `Problem.tsx`) fica de fora deste desvio:
+     cada palavra carrega uma cor própria — reduzir pra um alvo só apagaria
+     esse efeito — e nunca apareceu quebrada, então o risco que sobra ali é
+     bem menor que o do `chars`. */
+  const skipSplit = by === 'chars' && typeof window !== 'undefined' && window.innerWidth < 768
+  const split = skipSplit ? null : new SplitText(el, { type: by === 'words' ? 'words' : 'chars' })
+  const chars = skipSplit ? [el] : by === 'words' ? split!.words : split!.chars
   const alphaKey = autoAlpha ? 'autoAlpha' : 'opacity'
 
   /* O desfoque do container tem duração própria, mais curta que a cascata: ele
@@ -159,7 +191,7 @@ export function createCharReveal(
   const revert = () => {
     if (reverted) return
     reverted = true
-    split.revert()
+    split?.revert()
   }
 
   return {

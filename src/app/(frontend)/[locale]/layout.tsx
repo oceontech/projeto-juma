@@ -12,9 +12,19 @@ import { SmoothScroll } from '@/features/animation/SmoothScroll'
 import { MobileLogo } from '@/components/layout/MobileLogo'
 import '../globals.css'
 
+/* `display: 'optional'`, não `'swap'`.
+   Títulos usam peso 900 (Black) — bem mais largo que a fonte de fallback do
+   sistema. Com `swap`, o texto renderiza primeiro no fallback (mais estreito),
+   e a troca para a Montserrat Black assim que ela carrega FAZ o texto ocupar
+   mais espaço horizontal — uma linha que cabia no fallback deixa de caber e
+   quebra, o título "pula" sozinho alguns instantes depois de aparecer. É um
+   problema em QUALQUER título do site, não de uma seção: a fonte é uma
+   instância só, usada em `--font-heading`/`--font-body`/`--font-sans`.
+   `optional` dá à fonte real uma janela curta para chegar a tempo do primeiro
+   paint; se não chegar, o fallback fica — sem troca tardia, sem o salto. */
 const montserrat = Montserrat({
   subsets: ['latin'],
-  display: 'swap',
+  display: 'optional',
   variable: '--font-montserrat',
   weight: ['300', '400', '500', '600', '900'],
   style: ['normal', 'italic'],
@@ -22,7 +32,7 @@ const montserrat = Montserrat({
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
-  display: 'swap',
+  display: 'optional',
   variable: '--font-space-grotesk',
   weight: ['400', '500', '600', '700'],
 })

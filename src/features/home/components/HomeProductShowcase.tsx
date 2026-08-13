@@ -650,6 +650,20 @@ export function HomeProductShowcase() {
           let isTransitioning = false
           let stepLocked = false
           let touchStartY = 0
+          let touchStartX = 0
+          /** Eixo do arrasto atual, travado no primeiro movimento com
+           *  deslocamento suficiente — ver `onTouchMoveStep` (MOBILE). `null`
+           *  até decidir, pra não confundir ruído do toque com intenção. */
+          let axisLock: 'v' | 'h' | null = null
+          /** Deslocamento (px) na borda da tela onde o arrasto horizontal NÃO
+           *  vira passo — é a zona do gesto de voltar/avançar página do
+           *  Safari/Chrome mobile (swipe-back). Fora dela o eixo é nosso. */
+          const EDGE_GUARD_X = 24
+          /** Deslocamento horizontal mínimo pra virar passo — mesmo valor do
+           *  vertical (`30`, ver `onTouchEndStep`), pelo mesmo motivo: curto o
+           *  bastante pra responder rápido, longo o bastante pra não disparar
+           *  com o tremor natural do dedo. */
+          const SWIPE_THRESHOLD_X = 30
           /** Um passo por gesto de toque — ver `stepFromTouch`. */
           let steppedThisGesture = false
           let transitionUnlockTimer: ReturnType<typeof setTimeout> | null = null
@@ -1843,9 +1857,13 @@ export function HomeProductShowcase() {
           let gestureOwned: boolean | null = null
 
           const onTouchStart = (e: TouchEvent) => {
-            if (e.touches.length > 0) touchStartY = e.touches[0].clientY
+            if (e.touches.length > 0) {
+              touchStartY = e.touches[0].clientY
+              touchStartX = e.touches[0].clientX
+            }
             steppedThisGesture = false
             gestureOwned = null
+            axisLock = null
             noteGesture()
           }
 
@@ -1865,6 +1883,20 @@ export function HomeProductShowcase() {
             if (!pinTrigger.isActive && !insidePin()) return
             const endY = e.changedTouches[0]?.clientY ?? touchStartY
             const delta = touchStartY - endY
+            /* Arrasto HORIZONTAL: navegação lateral entre produtos — mesmo
+               contrato do vertical (um gesto = um passo), decidido aqui no
+               soltar do dedo. Sem `escapesPin`: não existe rolagem nativa
+               lateral pra entregar o gesto a ela, e o `stepCatalog` já cobre
+               os dois extremos sozinho (sai pro próximo produto, pula pra
+               Cultures no último, ou volta pro handoff no primeiro). Direita
+               pra esquerda avança (mesmo sentido de "rolar pra baixo");
+               esquerda pra direita volta. */
+            if (axisLock === 'h') {
+              const endX = e.changedTouches[0]?.clientX ?? touchStartX
+              const deltaX = touchStartX - endX
+              if (Math.abs(deltaX) >= SWIPE_THRESHOLD_X) stepCatalog(deltaX > 0 ? 1 : -1)
+              return
+            }
             /* Gesto que ATRAVESSOU a borda do pin: começou fora (vindo da
                Cultures ou do Aminosan), onde nada é retido, e só entrou aqui
                no meio do caminho — `gestureOwned` nunca chegou a ser decidido.
@@ -1933,6 +1965,24 @@ export function HomeProductShowcase() {
                ir pra FRENTE no último produto: esse gesto pertence ao
                navegador, é assim que se sai pra Cultures. */
             if (isMobile) {
+              const deltaX = touchStartX - e.touches[0].clientX
+              /* Eixo decidido no MESMO primeiro movimento que já decidia
+                 `gestureOwned` (ver o comentário logo acima sobre por que não
+                 dá pra esperar mais pixels no iOS) — só que agora comparando
+                 as duas direções, não só a vertical. Perto da borda da tela o
+                 eixo fica travado em vertical de propósito: é a faixa do
+                 swipe-back do navegador (voltar/avançar página), que não pode
+                 ser sequestrada por um passo de produto. */
+              if (axisLock === null) {
+                if (delta === 0 && deltaX === 0) return
+                const nearEdge =
+                  touchStartX < EDGE_GUARD_X || touchStartX > window.innerWidth - EDGE_GUARD_X
+                axisLock = !nearEdge && Math.abs(deltaX) > Math.abs(delta) ? 'h' : 'v'
+              }
+              if (axisLock === 'h') {
+                if (e.cancelable) e.preventDefault()
+                return
+              }
               if (gestureOwned === null) {
                 if (delta === 0) return
                 gestureOwned = !escapesPin(delta > 0)

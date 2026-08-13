@@ -1,7 +1,5 @@
 'use client'
 
-import { Star, Warehouse } from 'lucide-react'
-
 import { useRef } from 'react'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
@@ -156,7 +154,14 @@ export function HomeExperience() {
                 className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
                 style={{ backgroundColor: '#004B26' }}
               >
-                <Warehouse width="14" height="14" color="#F0E27A" strokeWidth={2} aria-hidden />
+                <Image
+                  src="/brand/icone-juma-experience.webp"
+                  alt=""
+                  width={450}
+                  height={450}
+                  className="w-4 h-4"
+                  aria-hidden
+                />
               </div>
               <div>
                 <div className="text-[13px] font-bold text-white">Juma Experience</div>
@@ -167,10 +172,13 @@ export function HomeExperience() {
 
           <div data-exp-body>
             <div className="mb-8" data-kicker>
-              <span className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.08em] uppercase rounded-full px-4 py-2 mb-6 border border-white/20 text-white/80">
-                <Star className="w-3.5 h-3.5 flex-shrink-0 text-[#F0E27A]" />
-                {t('kicker')}
-              </span>
+              <Image
+                src="/brand/logo-juma-experience.webp"
+                alt={t('kicker')}
+                width={800}
+                height={300}
+                className="h-10 w-auto sm:h-12"
+              />
             </div>
             <h2
               data-title
