@@ -160,6 +160,8 @@ export function OlhoNoAlvoPage() {
           fill
           className="object-cover"
           priority
+          quality={90}
+          sizes="100vw"
         />
         <div className="absolute inset-0 bg-black/10 pointer-events-none" />
 
