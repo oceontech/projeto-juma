@@ -72,6 +72,12 @@ const nextConfig: NextConfig = {
       {
         pathname: '/materias/**',
       },
+      {
+        pathname: '/olho-no-alvo/**',
+      },
+      {
+        pathname: '/assets/olho-no-alvo/**',
+      },
     ],
     remotePatterns: [
       {
