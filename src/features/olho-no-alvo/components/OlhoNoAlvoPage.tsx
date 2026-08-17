@@ -25,11 +25,9 @@ export function OlhoNoAlvoPage() {
   const videoRef = useRef<HTMLDivElement>(null)
 
   const topics = [
-    { titleStart: t('topics.t1TitleStart'), titleHighlight: t('topics.t1TitleHighlight'), alt: t('topics.t1Title'), desc: t('topics.t1Desc'), image: '/desata/maquina-hidratacao-agricola.webp', reverse: false },
-    { titleStart: t('topics.t2TitleStart'), titleHighlight: t('topics.t2TitleHighlight'), alt: t('topics.t2Title'), desc: t('topics.t2Desc'), image: '/desata/maquina-aplicacao-agricola.webp', reverse: true },
-    // Reaproveita a foto do hero: o placeholder do Unsplash saiu (era um
-    // stock photo genérico, sem foto real da Juma disponível para este bloco).
-    { titleStart: t('topics.t3TitleStart'), titleHighlight: t('topics.t3TitleHighlight'), alt: t('topics.t3Title'), desc: t('topics.t3Desc'), image: '/desata/maquina-agricola.webp', reverse: false },
+    { titleStart: t('topics.t1TitleStart'), titleHighlight: t('topics.t1TitleHighlight'), alt: t('topics.t1Title'), desc: t('topics.t1Desc'), image: '/olho-no-alvo/olho-no-alvo-comercial.webp', reverse: true },
+    { titleStart: t('topics.t2TitleStart'), titleHighlight: t('topics.t2TitleHighlight'), alt: t('topics.t2Title'), desc: t('topics.t2Desc'), image: '/desata/maquina-aplicacao-agricola.webp', reverse: false },
+    { titleStart: t('topics.t3TitleStart'), titleHighlight: t('topics.t3TitleHighlight'), alt: t('topics.t3Title'), desc: t('topics.t3Desc'), image: '/desata/maquina-hidratacao-agricola.webp', reverse: true },
   ]
 
   // Só o time Juma-Agro — o programa não é mais uma parceria com a UENP.
@@ -157,8 +155,8 @@ export function OlhoNoAlvoPage() {
       {/* 1. Hero */}
       <section className="relative w-full min-h-[90vh] flex flex-col justify-center items-center pt-[140px] pb-[80px] overflow-hidden bg-black">
         <Image
-          src="/desata/maquina-agricola.webp"
-          alt="Olho no Alvo Background"
+          src="/olho-no-alvo/banner-olho-no-alvo.webp"
+          alt="Programa Olho no Alvo Juma Agro - Banner"
           fill
           className="object-cover"
           priority
