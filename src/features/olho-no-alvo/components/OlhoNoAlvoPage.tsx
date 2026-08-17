@@ -32,7 +32,7 @@ export function OlhoNoAlvoPage() {
 
   // Só o time Juma-Agro — o programa não é mais uma parceria com a UENP.
   const team = [
-    { name: t('team.member1Name'), role: t('team.member1Role'), image: '/desata/team-1.webp' },
+    { name: t('team.member1Name'), role: t('team.member1Role'), image: '/desata/team-2.webp' },
   ]
 
   useGSAP(
