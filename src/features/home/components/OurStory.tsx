@@ -2,13 +2,12 @@
 
 /**
  * "NOSSA HISTÓRIA" — vem logo depois da seção branca de texto centralizado da
- * jornada (fase GOTA). Família fundadora (foto) à esquerda, conteúdo à direita.
- * Entra uma vez, na primeira vez que a seção aparece; a inclinação 3D do card
- * continua acompanhando o scroll (`enterTilt`/`leaveTilt`, mais abaixo), essa
- * sim contínua, ligada à posição.
+ * jornada (fase GOTA). Card único, conteúdo centrado: chapéu, título, texto,
+ * selo e as três mini-stats no rodapé. Entra uma vez, na primeira vez que a
+ * seção aparece; a inclinação 3D do card continua acompanhando o scroll
+ * (`enterTilt`/`leaveTilt`, mais abaixo), essa sim contínua, ligada à posição.
  */
 import { useEffect, useRef, useState } from 'react'
-import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
@@ -17,52 +16,26 @@ import { EASE } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
 
-type Founder = {
-  key: string
-  /** Centro horizontal da pessoa na foto, em % da largura (medido na silhueta). */
-  x: number
-  /** Topo da cabeça, em % da altura da foto — é onde a linha conectora termina. */
-  headTop: number
-  /**
-   * Faixa vertical do rótulo. As quatro pessoas ficam próximas demais para os
-   * nomes caberem lado a lado numa linha só, então os rótulos alternam entre
-   * duas faixas: 1ª e 3ª pessoa em cima, 2ª e 4ª logo abaixo.
-   */
-  tier: 'high' | 'low'
-}
-
-const FOUNDERS: Founder[] = [
-  { key: 'fabio', x: 23.2, headTop: 15.6, tier: 'high' },
-  { key: 'julio_fundador', x: 37.6, headTop: 25.2, tier: 'low' },
-  { key: 'julio_comercial', x: 56.2, headTop: 9.3, tier: 'high' },
-  { key: 'joao_vitor', x: 77.8, headTop: 6.7, tier: 'low' },
-]
-
-/** Topo de cada faixa, em % da altura da foto (negativo = acima da imagem). */
-const TIER_TOP: Record<Founder['tier'], number> = { high: -32, low: -15 }
-
 /**
  * Geometria da inclinação 3D do card (entrada e saída).
  *
  * Os dois tamanhos rodam a MESMA animação; só a geometria muda, porque o card
- * tem proporção muito diferente em cada um: no desktop ele é 1296x902 (mais
- * largo que alto), no mobile 351x948 — quase três vezes mais alto que largo.
- * Girando pelo topo, é a ALTURA que joga a base do card para longe em z, então
- * a mesma perspectiva do desktop distorce muito mais no mobile.
+ * tem proporção muito diferente em cada um: no desktop é bem mais largo que
+ * alto, no mobile a coluna de texto o deixa mais alto que largo. Girando pelo
+ * topo, é a ALTURA que joga a base do card para longe em z, então a mesma
+ * perspectiva do desktop distorce mais no mobile.
  *
  * O limite não é a caixa do card inteiro estourar a tela — no desktop ela
- * estoura 286px de cada lado e ninguém vê, porque no pico da entrada a parte
- * larga está bem abaixo da dobra (e o `overflow-x: clip` do html corta). O que
- * importa é o card nunca ENCOSTAR na borda da tela dentro da área visível.
+ * estoura bastante de cada lado e ninguém vê, porque no pico da entrada a
+ * parte larga está bem abaixo da dobra (e o `overflow-x: clip` do html corta).
+ * O que importa é o card nunca ENCOSTAR na borda da tela dentro da área
+ * visível.
  *
- * Estes valores são o ponto em que isso ainda não acontece, medido com
- * varredura de borda (elementFromPoint) ao longo de toda a faixa de scroll em
- * 320, 360, 390, 412, 430, paisagem e tablet: folga mínima de 8px. Com a
- * perspectiva do desktop crua, as telas ALTAS (430x932, tablet) encostam — é
- * nelas que mais card aparece de uma vez. Não adianta estreitar o card para
- * ganhar espaço: estreitar aumenta a altura (numa tela de 320px, 90% de
- * largura dá 981px de altura e 74% dá 1112px), e altura é justamente o que
- * causa a distorção.
+ * Estes valores vieram de varredura de borda (elementFromPoint) ao longo de
+ * toda a faixa de scroll em 320, 360, 390, 412, 430, paisagem e tablet, feita
+ * na versão anterior desta seção — que trazia a foto da família e era bem mais
+ * alta. O card de agora é mais baixo em qualquer tela, e menos altura é menos
+ * deslocamento em z: a folga só aumentou.
  */
 const TILT = {
   desktop: { perspective: 1000, rotate: 20, scale: 1.05 },
@@ -85,8 +58,7 @@ export function OurStory() {
 
   const sectionRef = useRef<HTMLDivElement>(null)
   const cardRef = useRef<HTMLElement>(null)
-  const photoRef = useRef<HTMLDivElement>(null)
-  const labelsRootRef = useRef<HTMLDivElement>(null)
+  const eyebrowRef = useRef<HTMLSpanElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
   const ctaRef = useRef<HTMLDivElement>(null)
@@ -99,21 +71,13 @@ export function OurStory() {
       const card = cardRef.current
       if (!section || !card) return
 
-      const photo = photoRef.current
+      const eyebrow = eyebrowRef.current
       const title = titleRef.current
       const body = bodyRef.current
       const cta = ctaRef.current
       const stats = statsRootRef.current
         ? gsap.utils.toArray<HTMLElement>('[data-stat]', statsRootRef.current)
         : []
-      const labels =
-        isDesktop && labelsRootRef.current
-          ? gsap.utils.toArray<HTMLElement>('[data-label]', labelsRootRef.current)
-          : []
-      const vLines =
-        isDesktop && labelsRootRef.current
-          ? gsap.utils.toArray<HTMLElement>('[data-vline]', labelsRootRef.current)
-          : []
 
       // Título em linhas mascaradas (mesma voz do Hero/PhaseLayout). Entra
       // uma vez só (ver `trigger`, abaixo), então os spans do split podem ser
@@ -122,24 +86,16 @@ export function OurStory() {
       const reveal = createCharReveal(title)
 
       // ── Estado inicial ──────────────────────────────────────────────
-      gsap.set(photo, { y: 24, opacity: 0 })
+      gsap.set(eyebrow, { y: 10, opacity: 0 })
       gsap.set(title, { opacity: 0 })
       reveal?.hide()
       gsap.set(body, { y: 12, opacity: 0 })
       gsap.set(cta, { y: 12, opacity: 0 })
       gsap.set(stats, { y: 10, opacity: 0 })
-      if (isDesktop) {
-        gsap.set(labels, { opacity: 0 })
-        gsap.set(vLines, { scaleY: 0, transformOrigin: 'top center' })
-      }
 
       // ── Entrada: rápida e limpa ─────────────────────────────────────
       const entry = gsap.timeline({ paused: true, defaults: { ease: EASE.reveal } })
-      entry.to(photo, { y: 0, opacity: 1, duration: 0.75 }, 0)
-      if (isDesktop) {
-        entry.to(labels, { opacity: 1, duration: 0.4, stagger: 0.08 }, 0.15)
-        entry.to(vLines, { scaleY: 1, duration: 0.45, stagger: 0.08 }, 0.25)
-      }
+      entry.to(eyebrow, { y: 0, opacity: 1, duration: 0.45 }, 0)
       entry.set(title, { opacity: 1 }, 0.15)
       reveal?.playIn(entry, 0.15)
       entry.to(body, { y: 0, opacity: 1, duration: 0.5 }, 0.35)
@@ -149,8 +105,8 @@ export function OurStory() {
       /* Entra uma vez só, na primeira vez que a seção aparece — igual ao
          resto do site. Sair e voltar a rolar por cima não reanima nada; a
          versão anterior tinha uma timeline de saída própria (fade ao sair,
-         reentrada completa ao voltar), e isso lia como o título e a foto
-         "piscando" a cada pequena ida-e-volta de scroll. */
+         reentrada completa ao voltar), e isso lia como o título "piscando"
+         a cada pequena ida-e-volta de scroll. */
       let played = false
       const trigger = ScrollTrigger.create({
         trigger: section,
@@ -262,104 +218,56 @@ export function OurStory() {
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(0, 0, 0, 0.1)',
         }}
       >
-        {/* Abaixo de 1600px (notebooks) o card afina e a coluna da foto ganha
-            peso — assim a família cresce mesmo com o card menor. O padding
-            lateral não é mais forçado aqui: o Container já entrega a escala
-            enxuta nessa faixa (ver doc do Container). */}
-        {/* min-h em `--vh-stable`, não em 100dvh: hoje o conteúdo do mobile já
-            passa da altura da tela e o mínimo nem entra em jogo, mas num
-            aparelho maior (ou em paisagem) ele entraria — e aí a seção mudaria
-            de altura toda vez que a barra do navegador recolhesse. */}
-        <Container className="grid min-h-[var(--vh-stable,100dvh)] grid-cols-1 items-center gap-2xl py-xl lg:py-2xl xl:py-3xl lg:grid-cols-[1.35fr_1fr] lg:gap-xl min-[1600px]:grid-cols-[1.15fr_1fr] min-[1600px]:gap-3xl">
-          {/* ── Coluna esquerda: família ──────────────────────────────── */}
-          {/* pt no desktop: os rótulos ficam ACIMA da foto (top negativo) e
-              precisam desse respiro, senão o card (overflow-hidden) os corta.
-              Em %: padding-top percentual é medido sobre a LARGURA da coluna, e
-              a foto é 16:9 — logo TIER_TOP (32% da altura) equivale a 18% da
-              largura. Assim o respiro acompanha a foto em qualquer tela. */}
-          <div ref={photoRef} className="w-full lg:pt-[19%]">
-            <div className="relative mx-auto aspect-[16/9] w-full max-w-[34rem] lg:max-w-none">
-              <Image
-                src="/heritage/familia-matino.webp"
-                alt={t('familyAlt')}
-                fill
-                sizes="(min-width: 1024px) 55vw, 90vw"
-                className="relative z-10 object-contain object-bottom"
-              />
+        {/* Sem a foto da família o card não tem mais duas colunas: o conteúdo
+            é só texto e lê melhor centrado, numa medida de leitura fixa.
+            O `min-h` é em rem, não em dvh — a altura do card não pode mudar
+            quando a barra do navegador recolhe no mobile. */}
+        <Container className="flex min-h-[28rem] flex-col items-center justify-center py-3xl text-center lg:min-h-[34rem] lg:py-4xl">
+          <span ref={eyebrowRef} className="inline-flex items-center gap-sm">
+            <span aria-hidden className="block h-px w-6 bg-primary" />
+            <span className="text-eyebrow text-xs uppercase tracking-[0.18em] text-primary">
+              {t('eyebrow')}
+            </span>
+            <span aria-hidden className="block h-px w-6 bg-primary" />
+          </span>
 
-              {/* Rótulos + linhas conectoras (só desktop) */}
-              <div
-                ref={labelsRootRef}
-                className="pointer-events-none absolute inset-0 z-30 hidden lg:block"
-              >
-                {FOUNDERS.map((f) => (
-                  <FounderLabel
-                    key={f.key}
-                    x={f.x}
-                    headTop={f.headTop}
-                    tier={f.tier}
-                    name={t(`founders.${f.key}.name`)}
-                    role={t(`founders.${f.key}.role`)}
-                  />
-                ))}
-              </div>
-            </div>
+          <h2
+            ref={titleRef}
+            className="mt-lg max-w-[22ch] text-balance font-black uppercase leading-[0.98] tracking-tight text-[clamp(1.75rem,5.2vw,3rem)] min-[1600px]:text-[clamp(2.5rem,3.6vw,4rem)]"
+          >
+            <span className="block text-foreground">{t('titleDark')}</span>
+            <span className="text-highlight block text-primary">{t('titleGreen')}</span>
+          </h2>
 
-            {/* Mobile: os rótulos com linha não cabem, então os nomes viram lista */}
-            <ul className="mt-lg grid grid-cols-2 gap-x-md gap-y-sm lg:hidden">
-              {FOUNDERS.map((f) => (
-                <li key={f.key} className="flex flex-col border-l-2 border-primary/20 pl-sm">
-                  <span className="text-sm font-bold leading-tight text-primary">
-                    {t(`founders.${f.key}.name`)}
-                  </span>
-                  <span className="text-body-regular text-xs leading-tight text-foreground/55">
-                    {t(`founders.${f.key}.role`)}
-                  </span>
-                </li>
-              ))}
-            </ul>
+          <div ref={bodyRef} className="mt-lg lg:mt-xl">
+            <p className="text-subtitle mx-auto max-w-[44rem] text-pretty text-sm text-foreground/75 lg:text-base min-[1600px]:text-lg">
+              {t('body')}
+            </p>
           </div>
 
-          {/* ── Coluna direita: conteúdo ──────────────────────────────── */}
-          <div className="flex flex-col items-start w-full">
-            <span className="mb-md inline-flex items-center gap-sm">
-              <span aria-hidden className="block h-px w-6 bg-primary" />
-              <span className="text-eyebrow text-xs uppercase tracking-[0.18em] text-primary">
-                {t('eyebrow')}
-              </span>
+          <div
+            ref={ctaRef}
+            className="mt-lg lg:mt-xl inline-flex items-center gap-sm rounded-full border border-primary/30 px-lg py-sm"
+          >
+            <SparkleIcon className="h-4 w-4 text-primary" />
+            <span className="text-body-regular text-xs font-bold uppercase tracking-wide text-primary">
+              {t('cta')}
             </span>
+          </div>
 
-            <h2
-              ref={titleRef}
-              className="font-black uppercase leading-[0.98] tracking-tight text-[clamp(1.75rem,3.4vw,2.75rem)] min-[1600px]:text-[clamp(2.25rem,4.6vw,4rem)]"
-            >
-              <span className="block text-foreground">{t('titleDark')}</span>
-              <span className="text-highlight block text-primary">{t('titleGreen')}</span>
-            </h2>
-
-            <div ref={bodyRef} className="mt-lg lg:mt-xl border-l-2 border-primary/20 pl-lg">
-              <p className="text-subtitle max-w-[30rem] text-sm text-foreground/75 lg:text-[0.9375rem] min-[1600px]:max-w-[34rem] min-[1600px]:text-lg">
-                {t('body')}
-              </p>
-            </div>
-
-            <div
-              ref={ctaRef}
-              className="mt-lg lg:mt-xl inline-flex items-center gap-sm rounded-full border border-primary/30 px-lg py-sm"
-            >
-              <SparkleIcon className="h-4 w-4 text-primary" />
-              <span className="text-body-regular text-xs font-bold uppercase tracking-wide text-primary">
-                {t('cta')}
-              </span>
-            </div>
-
-            <div
-              ref={statsRootRef}
-              className="mt-xl lg:mt-2xl grid w-full grid-cols-1 gap-md md:grid-cols-3 md:gap-x-sm md:gap-y-lg min-[1600px]:gap-x-xs"
-            >
+          {/* Rodapé de stats: separado do bloco de texto por um filete, com
+              divisores entre as colunas a partir de md. No mobile vira lista
+              — `w-fit` deixa o bloco só do tamanho do maior item, então ele
+              fica centrado no card e os três ícones alinhados na mesma
+              coluna, coisa que três linhas centradas uma a uma não dão. */}
+          <div
+            ref={statsRootRef}
+            className="mt-xl w-full max-w-[56rem] border-t border-black/10 pt-xl lg:mt-2xl lg:pt-2xl"
+          >
+            <div className="mx-auto grid w-fit grid-cols-1 gap-lg md:w-full md:grid-cols-3 md:gap-0">
               <Stat icon="users" label={t('stat1')} />
-              <Stat icon="sprout" label={t('stat2')} />
-              <Stat icon="network" label={t('stat3')} />
+              <Stat icon="sprout" label={t('stat2')} divider />
+              <Stat icon="network" label={t('stat3')} divider />
             </div>
           </div>
         </Container>
@@ -368,69 +276,21 @@ export function OurStory() {
   )
 }
 
-/* ── Rótulo + linha conectora de um fundador ───────────────────────── */
-
-/**
- * O bloco é ancorado em cima (faixa do rótulo) e embaixo (topo da cabeça da
- * pessoa). Assim a linha conectora é só um `flex-1` entre os dois: ela se
- * estica sozinha para o comprimento certo em qualquer largura, sem precisar
- * calcular altura em px para cada pessoa.
- */
-function FounderLabel({
-  x,
-  headTop,
-  tier,
-  name,
-  role,
-}: {
-  x: number
-  headTop: number
-  tier: Founder['tier']
-  name: string
-  role: string
-}) {
-  return (
-    <div
-      data-label
-      className="absolute flex w-[9.5rem] flex-col items-center text-center xl:w-[11.5rem]"
-      style={{
-        left: `${x}%`,
-        top: `${TIER_TOP[tier]}%`,
-        bottom: `${100 - headTop}%`,
-        transform: 'translateX(-50%)',
-      }}
-    >
-      <span className="text-sm font-bold leading-tight text-primary xl:text-[0.9375rem]">
-        {name}
-      </span>
-      <span className="text-body-regular mt-[2px] text-xs leading-tight text-foreground/55">
-        {role}
-      </span>
-
-      {/* Linha conectora: preenche o vão até a cabeça e termina num nó */}
-      <span
-        data-vline
-        aria-hidden
-        className="mt-sm block w-px min-h-0 flex-1 bg-gradient-to-b from-primary/45 to-primary/15"
-      />
-      {/* mb: afasta o nó da cabeça — sem isso ele encosta no cabelo */}
-      <span
-        aria-hidden
-        className="mb-[3px] block h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
-      />
-    </div>
-  )
-}
-
-/* ── Mini-stats do rodapé da coluna direita ────────────────────────── */
+/* ── Mini-stats do rodapé ──────────────────────────────────────────── */
 
 type StatIcon = 'users' | 'sprout' | 'network'
 
-function Stat({ icon, label }: { icon: StatIcon; label: string }) {
+/** `divider`: filete à esquerda, só a partir de md (a 1ª coluna não tem). */
+function Stat({ icon, label, divider }: { icon: StatIcon; label: string; divider?: boolean }) {
   return (
-    <div data-stat className="flex w-full items-center gap-xs">
-      <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full border border-primary/25 text-primary">
-        <StatIconGlyph name={icon} className="h-3.5 w-3.5" />
+    <div
+      data-stat
+      className={`flex items-center gap-sm text-left md:flex-col md:justify-start md:gap-md md:px-lg md:text-center ${
+        divider ? 'md:border-l md:border-black/10' : ''
+      }`}
+    >
+      <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full border border-primary/25 text-primary md:h-10 md:w-10">
+        <StatIconGlyph name={icon} className="h-3.5 w-3.5 md:h-4 md:w-4" />
       </span>
       <span className="text-body-regular text-balance text-sm leading-snug text-foreground/90 md:text-[0.8125rem] min-[1600px]:text-sm">
         {label}
