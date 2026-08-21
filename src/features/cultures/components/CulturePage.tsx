@@ -16,26 +16,30 @@ import { useTranslations } from 'next-intl'
 const WHATSAPP = 'https://wa.me/5519999648186'
 
 export type CalcProduct = { id: string; label: string; gainPerHa: number }
-export type ManagePhase = { label: string; fase: string; products: string[] }
+export type ManageProduct = { name: string; dose: string }
+export type ManagePhase = { label: string; fase: string; products: ManageProduct[] }
 export type RecommendedProduct = { slug: string; name: string; tag: string; desc: string; labelColor: string; image?: string }
 export type Challenge = { stage: string; title: string; desc: string }
+/** Preposição correta para o gênero da cultura em pt-BR (a soja, o milho, os citros). */
+export type CulturePrep = { in: string; of: string; for: string; your: string }
 
 export const REC_META: Record<string, { name: string, labelColor: string, image?: string }> = {
-  'aminosan': { name: 'Aminosan®', labelColor: '#659357', image: '/produtos/aminosan.webp' },
-  'fitofert': { name: 'Fitofert', labelColor: '#659357', image: '/produtos/fitofert.webp' },
-  'revigophos-amino': { name: 'RevigoPhos Amino', labelColor: '#302783', image: '/produtos/revigophos-amino.webp' },
   'acorda-ultra': { name: 'Acorda Ultra', labelColor: '#008dc2', image: '/produtos/acorda-ultra.webp' },
-  'revigo-milho': { name: 'Revigo + Milho', labelColor: '#302783', image: '/produtos/revigo-milho.webp' },
   'acorda-cana': { name: 'Acorda Cana', labelColor: '#79ab34', image: '/produtos/acorda-cana.webp' },
-  'redutan-sili-4': { name: 'Redutan NPK Sili-4', labelColor: '#7d252a', image: '/produtos/redutan-sili-5.webp' },
-  'revigo-comoni': { name: 'Revigo CoMoNi', labelColor: '#302783', image: '/produtos/revigo-cobre-ultra.webp' },
-  'revigo-pasto': { name: 'Revigo + Pasto', labelColor: '#302783', image: '/produtos/revigo-pasto.webp' }
+  'aduban': { name: 'Aduban', labelColor: '#ad1115', image: '/produtos/aduban.webp' },
+  'aminosan': { name: 'Aminosan®', labelColor: '#006838', image: '/produtos/aminosan.webp' },
+  'fitofert': { name: 'Fitofert', labelColor: '#006838', image: '/produtos/fitofert.webp' },
+  'revigophos-amino': { name: 'RevigoPhos Amino', labelColor: '#312783', image: '/produtos/revigophos-amino.webp' },
+  'revigo-comoni': { name: 'Revigo CoMoNi', labelColor: '#312783', image: '/produtos/revigo-comoni.webp' },
+  'revigo-milho': { name: 'Revigo + Milho', labelColor: '#312783', image: '/produtos/revigo-milho.webp' },
+  'revigo-pasto': { name: 'Revigo + Pasto', labelColor: '#312783', image: '/produtos/revigo-pasto.webp' },
+  'kmep-ultra': { name: 'Kmep Ultra', labelColor: '#ad1115', image: '/produtos/kmep-ultra.webp' },
+  'redutan-sili-4': { name: 'Redutan NPK Sili-4', labelColor: '#006838', image: '/produtos/redutan-sili-4.webp' }
 }
 
 export type CultureMeta = {
   gradient: string
   image: string
-  managementProducts: string[][]
   calcProducts: CalcProduct[]
 }
 
@@ -43,13 +47,6 @@ export const META: Record<string, CultureMeta> = {
   cafe: {
     gradient: 'linear-gradient(165deg, #6c4226 0%, #2a1a10 100%)',
     image: '/assets/cultures/cafe.webp?v=20260731',
-    managementProducts: [
-      ['FitoFert', 'Aminosan'],
-      ['Aminosan', 'Revigo CaB'],
-      ['Revigo', 'Revigo Zn Plus', 'Aminosan'],
-      ['Revigo Nitrogênio Plus', 'RevigoPHOS Amino', 'FitoFert'],
-      ['RevigoPHOS Amino', 'Aminosan', 'Revigo K']
-    ],
     calcProducts: [
       { id: 'aminosan', label: 'Aminosan', gainPerHa: 6 },
       { id: 'fitofert', label: 'Fitofert', gainPerHa: 4 },
@@ -59,12 +56,6 @@ export const META: Record<string, CultureMeta> = {
   soja: {
     gradient: 'linear-gradient(165deg, #5d7a3a, #2c3a18)',
     image: '/assets/cultures/soja.webp?v=20260731b',
-    managementProducts: [
-      ['Acorda Ultra', 'Aduban'],
-      ['Aminosan'],
-      ['FitoFert', 'Aminosan'],
-      ['RevigoPHOS Amino', 'FitoFert']
-    ],
     calcProducts: [
       { id: 'aminosan', label: 'Aminosan', gainPerHa: 12 },
       { id: 'fitofert', label: 'Fitofert', gainPerHa: 7 },
@@ -74,12 +65,6 @@ export const META: Record<string, CultureMeta> = {
   milho: {
     gradient: 'linear-gradient(165deg, #c3a445, #6b4f15)',
     image: '/assets/cultures/milho.webp?v=20260731b',
-    managementProducts: [
-      ['Acorda Ultra'],
-      ['Aminosan', 'Revigo CoMoNi'],
-      ['Aminosan', 'FitoFert'],
-      ['RevigoPHOS Amino', 'FitoFert']
-    ],
     calcProducts: [
       { id: 'aminosan', label: 'Aminosan', gainPerHa: 10 },
       { id: 'revigo', label: 'Revigo + Milho', gainPerHa: 8 },
@@ -89,11 +74,6 @@ export const META: Record<string, CultureMeta> = {
   cana: {
     gradient: 'linear-gradient(165deg, #7fa356, #364a1f)',
     image: '/assets/cultures/cana.webp?v=20260731',
-    managementProducts: [
-      ['Acorda Cana'],
-      ['Aminosan', 'Revigo CoMoNi'],
-      ['Aminosan', 'RevigoPHOS Amino']
-    ],
     calcProducts: [
       { id: 'acorda', label: 'Acorda Cana', gainPerHa: 8 },
       { id: 'aminosan', label: 'Aminosan', gainPerHa: 5 },
@@ -102,11 +82,6 @@ export const META: Record<string, CultureMeta> = {
   algodao: {
     gradient: 'linear-gradient(165deg, #e7dfc9, #87826a)',
     image: '/assets/cultures/algodao.webp?v=20260731',
-    managementProducts: [
-      ['Acorda Ultra'],
-      ['Aminosan', 'Revigo CoMoNi'],
-      ['FitoFert', 'RevigoPHOS Amino']
-    ],
     calcProducts: [
       { id: 'aminosan', label: 'Aminosan', gainPerHa: 6 },
       { id: 'fitofert', label: 'Fitofert', gainPerHa: 4 },
@@ -115,11 +90,6 @@ export const META: Record<string, CultureMeta> = {
   feijao: {
     gradient: 'linear-gradient(165deg, #8b5e3b, #2f1f12)',
     image: '/assets/cultures/feijao.webp?v=20260731b',
-    managementProducts: [
-      ['Acorda Ultra', 'Aduban'],
-      ['Aminosan'],
-      ['FitoFert', 'Aminosan']
-    ],
     calcProducts: [
       { id: 'aminosan', label: 'Aminosan', gainPerHa: 8 },
       { id: 'fitofert', label: 'Fitofert', gainPerHa: 5 },
@@ -128,11 +98,6 @@ export const META: Record<string, CultureMeta> = {
   citros: {
     gradient: 'linear-gradient(165deg, #d3a52a, #5e4910)',
     image: '/assets/cultures/limao.webp?v=20260731',
-    managementProducts: [
-      ['Aminosan', 'FitoFert'],
-      ['Aminosan', 'Revigo CaB'],
-      ['Revigo CoMoNi', 'RevigoPHOS Amino']
-    ],
     calcProducts: [
       { id: 'aminosan', label: 'Aminosan', gainPerHa: 5 },
       { id: 'fitofert', label: 'Fitofert', gainPerHa: 4 },
@@ -141,11 +106,6 @@ export const META: Record<string, CultureMeta> = {
   batata: {
     gradient: 'linear-gradient(165deg, #a08562, #463623)',
     image: '/assets/cultures/batata.webp?v=20260731',
-    managementProducts: [
-      ['Aminosan'],
-      ['FitoFert', 'Revigo CoMoNi'],
-      ['RevigoPHOS Amino', 'Aminosan']
-    ],
     calcProducts: [
       { id: 'aminosan', label: 'Aminosan', gainPerHa: 7 },
       { id: 'fitofert', label: 'Fitofert', gainPerHa: 5 },
@@ -154,11 +114,6 @@ export const META: Record<string, CultureMeta> = {
   tomate: {
     gradient: 'linear-gradient(165deg, #b73a2a, #4e1410)',
     image: '/assets/cultures/tomate.webp?v=20260731',
-    managementProducts: [
-      ['Aminosan', 'Revigo CoMoNi'],
-      ['FitoFert', 'Aminosan'],
-      ['Revigo CaB', 'RevigoPHOS Amino']
-    ],
     calcProducts: [
       { id: 'aminosan', label: 'Aminosan', gainPerHa: 7 },
       { id: 'fitofert', label: 'Fitofert', gainPerHa: 5 },
@@ -167,10 +122,6 @@ export const META: Record<string, CultureMeta> = {
   pastagem: {
     gradient: 'linear-gradient(165deg, #80a558, #2c3e1d)',
     image: '/assets/cultures/pastagem.webp?v=20260731',
-    managementProducts: [
-      ['Revigo CoMoNi', 'Aminosan'],
-      ['Revigo + Pasto']
-    ],
     calcProducts: [
       { id: 'revigo', label: 'Revigo + Pasto', gainPerHa: 6 },
       { id: 'aminosan', label: 'Aminosan', gainPerHa: 4 },
@@ -185,6 +136,9 @@ export type CultureData = CultureMeta & {
   actua: string[]
   challenges: Challenge[]
   management: ManagePhase[]
+  prep: CulturePrep
+  managementNote: string
+  source: string
   recommended: RecommendedProduct[]
 }
 
@@ -330,11 +284,14 @@ export function CulturePage({ slug }: { slug: string }) {
     description: tData(`${slug}.description`),
     actua: tData.raw(`${slug}.actua`) as string[],
     challenges: Object.values(tData.raw(`${slug}.challenges`) as Record<string, Challenge>),
-    management: Object.entries(tData.raw(`${slug}.management`) as Record<string, { label: string; fase: string }>).map(([k, v], i) => ({
+    management: Object.values(tData.raw(`${slug}.management`) as Record<string, ManagePhase>).map((v) => ({
       label: v.label,
       fase: v.fase,
-      products: meta.managementProducts[i] || []
+      products: v.products || []
     })),
+    prep: tData.raw(`${slug}.prep`) as CulturePrep,
+    managementNote: tData(`${slug}.managementNote`),
+    source: tData(`${slug}.source`),
     recommended: Object.entries(tData.raw(`${slug}.recommended`) as Record<string, { tag: string; desc: string }>).map(([recSlug, recData]) => ({
       slug: recSlug,
       name: REC_META[recSlug]?.name || recSlug,
@@ -424,6 +381,9 @@ export function CulturePage({ slug }: { slug: string }) {
 
   if (!culture) return null
 
+  /* Sem folheto oficial não há dose para publicar: a seção de manejo fica fora. */
+  const hasManagement = culture.management.some((f) => f.products.length > 0)
+
   return (
     <div className="bg-[#F2F6F2]">
       {/* ══ HERO ══ */}
@@ -464,13 +424,15 @@ export function CulturePage({ slug }: { slug: string }) {
                 </svg>
                 {tPage('whatsappBtn')}
               </a>
-              <a
-                href="#manejo"
-                className="inline-flex items-center gap-2.5 h-[54px] px-[28px] rounded-full btn-type text-white border border-white/30 hover:bg-white/10 transition-all hover:-translate-y-px"
-              >
-                {tPage('seeManagementBtn')}
-                <ArrowIcon />
-              </a>
+              {hasManagement && (
+                <a
+                  href="#manejo"
+                  className="inline-flex items-center gap-2.5 h-[54px] px-[28px] rounded-full btn-type text-white border border-white/30 hover:bg-white/10 transition-all hover:-translate-y-px"
+                >
+                  {tPage('seeManagementBtn')}
+                  <ArrowIcon />
+                </a>
+              )}
             </div>
           </div>
         </Container>
@@ -486,7 +448,7 @@ export function CulturePage({ slug }: { slug: string }) {
               <SectionHead
                 icon={Target}
                 eyebrow={tPage('actuaEyebrow')}
-                title={tPage.rich('actuaTitle', { highlight: (chunks) => <span className="text-highlight text-[#004B26] inline-block">{chunks}</span>, name: culture.name.toLowerCase(), br: () => <br /> })}
+                title={tPage.rich('actuaTitle', { highlight: (chunks) => <span className="text-highlight text-[#004B26] inline-block">{chunks}</span>, name: culture.name.toLowerCase(), prepIn: culture.prep.in, br: () => <br /> })}
                 lede={tPage('actuaLede')}
               />
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-3.5 list-none p-0 m-0">
@@ -514,7 +476,7 @@ export function CulturePage({ slug }: { slug: string }) {
               <SectionHead
                 icon={AlertTriangle}
                 eyebrow={tPage('challengesEyebrow')}
-                title={tPage.rich('challengesTitle', { highlight: (chunks) => <span className="text-highlight text-[#004B26] inline-block">{chunks}</span>, name: culture.name.toLowerCase(), br: () => <br /> })}
+                title={tPage.rich('challengesTitle', { highlight: (chunks) => <span className="text-highlight text-[#004B26] inline-block">{chunks}</span>, name: culture.name.toLowerCase(), prepOf: culture.prep.of, br: () => <br /> })}
                 lede={tPage('challengesLede')}
               />
               <div
@@ -542,13 +504,13 @@ export function CulturePage({ slug }: { slug: string }) {
         )}
 
         {/* Manejo por fase */}
-        {culture.management.length > 0 && (
+        {hasManagement && (
           <section id="manejo" data-section className="pt-0 pb-[clamp(80px,9vw,140px)]">
             <Container>
               <SectionHead
                 icon={ListChecks}
                 eyebrow={tPage('managementEyebrow')}
-                title={tPage.rich('managementTitle', { highlight: (chunks) => <span className="text-highlight text-[#004B26] inline-block">{chunks}</span>, name: culture.name.toLowerCase(), br: () => <br /> })}
+                title={tPage.rich('managementTitle', { highlight: (chunks) => <span className="text-highlight text-[#004B26] inline-block">{chunks}</span>, name: culture.name.toLowerCase(), prepOf: culture.prep.of, br: () => <br /> })}
                 lede={tPage('managementLede')}
               />
               <div
@@ -559,7 +521,7 @@ export function CulturePage({ slug }: { slug: string }) {
                 {culture.management.map((phase, i) => (
                   <div
                     key={i}
-                    className="grid items-stretch md:items-center border-t border-black/10 first:border-t-0 grid-cols-[120px_1fr] md:grid-cols-[220px_1fr]"
+                    className="grid items-stretch md:items-center border-t border-black/10 first:border-t-0 grid-cols-[148px_1fr] md:grid-cols-[220px_1fr]"
                   >
                     {/* Fase */}
                     <div className="flex flex-col gap-1 md:gap-1.5 p-4 md:p-[28px] bg-[#E8EFE2] border-r border-black/10 h-full justify-center">
@@ -570,22 +532,37 @@ export function CulturePage({ slug }: { slug: string }) {
                         {phase.fase}
                       </span>
                     </div>
-                    {/* Pills */}
+                    {/* Pills: produto e dose, como no folheto */}
                     <div className="flex flex-wrap items-center gap-1.5 md:gap-2 p-4 md:p-[22px_28px]">
                       {phase.products.map((prod, j) => (
                         <React.Fragment key={j}>
-                          <span className="inline-flex items-center gap-2 px-3 py-1.5 md:px-3.5 md:py-2 rounded-full bg-[#DDE6C8] text-[#004B26] text-[12.5px] md:text-[13.5px] font-semibold leading-none">
-                            {prod}
+                          <span className="inline-flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 px-3 py-1.5 md:px-3.5 md:py-2 rounded-full bg-[#DDE6C8] text-[#004B26] text-[12.5px] md:text-[13.5px] font-semibold leading-tight">
+                            {prod.name}
+                            <em className="not-italic font-medium text-[11px] md:text-[12px] text-[#004B26]/70">
+                              {prod.dose}
+                            </em>
                           </span>
                           {j < phase.products.length - 1 && (
-                            <span className="text-[12px] md:text-[14px] text-[#7C7C78]">+</span>
+                            <span className="hidden md:inline text-[14px] text-[#7C7C78]">+</span>
                           )}
                         </React.Fragment>
                       ))}
                     </div>
                   </div>
                 ))}
+                {culture.managementNote && (
+                  <div className="border-t border-black/10 bg-[#F7F9F5] p-4 md:p-[20px_28px]">
+                    <p className="m-0 text-[13px] md:text-[13.5px] text-[#5A5A57] leading-[1.55]">
+                      {culture.managementNote}
+                    </p>
+                  </div>
+                )}
               </div>
+              {culture.source && (
+                <p data-animate-content className="mt-4 m-0 text-[12.5px] text-[#7C7C78] leading-[1.5]">
+                  {tPage('sourceLabel')}: {culture.source}
+                </p>
+              )}
             </Container>
           </section>
         )}
@@ -597,7 +574,7 @@ export function CulturePage({ slug }: { slug: string }) {
               <SectionHead
                 icon={Package}
                 eyebrow={tPage('recommendedEyebrow')}
-                title={tPage.rich('recommendedTitle', { highlight: (chunks) => <span className="text-highlight text-[#004B26] inline-block">{chunks}</span>, name: culture.name.toLowerCase(), br: () => <br /> })}
+                title={tPage.rich('recommendedTitle', { highlight: (chunks) => <span className="text-highlight text-[#004B26] inline-block">{chunks}</span>, name: culture.name.toLowerCase(), prepFor: culture.prep.for, br: () => <br /> })}
                 lede={tPage('recommendedLede')}
               />
               <div

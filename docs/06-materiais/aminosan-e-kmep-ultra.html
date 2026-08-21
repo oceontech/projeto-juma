@@ -1,0 +1,1200 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Aminosan e KMEP Ultra: guia prático</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --verde: #004C26;
+    --verde-claro: #006838;
+    --vermelho: #ad1115;
+    --azul: #12357f;
+    --tinta: #1a1a1a;
+    --cinza: #55605a;
+    --linha: #d8dedb;
+    --fundo-suave: #f2f6f3;
+  }
+
+  @page {
+    size: A4;
+    margin: 16mm 14mm 18mm 14mm;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  body {
+    margin: 0;
+    font-family: Montserrat, "Segoe UI", Arial, sans-serif;
+    font-weight: 400;
+    font-size: 13pt;
+    line-height: 1.6;
+    color: var(--tinta);
+  }
+
+  p { margin: 0 0 10pt; }
+  strong { font-weight: 700; }
+
+  /* ── Capa ─────────────────────────────────────────────── */
+  .capa {
+    border-top: 10pt solid var(--verde);
+    padding-top: 12pt;
+    margin-bottom: 10pt;
+  }
+  .capa .marca {
+    font-size: 12pt;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--verde);
+    margin-bottom: 10pt;
+  }
+  .capa h1 {
+    font-size: 32pt;
+    font-weight: 900;
+    line-height: 1.02;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    margin: 0 0 12pt;
+  }
+  .capa h1 .destaque { color: var(--verde); }
+  .capa .linha-fina {
+    font-size: 14pt;
+    font-weight: 300;
+    color: var(--cinza);
+    max-width: 150mm;
+  }
+
+  .sumario {
+    margin-top: 10pt;
+    background: var(--fundo-suave);
+    border-left: 5pt solid var(--verde);
+    padding: 12pt 16pt;
+  }
+  .sumario h2 {
+    font-size: 12pt;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--verde);
+    margin: 0 0 8pt;
+  }
+  .sumario ol { margin: 0; padding-left: 20pt; }
+  .sumario li { margin-bottom: 4pt; font-size: 12.5pt; }
+
+  /* ── Blocos de produto ────────────────────────────────── */
+  .produto { page-break-before: always; }
+
+  .produto-topo {
+    border-top: 8pt solid var(--cor-produto);
+    padding-top: 12pt;
+    margin-bottom: 14pt;
+  }
+  .produto-tag {
+    display: inline-block;
+    font-size: 10.5pt;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #fff;
+    background: var(--cor-produto);
+    padding: 3pt 10pt;
+    margin-bottom: 10pt;
+  }
+  .produto-topo h1 {
+    font-size: 30pt;
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 1.05;
+    margin: 0 0 6pt;
+    color: var(--cor-produto);
+  }
+  .produto-topo .assinatura {
+    font-size: 11pt;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cor-produto);
+    margin: 0 0 8pt;
+  }
+  .produto-topo .resumo {
+    font-size: 13.5pt;
+    font-weight: 300;
+    color: var(--cinza);
+    max-width: 165mm;
+    margin: 0;
+  }
+
+  h2.secao {
+    font-size: 16pt;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--cor-produto, var(--verde));
+    margin: 12pt 0 7pt;
+    padding-bottom: 4pt;
+    border-bottom: 2pt solid var(--linha);
+    page-break-after: avoid;
+  }
+  h3.sub {
+    font-size: 13pt;
+    font-weight: 700;
+    margin: 12pt 0 4pt;
+    page-break-after: avoid;
+  }
+
+  ul.lista { margin: 0 0 8pt; padding-left: 18pt; }
+  ul.lista li { margin-bottom: 5pt; }
+
+  .nota-fina { font-size: 11.5pt; color: var(--cinza); }
+
+  /* ── Caixas ───────────────────────────────────────────── */
+  .caixa {
+    background: var(--fundo-caixa, var(--fundo-suave));
+    border-left: 5pt solid var(--cor-produto, var(--verde));
+    padding: 11pt 14pt;
+    margin: 8pt 0;
+    page-break-inside: avoid;
+  }
+  .caixa h3 {
+    font-size: 12.5pt;
+    font-weight: 700;
+    margin: 0 0 6pt;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--cor-produto, var(--verde));
+  }
+  .caixa p:last-child { margin-bottom: 0; }
+
+  .caixa.atencao {
+    background: #fff8e8;
+    border-left-color: #b8860b;
+  }
+  .caixa.atencao h3 { color: #8a6408; }
+
+  .caixa.citacao {
+    background: #fff;
+    border: 1pt solid var(--linha);
+    border-left: 5pt solid var(--cor-produto, var(--verde));
+  }
+  .caixa.citacao .fala {
+    font-size: 14pt;
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.45;
+    margin-bottom: 6pt;
+  }
+  .caixa.citacao .autor {
+    font-size: 11pt;
+    font-weight: 700;
+    color: var(--cinza);
+  }
+
+  /* ── Mito e realidade ─────────────────────────────────── */
+  .mito-realidade {
+    display: flex;
+    gap: 12pt;
+    margin: 10pt 0;
+    page-break-inside: avoid;
+  }
+  .mr {
+    flex: 1;
+    padding: 12pt 14pt;
+    border: 2pt solid var(--linha);
+  }
+  .mr .rotulo {
+    font-size: 12pt;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 6pt;
+  }
+  .mr.mito { background: #fdf3f3; border-color: #e7c4c4; }
+  .mr.mito .rotulo { color: var(--vermelho); }
+  .mr.real { background: #f2f7ec; border-color: #cbe0b3; }
+  .mr.real .rotulo { color: #4d7c0f; }
+  .mr p { margin: 0; font-size: 12.5pt; line-height: 1.45; }
+
+  /* ── Passo a passo ────────────────────────────────────── */
+  .passos { margin: 8pt 0 4pt; padding: 0; list-style: none; }
+  .passos li {
+    display: flex;
+    gap: 10pt;
+    align-items: flex-start;
+    margin-bottom: 8pt;
+    page-break-inside: avoid;
+  }
+  .passos .num {
+    flex: none;
+    width: 26pt;
+    height: 26pt;
+    border-radius: 50%;
+    background: var(--cor-produto, var(--verde));
+    color: #fff;
+    font-weight: 900;
+    font-size: 13pt;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .passos .txt { padding-top: 2pt; }
+
+  /* ── Selos ────────────────────────────────────────────── */
+  .selos {
+    display: flex;
+    gap: 10pt;
+    margin: 8pt 0;
+    page-break-inside: avoid;
+  }
+  .selo {
+    flex: 1;
+    text-align: center;
+    border: 2pt solid var(--cor-produto, var(--verde));
+    border-radius: 6pt;
+    padding: 10pt 8pt;
+    font-size: 11.5pt;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--cor-produto, var(--verde));
+  }
+
+  /* ── Números de ensaio ────────────────────────────────── */
+  .resultados {
+    display: flex;
+    gap: 12pt;
+    margin: 8pt 0;
+    page-break-inside: avoid;
+  }
+  .resultado {
+    flex: 1;
+    border: 2pt solid var(--linha);
+    border-top: 6pt solid var(--cor-produto, var(--verde));
+    padding: 12pt;
+  }
+  .resultado .valor {
+    font-size: 30pt;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--cor-produto, var(--verde));
+  }
+  .resultado .unidade {
+    font-size: 14pt;
+    font-weight: 700;
+    color: var(--cor-produto, var(--verde));
+  }
+  .resultado .desc {
+    font-size: 11.5pt;
+    line-height: 1.45;
+    color: var(--cinza);
+    margin-top: 6pt;
+  }
+
+  /* ── Tabelas ──────────────────────────────────────────── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12pt;
+    margin: 7pt 0 10pt;
+  }
+  thead th {
+    background: var(--cor-produto, var(--verde));
+    color: #fff;
+    font-weight: 700;
+    font-size: 11.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-align: left;
+    padding: 8pt 10pt;
+  }
+  tbody td {
+    padding: 7pt 10pt;
+    border-bottom: 1pt solid var(--linha);
+    vertical-align: top;
+    line-height: 1.45;
+  }
+  tbody tr:nth-child(even) td { background: #f7f9f8; }
+  tbody tr { page-break-inside: avoid; }
+  td.cultura { font-weight: 700; width: 38%; }
+
+  /* ── Culturas em colunas ──────────────────────────────── */
+  .culturas {
+    columns: 4;
+    column-gap: 12pt;
+    font-size: 11.5pt;
+    margin: 6pt 0 8pt;
+    padding-left: 16pt;
+  }
+  .culturas li {
+    break-inside: avoid;
+    margin-bottom: 3pt;
+  }
+
+  /* ── Galeria de peças ─────────────────────────────────── */
+  .pecas {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 7pt;
+    margin: 8pt 0 10pt;
+  }
+  .peca { page-break-inside: avoid; }
+  .peca img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border: 1pt solid var(--linha);
+  }
+  .peca .legenda {
+    font-size: 9.5pt;
+    line-height: 1.3;
+    color: var(--cinza);
+    margin-top: 4pt;
+  }
+
+  .peca-dupla {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10pt;
+    margin: 10pt 0;
+    page-break-inside: avoid;
+  }
+
+  /* ── Comparativo final ────────────────────────────────── */
+  .comparativo td.cultura { width: 26%; }
+
+  .rodape-doc {
+    margin-top: 12pt;
+    padding-top: 10pt;
+    border-top: 2pt solid var(--linha);
+    font-size: 10.5pt;
+    line-height: 1.5;
+    color: var(--cinza);
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ CAPA ══════════════════════════════════════════════ -->
+<header class="capa">
+  <div class="marca">Juma-Agro · Guia prático de produto</div>
+  <h1>Aminosan e<br><span class="destaque">KMEP Ultra</span></h1>
+  <p class="linha-fina">
+    O que cada um faz, o que tem dentro, em quais culturas entra, quando aplicar
+    e como funciona na lavoura. Inclui a leitura das narrativas que a Juma-Agro USA
+    vem usando no Instagram para posicionar os dois produtos.
+  </p>
+</header>
+
+<section class="sumario">
+  <h2>O que você vai encontrar</h2>
+  <ol>
+    <li><strong>Aminosan</strong>: metabolismo da planta o ciclo inteiro, não só no estresse</li>
+    <li><strong>KMEP Ultra</strong>: mais rendimento do inseticida que você já usa</li>
+    <li><strong>Comparativo</strong>: qual usar em cada situação</li>
+    <li><strong>Leitura do Instagram USA</strong>: as narrativas que eles escolheram enfatizar</li>
+  </ol>
+</section>
+
+<div class="caixa">
+  <h3>Em uma frase cada um</h3>
+  <p>
+    <strong>Aminosan</strong> entrega aminoácido pronto para a planta manter o metabolismo
+    funcionando o ciclo todo, tanto na recuperação depois do estresse quanto no crescimento
+    normal, quando a lavoura está bem.
+  </p>
+  <p>
+    <strong>KMEP Ultra</strong> não mata a praga. Ele tira a praga do esconderijo e a joga
+    no caminho do inseticida que já está na calda, então a mesma aplicação controla mais.
+  </p>
+</div>
+
+<div class="caixa atencao">
+  <h3>Antes de usar este material</h3>
+  <p>
+    A <strong>dose por hectare</strong> sai do rótulo e da recomendação do departamento
+    técnico da Juma-Agro. Este guia cobre função, posicionamento e calendário. A análise
+    garantida do Aminosan foi lida do rótulo americano fotografado nas peças, então confira
+    contra o rótulo brasileiro antes de publicar.
+  </p>
+</div>
+
+<!-- ══ AMINOSAN ══════════════════════════════════════════ -->
+<section class="produto" style="--cor-produto: #006838; --fundo-caixa: #f2f6f3;">
+  <div class="produto-topo">
+    <span class="produto-tag">Nutrição e fisiologia vegetal</span>
+    <h1>Aminosan</h1>
+    <p class="assinatura">Metabolic Amino Acid Technology</p>
+    <p class="resumo">
+      Fertilizante foliar à base de aminoácidos livres de origem vegetal, obtidos por
+      fermentação enzimática, com nitrogênio, fósforo e potássio. Mais de 40 anos de campo,
+      criado por Julio Matino e primeiro produto da história da Juma-Agro.
+    </p>
+  </div>
+
+  <h2 class="secao">O posicionamento que a marca vem reforçando</h2>
+  <p>
+    A comunicação da Juma-Agro USA fez uma correção de rota que vale trazer para o material
+    brasileiro: o Aminosan deixou de ser apresentado como produto de emergência para lavoura
+    sofrida e passou a ser apresentado como tecnologia de metabolismo, com uso planejado
+    dentro do programa da cultura.
+  </p>
+
+  <div class="mito-realidade">
+    <div class="mr mito">
+      <div class="rotulo">Mito</div>
+      <p>Aminoácido só serve quando a planta está estressada.</p>
+    </div>
+    <div class="mr real">
+      <div class="rotulo">Realidade</div>
+      <p>O metabolismo da planta não começa no estresse. Ele trabalha o tempo todo, no crescimento, na florada e na formação do fruto.</p>
+    </div>
+  </div>
+
+  <p>
+    A consequência prática dessa virada é comercial: o Aminosan cabe no calendário mesmo
+    quando não houve veranico nem geada, porque florada e enchimento também são picos de
+    demanda metabólica. Quem compra só para apagar incêndio usa o produto duas vezes por
+    safra. Quem entende metabolismo posiciona ele em todas as fases.
+  </p>
+
+  <h2 class="secao">O problema que ele resolve</h2>
+  <p>
+    Existe um tipo de perda que a análise foliar demora a mostrar: a lavoura que estagnou
+    depois de um estresse. A seca passou, a chuva voltou, e a planta segue travada, gastando
+    energia para reconstruir o metabolismo em vez de crescer. Cada semana nesse estado é
+    desenvolvimento que a safra não recupera.
+  </p>
+
+  <div class="caixa">
+    <h3>Para onde vai a energia da planta</h3>
+    <p>
+      <strong>Em condição normal:</strong> a energia produzida vai para crescimento,
+      desenvolvimento e produção.
+    </p>
+    <p>
+      <strong>Sob estresse:</strong> a mesma energia é redirecionada para sobrevivência,
+      aclimatação e manutenção das funções celulares. A planta não parou de trabalhar, ela
+      trocou de prioridade. E a produção fica com o que sobrar.
+    </p>
+    <p class="nota-fina" style="margin-top:6pt;">
+      Base: série "Stress &amp; Plant Metabolism", Instagram Juma-Agro USA.
+    </p>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>Situação na lavoura</th><th>O que está acontecendo</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="cultura">Baixo desenvolvimento da planta</td>
+        <td>Plantas pequenas, com pouco vigor, raízes superficiais e crescimento desigual no talhão.</td>
+      </tr>
+      <tr>
+        <td class="cultura">Estresses no ciclo</td>
+        <td>Veranicos, geadas, danos por manejo e clima adverso comprometendo a produção projetada.</td>
+      </tr>
+      <tr>
+        <td class="cultura">Limitação na absorção</td>
+        <td>Nutrientes aplicados que a planta não consegue absorver com eficiência por baixa atividade metabólica.</td>
+      </tr>
+      <tr>
+        <td class="cultura">Fitotoxicidade após aplicação</td>
+        <td>Efeito de inseticida, herbicida ou fungicida que trava a planta logo depois da operação.</td>
+      </tr>
+      <tr>
+        <td class="cultura">Transplante e arranque</td>
+        <td>Muda ou plântula que demora a pegar, resultando em stand desuniforme desde o início.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="secao">Os estresses que a marca nomeia</h2>
+  <p>
+    O material americano padronizou cinco situações. Vale usar a mesma lista no Brasil, porque
+    ela cobre o ano inteiro do produtor e não só o período seco.
+  </p>
+  <ul class="lista">
+    <li><strong>Calor</strong>, com fotossíntese e respiração desequilibradas.</li>
+    <li><strong>Frio</strong>, que desacelera o metabolismo e atrasa o desenvolvimento.</li>
+    <li><strong>Seca</strong>, o déficit hídrico que fecha estômato e trava o crescimento.</li>
+    <li><strong>Salinidade</strong>, que dificulta a absorção de água e nutriente pela raiz.</li>
+    <li><strong>Transplante</strong>, momento em que a planta gasta energia para se restabelecer.</li>
+  </ul>
+  <p class="nota-fina">
+    A esses cinco, a comunicação da marca soma a <strong>fitotoxicidade</strong> depois de
+    aplicações de inseticida, herbicida e defensivo em geral.
+  </p>
+
+  <h2 class="secao">Composição: o que vai no frasco</h2>
+  <ul class="lista">
+    <li><strong>Aminoácidos livres de origem vegetal</strong>, obtidos por fermentação enzimática. São aminoácidos prontos, na forma que a planta usa direto.</li>
+    <li><strong>Nitrogênio (N)</strong>, ligado ao crescimento vegetativo e à formação de proteína.</li>
+    <li><strong>Fósforo (P)</strong>, ligado à energia e ao desenvolvimento de raiz.</li>
+    <li><strong>Potássio (K)</strong>, ligado ao enchimento e à qualidade do grão ou fruto.</li>
+  </ul>
+
+  <h3 class="sub">Análise garantida do rótulo americano (9-2-1)</h3>
+  <table>
+    <thead>
+      <tr><th>Componente</th><th>Teor</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="cultura">Nitrogênio total (N)</td><td>9,0%</td></tr>
+      <tr><td class="cultura">Nitrogênio solúvel em água</td><td>2,6%</td></tr>
+      <tr><td class="cultura">Nitrogênio ureico</td><td>6,4%</td></tr>
+      <tr><td class="cultura">P<sub>2</sub>O<sub>5</sub> solúvel em água</td><td>2,0%</td></tr>
+      <tr><td class="cultura">K<sub>2</sub>O solúvel em água</td><td>1,0%</td></tr>
+      <tr><td class="cultura">Derivado de</td><td>Ácido fosfórico, cloreto de potássio e aminoácidos</td></tr>
+      <tr><td class="cultura">Apresentação na foto</td><td>Líquido, 2,5 galões (26,47 lb líquidas). Agitar antes de usar.</td></tr>
+    </tbody>
+  </table>
+  <p class="nota-fina">
+    Valores lidos do rótulo fotografado nas peças da Juma-Agro USA. O rótulo brasileiro pode
+    ter garantia diferente, então confira antes de usar esses números em material de venda.
+  </p>
+
+  <div class="selos">
+    <div class="selo">Rico em aminoácidos essenciais</div>
+    <div class="selo">100% de origem vegetal</div>
+    <div class="selo">Compatível com a maioria dos insumos</div>
+  </div>
+  <p class="nota-fina">Os três selos vêm da comunicação oficial da marca nos EUA.</p>
+
+  <h2 class="secao">Como funciona na prática</h2>
+  <p>
+    A planta consegue montar sozinha os aminoácidos de que precisa, mas isso custa caro para
+    ela: precisa capturar nitrogênio, transformar, montar molécula por molécula, e tudo isso
+    consome energia que sairia do crescimento. Quando ela recebe o aminoácido já pronto pela
+    folha, pula essa etapa.
+  </p>
+
+  <ol class="passos">
+    <li>
+      <span class="num">1</span>
+      <span class="txt"><strong>A calda chega na folha.</strong> Os aminoácidos livres são absorvidos direto, sem a planta precisar sintetizar nada.</span>
+    </li>
+    <li>
+      <span class="num">2</span>
+      <span class="txt"><strong>A energia poupada vira crescimento.</strong> O que seria gasto montando aminoácido é usado na fotossíntese, na absorção de nutrientes e na construção de proteína.</span>
+    </li>
+    <li>
+      <span class="num">3</span>
+      <span class="txt"><strong>A planta destrava mais rápido.</strong> Depois de um veranico, de uma geada ou de um dano de manejo, a retomada é mais rápida do que a da planta que ficou por conta própria.</span>
+    </li>
+    <li>
+      <span class="num">4</span>
+      <span class="txt"><strong>Os nutrientes da calda rendem mais.</strong> O aminoácido atua como complexante e melhora a eficiência dos fertilizantes aplicados junto.</span>
+    </li>
+    <li>
+      <span class="num">5</span>
+      <span class="txt"><strong>Na fase reprodutiva, isso vira produção.</strong> Mais flor fixada, melhor pegamento e grão ou fruto mais bem formado.</span>
+    </li>
+  </ol>
+
+  <div class="caixa">
+    <h3>O limite honesto do produto</h3>
+    <p>
+      O Aminosan não elimina o estresse. Ele apoia a planta que está passando pelo estresse.
+      Clima, irrigação e manejo continuam sendo responsabilidade da operação. O produto entra
+      na parte que a operação não controla, que é a resposta fisiológica da planta.
+    </p>
+  </div>
+
+  <h2 class="secao">O que o produtor vê no campo</h2>
+  <table>
+    <thead>
+      <tr><th>Benefício</th><th>Como aparece</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="cultura">Estimula o metabolismo</td><td>Aminoácidos livres entram diretamente no ciclo, sem gasto energético da planta.</td></tr>
+      <tr><td class="cultura">Acelera a recuperação</td><td>Retomada fisiológica mais rápida depois de déficit hídrico ou de fitotoxicidade por aplicação.</td></tr>
+      <tr><td class="cultura">Arranque mais uniforme</td><td>Início de ciclo parelho, com stand mais homogêneo no talhão.</td></tr>
+      <tr><td class="cultura">Aumenta o vigor vegetativo</td><td>Folhas mais verdes, ramos mais firmes e plantas mais resistentes a fatores adversos.</td></tr>
+      <tr><td class="cultura">Favorece raízes, folhas e ramos</td><td>Desenvolvimento equilibrado da parte aérea e do sistema radicular.</td></tr>
+      <tr><td class="cultura">Melhora a absorção de nutrientes</td><td>Atua como complexante e potencializa a eficiência de fertilizantes aplicados na calda.</td></tr>
+      <tr><td class="cultura">Mais resistência à seca</td><td>Mantém a fisiologia da planta ativa em períodos de déficit hídrico e calor extremo.</td></tr>
+      <tr><td class="cultura">Melhor pegamento e fixação</td><td>Mais flores fixadas e grãos formados, refletido diretamente na produtividade.</td></tr>
+    </tbody>
+  </table>
+
+  <h2 class="secao">Resultados medidos</h2>
+  <div class="resultados">
+    <div class="resultado">
+      <div><span class="valor">+14</span> <span class="unidade">sc/ha</span></div>
+      <div class="desc">Soja em Taquarivaí/SP, em ensaio com ganhos de 11 a 14 sc/ha. Fonte: DETEC.</div>
+    </div>
+    <div class="resultado">
+      <div><span class="valor">+10</span> <span class="unidade">sc/ha</span></div>
+      <div class="desc">Soja em Lavras/MG. Fonte: avaliação Terras Gerais.</div>
+    </div>
+  </div>
+  <p class="nota-fina">
+    Resultados de ensaio. A resposta varia com o estado nutricional da lavoura, o solo e o regime de chuva.
+  </p>
+
+  <h2 class="secao">Como e quando aplicar</h2>
+  <p>
+    Aplicação <strong>foliar</strong>, isolada ou em mistura conforme recomendação técnica, dos
+    estágios iniciais às fases reprodutivas. O posicionamento muda conforme o objetivo:
+    arranque, desenvolvimento ou produção.
+  </p>
+
+  <table>
+    <thead>
+      <tr><th>Cultura</th><th>Quando aplicar</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="cultura">Algodão</td><td>1 aplicação no início da floração, mais 3 a 4 aplicações com intervalos de 10 a 15 dias.</td></tr>
+      <tr><td class="cultura">Arroz, trigo e cevada</td><td>1 aplicação antes do perfilhamento e 1 no emborrachamento.</td></tr>
+      <tr><td class="cultura">Feijão</td><td>1 aplicação aos 25 a 30 dias de germinado, 1 antes da florada e 1 na formação de grãos.</td></tr>
+      <tr><td class="cultura">Soja</td><td>1 aplicação aos 25 a 30 dias de germinado e 1 antes da florada.</td></tr>
+      <tr><td class="cultura">Ervilha e amendoim</td><td>1 aplicação aos 25 a 30 dias de germinado, 1 antes da florada e 1 na formação de grãos.</td></tr>
+      <tr><td class="cultura">Batata</td><td>1 aplicação após o chegamento de terra, mais 2 a 3 aplicações com intervalos de 7 a 10 dias.</td></tr>
+      <tr><td class="cultura">Tomate envarado</td><td>Semanalmente.</td></tr>
+      <tr><td class="cultura">Tomate rasteiro</td><td>Iniciar após o transplante, com intervalos de 7 a 10 dias.</td></tr>
+      <tr><td class="cultura">Cenoura e beterraba</td><td>Aplicar ao atingir 10 a 15 cm de altura, mais 4 a 5 aplicações com intervalos de 7 a 10 dias.</td></tr>
+      <tr><td class="cultura">Morango, pepino, vagem e hortaliças</td><td>5 a 6 aplicações com intervalos de 7 a 10 dias.</td></tr>
+      <tr><td class="cultura">Alho e cebola</td><td>4 a 5 aplicações com intervalos de 15 dias.</td></tr>
+      <tr><td class="cultura">Milho e sorgo</td><td>1 aplicação antes das plantas atingirem 8 folhas.</td></tr>
+      <tr><td class="cultura">Pêssego, maçã, manga e frutíferas</td><td>1 aplicação pós-colheita, 1 após a florada e 1 na fase de desenvolvimento do fruto.</td></tr>
+      <tr><td class="cultura">Uva</td><td>1 aplicação pós-colheita, 1 com brotos de 15 cm de comprimento e 5 a 6 aplicações com intervalos de 15 dias.</td></tr>
+      <tr><td class="cultura">Citros</td><td>1 aplicação pré-florada, 1 após a florada, 1 na fase "bolinha de gude" e 1 na fase "bolinha de ping-pong". Aplicar sempre em mistura com micronutrientes (linha Revigo).</td></tr>
+      <tr><td class="cultura">Café</td><td>1 aplicação em pré-florada, 1 após a florada "chumbinho", 1 na formação dos grãos e 1 na granação. Aplicar sempre em mistura com micronutrientes (linha Revigo).</td></tr>
+      <tr><td class="cultura">Rosa, crisântemo, cravo, gladíolo e ornamentais</td><td>Aplicar com intervalos de 7 a 10 dias até a formação do botão floral.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="caixa">
+    <h3>O recorte escolhido para o mercado americano</h3>
+    <p>
+      Nos EUA a comunicação do Aminosan gira em torno do <strong>morango e das berries</strong>,
+      com a mensagem de que o metabolismo trabalha do florescimento ao desenvolvimento do
+      fruto. É o mesmo raciocínio da tabela acima, contado pela fase da cultura em vez do
+      número de aplicações. Para fruticultura no Brasil, esse é o ângulo que conversa melhor.
+    </p>
+  </div>
+
+  <h2 class="secao">Culturas registradas</h2>
+  <ul class="culturas">
+    <li>Algodão</li><li>Arroz</li><li>Trigo</li><li>Cevada</li><li>Feijão</li><li>Soja</li>
+    <li>Ervilha</li><li>Amendoim</li><li>Batata</li><li>Tomate (envarado e rasteiro)</li>
+    <li>Cenoura</li><li>Beterraba</li><li>Morango</li><li>Pepino</li><li>Vagem</li>
+    <li>Hortaliças</li><li>Alho</li><li>Cebola</li><li>Milho</li><li>Sorgo</li>
+    <li>Pêssego</li><li>Maçã</li><li>Manga</li><li>Frutíferas</li><li>Uva</li>
+    <li>Citros</li><li>Café</li><li>Rosa</li><li>Crisântemo</li><li>Cravo</li>
+    <li>Gladíolo</li><li>Ornamentais</li>
+  </ul>
+
+  <div class="caixa">
+    <h3>Resumo do Aminosan</h3>
+    <p>
+      Foliar de aminoácidos livres para a planta gastar menos energia e produzir mais. Vai do
+      arranque à fase reprodutiva, atende recuperação e crescimento normal, e é o produto mais
+      provado da casa.
+    </p>
+  </div>
+</section>
+
+<!-- ══ KMEP ULTRA ════════════════════════════════════════ -->
+<section class="produto" style="--cor-produto: #ad1115; --fundo-caixa: #fbf1f1;">
+  <div class="produto-topo">
+    <span class="produto-tag">Potencializador de inseticidas</span>
+    <h1>KMEP Ultra</h1>
+    <p class="assinatura">Nutrição de potássio com ação desalojante</p>
+    <p class="resumo">
+      Potencializador de inseticidas com ação desalojante e efeito nutricional de potássio.
+      Vai sempre em mistura com o defensivo, nunca sozinho no lugar dele.
+    </p>
+  </div>
+
+  <h2 class="secao">O problema que ele resolve</h2>
+  <p>
+    Cigarrinha no milho é o exemplo clássico: a aplicação foi bem feita, o produto era bom, e
+    dias depois a praga está lá de novo, porque parte dela nunca entrou em contato com a calda.
+    Reaplicar custa caro e ainda acelera a seleção de resistência.
+  </p>
+
+  <table>
+    <thead>
+      <tr><th>Situação na lavoura</th><th>O que está acontecendo</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="cultura">Controle ineficiente de pragas</td>
+        <td>Inseticidas com baixa performance por dificuldades de deposição e absorção.</td>
+      </tr>
+      <tr>
+        <td class="cultura">Resistência de pragas</td>
+        <td>Necessidade de doses cada vez maiores para o mesmo resultado.</td>
+      </tr>
+      <tr>
+        <td class="cultura">Praga em local protegido</td>
+        <td>Inseto alojado em axila de folha, fenda do caule ou face inferior, onde a gota não alcança.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="secao">O caso que explica o produto: cochonilhas</h2>
+  <p>
+    A Juma-Agro USA dedicou uma série inteira às cochonilhas, e ela funciona como demonstração
+    do mecanismo do KMEP Ultra. A cochonilha é um inseto sugador pequeno, de aparência branca e
+    cerosa, que se instala em folhas, hastes, frutos e nas partes protegidas da planta. Quando o
+    sintoma fica evidente, a população já está estabelecida.
+  </p>
+
+  <div class="peca-dupla">
+    <div class="peca">
+      <img src="../../img-insta/jumaagrousa_1786715102_3963510199638108741_78836982535.jpg" alt="Peça sobre onde as cochonilhas se escondem">
+      <div class="legenda">O desafio: elas se alimentam em áreas escondidas, e quando o sintoma aparece a população já está formada.</div>
+    </div>
+    <div class="peca">
+      <img src="../../img-insta/jumaagrousa_1786715102_3963510199654882439_78836982535.jpg" alt="Peça sobre sinais de infestação">
+      <div class="legenda">Os sinais de infestação vão muito além de enxergar o inseto na planta.</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>Onde procurar</th><th>Sinais de que já tem população</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="cultura">Axilas de folha</td><td>Aglomerados brancos de aspecto ceroso.</td></tr>
+      <tr><td class="cultura">Fendas do caule</td><td>Melada pegajosa (honeydew) sobre folhas e ramos.</td></tr>
+      <tr><td class="cultura">Face inferior das folhas</td><td>Fumagina, aquele mofo preto que cresce sobre a melada.</td></tr>
+      <tr><td class="cultura">Frutos e brotações novas</td><td>Amarelecimento, tecido deformado e queda de vigor da planta.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="caixa atencao">
+    <h3>Alerta que a marca publicou</h3>
+    <p>
+      A cochonilha-das-pastagens (<em>Heliococcus summervillei</em>) foi detectada pela primeira
+      vez na Flórida em maio de 2026, em limpograss no condado de St. Lucie, e depois apareceu em
+      outros condados. A praga já havia sido relatada no Texas e na Louisiana. É especialista em
+      gramíneas e preocupa pastagem, feno, gramados e cana-de-açúcar.
+    </p>
+    <p class="nota-fina" style="margin-top:6pt;">
+      Fonte: publicação da Juma-Agro USA. Vale confirmar os dados oficiais antes de usar em
+      material técnico brasileiro.
+    </p>
+  </div>
+
+  <p>
+    O encadeamento vale para qualquer praga de hábito protegido: monitorar cedo mostra o
+    problema, e o KMEP Ultra resolve a parte que o monitoramento não resolve, que é fazer o
+    inseto sair do abrigo no momento em que a calda passa.
+  </p>
+
+  <h2 class="secao">Composição: o que vai no frasco</h2>
+  <ul class="lista">
+    <li><strong>Agente desalojante</strong>, que incomoda o inseto e o obriga a sair do ponto onde ele se protege.</li>
+    <li><strong>Redutor de tensão superficial</strong>, que melhora o espalhamento da calda sobre a folha e sobre a própria praga.</li>
+    <li><strong>Potássio (K)</strong>, com efeito nutricional que contribui para o enchimento de grãos e para o desenvolvimento do fruto.</li>
+  </ul>
+  <p class="nota-fina">
+    Os percentuais de garantia da formulação estão no rótulo do produto.
+  </p>
+
+  <h2 class="secao">Como funciona na prática</h2>
+  <p>
+    A maior parte das falhas de controle não é do inseticida. É de contato: a praga estava
+    embaixo da folha, dentro do cartucho, protegida na mina, e a gota nunca chegou nela. O
+    KMEP Ultra trabalha nesse ponto, mudando o comportamento do alvo.
+  </p>
+
+  <ol class="passos">
+    <li>
+      <span class="num">1</span>
+      <span class="txt"><strong>Vai na calda, junto com o inseticida.</strong> Não substitui o defensivo e não é usado sozinho.</span>
+    </li>
+    <li>
+      <span class="num">2</span>
+      <span class="txt"><strong>Desaloja a praga.</strong> O inseto sai do abrigo onde a gota não chegaria.</span>
+    </li>
+    <li>
+      <span class="num">3</span>
+      <span class="txt"><strong>Expõe a praga ao produto.</strong> Ao se mover, ela encontra a superfície tratada e entra em contato com o inseticida.</span>
+    </li>
+    <li>
+      <span class="num">4</span>
+      <span class="txt"><strong>Mais contato, mais controle na mesma aplicação.</strong> Menos sobrevivente significa menos reaplicação e menos pressão de seleção de resistência.</span>
+    </li>
+    <li>
+      <span class="num">5</span>
+      <span class="txt"><strong>O potássio entra junto.</strong> A pulverização que protege também contribui para o enchimento de grãos e para a formação do fruto.</span>
+    </li>
+  </ol>
+
+  <div class="caixa citacao">
+    <p class="fala">
+      "Ele entrega desempenho sem causar fitotoxicidade, o que dá uma proteção segura e
+      confiável para a cultura."
+    </p>
+    <p class="autor">Francisco, gerente do Departamento Técnico e de Pesquisa da Juma-Agro</p>
+    <p class="nota-fina" style="margin-top:6pt;margin-bottom:0;">
+      Tradução da fala publicada no Instagram da Juma-Agro USA. A ausência de fitotoxicidade é
+      o argumento que eles colocam em primeiro lugar quando falam com o produtor, e no material
+      brasileiro ele ainda não aparecia.
+    </p>
+  </div>
+
+  <div class="caixa atencao">
+    <h3>Ponto que não pode passar batido</h3>
+    <p>
+      O KMEP Ultra é potencializador, não inseticida. Ele melhora o resultado do produto que
+      você já usa, sempre em mistura. A escolha do inseticida, a dose e o intervalo continuam
+      saindo da recomendação técnica, e a compatibilidade da mistura deve ser conferida antes
+      de encher o tanque.
+    </p>
+  </div>
+
+  <h2 class="secao">O que o produtor vê no campo</h2>
+  <table>
+    <thead>
+      <tr><th>Benefício</th><th>Como aparece</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="cultura">Maior eficiência do inseticida</td><td>Potencializa a ação do princípio ativo, melhorando cobertura e absorção.</td></tr>
+      <tr><td class="cultura">Melhor deposição</td><td>Reduz a tensão superficial para melhor espalhamento sobre a folha e a praga.</td></tr>
+      <tr><td class="cultura">Sem fitotoxicidade</td><td>Performance de controle sem penalizar a cultura, segundo o departamento técnico.</td></tr>
+      <tr><td class="cultura">Fonte de potássio</td><td>Potássio na formulação contribui para o enchimento de grãos e o desenvolvimento do fruto.</td></tr>
+      <tr><td class="cultura">Apoio ao manejo de resistência</td><td>Mais contato do alvo com a calda reduz a necessidade de reaplicação e de dose crescente.</td></tr>
+      <tr><td class="cultura">Planta mais equilibrada</td><td>Vitalidade e resposta fisiológica melhores ao longo do ciclo, com a pulverização rendendo mais.</td></tr>
+    </tbody>
+  </table>
+
+  <h2 class="secao">Resultados medidos</h2>
+  <div class="resultados">
+    <div class="resultado">
+      <div><span class="valor">+9,33</span> <span class="unidade">sc/ha</span></div>
+      <div class="desc">Milho com manejo de cigarrinha: 231,45 sc/ha contra 222,12 do padrão. Fonte: ensaios técnicos Rehagro.</div>
+    </div>
+    <div class="resultado">
+      <div><span class="valor">74</span> <span class="unidade">%</span></div>
+      <div class="desc">Controle de bicho-mineiro no café. Fonte: ensaios técnicos Rehagro e áreas experimentais.</div>
+    </div>
+  </div>
+  <p class="nota-fina">
+    Resultados de ensaio. A resposta varia com a pressão de praga, o inseticida usado e a qualidade da aplicação.
+  </p>
+
+  <h2 class="secao">Como e quando aplicar</h2>
+  <p>
+    Via <strong>pulverização, sempre em mistura com inseticidas</strong>, conforme a pressão de
+    pragas. No milho, o posicionamento típico é entre V4 e V6 e nas aplicações dirigidas ao
+    manejo de cigarrinha.
+  </p>
+
+  <table>
+    <thead>
+      <tr><th>Cultura</th><th>Quando aplicar</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="cultura">Algodão</td><td>4 a 6 aplicações com intervalos semanais, a partir de 40 dias após a emergência.</td></tr>
+      <tr><td class="cultura">Batata</td><td>Aplicações semanais aos 50 dias após a emergência.</td></tr>
+      <tr><td class="cultura">Cebola e alho</td><td>Aplicações semanais iniciando 50 dias após o transplante.</td></tr>
+      <tr><td class="cultura">Cenoura e beterraba</td><td>Semanalmente, iniciando aos 40 dias após a emergência.</td></tr>
+      <tr><td class="cultura">Feijão</td><td>Aplicações após a florada, com intervalos de 10 a 15 dias.</td></tr>
+      <tr><td class="cultura">Milho</td><td>Iniciar as aplicações nas fases V4 e V6. Aplicar na formação das espigas.</td></tr>
+      <tr><td class="cultura">Soja</td><td>Iniciar as aplicações no vegetativo V6/V7 e repetir com intervalo de 10 a 15 dias.</td></tr>
+      <tr><td class="cultura">Tomate</td><td>Aplicações semanais iniciando aos 40 dias após o transplante.</td></tr>
+      <tr><td class="cultura">Café</td><td>2 aplicações na fase de granação e maturação.</td></tr>
+      <tr><td class="cultura">Pimentão</td><td>Aplicações semanais iniciando aos 40 dias após o transplante.</td></tr>
+      <tr><td class="cultura">Frutíferas em geral</td><td>3 a 4 aplicações anuais, iniciando após o florescimento.</td></tr>
+      <tr><td class="cultura">Hortaliças em geral</td><td>Aplicações quinzenais iniciando 30 dias após a germinação ou o transplante.</td></tr>
+      <tr><td class="cultura">Citros</td><td>Aplicações quinzenais na fase de frutificação.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="caixa">
+    <h3>O recorte escolhido para o mercado americano</h3>
+    <p>
+      Enquanto o material brasileiro fala de milho, café e soja, a comunicação americana
+      posiciona o KMEP Ultra em <strong>mirtilo, morango, melancia e ornamentais</strong>:
+      culturas de alto valor por hectare, onde a praga escondida custa caro e a ausência de
+      fitotoxicidade pesa na decisão. No Brasil, o paralelo é fruticultura e hortaliça.
+    </p>
+  </div>
+
+  <div style="page-break-inside: avoid;">
+  <h2 class="secao">Culturas registradas</h2>
+  <ul class="culturas" style="columns: 5;">
+    <li>Algodão</li><li>Batata</li><li>Cebola</li><li>Alho</li><li>Cenoura</li>
+    <li>Beterraba</li><li>Feijão</li><li>Milho</li><li>Soja</li><li>Tomate</li>
+    <li>Café</li><li>Pimentão</li><li>Frutíferas em geral</li><li>Hortaliças em geral</li><li>Citros</li>
+  </ul>
+
+  <div class="caixa">
+    <h3>Resumo do KMEP Ultra</h3>
+    <p>
+      Aditivo de calda que faz o inseticida render mais, desalojando a praga do abrigo sem
+      causar fitotoxicidade. Sempre em mistura, ajuda no manejo de resistência e entrega
+      potássio.
+    </p>
+  </div>
+  </div>
+
+</section>
+
+<!-- ══ COMPARATIVO ═══════════════════════════════════════ -->
+<section class="produto" style="--cor-produto: #004C26; --fundo-caixa: #f2f6f3;">
+  <div class="produto-topo">
+    <span class="produto-tag">Lado a lado</span>
+    <h1>Qual usar em<br>cada situação</h1>
+    <p class="resumo">
+      Os dois resolvem problemas diferentes e podem aparecer no mesmo programa da cultura.
+      A tabela abaixo mostra onde cada um entra.
+    </p>
+  </div>
+
+  <table class="comparativo">
+    <thead>
+      <tr><th>Comparação</th><th>Aminosan</th><th>KMEP Ultra</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="cultura">Para que serve</td>
+        <td>Nutrição e fisiologia: mantém o metabolismo ativo para a planta produzir mais com menos gasto de energia.</td>
+        <td>Proteção: faz o inseticida da calda controlar mais pragas na mesma aplicação.</td>
+      </tr>
+      <tr>
+        <td class="cultura">O que resolve</td>
+        <td>Planta travada depois do estresse, baixo vigor, absorção ruim de nutriente, arranque desuniforme.</td>
+        <td>Praga que escapa da aplicação por estar escondida, e a resistência que vem disso.</td>
+      </tr>
+      <tr>
+        <td class="cultura">Como vai a campo</td>
+        <td>Foliar, isolado ou em mistura conforme recomendação técnica.</td>
+        <td>Sempre em mistura com o inseticida, nunca sozinho.</td>
+      </tr>
+      <tr>
+        <td class="cultura">Quando entra</td>
+        <td>Do arranque às fases reprodutivas, com ou sem estresse na área.</td>
+        <td>Conforme a pressão de pragas, no calendário de pulverização da cultura.</td>
+      </tr>
+      <tr>
+        <td class="cultura">Componente extra</td>
+        <td>Aminoácidos livres com N, P e K (9-2-1 no rótulo americano).</td>
+        <td>Potássio com efeito nutricional no enchimento e no fruto.</td>
+      </tr>
+      <tr>
+        <td class="cultura">Prova de campo</td>
+        <td>Soja: +11 e +14 sc/ha em Taquarivaí/SP (DETEC) e +10 sc/ha em Lavras/MG (Terras Gerais).</td>
+        <td>Milho: +9,33 sc/ha no manejo de cigarrinha (Rehagro). Café: até 74% de controle de bicho-mineiro (Rehagro).</td>
+      </tr>
+      <tr>
+        <td class="cultura">Recorte nos EUA</td>
+        <td>Morango e berries, do florescimento ao desenvolvimento do fruto.</td>
+        <td>Mirtilo, morango, melancia e ornamentais.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="secao">Os dois no mesmo programa</h2>
+  <p>
+    Eles não competem entre si. No algodão, por exemplo, o programa da Juma-Agro posiciona
+    FitoFert, Aminosan e KMEP Ultra na fase reprodutiva, cada um cumprindo o seu papel: a
+    nutrição sustenta a produção enquanto a pulverização protege o que já está formado.
+    A mistura em tanque precisa seguir a recomendação técnica e o teste de compatibilidade.
+  </p>
+
+  <div class="caixa">
+    <h3>Regra simples para decidir</h3>
+    <p>
+      Se o problema é a <strong>planta</strong> que não está entregando o potencial, o produto é o Aminosan.
+    </p>
+    <p>
+      Se o problema é a <strong>praga</strong> que volta depois da aplicação, o produto é o KMEP Ultra,
+      junto do inseticida.
+    </p>
+  </div>
+</section>
+
+<!-- ══ LEITURA DO INSTAGRAM ══════════════════════════════ -->
+<section class="produto" style="--cor-produto: #12357f; --fundo-caixa: #f1f4fa;">
+  <div class="produto-topo">
+    <span class="produto-tag">Leitura do Instagram Juma-Agro USA</span>
+    <h1>O que eles<br>escolheram enfatizar</h1>
+    <p class="resumo">
+      Análise das 15 peças e das legendas da conta americana. Serve para alinhar o discurso
+      brasileiro com o que a marca já decidiu destacar lá fora.
+    </p>
+  </div>
+
+  <h2 class="secao">As duas assinaturas em uso</h2>
+  <p>
+    A conta americana alterna duas assinaturas, cada uma com uma função clara. Vale manter
+    essa divisão também no Brasil, porque elas não disputam espaço.
+  </p>
+  <table>
+    <thead>
+      <tr><th>Assinatura</th><th>Onde ela aparece</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="cultura">"Science That Performs In The Field."</td>
+        <td>Conteúdo técnico e de produto: mecanismo, alerta de praga, série sobre metabolismo, depoimento do time técnico. É a voz da competência.</td>
+      </tr>
+      <tr>
+        <td class="cultura">"Together We Feed The World."<br><span class="nota-fina">(Juntos alimentamos o mundo)</span></td>
+        <td>Conteúdo institucional: fábrica, equipe, timeline da empresa, propósito. É a voz do legado, a mesma frase que abre a home do site brasileiro.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="secao">Sete decisões de conteúdo que valem copiar</h2>
+  <table>
+    <thead>
+      <tr><th>Decisão</th><th>Como aproveitar no Brasil</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="cultura">1. Aminosan virou categoria, não produto avulso</td>
+        <td>Eles batizaram a tecnologia de "Metabolic Amino Acid Technology" e repetem esse nome em toda peça. Dá ao produto um território próprio em vez de deixá-lo na vala comum dos bioestimulantes.</td>
+      </tr>
+      <tr>
+        <td class="cultura">2. Combate direto ao mito do anti-estresse</td>
+        <td>A peça de mito e realidade ataca a crença que limita o consumo do produto. É conteúdo de venda em formato de educação, e amplia a janela de uso dentro da safra.</td>
+      </tr>
+      <tr>
+        <td class="cultura">3. Série numerada em vez de post solto</td>
+        <td>A sequência "Stress &amp; Plant Metabolism" tem cinco partes numeradas (01/05 a 05/05), com uma ideia por peça. O produto só aparece no fim, depois de a lógica estar montada.</td>
+      </tr>
+      <tr>
+        <td class="cultura">4. A praga antes do produto</td>
+        <td>A série de cochonilhas ensina a monitorar sem vender nada. Constrói autoridade e prepara o terreno para o KMEP Ultra, cujo mecanismo depende justamente da praga escondida.</td>
+      </tr>
+      <tr>
+        <td class="cultura">5. Alerta regional com data e lugar</td>
+        <td>O alerta da cochonilha-das-pastagens na Flórida cita espécie, mês, condado e cultura. É o formato mais compartilhável do perfil e posiciona a marca como fonte, não como anunciante.</td>
+      </tr>
+      <tr>
+        <td class="cultura">6. Gente da casa com nome e cargo</td>
+        <td>Francisco, do departamento técnico, aparece falando do KMEP Ultra. Um técnico com nome vale mais que um texto institucional, e o argumento que ele escolheu foi a ausência de fitotoxicidade.</td>
+      </tr>
+      <tr>
+        <td class="cultura">7. Limite do produto declarado</td>
+        <td>"A tecnologia não remove o estresse do ambiente, ela apoia a fisiologia da planta." Assumir o limite aumenta a credibilidade do que é prometido.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="secao">Frases prontas para adaptar</h2>
+  <table>
+    <thead>
+      <tr><th>Original</th><th>Versão em português</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="cultura">Think beyond stress. Think metabolism.</td><td>Pense além do estresse. Pense em metabolismo.</td></tr>
+      <tr><td class="cultura">Plants can't move away from stress. They have to respond to it.</td><td>A planta não tem como sair do estresse. Ela precisa responder a ele.</td></tr>
+      <tr><td class="cultura">Stress will happen. How the crop responds matters.</td><td>O estresse vai acontecer. O que muda é como a lavoura responde.</td></tr>
+      <tr><td class="cultura">From flowering to fruit development, metabolism never stops.</td><td>Do florescimento ao fruto, o metabolismo não para.</td></tr>
+      <tr><td class="cultura">What if insects stopped hiding?</td><td>E se a praga parasse de se esconder?</td></tr>
+      <tr><td class="cultura">Scout early. Understand the pressure. Protect crop potential.</td><td>Monitore cedo. Entenda a pressão. Proteja o potencial da lavoura.</td></tr>
+      <tr><td class="cultura">Where there's KMEP Ultra, there are results.</td><td>Onde tem KMEP Ultra, tem resultado.</td></tr>
+    </tbody>
+  </table>
+
+  <h2 class="secao">As peças analisadas</h2>
+  <div class="pecas">
+    <div class="peca">
+      <img src="../../img-insta/jumaagrousa_1786968002_3963513021029002772_78836982535.jpg" alt="Peça: plantas não conseguem fugir do estresse">
+      <div class="legenda">01/05 da série de metabolismo. Rótulo americano 9-2-1 visível.</div>
+    </div>
+    <div class="peca">
+      <img src="../../img-insta/jumaagrousa_1786968002_3963513020836045373_78836982535.jpg" alt="Peça: calor, frio, seca, salinidade">
+      <div class="legenda">02/05. Os quatro estresses ambientais nomeados.</div>
+    </div>
+    <div class="peca">
+      <img src="../../img-insta/jumaagrousa_1786968002_3963513020852805016_78836982535.jpg" alt="Peça: prioridades da planta mudam">
+      <div class="legenda">03/05. Energia sai da produção e vai para a sobrevivência.</div>
+    </div>
+    <div class="peca">
+      <img src="../../img-insta/jumaagrousa_1786968002_3963513020785729439_78836982535.jpg" alt="Peça: onde a tecnologia de aminoácidos importa">
+      <div class="legenda">04/05. O limite do produto declarado na própria peça.</div>
+    </div>
+    <div class="peca">
+      <img src="../../img-insta/jumaagrousa_1786968002_3963513020794087408_78836982535.jpg" alt="Peça: o estresse vai acontecer">
+      <div class="legenda">05/05. Só aqui o produto entra, com quatro promessas.</div>
+    </div>
+    <div class="peca">
+      <img src="../../img-insta/jumaagrousa_1787228107_3963517912689798083_78836982535.jpg" alt="Peça mito e realidade">
+      <div class="legenda">Mito e realidade: quebra a limitação de uso do produto.</div>
+    </div>
+    <div class="peca">
+      <img src="../../img-insta/jumaagrousa_1787058905_3963515129484001566_78836982535.jpg" alt="Peça morango">
+      <div class="legenda">Morango: do florescimento ao desenvolvimento do fruto.</div>
+    </div>
+    <div class="peca">
+      <img src="../../img-insta/jumaagrousa_1784663730_3946366752669716834_78836982535.jpg" alt="Peça Aminosan tecnologia">
+      <div class="legenda">A tecnologia como nome próprio, sobre morangal.</div>
+    </div>
+    <div class="peca">
+      <img src="../../img-insta/jumaagrousa_1784835987_3947812597508319191_78836982535.jpg" alt="Peça KMEP Ultra béquer">
+      <div class="legenda">KMEP Ultra: "e se os insetos parassem de se esconder?".</div>
+    </div>
+    <div class="peca">
+      <img src="../../img-insta/jumaagrousa_1787314505_3963518946183197148_78836982535.jpg" alt="Peça alerta cochonilha Flórida">
+      <div class="legenda">Alerta de praga com espécie, mês, condado e cultura.</div>
+    </div>
+    <div class="peca">
+      <img src="../../img-insta/jumaagrousa_1786715102_3963510199470368838_78836982535.jpg" alt="Peça cochonilhas">
+      <div class="legenda">Abertura da série: praga pequena, motivo grande para monitorar.</div>
+    </div>
+    <div class="peca">
+      <img src="../../img-insta/jumaagrousa_1786715102_3963510199612945068_78836982535.jpg" alt="Peça o que são cochonilhas">
+      <div class="legenda">Onde a cochonilha se instala na planta.</div>
+    </div>
+    <div class="peca">
+      <img src="../../img-insta/jumaagrousa_1786715102_3963510199638108741_78836982535.jpg" alt="Peça o desafio">
+      <div class="legenda">O desafio: alimentação em áreas escondidas.</div>
+    </div>
+    <div class="peca">
+      <img src="../../img-insta/jumaagrousa_1786715102_3963510199654882439_78836982535.jpg" alt="Peça sinais de infestação">
+      <div class="legenda">Cinco sinais que denunciam a infestação.</div>
+    </div>
+    <div class="peca">
+      <img src="../../img-insta/jumaagrousa_1786715102_3963510199487152090_78836982535.jpg" alt="Peça detecção precoce">
+      <div class="legenda">Fechamento: monitorar, conhecer a cultura, agir.</div>
+    </div>
+  </div>
+
+  <div class="caixa atencao">
+    <h3>Divergência de datas para resolver antes de publicar</h3>
+    <p>
+      A legenda da timeline americana diz que a Juma-Agro existe <strong>desde 1986</strong>. A
+      documentação do projeto registra <strong>fundação em 1988</strong> e lançamento do Aminosan
+      em <strong>1992</strong>, e o rótulo fotografado traz um selo de <strong>36 anos</strong>.
+      São três cronologias diferentes para a mesma história. Isso já estava na lista de
+      pendências do projeto e precisa de uma definição do cliente antes de qualquer material ir
+      para o ar, aqui ou lá.
+    </p>
+  </div>
+
+  <div class="rodape-doc">
+    <p>
+      <strong>Fontes dos números citados:</strong> ensaio DETEC (soja, Taquarivaí/SP), avaliação
+      Terras Gerais (soja, Lavras/MG) e ensaios técnicos Rehagro (milho e café). Todos os
+      resultados são de ensaio e variam conforme solo, clima, manejo e pressão de praga.
+    </p>
+    <p>
+      <strong>Análise garantida 9-2-1:</strong> lida do rótulo da versão americana do Aminosan,
+      fotografado nas peças de Instagram analisadas neste documento. Confirmar contra o rótulo
+      brasileiro.
+    </p>
+    <p>
+      <strong>Doses:</strong> conferir no rótulo de cada produto e na recomendação do
+      departamento técnico da Juma-Agro.
+    </p>
+    <p>
+      <strong>Imagens e citações da seção final:</strong> perfil @jumaagrousa no Instagram,
+      material coletado pela Oceon. Uso interno.
+    </p>
+  </div>
+</section>
+
+</body>
+</html>

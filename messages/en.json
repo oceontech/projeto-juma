@@ -337,7 +337,7 @@
     "eyebrow": "Crops",
     "titleStart": "Solutions built for",
     "titleHighlight": "your crop.",
-    "intro": "From grains to perennials, ten crops with dedicated nutritional programs — developed side by side with growers across different regions of Brazil.",
+    "intro": "From grains to perennials, ten crops with dedicated nutritional programs, developed side by side with growers across different regions of Brazil.",
     "cultures": {
       "soja": "Soybean",
       "milho": "Corn",
@@ -357,7 +357,7 @@
     "steps": {
       "diagnosis": {
         "title": "Phase diagnosis",
-        "desc": "We map with you the critical points of the crop cycle — where to nourish and where to correct."
+        "desc": "We map the critical points of the crop cycle with you: where to nourish and where to correct."
       },
       "program": {
         "title": "Nutritional program",
@@ -856,13 +856,13 @@
     "seeManagementBtn": "View phase management",
     "actuaEyebrow": "How Juma-Agro acts",
     "actuaTitle": "What Juma-Agro delivers<br></br><highlight>in {name}.</highlight>",
-    "actuaLede": "Five action fronts that appear in production — and in the farmer's income.",
+    "actuaLede": "Lines of work that show up in the field and in the grower's income.",
     "challengesEyebrow": "Challenges by phase",
     "challengesTitle": "Where the {name} cycle<br></br><highlight>demands attention.</highlight>",
     "challengesLede": "Critical windows where nutritional management defines crop size.",
     "managementEyebrow": "Management by phase",
     "managementTitle": "Juma-Agro {name}<br></br><highlight>nutritional program.</highlight>",
-    "managementLede": "Product combinations designed for each critical window of the cycle.",
+    "managementLede": "Product and rate for every window of the cycle, as in the crop's technical brochure.",
     "recommendedEyebrow": "Recommended products",
     "recommendedTitle": "The indicated line<br></br><highlight>for {name}.</highlight>",
     "recommendedLede": "The products that appear most frequently in management with Juma-Agro.",
@@ -881,219 +881,476 @@
     "calcSelect": "Select...",
     "calcBagsUnit": "bags",
     "calcCurrency": "$",
-    "calcDisclaimer": "Estimate based on average field data. Actual results vary by cultivar, management, soil, and climate."
+    "calcDisclaimer": "Estimate based on average field data. Actual results vary by cultivar, management, soil, and climate.",
+    "sourceLabel": "Source"
   },
   "cultureData": {
     "cafe": {
       "name": "Coffee",
       "badge": "Perennial Crop",
-      "description": "Coffee requires attention at every phase: each stage directly impacts productivity and bean quality. Juma-Agro develops nutritional programs to support the coffee plantation from rooting to maturation.",
+      "description": "Coffee responds stage by stage, from pre-bloom to ripening. Juma-Agro builds the foliar program along the phenological calendar of the grove, with a defined product and rate for each window.",
       "actua": [
-        "Uniform and better distributed flowering throughout the plot.",
-        "Higher fruit set, less pinhead drop.",
-        "Bean filling and quality sustained until harvest.",
-        "Reduction of the impact of climatic stress and dry spells.",
-        "Nutritional efficiency — every applied nutrient is well absorbed."
+        "No nutritional deficiencies across the phenological stages.",
+        "Physiological effect with readily assimilated nitrogen at pinhead and grain filling.",
+        "Phosphorus energy supply in the stages of highest demand.",
+        "Lower physiological oxidation and stronger endogenous defenses.",
+        "Higher flower set and production sustained through harvest."
       ],
       "challenges": {
         "0": {
-          "stage": "01 · Flowering",
-          "title": "Non-uniformity and low setting",
-          "desc": "Flowering distributed in waves, impairing harvest and production uniformity."
+          "stage": "01 · Bloom · Sep/Oct",
+          "title": "Uneven bloom",
+          "desc": "Flowering waves on different dates spread out ripening and complicate harvest."
         },
         "1": {
-          "stage": "02 · Pinhead",
-          "title": "Fruit drop",
-          "desc": "Newly formed fruits that fall before setting — direct loss of productivity."
+          "stage": "02 · Pinhead · Nov/Dec",
+          "title": "Pinhead drop",
+          "desc": "Newly formed fruit that drops before setting is a direct production loss in the block."
         },
         "2": {
-          "stage": "03 · Grain filling",
-          "title": "Low filling",
-          "desc": "Small and light beans, with high sieve loss and reduced classification."
+          "stage": "03 · Grain filling · Jan/Feb/Mar",
+          "title": "Incomplete filling",
+          "desc": "Light, low-screen beans when energy and nutrition are short at peak demand."
         },
         "3": {
-          "stage": "04 · Maturation",
-          "title": "Loss of quality",
-          "desc": "Uneven maturation and loss of beverage quality — direct impact on bag price."
+          "stage": "04 · Ripening · Apr/May",
+          "title": "Irregular ripening",
+          "desc": "Fruit at different stages on the same plant compromises cup quality."
         },
         "4": {
-          "stage": "05 · Climate",
-          "title": "Climatic stress",
-          "desc": "Dry spells, frosts, and extreme heat compromising the entire crop investment."
+          "stage": "05 · Harvest · Jun/Jul/Aug",
+          "title": "Grove without reserves",
+          "desc": "A coffee plant that reaches harvest exhausted starts the next cycle weak and alternates yield."
         }
       },
       "management": {
         "0": {
           "label": "Phase 01",
-          "fase": "Pre-flowering"
+          "fase": "Pre-bloom · Sep/Oct",
+          "products": [
+            {
+              "name": "FitoFert",
+              "dose": "1.0 L/ha"
+            },
+            {
+              "name": "Aminosan",
+              "dose": "1.0 L/ha"
+            },
+            {
+              "name": "Revigo CaB",
+              "dose": "2.0 L/ha"
+            }
+          ]
         },
         "1": {
           "label": "Phase 02",
-          "fase": "Post-flowering"
+          "fase": "Post-bloom · Nov/Dec",
+          "products": [
+            {
+              "name": "Revigo Café ou Revigo Zn Plus",
+              "dose": "2.0 L/ha"
+            },
+            {
+              "name": "Aminosan",
+              "dose": "1.0 L/ha"
+            },
+            {
+              "name": "Revigo CaB",
+              "dose": "2.0 L/ha"
+            }
+          ]
         },
         "2": {
           "label": "Phase 03",
-          "fase": "Pinhead"
+          "fase": "Pinhead · Jan/Feb",
+          "products": [
+            {
+              "name": "Revigo Café ou Revigo Zn Plus",
+              "dose": "2.0 L/ha"
+            },
+            {
+              "name": "Revigo Nitrogênio Plus",
+              "dose": "5.0 L/ha"
+            },
+            {
+              "name": "RevigoPhos Amino",
+              "dose": "0.5 L/ha"
+            },
+            {
+              "name": "FitoFert",
+              "dose": "1.0 L/ha"
+            },
+            {
+              "name": "Aminosan",
+              "dose": "1.0 L/ha"
+            }
+          ]
         },
         "3": {
           "label": "Phase 04",
-          "fase": "Grain filling"
+          "fase": "Development and grain filling · Jan/Feb",
+          "products": [
+            {
+              "name": "Revigo Café ou Revigo Zn Plus",
+              "dose": "2.0 L/ha"
+            },
+            {
+              "name": "Revigo Nitrogênio Plus",
+              "dose": "5.0 L/ha"
+            },
+            {
+              "name": "RevigoPhos Amino",
+              "dose": "0.5 L/ha"
+            },
+            {
+              "name": "Aminosan",
+              "dose": "1.0 L/ha"
+            },
+            {
+              "name": "KMEP Ultra",
+              "dose": "2.0 L/ha"
+            }
+          ]
         },
         "4": {
           "label": "Phase 05",
-          "fase": "Maturation"
+          "fase": "Filling and ripening · Apr/May",
+          "products": [
+            {
+              "name": "KMEP Ultra",
+              "dose": "3.0 L/ha"
+            }
+          ]
         }
       },
       "recommended": {
         "aminosan": {
-          "tag": "Nutrition & Physiology",
-          "desc": "Vigor, roots, and resistance in all phases of coffee."
+          "tag": "Nutrition and Physiology",
+          "desc": "Higher flower set and production, from pre-bloom to grain filling."
         },
         "fitofert": {
-          "tag": "Nutrition & Physiology",
-          "desc": "Setting, filling, and productivity in the reproductive phase."
+          "tag": "Nutrition and Physiology",
+          "desc": "Lowers physiological oxidation and strengthens endogenous defenses."
         },
         "revigophos-amino": {
-          "tag": "Nutrition & Physiology",
-          "desc": "Energy and rapid recovery in critical windows."
+          "tag": "Nutrition and Physiology",
+          "desc": "Phosphorus energy supply at pinhead and grain filling."
+        },
+        "kmep-ultra": {
+          "tag": "Potentiator",
+          "desc": "Potassium at grain filling and ripening, up to 3.0 L/ha."
+        },
+        "acorda-ultra": {
+          "tag": "Seed Treatment",
+          "desc": "Root start for young coffee, by drench or fertigation."
+        },
+        "aduban": {
+          "tag": "Fertigation and Drench",
+          "desc": "Conditions the root zone in young and rainfed coffee."
         }
+      },
+      "managementNote": "When Aminosan is tank-mixed with Revigo Nitrogênio Plus, reduce the Revigo Nitrogênio Plus rate. Young coffee, after transplanting: Acorda Ultra 1.0 L/ha and Aduban 3.0 L/ha by drench or fertigation; Aminosan 300 ml/100 L of water and Revigo Zn Plus or Revigo Café 300 ml/100 L monthly; FitoFert 250 ml/100 L every 45 days.",
+      "source": "Juma-Agro brochure · Foliar nutrition suggestions for coffee",
+      "prep": {
+        "in": "in",
+        "of": "of",
+        "for": "for",
+        "your": "in your"
       }
     },
     "soja": {
       "name": "Soybeans",
       "badge": "Grain",
-      "description": "Soy is the main crop in Brazil and requires nutritional precision at every phase of the cycle. Juma-Agro develops complete programs from seed treatment to grain filling.",
+      "description": "Soybean concentrates the season in four windows: seed treatment, V4/V5, pre-bloom and pod set. The Juma-Agro program defines the product and rate for each of them.",
       "actua": [
-        "Deep rooting and uniform stand from planting.",
-        "Vegetative nutrition for high leaf mass production.",
-        "Maximum pod setting in the reproductive period.",
-        "Grain filling with superior weight and uniformity.",
-        "Resistance to water deficit in critical periods of the cycle."
+        "Uniform germination and a larger root system from seed treatment on.",
+        "Vegetative development and stress recovery at V4/V5.",
+        "Phosphorus energy and micronutrients while the yield structure is built.",
+        "Boron supplementation and higher flower set at pre-bloom.",
+        "Grain filling with the potentiator applied three times in the reproductive stage.",
+        "Better spray quality in every application."
       ],
       "challenges": {
         "0": {
-          "stage": "01 · Germination",
+          "stage": "01 · Seed treatment",
           "title": "Uneven stand",
-          "desc": "Irregular emergence that compromises area utilization and hinders management."
+          "desc": "Irregular germination and short roots compromise how much of the area actually produces."
         },
         "1": {
-          "stage": "02 · Vegetative",
-          "title": "Low foliar vigor",
-          "desc": "Plants with slow growth and lower light interception capacity."
+          "stage": "02 · V4 / V5",
+          "title": "Weak vegetative structure",
+          "desc": "A crop that does not close the row loses light and reaches the reproductive stage small."
         },
         "2": {
-          "stage": "03 · Flowering",
-          "title": "Low pod setting",
-          "desc": "Flowers that abort before setting, directly reducing productive potential."
+          "stage": "03 · Pre-bloom R1",
+          "title": "Flower abortion",
+          "desc": "A flower that does not set a pod takes yield away before filling even starts."
         },
         "3": {
-          "stage": "04 · Filling",
+          "stage": "04 · Pod set",
           "title": "Light grains",
-          "desc": "Weight and classification below potential due to nutritional deficit during grain filling."
-        },
-        "4": {
-          "stage": "05 · Climate",
-          "title": "Dry spells and stress",
-          "desc": "Water deficit and high temperatures compromising physiology and production."
+          "desc": "Lack of energy and potassium at filling drives down final grain weight."
         }
       },
       "management": {
         "0": {
           "label": "Phase 01",
-          "fase": "Seed treatment"
+          "fase": "Seed treatment, planting furrow or V2",
+          "products": [
+            {
+              "name": "Acorda Ultra",
+              "dose": "2 ml/kg of seed (seed treatment)"
+            },
+            {
+              "name": "Acorda Ultra",
+              "dose": "200 ml/ha (furrow or V2)"
+            }
+          ]
         },
         "1": {
           "label": "Phase 02",
-          "fase": "V3–V5"
+          "fase": "V4 / V5",
+          "products": [
+            {
+              "name": "Revigo Mol",
+              "dose": "200 ml/ha"
+            },
+            {
+              "name": "Aminosan",
+              "dose": "0.75 L/ha"
+            },
+            {
+              "name": "RevigoPhos Amino",
+              "dose": "0.5 L/ha"
+            },
+            {
+              "name": "Revigo Master",
+              "dose": "2.0 L/ha"
+            },
+            {
+              "name": "Revigo Boro 10",
+              "dose": "0.5 L/ha"
+            }
+          ]
         },
         "2": {
           "label": "Phase 03",
-          "fase": "R1–R2"
+          "fase": "Pre-bloom (R1)",
+          "products": [
+            {
+              "name": "Aminosan",
+              "dose": "0.75 L/ha"
+            },
+            {
+              "name": "Revigo Nitrogênio Plus",
+              "dose": "5.0 L/ha"
+            },
+            {
+              "name": "FitoFert",
+              "dose": "1.0 L/ha"
+            },
+            {
+              "name": "Revigo Mn",
+              "dose": "2.0 L/ha"
+            },
+            {
+              "name": "Revigo Boro 10",
+              "dose": "0.5 L/ha"
+            },
+            {
+              "name": "Revigo CaB",
+              "dose": "2.0 L/ha"
+            }
+          ]
         },
         "3": {
           "label": "Phase 04",
-          "fase": "R5–R6"
+          "fase": "Pod set and grain filling",
+          "products": [
+            {
+              "name": "Revigo Nitrogênio Plus",
+              "dose": "5.0 L/ha"
+            },
+            {
+              "name": "RevigoPhos Amino",
+              "dose": "0.5 L/ha"
+            },
+            {
+              "name": "FitoFert",
+              "dose": "1.0 L/ha"
+            },
+            {
+              "name": "Revigo CaB",
+              "dose": "2.0 L/ha"
+            }
+          ]
         }
       },
       "recommended": {
-        "aminosan": {
-          "tag": "Nutrition & Physiology",
-          "desc": "Vigor, roots, and resistance throughout the soy cycle."
-        },
-        "fitofert": {
-          "tag": "Nutrition & Physiology",
-          "desc": "Setting and filling in the reproductive phase."
-        },
         "acorda-ultra": {
           "tag": "Seed Treatment",
-          "desc": "Strong startup from planting."
+          "desc": "Uniform germination and a larger root system from planting."
+        },
+        "aminosan": {
+          "tag": "Nutrition and Physiology",
+          "desc": "Development and stress recovery at V4/V5 and pre-bloom."
+        },
+        "revigophos-amino": {
+          "tag": "Nutrition and Physiology",
+          "desc": "Phosphorus energy at V4/V5 and at pod set."
+        },
+        "fitofert": {
+          "tag": "Nutrition and Physiology",
+          "desc": "Lowers physiological oxidation through the reproductive stage."
+        },
+        "kmep-ultra": {
+          "tag": "Potentiator",
+          "desc": "Potentiator, dislodging agent and grain filling."
+        },
+        "redutan-sili-4": {
+          "tag": "Application Technology",
+          "desc": "Spray quality in every application of the program."
         }
+      },
+      "managementNote": "KMEP Ultra 1.0 L/ha in 3 applications at 10-day intervals, starting at pre-bloom. Redutan Sili-4 at 30 to 50 ml/100 L in every application.",
+      "source": "Juma-Agro brochure · Nutrition suggestions for soybean (2025)",
+      "prep": {
+        "in": "in",
+        "of": "of",
+        "for": "for",
+        "your": "in your"
       }
     },
     "milho": {
       "name": "Corn",
       "badge": "Grain",
-      "description": "Corn, especially the second crop, requires a precise nutritional program to take advantage of the growing window and maximize yield per hectare.",
+      "description": "Corn has a short window and demands precision at three moments: seed treatment, sixth to eighth leaf and pre-tasseling. That is where the Juma-Agro program works.",
       "actua": [
-        "Vigorous startup from emergence.",
-        "Nutrition for high green mass production and well-formed ears.",
-        "Setting and grain filling until harvest.",
-        "Resistance to water stress in the reproductive period.",
-        "Integrated program for high-performance second crop corn."
+        "Uniform germination and a larger root system at seed treatment.",
+        "Better development, flowering and ear and grain size.",
+        "Physiological effect with readily assimilated nitrogen at vegetative stage and pre-tasseling.",
+        "Phosphorus energy supply, with zinc and boron as micronutrients.",
+        "Lower physiological oxidation and stronger endogenous defenses before tasseling.",
+        "Better spray quality in every application."
       ],
       "challenges": {
         "0": {
-          "stage": "01 · Emergence",
-          "title": "Slow startup",
-          "desc": "Seedlings with slow initial development that miss the productive window."
+          "stage": "01 · Seed treatment",
+          "title": "Slow start",
+          "desc": "A seedling that takes long to push roots loses days in a window that is already short."
         },
         "1": {
-          "stage": "02 · Vegetative",
-          "title": "Nutritional deficit",
-          "desc": "Plants with irregular growth and lower biomass accumulation."
+          "stage": "02 · 6th to 8th leaf",
+          "title": "Ear set below potential",
+          "desc": "This is the stage where the plant defines rows and kernels per ear."
         },
         "2": {
-          "stage": "03 · Tasseling",
-          "title": "Water stress",
-          "desc": "Critical period with drought compromising flowering and setting."
-        },
-        "3": {
-          "stage": "04 · Filling",
-          "title": "Malformed grains",
-          "desc": "Ears with failures and light grains due to nutritional deficiency during filling."
+          "stage": "03 · Pre-tasseling",
+          "title": "Stress at flowering",
+          "desc": "Without nutrition and defense before the tassel, fertilization drops and the ear ends up gappy."
         }
       },
       "management": {
         "0": {
           "label": "Phase 01",
-          "fase": "Seed treatment"
+          "fase": "Seed treatment, planting furrow or V2",
+          "products": [
+            {
+              "name": "Acorda Ultra",
+              "dose": "100 ml/ha (seed treatment)"
+            },
+            {
+              "name": "Acorda Ultra",
+              "dose": "200 ml/ha (furrow or V2)"
+            }
+          ]
         },
         "1": {
           "label": "Phase 02",
-          "fase": "V3–V5"
+          "fase": "6th to 8th leaf",
+          "products": [
+            {
+              "name": "Aminosan",
+              "dose": "1.0 L/ha"
+            },
+            {
+              "name": "Revigo Nitrogênio Plus",
+              "dose": "5.0 L/ha"
+            },
+            {
+              "name": "RevigoPhos Amino",
+              "dose": "0.5 L/ha"
+            },
+            {
+              "name": "Revigo Zn Plus",
+              "dose": "2.0 L/ha"
+            },
+            {
+              "name": "Revigo Boro 10",
+              "dose": "0.5 L/ha"
+            }
+          ]
         },
         "2": {
           "label": "Phase 03",
-          "fase": "V8–V10"
-        },
-        "3": {
-          "label": "Phase 04",
-          "fase": "R1–R3"
+          "fase": "Pre-tasseling",
+          "products": [
+            {
+              "name": "Aminosan",
+              "dose": "0.5 L/ha"
+            },
+            {
+              "name": "Revigo Nitrogênio Plus",
+              "dose": "5.0 L/ha"
+            },
+            {
+              "name": "RevigoPhos Amino",
+              "dose": "0.5 L/ha"
+            },
+            {
+              "name": "Revigo Boro 10",
+              "dose": "0.5 L/ha"
+            },
+            {
+              "name": "FitoFert",
+              "dose": "1.0 L/ha"
+            }
+          ]
         }
       },
       "recommended": {
-        "aminosan": {
-          "tag": "Nutrition & Physiology",
-          "desc": "Vigor and resistance for the entire cycle."
+        "acorda-ultra": {
+          "tag": "Seed Treatment",
+          "desc": "Uniform germination and deeper roots at seed treatment."
         },
-        "revigo-milho": {
-          "tag": "Complete Management",
-          "desc": "Complete nutritional program for second crop corn."
+        "aminosan": {
+          "tag": "Nutrition and Physiology",
+          "desc": "Development, flowering and ear and grain size."
+        },
+        "revigophos-amino": {
+          "tag": "Nutrition and Physiology",
+          "desc": "Phosphorus energy from the sixth leaf to pre-tasseling."
         },
         "fitofert": {
-          "tag": "Nutrition & Physiology",
-          "desc": "Setting and grain filling."
+          "tag": "Nutrition and Physiology",
+          "desc": "Endogenous defenses in the pre-tasseling window."
+        },
+        "kmep-ultra": {
+          "tag": "Potentiator",
+          "desc": "Potentiator, dislodging agent and grain filling."
+        },
+        "redutan-sili-4": {
+          "tag": "Application Technology",
+          "desc": "Spray quality in every application of the program."
         }
+      },
+      "managementNote": "When Aminosan and Revigo Nitrogênio Plus go into the same application, one of them should be used at 50% of the rate. KMEP Ultra 1.0 L/ha in 3 applications at 10-day intervals. Redutan Sili-4 at 30 to 50 ml/100 L in every application.",
+      "source": "Juma-Agro brochure · Nutrition suggestions for corn (2024)",
+      "prep": {
+        "in": "in",
+        "of": "of",
+        "for": "for",
+        "your": "in your"
       }
     },
     "cana": {
@@ -1132,15 +1389,18 @@
       "management": {
         "0": {
           "label": "Phase 01",
-          "fase": "Planting"
+          "fase": "Planting",
+          "products": []
         },
         "1": {
           "label": "Phase 02",
-          "fase": "Tillering"
+          "fase": "Tillering",
+          "products": []
         },
         "2": {
           "label": "Phase 03",
-          "fase": "Growth"
+          "fase": "Growth",
+          "products": []
         }
       },
       "recommended": {
@@ -1156,291 +1416,822 @@
           "tag": "Application Technology",
           "desc": "Spray quality for sugarcane applications."
         }
+      },
+      "managementNote": "",
+      "source": "",
+      "prep": {
+        "in": "in",
+        "of": "of",
+        "for": "for",
+        "your": "in your"
       }
     },
     "algodao": {
       "name": "Cotton",
       "badge": "Fiber",
-      "description": "Cotton is demanding in nutrition during the reproductive period, when flowering, boll setting, and fiber filling define crop profitability.",
+      "description": "Cotton defines profitability in the reproductive stage: from pre-bloom to 25 days after flowering, every application sustains boll retention. The Juma-Agro program covers six moments of the cycle.",
       "actua": [
-        "Vigorous startup and uniform stand.",
-        "Balanced nutrition in the vegetative phase for high productive load.",
-        "Setting of floral buds and bolls.",
-        "Filling and uniform maturation of fibers.",
-        "Resistance to climatic stresses during the cycle."
+        "Root start at seed treatment and in the planting furrow.",
+        "Amino acids and phosphorus 20 days after germination.",
+        "Boron and calcium supplementation at pre-bloom and full bloom.",
+        "Physiological defense with FitoFert in both bloom windows.",
+        "Potassium and micronutrients 15 and 25 days after flowering.",
+        "Redutan Sili-4 in every application for better spray performance."
       ],
       "challenges": {
         "0": {
-          "stage": "01 · Vegetative",
-          "title": "Irregular growth",
-          "desc": "Uneven plants that hinder management and reduce productivity per area."
+          "stage": "01 · Planting",
+          "title": "Slow start",
+          "desc": "A seed that takes long to push roots delivers a small plant early in the vegetative stage."
         },
         "1": {
-          "stage": "02 · Flowering",
-          "title": "Low boll setting",
-          "desc": "Floral buds that fall before setting due to nutritional deficiency or stress."
+          "stage": "02 · Pre-bloom",
+          "title": "Few flower buds",
+          "desc": "Lack of boron and calcium in this window limits how many structures the plant sets."
         },
         "2": {
-          "stage": "03 · Filling",
-          "title": "Low quality fiber",
-          "desc": "Fiber length and strength below potential due to inadequate nutrition."
+          "stage": "03 · Full bloom",
+          "title": "Structure shedding",
+          "desc": "Squares and bolls that drop before setting are a direct loss of harvestable cotton."
+        },
+        "3": {
+          "stage": "04 · After flowering",
+          "title": "Incomplete filling",
+          "desc": "Without potassium and micronutrients at the end, fiber stays below potential."
         }
       },
       "management": {
         "0": {
           "label": "Phase 01",
-          "fase": "Seed treatment"
+          "fase": "Planting",
+          "products": [
+            {
+              "name": "Acorda Ultra",
+              "dose": "50 ml/ha (seed treatment)"
+            },
+            {
+              "name": "Acorda Ultra",
+              "dose": "200 ml/ha (planting furrow)"
+            }
+          ]
         },
         "1": {
           "label": "Phase 02",
-          "fase": "Vegetative"
+          "fase": "20 days after germination",
+          "products": [
+            {
+              "name": "Aminosan",
+              "dose": "0.5 L/ha"
+            },
+            {
+              "name": "RevigoPhos Amino",
+              "dose": "0.5 L/ha"
+            }
+          ]
         },
         "2": {
           "label": "Phase 03",
-          "fase": "Reproductive"
+          "fase": "Pre-bloom",
+          "products": [
+            {
+              "name": "Revigo Boro 10",
+              "dose": "1.5 L/ha"
+            },
+            {
+              "name": "FitoFert",
+              "dose": "1.0 L/ha"
+            },
+            {
+              "name": "Revigo CaB",
+              "dose": "1.5 L/ha"
+            }
+          ]
+        },
+        "3": {
+          "label": "Phase 04",
+          "fase": "Full bloom",
+          "products": [
+            {
+              "name": "RevigoPhos Amino",
+              "dose": "0.5 L/ha"
+            },
+            {
+              "name": "FitoFert",
+              "dose": "1.0 L/ha"
+            },
+            {
+              "name": "Revigo Boro 10",
+              "dose": "0.5 L/ha"
+            },
+            {
+              "name": "Revigo CaB",
+              "dose": "1.5 L/ha"
+            }
+          ]
+        },
+        "4": {
+          "label": "Phase 05",
+          "fase": "15 days after flowering",
+          "products": [
+            {
+              "name": "KMEP Ultra",
+              "dose": "1.0 L/ha"
+            },
+            {
+              "name": "RevigoPhos Amino",
+              "dose": "0.5 L/ha"
+            },
+            {
+              "name": "Revigo Boro 10",
+              "dose": "0.5 L/ha"
+            },
+            {
+              "name": "Revigo Master",
+              "dose": "1.5 L/ha"
+            }
+          ]
+        },
+        "5": {
+          "label": "Phase 06",
+          "fase": "25 days after flowering",
+          "products": [
+            {
+              "name": "KMEP Ultra",
+              "dose": "1.0 L/ha"
+            },
+            {
+              "name": "RevigoPhos Amino",
+              "dose": "0.5 L/ha"
+            },
+            {
+              "name": "Revigo Boro 10",
+              "dose": "0.5 L/ha"
+            }
+          ]
         }
       },
       "recommended": {
-        "aminosan": {
-          "tag": "Nutrition & Physiology",
-          "desc": "Vigor and resistance for the entire cycle."
-        },
-        "fitofert": {
-          "tag": "Nutrition & Physiology",
-          "desc": "Setting and filling of bolls."
-        },
         "acorda-ultra": {
           "tag": "Seed Treatment",
-          "desc": "Strong startup from planting."
+          "desc": "Root start at seed treatment and in the planting furrow."
+        },
+        "aminosan": {
+          "tag": "Nutrition and Physiology",
+          "desc": "Amino acids 20 days after germination."
+        },
+        "revigophos-amino": {
+          "tag": "Nutrition and Physiology",
+          "desc": "Phosphorus energy in four of the six applications of the program."
+        },
+        "fitofert": {
+          "tag": "Nutrition and Physiology",
+          "desc": "Physiological defense at pre-bloom and full bloom."
+        },
+        "kmep-ultra": {
+          "tag": "Potentiator",
+          "desc": "Potassium 15 and 25 days after flowering."
+        },
+        "redutan-sili-4": {
+          "tag": "Application Technology",
+          "desc": "Recommended in every application for better performance."
         }
+      },
+      "managementNote": "Redutan Sili-4 in every application for better performance.",
+      "source": "Juma-Agro brochure · Nutrition suggestion for cotton",
+      "prep": {
+        "in": "in",
+        "of": "of",
+        "for": "for",
+        "your": "in your"
       }
     },
     "feijao": {
       "name": "Beans",
       "badge": "Grain",
-      "description": "Beans have a short cycle and require precise nutrition in the reproductive period. Small deficiencies in critical phases cause significant productivity losses.",
+      "description": "Beans have a short cycle and react fast: what is missing at V4/V5 or pre-bloom is not recovered at grain filling. The Juma-Agro program covers the four windows of the cycle.",
       "actua": [
-        "Uniform rooting and stand from germination.",
-        "Vegetative nutrition for fast and balanced development.",
-        "Pod setting and maximum set at flowering.",
-        "Grain filling with weight and uniformity.",
-        "Resistance to water stress in the critical phase."
+        "Uniform germination and a larger root system from seed treatment on.",
+        "Vegetative development and stress recovery at V4/V5.",
+        "Phosphorus energy supply, with molybdenum and boron as micronutrients.",
+        "Lower physiological oxidation and stronger endogenous defenses.",
+        "Higher flower set at pre-bloom R5.",
+        "Grain filling with the potentiator applied three times in the reproductive stage."
       ],
       "challenges": {
         "0": {
-          "stage": "01 · Germination",
+          "stage": "01 · Seed treatment",
           "title": "Uneven stand",
-          "desc": "Irregular emergence compromising the area's productive potential."
+          "desc": "Irregular emergence leaves gaps that the short bean cycle does not recover."
         },
         "1": {
-          "stage": "02 · Flowering",
-          "title": "Low pod setting",
-          "desc": "Flowers that abort due to nutritional deficiency or water stress."
+          "stage": "02 · V4 / V5",
+          "title": "Weak vegetative stage",
+          "desc": "A small plant early on reaches the reproductive stage without structure to hold pods."
         },
         "2": {
-          "stage": "03 · Grain filling",
+          "stage": "03 · Pre-bloom R5",
+          "title": "Flower abortion",
+          "desc": "A flower that drops before setting reduces pods per plant."
+        },
+        "3": {
+          "stage": "04 · Pod set",
           "title": "Light grains",
-          "desc": "Weight and appearance below potential due to insufficient nutrition."
+          "desc": "Lack of energy and calcium at filling takes weight and market appearance from the grain."
         }
       },
       "management": {
         "0": {
           "label": "Phase 01",
-          "fase": "Seed treatment"
+          "fase": "Seed treatment, planting furrow or V2",
+          "products": [
+            {
+              "name": "Acorda Ultra",
+              "dose": "2 ml/kg of seed (seed treatment)"
+            },
+            {
+              "name": "Acorda Ultra",
+              "dose": "200 ml/ha (furrow or V2)"
+            }
+          ]
         },
         "1": {
           "label": "Phase 02",
-          "fase": "V3–V4"
+          "fase": "V4 / V5",
+          "products": [
+            {
+              "name": "Aminosan",
+              "dose": "1.0 L/ha"
+            },
+            {
+              "name": "RevigoPhos Amino",
+              "dose": "0.5 L/ha"
+            },
+            {
+              "name": "Revigo Mol",
+              "dose": "200 ml/ha"
+            },
+            {
+              "name": "Revigo Master",
+              "dose": "2.0 L/ha"
+            },
+            {
+              "name": "Revigo Boro 10",
+              "dose": "0.5 L/ha"
+            }
+          ]
         },
         "2": {
           "label": "Phase 03",
-          "fase": "R1–R5"
+          "fase": "Pre-bloom (R5)",
+          "products": [
+            {
+              "name": "Aminosan",
+              "dose": "1.0 L/ha"
+            },
+            {
+              "name": "Revigo Nitrogênio Plus",
+              "dose": "5.0 L/ha"
+            },
+            {
+              "name": "FitoFert",
+              "dose": "1.0 L/ha"
+            },
+            {
+              "name": "Revigo Boro 10",
+              "dose": "0.5 L/ha"
+            },
+            {
+              "name": "Revigo CaB",
+              "dose": "2.0 L/ha"
+            }
+          ]
+        },
+        "3": {
+          "label": "Phase 04",
+          "fase": "Pod set and grain filling",
+          "products": [
+            {
+              "name": "Revigo Nitrogênio Plus",
+              "dose": "5.0 L/ha"
+            },
+            {
+              "name": "FitoFert",
+              "dose": "1.0 L/ha"
+            },
+            {
+              "name": "RevigoPhos Amino",
+              "dose": "0.5 L/ha"
+            },
+            {
+              "name": "Revigo CaB",
+              "dose": "2.0 L/ha"
+            }
+          ]
         }
       },
       "recommended": {
-        "aminosan": {
-          "tag": "Nutrition & Physiology",
-          "desc": "Vigor and resistance throughout the cycle."
-        },
-        "fitofert": {
-          "tag": "Nutrition & Physiology",
-          "desc": "Setting and grain filling."
-        },
         "acorda-ultra": {
           "tag": "Seed Treatment",
-          "desc": "Strong startup from planting."
+          "desc": "Uniform germination and a larger root system from planting."
+        },
+        "aminosan": {
+          "tag": "Nutrition and Physiology",
+          "desc": "Development and stress recovery at V4/V5 and pre-bloom."
+        },
+        "revigophos-amino": {
+          "tag": "Nutrition and Physiology",
+          "desc": "Phosphorus energy at V4/V5 and at pod set."
+        },
+        "fitofert": {
+          "tag": "Nutrition and Physiology",
+          "desc": "Lowers physiological oxidation through the reproductive stage."
+        },
+        "kmep-ultra": {
+          "tag": "Potentiator",
+          "desc": "Potentiator, dislodging agent and grain filling."
+        },
+        "redutan-sili-4": {
+          "tag": "Application Technology",
+          "desc": "Spray quality in every application of the program."
         }
+      },
+      "managementNote": "KMEP Ultra 1.0 L/ha in 3 applications at 10-day intervals, starting at pre-bloom. Redutan Sili-4 at 30 to 50 ml/100 L in every application.",
+      "source": "Juma-Agro brochure · Nutrition suggestions for beans (2024)",
+      "prep": {
+        "in": "in",
+        "of": "of",
+        "for": "for",
+        "your": "in your"
       }
     },
     "citros": {
       "name": "Citrus",
       "badge": "Perennial Crop",
-      "description": "Citrus require continuous and balanced nutrition throughout the cycle. Juma-Agro offers programs for flowering, fruit setting, and post-harvest quality.",
+      "description": "Citrus works all year: vegetation, bloom, fruit filling and two plant maintenance rounds. The Juma-Agro program defines the product and rate for each of these steps.",
       "actua": [
-        "Abundant and well-distributed flowering.",
-        "High fruit set and low post-flowering drop.",
-        "Uniform fruit development during the harvest.",
-        "High peel quality and soluble solids content.",
-        "Resistance to stress and physiological diseases."
+        "Early vegetation fed with amino acids, zinc and magnesium.",
+        "Physiological defense with FitoFert at pre-bloom and post-bloom.",
+        "Amino acids for fruit set and stress recovery.",
+        "Potassium and phosphorus at fruit filling.",
+        "Two plant maintenance rounds 45 days apart.",
+        "Aduban through fertigation to condition the root zone."
       ],
       "challenges": {
         "0": {
-          "stage": "01 · Flowering",
-          "title": "Low fruit set",
-          "desc": "Flowers that fall before setting, reducing production per tree."
+          "stage": "01 · Early vegetation",
+          "title": "Weak flush",
+          "desc": "A short vegetative flush leaves the tree with fewer flowering points."
         },
         "1": {
-          "stage": "02 · Development",
-          "title": "Fruit drop",
-          "desc": "Young fruits that fall due to nutritional deficit in the development phase."
+          "stage": "02 · Pre-bloom",
+          "title": "Low fruit set",
+          "desc": "A flower that does not set reduces the crop load before the season starts."
         },
         "2": {
-          "stage": "03 · Maturation",
-          "title": "Compromised quality",
-          "desc": "Color, soluble solids content, and appearance below market expectations."
+          "stage": "03 · Post-bloom",
+          "title": "Physiological fruitlet drop",
+          "desc": "Newly set fruit drops when nutrition is short right after bloom."
+        },
+        "3": {
+          "stage": "04 · Fruit filling",
+          "title": "Size and brix below target",
+          "desc": "Without potassium and phosphorus at this stage, fruit reaches neither size nor soluble solids."
+        },
+        "4": {
+          "stage": "05 · Plant maintenance",
+          "title": "Orchard exhausted after harvest",
+          "desc": "A tree with no maintenance enters the next cycle with low reserves."
         }
       },
       "management": {
         "0": {
           "label": "Phase 01",
-          "fase": "Pre-flowering"
+          "fase": "Early vegetation",
+          "products": [
+            {
+              "name": "Aminosan",
+              "dose": "1.5 L/ha"
+            },
+            {
+              "name": "Revigo Zn Plus",
+              "dose": "2.0 L/ha"
+            },
+            {
+              "name": "Revigo Mg",
+              "dose": "2.0 L/ha"
+            }
+          ]
         },
         "1": {
           "label": "Phase 02",
-          "fase": "Post-flowering"
+          "fase": "Pre-bloom",
+          "products": [
+            {
+              "name": "FitoFert",
+              "dose": "1.0 L/ha"
+            },
+            {
+              "name": "Aminosan",
+              "dose": "1.0 L/ha"
+            }
+          ]
         },
         "2": {
           "label": "Phase 03",
-          "fase": "Development"
+          "fase": "Post-bloom",
+          "products": [
+            {
+              "name": "FitoFert",
+              "dose": "1.0 L/ha"
+            },
+            {
+              "name": "Revigo Zn Plus",
+              "dose": "2.0 L/ha"
+            }
+          ]
+        },
+        "3": {
+          "label": "Phase 04",
+          "fase": "Fruit filling",
+          "products": [
+            {
+              "name": "Aminosan",
+              "dose": "1.0 L/ha"
+            },
+            {
+              "name": "KMEP Ultra",
+              "dose": "1.0 L/ha"
+            },
+            {
+              "name": "Revigo Mg",
+              "dose": "2.0 L/ha"
+            },
+            {
+              "name": "RevigoPhos Amino",
+              "dose": "1.0 L/ha"
+            }
+          ]
+        },
+        "4": {
+          "label": "Phase 05",
+          "fase": "1st plant maintenance",
+          "products": [
+            {
+              "name": "Aminosan",
+              "dose": "1.5 L/ha"
+            },
+            {
+              "name": "Revigo Zn Plus",
+              "dose": "2.0 L/ha"
+            }
+          ]
+        },
+        "5": {
+          "label": "Phase 06",
+          "fase": "2nd plant maintenance (45 days after the first)",
+          "products": [
+            {
+              "name": "RevigoPhos Amino",
+              "dose": "2.0 L/ha"
+            },
+            {
+              "name": "Revigo Mg",
+              "dose": "2.0 L/ha"
+            }
+          ]
         }
       },
       "recommended": {
         "aminosan": {
-          "tag": "Nutrition & Physiology",
-          "desc": "Vigor and resistance for the entire cycle."
+          "tag": "Nutrition and Physiology",
+          "desc": "Present at vegetation, pre-bloom, fruit filling and maintenance."
         },
         "fitofert": {
-          "tag": "Nutrition & Physiology",
-          "desc": "Setting and fruit quality."
+          "tag": "Nutrition and Physiology",
+          "desc": "Physiological defense at pre-bloom and post-bloom."
         },
-        "revigo-comoni": {
-          "tag": "Nutrition & Physiology",
-          "desc": "Foliars for deficiency correction."
+        "revigophos-amino": {
+          "tag": "Nutrition and Physiology",
+          "desc": "Phosphorus energy at fruit filling and at the second maintenance."
+        },
+        "kmep-ultra": {
+          "tag": "Potentiator",
+          "desc": "Potassium at fruit filling, 1.0 L/ha."
+        },
+        "aduban": {
+          "tag": "Fertigation and Drench",
+          "desc": "Conditions the root zone through fertigation, 20 ml per plant."
+        },
+        "redutan-sili-4": {
+          "tag": "Application Technology",
+          "desc": "Spray quality in the orchard foliar applications."
         }
+      },
+      "managementNote": "Aduban through fertigation: 20 ml per plant at early vegetation, repeated in the first fruit filling application, plus 2 applications during plant maintenance.",
+      "source": "Juma-Agro brochure · Nutrition suggestions for citrus",
+      "prep": {
+        "in": "in",
+        "of": "of",
+        "for": "for",
+        "your": "in your"
       }
     },
     "batata": {
       "name": "Potato",
       "badge": "Tuber",
-      "description": "Potato has a short cycle and demands intense nutrition from the start. Tuber quality and productivity depend on a precise nutritional program in each phase.",
+      "description": "Potato concentrates yield between hilling and day 60. The Juma-Agro program works on seed treatment, hilling and the block of applications through vegetative and reproductive development.",
       "actua": [
-        "Uniform sprouting and full stand.",
-        "Vigorous vegetative development for high light interception.",
-        "Tuber filling with superior size and weight.",
-        "Surface quality and storage resistance.",
-        "Resistance to stress and physiological diseases."
+        "Root development and initial start at seed treatment.",
+        "Better nutrient availability in the root zone.",
+        "Phosphorus energy supply through vegetative and reproductive development.",
+        "Lower physiological oxidation and stronger endogenous defenses.",
+        "Tuberization supported by weekly amino acid applications.",
+        "Tissue and tuber formation with calcium and magnesium."
       ],
       "challenges": {
         "0": {
-          "stage": "01 · Sprouting",
-          "title": "Irregular emergence",
-          "desc": "Uneven sprouting compromising the stand and area utilization."
+          "stage": "01 · Seed treatment",
+          "title": "Uneven sprouting",
+          "desc": "Seed that sprouts off schedule leaves the field out of sync until harvest."
         },
         "1": {
-          "stage": "02 · Tuberization",
-          "title": "Low yield",
-          "desc": "Number and weight of tubers below potential due to nutritional deficiency."
+          "stage": "02 · Hilling",
+          "title": "Poor root zone",
+          "desc": "Roots with no available nutrients at hilling limit how many tubers are formed."
         },
         "2": {
-          "stage": "03 · Filling",
-          "title": "Inadequate sizing",
-          "desc": "Small-sized tubers leading to lost market classification."
+          "stage": "03 · Vegetative and reproductive development",
+          "title": "Size below market",
+          "desc": "Lack of calcium, magnesium and phosphorus at filling costs the lot its grading."
         }
       },
       "management": {
         "0": {
           "label": "Phase 01",
-          "fase": "Planting"
+          "fase": "Seed treatment",
+          "products": [
+            {
+              "name": "Acorda Ultra",
+              "dose": "1.0 L/ha"
+            },
+            {
+              "name": "Aduban",
+              "dose": "5.0 L/ha"
+            }
+          ]
         },
         "1": {
           "label": "Phase 02",
-          "fase": "Tuberization"
+          "fase": "Hilling",
+          "products": [
+            {
+              "name": "Aduban",
+              "dose": "5.0 L/ha"
+            },
+            {
+              "name": "Aminosan",
+              "dose": "1.0 L/ha"
+            }
+          ]
         },
         "2": {
           "label": "Phase 03",
-          "fase": "Filling"
+          "fase": "Vegetative and reproductive development (15 to 60 days)",
+          "products": [
+            {
+              "name": "RevigoPhos Amino",
+              "dose": "1.0 L/ha (3 applications, 10-day interval)"
+            },
+            {
+              "name": "FitoFert",
+              "dose": "1.0 L/ha (3 applications, 15-day interval)"
+            },
+            {
+              "name": "Revigo Master",
+              "dose": "2.0 L/ha (3 applications, 10-day interval)"
+            },
+            {
+              "name": "Aminosan",
+              "dose": "1.0 L/ha (3 weekly applications)"
+            },
+            {
+              "name": "Revigo CaB",
+              "dose": "2.0 L/ha (2 applications, 7-day interval)"
+            },
+            {
+              "name": "Revigo Mg",
+              "dose": "2.0 L/ha (2 applications, 7-day interval)"
+            }
+          ]
         }
       },
       "recommended": {
+        "acorda-ultra": {
+          "tag": "Seed Treatment",
+          "desc": "Root development and initial start, 1.0 L/ha."
+        },
+        "aduban": {
+          "tag": "Fertigation and Drench",
+          "desc": "Makes nutrients available in the root zone at planting and hilling."
+        },
         "aminosan": {
-          "tag": "Nutrition & Physiology",
-          "desc": "Vigor and resistance for the entire cycle."
+          "tag": "Nutrition and Physiology",
+          "desc": "Tuberization and vegetative development in weekly applications."
+        },
+        "revigophos-amino": {
+          "tag": "Nutrition and Physiology",
+          "desc": "Phosphorus energy in 3 applications during filling."
         },
         "fitofert": {
-          "tag": "Nutrition & Physiology",
-          "desc": "Filling and tuber quality."
+          "tag": "Nutrition and Physiology",
+          "desc": "Lowers physiological oxidation in 3 biweekly applications."
         },
-        "revigo-comoni": {
-          "tag": "Nutrition & Physiology",
-          "desc": "Correction of nutritional deficiencies."
+        "kmep-ultra": {
+          "tag": "Potentiator",
+          "desc": "Potentiates the insecticide and supplies potassium to the tuber."
         }
+      },
+      "managementNote": "KMEP Ultra is an insecticide potentiator: apply together with the pesticide, which also supplies potassium for tuber filling. Redutan at 30 ml/100 L as a spray conditioner.",
+      "source": "Juma-Agro brochure · Nutrition suggestions for potato",
+      "prep": {
+        "in": "in",
+        "of": "of",
+        "for": "for",
+        "your": "in your"
       }
     },
     "tomate": {
       "name": "Tomato",
       "badge": "Vegetable",
-      "description": "Tomato is one of the most demanding crops in nutrition. Flowering, setting, and fruit quality depend on a precise nutritional program throughout the cycle.",
+      "description": "Tomato demands nutrition from transplanting to harvest, with weekly and biweekly applications throughout the cycle. The Juma-Agro program organizes that calendar into five phases.",
       "actua": [
-        "Balanced and uniform vegetative development.",
-        "Abundant flowering with high fruit set.",
-        "Homogeneous filling for fruits with superior size and coloration.",
-        "Resistance to stresses and physiological diseases such as blossom-end rot.",
-        "High post-harvest quality and shelf life."
+        "Root and foliar system activation after transplanting.",
+        "Root zone conditioning with Aduban at day 20 and day 40.",
+        "Stress recovery and enzymatic metabolism activation in biweekly applications.",
+        "Phosphorus energy supply from 25 days after transplanting.",
+        "Better fruit firmness with calcium in weekly applications.",
+        "Potassium complement in 6 weekly applications."
       ],
       "challenges": {
         "0": {
-          "stage": "01 · Flowering",
-          "title": "Low fruit set",
-          "desc": "Flowers that abort before setting due to nutritional deficiency or stress."
+          "stage": "01 · After transplanting",
+          "title": "Slow seedling establishment",
+          "desc": "A seedling that takes long to root delays the whole field calendar."
         },
         "1": {
-          "stage": "02 · Filling",
-          "title": "Blossom-end rot",
-          "desc": "Calcium deficiency in developing fruits — direct loss of quality."
+          "stage": "02 · Vegetative development",
+          "title": "Unbalanced plant",
+          "desc": "A vegetative stage without base nutrition reaches flowering with no structure to hold the load."
         },
         "2": {
-          "stage": "03 · Maturation",
-          "title": "Inadequate color and firmness",
-          "desc": "Fruits with irregular coloration and low firmness compromising commercialization."
+          "stage": "03 · Flowering",
+          "title": "Low fruit set",
+          "desc": "Lack of boron and calcium at bloom drops flowers and reduces fruit count."
+        },
+        "3": {
+          "stage": "04 · Fruiting",
+          "title": "Blossom end rot and soft fruit",
+          "desc": "Insufficient calcium at filling causes blossom end rot and loss of firmness."
+        },
+        "4": {
+          "stage": "05 · Pre-harvest",
+          "title": "Quality loss",
+          "desc": "Fruit without firmness and potassium reaches the market with a short shelf life."
         }
       },
       "management": {
         "0": {
           "label": "Phase 01",
-          "fase": "Vegetative"
+          "fase": "After transplanting",
+          "products": [
+            {
+              "name": "Acorda Ultra",
+              "dose": "1.5 L/ha (drench)"
+            }
+          ]
         },
         "1": {
           "label": "Phase 02",
-          "fase": "Flowering"
+          "fase": "Vegetative development",
+          "products": [
+            {
+              "name": "Revigo Mol",
+              "dose": "0.5 L/ha (10 days after transplanting)"
+            },
+            {
+              "name": "Aduban",
+              "dose": "3.0 L/ha (20 days after transplanting)"
+            },
+            {
+              "name": "Revigo Master",
+              "dose": "2.0 L/ha (4 biweekly applications, starting 10 days after transplanting)"
+            },
+            {
+              "name": "Aminosan",
+              "dose": "1.0 to 1.5 L/ha (biweekly applications)"
+            },
+            {
+              "name": "RevigoPhos Amino",
+              "dose": "0.5 to 1.0 L/ha (biweekly, starting 25 days after transplanting)"
+            },
+            {
+              "name": "Revigo Mg",
+              "dose": "2.0 L/ha (1st at trellising, 2nd fifteen days later)"
+            },
+            {
+              "name": "FitoFert",
+              "dose": "0.5 L/ha"
+            },
+            {
+              "name": "Revigo CaB",
+              "dose": "1.0 to 2.0 L/ha (weekly applications)"
+            }
+          ]
         },
         "2": {
           "label": "Phase 03",
-          "fase": "Filling"
+          "fase": "Flowering",
+          "products": [
+            {
+              "name": "Acorda Ultra",
+              "dose": "1.5 L/ha (foliar, 50 days after transplanting)"
+            },
+            {
+              "name": "Aduban",
+              "dose": "3.0 L/ha (40 days after transplanting)"
+            },
+            {
+              "name": "Revigo Boro 10",
+              "dose": "0.5 to 1.0 L/ha (1st at 60 days after transplanting, 2nd ten days later)"
+            },
+            {
+              "name": "FitoFert",
+              "dose": "0.75 L/ha"
+            },
+            {
+              "name": "Revigo CaB",
+              "dose": "1.0 to 2.0 L/ha (weekly applications)"
+            }
+          ]
+        },
+        "3": {
+          "label": "Phase 04",
+          "fase": "Fruiting",
+          "products": [
+            {
+              "name": "Revigo CaB",
+              "dose": "3.0 L/ha (weekly applications)"
+            },
+            {
+              "name": "FitoFert",
+              "dose": "1.0 L/ha"
+            }
+          ]
+        },
+        "4": {
+          "label": "Phase 05",
+          "fase": "Pre-harvest and early harvest",
+          "products": [
+            {
+              "name": "Revigo CaB",
+              "dose": "3.0 L/ha (weekly applications)"
+            }
+          ]
         }
       },
       "recommended": {
-        "aminosan": {
-          "tag": "Nutrition & Physiology",
-          "desc": "Vigor and resistance for the entire cycle."
+        "acorda-ultra": {
+          "tag": "Seed Treatment",
+          "desc": "Activates the root system at transplanting and the foliar system at day 50."
         },
-        "revigo-comoni": {
-          "tag": "Nutrition & Physiology",
-          "desc": "Correction of nutritional deficiencies."
+        "aduban": {
+          "tag": "Fertigation and Drench",
+          "desc": "Conditions the root zone 20 and 40 days after transplanting."
+        },
+        "aminosan": {
+          "tag": "Nutrition and Physiology",
+          "desc": "Stress recovery and enzymatic metabolism in biweekly applications."
+        },
+        "revigophos-amino": {
+          "tag": "Nutrition and Physiology",
+          "desc": "Phosphorus energy from 25 days after transplanting."
         },
         "fitofert": {
-          "tag": "Nutrition & Physiology",
-          "desc": "Setting and fruit filling."
+          "tag": "Nutrition and Physiology",
+          "desc": "Endogenous defenses from vegetative stage to fruiting."
+        },
+        "kmep-ultra": {
+          "tag": "Potentiator",
+          "desc": "Potassium complement in 6 weekly applications."
         }
+      },
+      "managementNote": "KMEP Ultra 1.0 L/ha in 6 applications at weekly intervals, from vegetative development to harvest. Redutan Sili-4 at 30 ml/100 L as a spray conditioner.",
+      "source": "Juma-Agro brochure · Nutrition suggestions for tomato (2025)",
+      "prep": {
+        "in": "in",
+        "of": "of",
+        "for": "for",
+        "your": "in your"
       }
     },
     "pastagem": {
@@ -1474,11 +2265,13 @@
       "management": {
         "0": {
           "label": "Phase 01",
-          "fase": "Recovery"
+          "fase": "Recovery",
+          "products": []
         },
         "1": {
           "label": "Phase 02",
-          "fase": "Maintenance"
+          "fase": "Maintenance",
+          "products": []
         }
       },
       "recommended": {
@@ -1494,6 +2287,14 @@
           "tag": "Application Technology",
           "desc": "Efficiency in field applications."
         }
+      },
+      "managementNote": "",
+      "source": "",
+      "prep": {
+        "in": "in",
+        "of": "of",
+        "for": "for",
+        "your": "in your"
       }
     }
   },
