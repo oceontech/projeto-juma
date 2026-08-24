@@ -340,13 +340,13 @@ export function ContactPage() {
 
           <a 
             data-contact-item 
-            href="https://www.google.com/maps/search/?api=1&query=Juma+Agro+Mogi+Mirim"
+            href="https://www.google.com/maps/search/?api=1&query=Juma+Agro+R.+Victor+Acierini+2370+Mogi+Gua%C3%A7u+SP"
             target="_blank"
             rel="noopener noreferrer"
             className="rounded-3xl bg-foreground/10 h-64 border border-foreground/10 relative overflow-hidden flex items-center justify-center group"
           >
             <iframe 
-              src="https://maps.google.com/maps?q=Juma%20Agro,%20Mogi%20Mirim&t=&z=14&ie=UTF8&iwloc=&output=embed"
+              src="https://maps.google.com/maps?q=Juma%20Agro%2C%20R.%20Victor%20Acierini%2C%202370%2C%20Mogi%20Gua%C3%A7u%20-%20SP&t=&z=14&ie=UTF8&iwloc=&output=embed"
               className="absolute inset-0 w-full h-full border-0 pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity"
               aria-hidden="true"
               tabIndex={-1}
