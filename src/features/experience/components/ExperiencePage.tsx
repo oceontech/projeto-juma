@@ -238,12 +238,13 @@ export function ExperiencePage() {
         {/* Cabeçalho */}
         <div className="mb-24">
           <span ref={eyebrowRef} className="inline-block mb-6">
+            {/* Versão negativa: esta página tem fundo claro, e a logo padrão é branca. */}
             <Image
-              src="/brand/logo-juma-experience.webp"
+              src="/brand/logo-juma-experience-negativa.webp"
               alt={t('eyebrow')}
               width={800}
               height={300}
-              className="h-10 w-auto sm:h-12"
+              className="h-14 w-auto sm:h-16 md:h-24 lg:h-28"
               priority
             />
           </span>
