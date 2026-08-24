@@ -5,18 +5,10 @@ import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 
 import { Link, usePathname } from '@/i18n/navigation'
-import { navLinks, jobsUrl } from '@/config/site'
+import { navLinks } from '@/config/site'
 import { useLenis } from '@/features/animation/SmoothScroll'
 import { Container } from './Container'
 import { LanguageSwitcher } from './LanguageSwitcher'
-
-function ArrowUpRight(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden width="12" height="12" {...props}>
-      <path d="M7 17 17 7M9 7h8v8" />
-    </svg>
-  )
-}
 
 function ArrowRight(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -274,17 +266,6 @@ export function Navbar() {
                         </Link>
                       </li>
                     ))}
-                    <li>
-                      <a
-                        href={jobsUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`inline-flex items-center gap-xs ${linkClass(false)}`}
-                      >
-                        {t('jobs')}
-                        <ArrowUpRight className="h-2.5 w-2.5 xl:h-3 xl:w-3" />
-                      </a>
-                    </li>
                   </ul>
                 </nav>
 
@@ -349,18 +330,6 @@ export function Navbar() {
                     </Link>
                   </li>
                 ))}
-                <li>
-                  <a
-                    href={jobsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => setOpen(false)}
-                    className="flex items-center gap-xs rounded-md px-sm py-xs text-body-regular text-xs text-foreground/80 transition-colors hover:bg-primary/5 hover:text-primary"
-                  >
-                    {t('jobs')}
-                    <ArrowUpRight className="h-2.5 w-2.5" />
-                  </a>
-                </li>
               </ul>
             </nav>
 

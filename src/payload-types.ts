@@ -754,10 +754,6 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 export interface Setting {
   id: number;
   /**
-   * URL externa de vagas (Sólides). O botão da navbar usa este valor.
-   */
-  vagasUrl?: string | null;
-  /**
    * WhatsApp de conversão, ex: +55 19 99964-8186
    */
   whatsapp?: string | null;
@@ -779,7 +775,6 @@ export interface Setting {
  * via the `definition` "settings_select".
  */
 export interface SettingsSelect<T extends boolean = true> {
-  vagasUrl?: T;
   whatsapp?: T;
   telefone?: T;
   email?: T;

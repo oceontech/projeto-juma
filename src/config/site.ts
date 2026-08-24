@@ -20,9 +20,6 @@ export const navLinks = [
   { key: 'contact', href: '/contato' },
 ] as const
 
-/** Link externo de vagas (Sólides), abre em nova aba. */
-export const jobsUrl = 'https://juma-agro.vagas.solides.com.br/'
-
 /** Canais de contato. */
 export const contact = {
   /** WhatsApp de conversão do site. */

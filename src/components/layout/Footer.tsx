@@ -4,7 +4,6 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import {
   navLinks,
-  jobsUrl,
   contact,
   socials,
   addresses,
@@ -77,16 +76,6 @@ export function Footer() {
                   </Link>
                 </li>
               ))}
-              <li>
-                <a
-                  href={jobsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-body-regular text-sm text-white/80 transition-colors hover:text-white"
-                >
-                  {t('jobs')}
-                </a>
-              </li>
             </ul>
           </nav>
 

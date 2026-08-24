@@ -7,12 +7,6 @@ export const Settings: GlobalConfig = {
   access: { read: () => true },
   fields: [
     {
-      name: 'vagasUrl',
-      type: 'text',
-      label: 'Link de vagas',
-      admin: { description: 'URL externa de vagas (Sólides). O botão da navbar usa este valor.' },
-    },
-    {
       type: 'row',
       fields: [
         {
