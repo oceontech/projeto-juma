@@ -1454,8 +1454,9 @@ function PhaseGotaLayout({ show, dir = 1, kicker, title, titleHi, titleHiOptions
 }
 
 function OrbitalCards({ items, mobile = false }: { items: PhaseItem[], mobile?: boolean }) {
-  // Container ainda menor para que os cards passem uns sobre os outros e sobre a esfera
-  const containerSize = mobile ? 'w-[140px]' : 'w-[200px]';
+  /* O raio precisa acompanhar a altura dos cards: com 3 itens a 120°, a distância
+     entre centros é raio × √3, e abaixo disso um card cobre o texto do vizinho. */
+  const containerSize = mobile ? 'w-[200px]' : 'w-[300px]';
 
   // O @keyframes e a regra .animate-orbit-path saíram daqui para o globals.css:
   // este <style> era reinjetado uma vez por instância de PhaseLayout, e a pausa
@@ -1481,7 +1482,7 @@ function OrbitalCards({ items, mobile = false }: { items: PhaseItem[], mobile?: 
               className="absolute animate-orbit-path hover:z-50"
               style={{ 
                 animationDelay: `${delay}s`,
-                '--orbit-radius': mobile ? '-70px' : '-100px' 
+                '--orbit-radius': mobile ? '-100px' : '-150px' 
               } as React.CSSProperties}
             >
               {/* `max-md:bg-white/75` + `max-md:backdrop-blur-none`: no celular
@@ -1490,7 +1491,7 @@ function OrbitalCards({ items, mobile = false }: { items: PhaseItem[], mobile?: 
                   fundo a cada frame — o pior caso de custo no iOS. O fundo mais
                   opaco entrega a mesma leitura sem reler o que está atrás. */}
               <div
-                className={`transition-all duration-300 ease-out hover:-translate-y-4 hover:-rotate-6 hover:scale-110 flex flex-col items-center gap-2 p-3 lg:p-4 rounded-xl bg-white/30 max-md:bg-white/75 backdrop-blur-md max-md:backdrop-blur-none border border-white/40 shadow-xl text-center cursor-default ${mobile ? 'w-[100px]' : 'w-[140px] xl:w-[160px]'}`}
+                className={`transition-all duration-300 ease-out hover:-translate-y-4 hover:-rotate-6 hover:scale-110 flex flex-col items-center gap-2 p-3 lg:p-4 rounded-xl bg-white/30 max-md:bg-white/75 backdrop-blur-md max-md:backdrop-blur-none border border-white/40 shadow-xl text-center cursor-default ${mobile ? 'w-[112px]' : 'w-[150px] xl:w-[168px]'}`}
               >
                 <div className={`flex items-center justify-center rounded-full bg-primary/10 text-primary ${mobile ? 'h-8 w-8' : 'h-10 w-10 xl:h-12 xl:w-12'}`}>
                   <PhaseIcon name={it.icon} className={mobile ? 'h-4 w-4' : 'h-5 w-5 xl:h-6 xl:w-6'} />
