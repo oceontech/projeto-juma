@@ -131,10 +131,10 @@ export function HomeExperience() {
     >
       <Container>
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-          {/* Visual — still da fábrica/galpão, no lugar do vídeo real (entra depois). */}
+          {/* Visual — foto do grupo no galpão, no lugar do vídeo real (entra depois). */}
           <div data-exp-visual className="relative rounded-[24px] overflow-hidden aspect-[4/3]">
             <Image
-              src="/experience/juma-experience-still.webp"
+              src="/experience/galpao-grupo.webp"
               alt={t('immersion')}
               fill
               sizes="(min-width: 1024px) 50vw, 100vw"

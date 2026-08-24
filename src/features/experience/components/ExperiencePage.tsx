@@ -393,29 +393,29 @@ export function ExperiencePage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-[60vh] md:h-[80vh]">
           {[
             {
-              src: '/experience/fabrica.webp',
-              alt: 'Tour pela fábrica e unidade de produção da Juma Agro',
+              src: '/experience/galpao-grupo.webp',
+              alt: 'Grupo da Juma Experience no galpão de produção, entre pallets de Acorda Ultra',
               caption: 'Tour pela Fábrica & Produção',
               span: 'col-span-2 row-span-2',
               sizes: '(min-width: 768px) 50vw, 100vw',
             },
             {
-              src: '/experience/laboratorio.webp',
-              alt: 'Laboratório de controle de qualidade e pesquisa de aminoácidos',
+              src: '/experience/casa-vegetacao.webp',
+              alt: 'Avaliação de mudas em bandejas na casa de vegetação da Juma-Agro',
               caption: 'Pesquisa & Laboratório',
               span: 'col-span-1',
               sizes: '(min-width: 768px) 25vw, 50vw',
             },
             {
-              src: '/experience/fundador.webp',
-              alt: 'Bate-papo técnico e tira-dúvidas diretamente no campo',
+              src: '/experience/bate-papo.webp',
+              alt: 'Time da Juma-Agro explicando a operação aos visitantes no estoque',
               caption: 'Bate-Papo & Tira-Dúvidas',
               span: 'col-span-1',
               sizes: '(min-width: 768px) 25vw, 50vw',
             },
             {
-              src: '/experience/campo.webp',
-              alt: 'Ensaios em campo e vivência em lavouras parceiras',
+              src: '/experience/ensaio-planta.webp',
+              alt: 'Técnico da Juma-Agro e produtor avaliando planta em ensaio',
               caption: 'Vivência & Ensaios na Lavoura',
               span: 'col-span-2',
               sizes: '(min-width: 768px) 50vw, 100vw',
