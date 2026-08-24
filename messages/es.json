@@ -616,15 +616,15 @@
         "stats": {
           "0": {
             "title": "Recuperación más rápida",
-            "label": "La planta vuelve a crecer tras el estrés"
+            "label": "Recuperación fisiológica tras el estrés"
           },
           "1": {
             "title": "Mayor absorción",
-            "label": "El aminoácido listo ahorra energía a la planta"
+            "label": "Aminoácidos de origen vegetal"
           },
           "2": {
             "title": "Mejor cuajado",
-            "label": "Sostiene la fase reproductiva"
+            "label": "Equilibrio entre parte aérea y sistema radicular"
           }
         }
       },
@@ -654,11 +654,11 @@
         "stats": {
           "0": {
             "title": "Acción desalojante",
-            "label": "Expone la plaga escondida al insecticida"
+            "label": "Mayor exposición del insecto al insecticida"
           },
           "1": {
-            "title": "Potasio en el caldo",
-            "label": "La aplicación que protege también nutre"
+            "title": "Fuentes de potasio",
+            "label": "Ayuda en el llenado de granos"
           },
           "2": {
             "title": "Validado en congresos",
@@ -672,16 +672,16 @@
         "description": "¡La Energía del Fósforo con la tecnología de los aminoácidos!",
         "stats": {
           "0": {
-            "title": "Energía inmediata",
-            "label": "Fósforo listo para que la planta lo use"
+            "title": "Fuente de energía",
+            "label": "Aporta energía en períodos de baja luminosidad"
           },
           "1": {
-            "title": "Metabolismo listo",
-            "label": "Aminoácidos como materia prima"
+            "title": "Metabolización",
+            "label": "Fósforo activado con aminoácidos"
           },
           "2": {
             "title": "Recuperación tras el estrés",
-            "label": "Helada, seca y planta detenida"
+            "label": "Plantas con vigor y sanidad"
           }
         }
       }

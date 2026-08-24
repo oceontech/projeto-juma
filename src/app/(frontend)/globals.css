@@ -1231,13 +1231,14 @@ html.lenis body { height: auto; }
     line-height: 1.25;
     max-width: none;
     margin-top: 0.1rem;
-    /* Altura travada em 2 linhas — sem isso o card estica pro tamanho do
-       maior label (flex-direction: row estica os irmãos), e como
-       .pcs-panel-stats ainda está no fluxo flex isso empurrava o CTA
-       (margin-top: auto) pra baixo de forma diferente por produto. */
-    min-height: 1.55rem;
+    /* Altura travada — sem isso o card estica pro tamanho do maior label
+       (flex-direction: row estica os irmãos), e como .pcs-panel-stats ainda
+       está no fluxo flex isso empurrava o CTA (margin-top: auto) pra baixo de
+       forma diferente por produto. São 4 linhas porque os labels descrevem o
+       benefício por extenso e em 2 linhas vinham cortados com reticências. */
+    min-height: 3.1rem;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 4;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }

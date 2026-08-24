@@ -616,15 +616,15 @@
         "stats": {
           "0": {
             "title": "Retomada mais rápida",
-            "label": "A planta volta a crescer depois do estresse"
+            "label": "Recuperação fisiológica pós-estresse"
           },
           "1": {
             "title": "Mais absorção",
-            "label": "Aminoácido pronto poupa energia da planta"
+            "label": "Aminoácidos de origem vegetal"
           },
           "2": {
             "title": "Melhor pegamento",
-            "label": "Sustenta a fase reprodutiva"
+            "label": "Equilíbrio entre parte aérea e sistema radicular"
           }
         }
       },
@@ -654,11 +654,11 @@
         "stats": {
           "0": {
             "title": "Ação desalojante",
-            "label": "Expõe a praga escondida ao inseticida"
+            "label": "Maior exposição do inseto ao inseticida"
           },
           "1": {
-            "title": "Potássio na calda",
-            "label": "A aplicação que protege também nutre"
+            "title": "Fontes de potássio",
+            "label": "Auxilia no enchimento de grãos"
           },
           "2": {
             "title": "Validado em congressos",
@@ -672,16 +672,16 @@
         "description": "A Energia do Fósforo com a tecnologia dos aminoácidos!",
         "stats": {
           "0": {
-            "title": "Energia imediata",
-            "label": "Fósforo pronto para a planta usar"
+            "title": "Fonte de energia",
+            "label": "Disponibiliza energia em períodos de baixa luminosidade"
           },
           "1": {
-            "title": "Metabolismo pronto",
-            "label": "Aminoácidos como matéria-prima"
+            "title": "Metabolização",
+            "label": "Fósforo ativado com aminoácidos"
           },
           "2": {
             "title": "Retomada após estresse",
-            "label": "Geada, veranico e planta travada"
+            "label": "Plantas com vigor e sanidade"
           }
         }
       }

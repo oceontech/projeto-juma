@@ -616,15 +616,15 @@
         "stats": {
           "0": {
             "title": "Faster recovery",
-            "label": "The plant grows again after stress"
+            "label": "Physiological recovery after stress"
           },
           "1": {
             "title": "More absorption",
-            "label": "Ready amino acid saves the plant energy"
+            "label": "Amino acids of plant origin"
           },
           "2": {
             "title": "Better fruit set",
-            "label": "Supports the reproductive stage"
+            "label": "Balance between canopy and root system"
           }
         }
       },
@@ -654,11 +654,11 @@
         "stats": {
           "0": {
             "title": "Dislodging action",
-            "label": "Exposes the hidden pest to the insecticide"
+            "label": "Greater insect exposure to the insecticide"
           },
           "1": {
-            "title": "Potassium in the tank",
-            "label": "The spray that protects also feeds"
+            "title": "Potassium sources",
+            "label": "Supports grain filling"
           },
           "2": {
             "title": "Validated at congresses",
@@ -672,16 +672,16 @@
         "description": "The Energy of Phosphorus with amino acid technology!",
         "stats": {
           "0": {
-            "title": "Immediate energy",
-            "label": "Phosphorus ready for the plant to use"
+            "title": "Energy source",
+            "label": "Delivers energy in low-light periods"
           },
           "1": {
-            "title": "Metabolism ready",
-            "label": "Amino acids as raw material"
+            "title": "Metabolization",
+            "label": "Phosphorus activated with amino acids"
           },
           "2": {
             "title": "Recovery after stress",
-            "label": "Frost, dry spell and stalled plant"
+            "label": "Plants with vigor and health"
           }
         }
       }
