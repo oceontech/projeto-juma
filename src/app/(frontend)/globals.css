@@ -1628,3 +1628,35 @@ html.lenis body { height: auto; }
 .hero-idle .leaf-sway-2 {
   will-change: auto;
 }
+
+/* ============================================================
+   Véu de carregamento — pulso da marca.
+   A marca fica parada no quadro 58 do Lottie e o pulso é CSS: o Lottie SVG roda
+   na main thread, e o pulso toca justamente quando a página nova monta. Uma
+   animação de `transform` roda no compositor e segue lisa com a main thread
+   ocupada. Reproduz a escala 100 → 104 → 100 do Lottie (quadros 58 a 120).
+   A classe vai no wrapper EXTERNO ao palco, nunca no elemento que o GSAP
+   transforma.
+   ============================================================ */
+.veil-pulse {
+  will-change: transform;
+  animation: veil-pulse 2.067s linear infinite;
+}
+@keyframes veil-pulse {
+  0% {
+    transform: scale(1);
+    animation-timing-function: cubic-bezier(0.333, 0, 0.667, 1);
+  }
+  53% {
+    transform: scale(1.04);
+    animation-timing-function: cubic-bezier(0.167, 0, 0.667, 1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .veil-pulse {
+    animation: none;
+  }
+}

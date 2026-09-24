@@ -17,7 +17,7 @@ import { useEffect, useRef, useState, type HTMLAttributes, type ReactNode, type 
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 
-import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
+import { gsap, ScrollTrigger, useGSAP, refreshWhenBooted } from '@/features/animation/gsap'
 import { createCharReveal } from '@/features/animation/charReveal'
 import { useLenis } from '@/features/animation/SmoothScroll'
 import { killMomentumScroll } from '@/features/animation/killMomentumScroll'
@@ -88,7 +88,7 @@ export function AminosanStory() {
       if (pendingRaf) return
       pendingRaf = window.requestAnimationFrame(() => {
         pendingRaf = 0
-        ScrollTrigger.refresh()
+        refreshWhenBooted()
       })
     }
 

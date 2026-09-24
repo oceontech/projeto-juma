@@ -6,10 +6,11 @@
  *
  * ── Duas coisas davam errado numa abertura solta no mount ───────────────
  *
- * 1. TEMPO. Onde existe tela de espera (hoje só a home, por causa do vídeo e do
- *    pôster em tela cheia), uma timeline que parte no mount roda inteira ATRÁS
- *    do overlay. Quando ele sai, a cascata já terminou e o usuário vê o título
- *    parado — ou pegando o finalzinho.
+ * 1. TEMPO. Uma timeline que parte no mount roda inteira ATRÁS do véu de
+ *    carregamento (`features/veil`), que cobre a tela no primeiro acesso e em
+ *    toda troca de página. Quando ele saísse, a cascata já teria terminado e o
+ *    usuário veria o título parado. Por isso a abertura espera `whenBooted()`:
+ *    ela começa junto com a cortina de saída do véu.
  *
  * 2. SENTIDO. `createCharReveal` decide a ORDEM da cascata pelo rastreador
  *    global de scroll: descendo, do primeiro caractere ao último; subindo, do
@@ -27,80 +28,40 @@
  */
 
 import { setScrollDirection } from './device'
-
-/** Sinal disparado pelo `Preloader` quando o overlay termina de sair. */
-export const PRELOADER_DONE_EVENT = 'preloader:done'
+import { isBooted, whenBooted } from '@/features/veil/boot'
 
 /**
- * `true` enquanto o overlay do preloader estiver cobrindo a tela.
+ * Executa `start` quando a página estiver pronta para se apresentar: quando o
+ * véu começar a sair, ou já no próximo quadro se ele não está de pé (troca de
+ * idioma, por exemplo).
  *
- * Vive no `window` porque quem escreve (o `Preloader`) e quem lê (cada página)
- * são componentes irmãos sem nenhum estado em comum, e o valor precisa
- * sobreviver a montagens/desmontagens de rota.
- */
-declare global {
-  interface Window {
-    __jumaPreloaderActive?: boolean
-  }
-}
-
-/** Marca o overlay como visível/oculto. Uso interno do `Preloader`. */
-export function setPreloaderActive(active: boolean) {
-  if (typeof window === 'undefined') return
-  window.__jumaPreloaderActive = active
-}
-
-/** `true` se o overlay está cobrindo a tela agora. */
-export function isPreloaderActive() {
-  if (typeof window === 'undefined') return false
-  return window.__jumaPreloaderActive === true
-}
-
-/**
- * Executa `start` quando a página estiver pronta para se apresentar: já no
- * próximo quadro se não há tela de espera (o caso de todas as páginas internas),
- * ou quando o overlay do preloader sair (home).
- *
- * @returns função de limpeza (remove listener e cancela o timeout de segurança).
+ * @returns função de limpeza (cancela a abertura pendente).
  */
 export function onPageEntrance(start: () => void): () => void {
   if (typeof window === 'undefined') return () => {}
 
   let done = false
-  let timeout: number | undefined
   let frame: number | undefined
 
   const fire = () => {
     if (done) return
     done = true
-    window.clearTimeout(timeout)
-    if (frame !== undefined) window.cancelAnimationFrame(frame)
-    window.removeEventListener(PRELOADER_DONE_EVENT, fire)
     /* Zera o sentido herdado da página anterior: a abertura corre para frente,
        e o primeiro scroll de verdade reescreve isto em seguida. */
     setScrollDirection(1)
     start()
   }
 
-  /* Sem overlay: nada a esperar. Um quadro de folga para o layout assentar
-     antes de o SplitText medir as linhas. */
-  if (!isPreloaderActive()) {
+  if (isBooted()) {
+    /* Sem véu de pé: nada a esperar. Um quadro de folga para o layout assentar
+       antes de o SplitText medir as linhas. */
     frame = window.requestAnimationFrame(fire)
-    return () => {
-      done = true
-      if (frame !== undefined) window.cancelAnimationFrame(frame)
-    }
+  } else {
+    void whenBooted().then(fire)
   }
-
-  window.addEventListener(PRELOADER_DONE_EVENT, fire, { once: true })
-  /* Rede de segurança: se o sinal se perder (overlay desmontado entre o render
-     e este efeito), a abertura não pode ficar parada para sempre. O limite
-     acompanha o teto do próprio preloader. */
-  timeout = window.setTimeout(fire, 2600)
 
   return () => {
     done = true
-    window.clearTimeout(timeout)
-    window.removeEventListener(PRELOADER_DONE_EVENT, fire)
+    if (frame !== undefined) window.cancelAnimationFrame(frame)
   }
 }

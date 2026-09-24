@@ -9,6 +9,8 @@ import { createCharReveal } from '@/features/animation/charReveal'
 import { onPageEntrance } from '@/features/animation/pageEntrance'
 import { DUR, EASE, FADE_Y, STAGGER } from '@/features/animation/motion'
 import { useLenis } from '@/features/animation/SmoothScroll'
+import { prepare } from '@/features/veil/boot'
+import { preloadHeroAssets } from '@/features/home/heroAssets'
 import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
 import { FlipFadeText } from '@/components/ui/flip-fade-text'
@@ -76,6 +78,11 @@ export function HeroJornada() {
   const [isMobile,  setIsMobile]  = useState(false)
   const [cap,       setCap]       = useState(0)
   const [isPaused,  setIsPaused]  = useState(true)
+
+  /* O véu de carregamento só sai depois do pôster decodificado e do vídeo com buffer. */
+  useEffect(() => {
+    void prepare(preloadHeroAssets())
+  }, [])
 
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches

@@ -20,7 +20,7 @@ import {
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
-import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
+import { gsap, ScrollTrigger, useGSAP, refreshWhenBooted } from '@/features/animation/gsap'
 import { killMomentumScroll, releaseMomentumLock } from '@/features/animation/killMomentumScroll'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { useLenis } from '@/features/animation/SmoothScroll'
@@ -441,7 +441,7 @@ export function HomeProductShowcase() {
         pendingRaf = window.requestAnimationFrame(runRefresh)
         return
       }
-      ScrollTrigger.refresh()
+      refreshWhenBooted()
     }
     const scheduleRefresh = () => {
       if (pendingRaf) return

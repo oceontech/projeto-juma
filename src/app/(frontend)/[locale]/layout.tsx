@@ -1,5 +1,6 @@
 import React from 'react'
 import { Montserrat, Space_Grotesk } from 'next/font/google'
+import { preload } from 'react-dom'
 import { NextIntlClientProvider, hasLocale } from 'next-intl'
 import { getMessages, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
@@ -7,7 +8,8 @@ import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
-import { Preloader } from '@/components/layout/Preloader'
+import { Veil } from '@/features/veil/Veil'
+import { RESET_SCROLL_SCRIPT, VEIL_SRC } from '@/features/veil/config'
 import { SmoothScroll } from '@/features/animation/SmoothScroll'
 import { MobileLogo } from '@/components/layout/MobileLogo'
 import '../globals.css'
@@ -71,12 +73,23 @@ export default async function LocaleLayout(props: {
   // Load messages for the NextIntlClientProvider
   const messages = await getMessages()
 
+  // Animação do véu: baixa em paralelo ao HTML. O crossOrigin precisa casar com o modo do fetch do Veil.
+  preload(VEIL_SRC, { as: 'fetch', crossOrigin: 'anonymous' })
+
   return (
     <html lang={locale} suppressHydrationWarning className={`${montserrat.variable} ${spaceGrotesk.variable}`}>
+      <head>
+        {/* Síncrono, antes da hidratação: posição de scroll restaurada corrompe os ScrollTriggers. */}
+        <script dangerouslySetInnerHTML={{ __html: RESET_SCROLL_SCRIPT }} />
+        {/* Sem JS o véu nunca sairia. */}
+        <noscript>
+          <style>{'#veil{display:none!important}body>*{visibility:visible!important}'}</style>
+        </noscript>
+      </head>
       <body suppressHydrationWarning className="flex min-h-[100dvh] w-full max-w-full flex-col overflow-x-hidden relative">
-        <Preloader />
         <NextIntlClientProvider messages={messages}>
           <SmoothScroll>
+            <Veil />
             <Navbar />
             <MobileLogo />
             <main id="main" className="flex-1 w-full max-w-full overflow-x-hidden">

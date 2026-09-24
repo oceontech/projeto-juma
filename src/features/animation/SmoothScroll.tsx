@@ -21,7 +21,7 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import Lenis from 'lenis'
 
-import { gsap, ScrollTrigger } from './gsap'
+import { gsap, ScrollTrigger, refreshWhenBooted } from './gsap'
 
 const LenisContext = createContext<Lenis | null>(null)
 
@@ -108,7 +108,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     // A troca de fonte (FOUT) reposiciona texto depois que os triggers já
     // mediram start/end. No mobile o Lenis não monta, então este refresh vive
     // aqui fora para valer nos dois casos.
-    document.fonts?.ready.then(() => ScrollTrigger.refresh())
+    document.fonts?.ready.then(refreshWhenBooted)
 
     return () => {
       window.removeEventListener('resize', onResize)
@@ -151,7 +151,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     gsap.ticker.add(raf)
     gsap.ticker.lagSmoothing(0)
 
-    const refresh = () => requestAnimationFrame(() => ScrollTrigger.refresh())
+    const refresh = () => requestAnimationFrame(refreshWhenBooted)
     if (document.readyState === 'complete') refresh()
     else window.addEventListener('load', refresh, { once: true })
     document.fonts?.ready.then(refresh)
