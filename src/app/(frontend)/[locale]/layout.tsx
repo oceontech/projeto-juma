@@ -83,7 +83,7 @@ export default async function LocaleLayout(props: {
         <script dangerouslySetInnerHTML={{ __html: RESET_SCROLL_SCRIPT }} />
         {/* Sem JS o véu nunca sairia. */}
         <noscript>
-          <style>{'#veil{display:none!important}body>*{visibility:visible!important}'}</style>
+          <style>{'#veil{display:none!important}'}</style>
         </noscript>
       </head>
       <body suppressHydrationWarning className="flex min-h-[100dvh] w-full max-w-full flex-col overflow-x-hidden relative">

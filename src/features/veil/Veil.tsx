@@ -1,25 +1,22 @@
 'use client'
 
 /**
- * Véu de carregamento global: primeiro acesso e toda troca de página interna.
+ * Véu de carregamento global, em dois modos.
  *
- * Ordem, e ela importa: cobre, mostra a marca, monta a página nova, prepara o
- * trabalho pesado, sai. Montar a página, cenas de canvas e amostragem de imagem
- * são main thread puro. Rodando durante o ENTRY, a marca trava; rodando na
- * saída, a cortina congela. Por isso a rota só muda depois do ENTRY, e o
- * trabalho pesado acontece com a marca parada, pulsando por CSS (compositor).
+ * PRIMEIRO ACESSO e F5: véu com a marca Lottie. O véu já vem opaco no HTML do
+ * servidor; a marca se monta (ENTRY, quadros 0 a 58), fica parada no 58 pulsando
+ * por CSS enquanto `load`, fontes, imagens da primeira dobra e o trabalho
+ * registrado em `prepare()` assentam (mínimo de 800 ms, teto de 8 s), e sai em
+ * cortina. A ordem importa: hidratação e trabalho pesado são main thread puro;
+ * rodando durante o ENTRY, a marca travaria. O pulso é CSS (compositor) e segue
+ * liso com a main thread ocupada.
  *
- *   1. clique interno interceptado; o véu faz fade-in (0,25 s)
- *   2. ENTRY da marca (quadros 0 a 58) com a página antiga parada
- *   3. rolagem a zero, com o véu opaco, e SÓ ENTÃO a rota muda
- *   4. marca pulsa em CSS; a página nova monta atrás. Espera: mínimo de 800 ms
- *      desde o começo do ENTRY, fontes, imagens da primeira dobra e o trabalho
- *      registrado em `prepare()`. Teto de 8 s
- *   5. cortina: a marca sobe e some, o véu sobe. Quem revela a página é a borda
- *      de baixo passando
+ * TROCA INTERNA (clique, voltar/avançar): cortina rápida, sem marca. O véu
+ * branco cobre, a rolagem vai a zero, a rota muda, e a cortina sobe quando a
+ * página nova montou e assentou. O hero da página nova entra junto com a saída.
  *
- * Primeiro acesso: mesma sequência, sem trocar de rota. O véu já vem opaco no
- * HTML do servidor.
+ * Quem faz trabalho pesado ou animação de entrada fala com os portões de
+ * `./boot` (`prepare`, `whenCovered`, `whenBooted`).
  */
 import { useEffect, useRef } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
@@ -91,7 +88,6 @@ export function Veil() {
   const lenis = useLenis()
 
   const veilRef = useRef<HTMLDivElement>(null)
-  const holdRef = useRef<HTMLStyleElement>(null)
   const pulseRef = useRef<HTMLDivElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
   const routerRef = useRef(router)
@@ -120,7 +116,6 @@ export function Veil() {
     const veil = veilRef.current
     const stage = stageRef.current
     const pulse = pulseRef.current
-    const hold = holdRef.current
     if (!veil || !stage || !pulse) return
 
     const token = ++session.token
@@ -129,27 +124,31 @@ export function Veil() {
     let anim = null as AnimationItem | null
     let exitTl = null as gsap.core.Timeline | null
 
+    /* ── Marca (só no primeiro acesso e no F5) ─────────────────────────── */
+
     // Centraliza por GSAP: o palco vertical é mais alto que a tela, e o desenho
     // fica 0,93% da altura da composição abaixo do centro.
     gsap.set(stage, { xPercent: -50, yPercent: -50.93 })
 
-    const ready: Promise<boolean> = Promise.all([playerPromise, dataPromise])
-      .then(([lottie, data]) => {
-        if (!alive() || !lottie || !data) return false
-        anim = lottie.loadAnimation({
-          container: stage,
-          renderer: 'svg',
-          loop: false,
-          autoplay: false,
-          animationData: data,
-          // Monta os elementos aos poucos: o pico do primeiro quadro cai bastante.
-          rendererSettings: { progressiveLoad: true },
-        })
-        anim.setSpeed(ENTRY_SPEED)
-        anim.goToAndStop(isReduced() ? ENTRY_END_FRAME : 0, true)
-        return true
-      })
-      .catch(() => false)
+    const ready: Promise<boolean> = session.firstDone
+      ? Promise.resolve(false)
+      : Promise.all([playerPromise, dataPromise])
+          .then(([lottie, data]) => {
+            if (!alive() || !lottie || !data) return false
+            anim = lottie.loadAnimation({
+              container: stage,
+              renderer: 'svg',
+              loop: false,
+              autoplay: false,
+              animationData: data,
+              // Monta os elementos aos poucos: o pico do primeiro quadro cai bastante.
+              rendererSettings: { progressiveLoad: true },
+            })
+            anim.setSpeed(ENTRY_SPEED)
+            anim.goToAndStop(isReduced() ? ENTRY_END_FRAME : 0, true)
+            return true
+          })
+          .catch(() => false)
 
     /* ENTRY: quadros 0 a 58. `stop.cancelled` impede um ENTRY tardio de começar
        depois que o timeout de segurança já mandou seguir. */
@@ -176,32 +175,12 @@ export function Veil() {
         setTimeout(done, (ENTRY_END_FRAME / 30 / ENTRY_SPEED) * 1000 + 600)
       })
 
-    // A marca fica PARADA no quadro 58; o pulso é CSS, que roda no compositor
-    // e segue liso com a main thread ocupada montando a página nova.
+    // A marca fica PARADA no quadro 58; o pulso é CSS, que roda no compositor.
     const pulseOn = () => {
       if (!isReduced()) pulse.classList.add('veil-pulse')
     }
-    const pulseOff = () => pulse.classList.remove('veil-pulse')
 
-    const cover = (instant: boolean) =>
-      new Promise<void>((resolve) => {
-        mark('cover')
-        exitTl?.kill()
-        gsap.set(veil, { yPercent: 0 })
-        gsap.set(stage, { opacity: 1, y: 0 })
-        veil.style.pointerEvents = 'auto'
-        if (instant) {
-          gsap.set(veil, { autoAlpha: 1 })
-          return resolve()
-        }
-        gsap.to(veil, { autoAlpha: 1, duration: 0.25, ease: 'power1.out', onComplete: resolve })
-      })
-
-    /** Recomeça a marca do zero: página de destino, novo ENTRY. */
-    const rewind = (atEntryEnd = false) => {
-      pulseOff()
-      anim?.goToAndStop(atEntryEnd || isReduced() ? ENTRY_END_FRAME : 0, true)
-    }
+    /* ── Sequência comum ───────────────────────────────────────────────── */
 
     const waitPathChange = () =>
       new Promise<void>((resolve) => {
@@ -209,19 +188,19 @@ export function Veil() {
       })
 
     /** O que o véu espera antes de sair, com teto contra rede ruim. */
-    const settle = async (entryStart: number, deadlineAt: number, waitLoad: boolean) => {
+    const settle = async (minMs: number, t0: number, waitLoad: boolean) => {
       const gates = Promise.all([
-        delay(MIN_HOLD_MS - (performance.now() - entryStart)),
+        delay(minMs),
         document.fonts?.ready,
         waitLoad ? windowLoaded() : null,
         firstFoldImages(),
         whenPrepared(),
       ])
-      await Promise.race([gates, delay(deadlineAt - performance.now())])
+      await Promise.race([gates, delay(t0 + CAP_MS - performance.now())])
     }
 
     /** Saída em cortina. O `refresh` é síncrono e caro: roda com o véu opaco e ANTES da saída. */
-    const exit = () =>
+    const exit = (withMark: boolean) =>
       new Promise<void>((resolve) => {
         ScrollTrigger.refresh()
 
@@ -229,7 +208,10 @@ export function Veil() {
           gsap.set(veil, { autoAlpha: 0, yPercent: 0 })
           gsap.set(stage, { opacity: 1, y: 0 })
           veil.style.pointerEvents = 'none'
-          pulseOff()
+          pulse.classList.remove('veil-pulse')
+          // A marca não volta mais: libera o SVG.
+          anim?.destroy()
+          anim = null
           unlockScroll()
           lenisRef.current?.start()
           phase = 'idle'
@@ -251,48 +233,60 @@ export function Veil() {
           if (isReduced()) {
             exitTl.to(veil, { autoAlpha: 0, duration: 0.3, ease: 'power1.out' })
           } else {
-            exitTl.to(stage, { y: '-12vh', opacity: 0, duration: 0.5, ease: 'power2.in' }, 0)
-            exitTl.to(veil, { yPercent: -100, duration: 0.9, ease: 'power4.inOut' }, 0.1)
+            if (withMark) {
+              exitTl.to(stage, { y: '-12vh', opacity: 0, duration: 0.5, ease: 'power2.in' }, 0)
+            }
+            exitTl.to(veil, { yPercent: -100, duration: 0.9, ease: 'power4.inOut' }, withMark ? 0.1 : 0)
           }
           // A entrada do hero da página nova começa junto com a saída.
           markBooted()
         })
       })
 
-    /** Passos 2 a 5, a partir do ENTRY. `routeChange` dispara a troca de rota (ou nada, no popstate). */
-    const run = async (
-      t0: number,
-      routeChange: (() => Promise<void>) | null,
-      skipEntry = false,
-    ) => {
+    /* ── Primeiro acesso / F5: véu com a marca ─────────────────────────── */
+
+    const firstAccess = async () => {
+      phase = 'busy'
+      const t0 = performance.now()
+      lockScroll()
+      const stop = { cancelled: false }
+      /* A hidratação e os re-renders em cascata dos efeitos são main thread puro e
+         travariam a marca. O ENTRY espera a main thread ficar ociosa. */
+      await Promise.race([Promise.all([ready, whenIdle(1500)]), delay(ENTRY_TIMEOUT_MS + 1500)])
+      if (!alive()) return
       const entryStart = performance.now()
-      const stop = { cancelled: skipEntry }
-      if (!skipEntry) {
-        mark('entry-start')
-        await Promise.race([
-          ready.then(() => playEntry(stop)),
-          delay(ENTRY_TIMEOUT_MS - (entryStart - t0)),
-        ])
-        stop.cancelled = true
-        if (!alive()) return
-        mark('entry-end')
-      }
+      mark('entry-start')
+      await Promise.race([ready.then(() => playEntry(stop)), delay(ENTRY_TIMEOUT_MS)])
+      stop.cancelled = true
+      if (!alive()) return
       anim?.goToAndStop(ENTRY_END_FRAME, true)
       pulseOn()
+      mark('entry-end')
+      // A página já montou atrás do véu: os componentes pesados podem começar.
+      markCovered()
+      mark('covered')
+      await settle(MIN_HOLD_MS - (performance.now() - entryStart), t0, true)
+      if (!alive()) return
+      await exit(true)
+    }
 
+    /* ── Troca interna: cortina rápida, sem marca ──────────────────────── */
+
+    /** Depois de coberto: rola a zero, muda a rota (ou espera ela mudar) e espera a página assentar. */
+    const swap = async (t0: number, changeRoute: () => Promise<void>) => {
       // Rolagem a zero com o véu opaco, e SÓ ENTÃO a rota muda.
       pin(0)
       lenisRef.current?.scrollTo(0, { immediate: true, force: true })
-      await routeChange?.()
+      holdBoot()
+      await changeRoute()
       if (!alive()) return
       mark('route')
-
       await nextPaint()
       markCovered()
       mark('covered')
-      await settle(entryStart, t0 + CAP_MS, false)
+      await settle(0, t0, false)
       if (!alive()) return
-      await exit()
+      await exit(false)
     }
 
     const navigate = async (href: string) => {
@@ -300,39 +294,36 @@ export function Veil() {
       const t0 = performance.now()
       lockScroll()
       lenisRef.current?.stop()
-      await cover(false)
+      mark('cover')
+      exitTl?.kill()
+      gsap.set(veil, { yPercent: 0 })
+      veil.style.pointerEvents = 'auto'
+      await new Promise<void>((resolve) =>
+        gsap.to(veil, { autoAlpha: 1, duration: 0.25, ease: 'power1.out', onComplete: resolve }),
+      )
       if (!alive()) return
-      rewind()
-      await run(t0, async () => {
-        holdBoot()
+      await swap(t0, async () => {
         const changed = waitPathChange()
         routerRef.current.push(href)
         await Promise.race([changed, delay(t0 + CAP_MS - performance.now())])
       })
     }
 
-    /** Voltar/avançar: a rota já está mudando. Cobre de uma vez e segue do passo 3. */
+    /** Voltar/avançar: a rota já está mudando. Cobre de uma vez e segue dali. */
     const onPopState = () => {
       if (phase !== 'idle' || window.location.pathname === pathRef.current) return
       phase = 'busy'
       const t0 = performance.now()
-      holdBoot()
       lockScroll()
       lenisRef.current?.stop()
+      mark('cover')
       gsap.set(veil, { yPercent: 0, autoAlpha: 1 })
-      gsap.set(stage, { opacity: 1, y: 0 })
       veil.style.pointerEvents = 'auto'
-      /* Sem ENTRY: o Next já está commitando a rota, e montar a marca junto com
-         esse trabalho a travaria. A marca entra pronta, no quadro 58, e pulsa. */
-      rewind(true)
       const changed = waitPathChange()
-      void run(
-        t0,
-        async () => {
-          await Promise.race([changed, delay(t0 + CAP_MS - performance.now())])
-        },
-        true,
-      )
+      // O Next só commita a rota depois deste handler, então `holdBoot` (dentro de `swap`) chega antes da página nova.
+      void swap(t0, async () => {
+        await Promise.race([changed, delay(t0 + CAP_MS - performance.now())])
+      })
     }
 
     const onClick = (e: MouseEvent) => {
@@ -367,39 +358,7 @@ export function Veil() {
     window.addEventListener('click', onClick, true)
     window.addEventListener('popstate', onPopState)
 
-    // Primeiro acesso: o véu já veio opaco no HTML. ENTRY uma vez, segura e pulsa até
-    // `load` + fontes + preparo, e sai pela mesma cortina.
-    if (!session.firstDone) {
-      phase = 'busy'
-      const t0 = performance.now()
-      lockScroll()
-      void (async () => {
-        const stop = { cancelled: false }
-        /* A hidratação e os re-renders em cascata dos efeitos são main thread puro e
-           travariam a marca. O ENTRY espera a main thread ficar ociosa. */
-        await Promise.race([Promise.all([ready, whenIdle(1500)]), delay(ENTRY_TIMEOUT_MS + 1500)])
-        if (!alive()) return
-        const entryStart = performance.now()
-        mark('entry-start')
-        await Promise.race([ready.then(() => playEntry(stop)), delay(ENTRY_TIMEOUT_MS)])
-        stop.cancelled = true
-        if (!alive()) return
-        anim?.goToAndStop(ENTRY_END_FRAME, true)
-        pulseOn()
-        mark('entry-end')
-        /* Até aqui o conteúdo por baixo ficou `visibility: hidden`: o raster e a
-           decodificação do hero (GPU) disputavam quadros com o ENTRY. Agora que
-           a marca só pulsa (CSS, no compositor), a página pode ser pintada. */
-        if (hold) hold.media = 'not all'
-        // A página já montou atrás do véu: os componentes pesados podem começar.
-        markCovered()
-        mark('covered')
-        await nextPaint()
-        await settle(entryStart, t0 + CAP_MS, true)
-        if (!alive()) return
-        await exit()
-      })()
-    }
+    if (!session.firstDone) void firstAccess()
 
     return () => {
       window.removeEventListener('click', onClick, true)
@@ -416,12 +375,6 @@ export function Veil() {
   }, [])
 
   return (
-    <>
-    {!session.firstDone && (
-      /* Primeiro acesso: o conteúdo por baixo fica sem pintar até o ENTRY terminar
-         (o efeito o desliga por `media`, sem mexer no DOM que o React gerencia). */
-      <style ref={holdRef}>{'body>*:not(#veil){visibility:hidden}'}</style>
-    )}
     <div
       id="veil"
       ref={veilRef}
@@ -451,6 +404,5 @@ export function Veil() {
         />
       </div>
     </div>
-    </>
   )
 }

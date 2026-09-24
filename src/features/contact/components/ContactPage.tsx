@@ -286,7 +286,7 @@ export function ContactPage() {
 
         {/* Informações */}
         <div data-contact-sidebar className="lg:w-1/3 flex flex-col gap-8">
-          <div className="p-8 rounded-3xl bg-foreground/5 border border-foreground/10 flex flex-col gap-8">
+          <div className="p-6 sm:p-8 rounded-3xl bg-foreground/5 border border-foreground/10 flex flex-col gap-8">
             <a data-contact-item href="https://wa.me/5519999648186" target="_blank" rel="noopener noreferrer" className="flex items-start gap-4 group">
               <div className="shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-primary text-white shadow-md group-hover:scale-110 transition-transform">
                 <WhatsAppIcon className="h-5 w-5" />
@@ -311,10 +311,23 @@ export function ContactPage() {
               <div className="shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-white text-primary shadow-sm border border-foreground/10">
                 <MailIcon className="h-5 w-5" />
               </div>
-              <div>
-                <b className="block text-lg font-bold text-foreground">marketing@juma-agro.com.br</b>
-                <span className="text-sm text-foreground/60 leading-tight">{t('emailSubtitle')}</span>
-              </div>
+              <ul className="min-w-0 flex-1 flex flex-col gap-4">
+                {[
+                  { address: 'marketing@juma-agro.com.br', label: t('emailSubtitle') },
+                  { address: 'analucia@juma-agro.com.br', label: t('emailPurchasing') },
+                  { address: 'rh@juma-agro.com.br', label: t('emailHr') },
+                ].map(({ address, label }) => (
+                  <li key={address} className="min-w-0">
+                    <span className="block text-xs font-bold uppercase tracking-wider text-primary leading-snug">{label}</span>
+                    <a
+                      href={`mailto:${address}`}
+                      className="block break-words text-sm sm:text-lg font-bold text-foreground hover:text-primary transition-colors"
+                    >
+                      {address}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
 
             <div data-contact-item className="flex items-start gap-4">
