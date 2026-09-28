@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { AdminViewServerProps, PayloadRequest } from 'payload'
 
 import { LEAD_FORMS as FORMS, statusMeta } from './leadMeta'
+import { Flag } from './ui/Flag'
 
 /**
  * Visão geral do painel (views.dashboard). Números reais de leads e conteúdo.
@@ -266,7 +267,7 @@ export async function Dashboard({ initPageResult }: AdminViewServerProps) {
                     <tr key={l.id}>
                       <td>
                         <Link href={`/admin/collections/leads/${l.id}`} className="jd-person">
-                          <span className={`jd-flag jd-flag--${l.site}`}>{l.site === 'br' ? 'BR' : 'US'}</span>
+                          <Flag site={l.site} size={34} />
                           <span>
                             <b>{l.nome}</b>
                             <small>{l.empresa || l.geo?.regiao || (l.site === 'br' ? 'Brasil' : 'Estados Unidos')}</small>
@@ -304,7 +305,10 @@ export async function Dashboard({ initPageResult }: AdminViewServerProps) {
               const pct = last30.length ? Math.round((bySite[s] / last30.length) * 100) : 0
               return (
                 <div key={s}>
-                  <span className="jd-muted-light">{s === 'br' ? 'Brasil' : 'Estados Unidos'}</span>
+                  <span className="jd-muted-light jd-site-label">
+                    <Flag site={s} size={16} />
+                    {s === 'br' ? 'Brasil' : 'Estados Unidos'}
+                  </span>
                   <strong>
                     {fmt.format(bySite[s])} <small>{pct}%</small>
                   </strong>

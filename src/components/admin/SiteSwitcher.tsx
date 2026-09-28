@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import { Dropdown } from './ui/Dropdown'
+import { Flag } from './ui/Flag'
 
 /**
  * Seletor "Todos / Brasil / EUA" no topo da sidebar. Grava a escolha num
@@ -15,10 +16,19 @@ import { Dropdown } from './ui/Dropdown'
 const COOKIE = 'painel_site'
 type Choice = 'todos' | 'br' | 'us'
 
+function Globe() {
+  return (
+    <svg className="juma-globe" viewBox="0 0 24 24" aria-hidden>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z" />
+    </svg>
+  )
+}
+
 const OPTIONS = [
-  { value: 'todos' as const, label: 'Todos os sites', dot: '#a1a1aa' },
-  { value: 'br' as const, label: 'Juma Brasil', dot: '#22c55e' },
-  { value: 'us' as const, label: 'Juma EUA', dot: '#3b82f6' },
+  { value: 'todos' as const, label: 'Todos os sites', icon: <Globe /> },
+  { value: 'br' as const, label: 'Juma Brasil', icon: <Flag site="br" size={18} /> },
+  { value: 'us' as const, label: 'Juma EUA', icon: <Flag site="us" size={18} /> },
 ]
 
 function readCookie(): Choice {
@@ -48,7 +58,7 @@ export function SiteSwitcher() {
 
   const trigger = (
     <>
-      <span className="juma-site__dot" style={{ background: meta.dot }} />
+      {meta.icon}
       <span className="juma-site__text">{meta.label}</span>
       {!single && (
         <svg className="jdd__chevron" viewBox="0 0 24 24" aria-hidden>

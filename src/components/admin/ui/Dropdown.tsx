@@ -9,8 +9,10 @@ import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 export type DropdownOption<T extends string> = {
   value: T
   label: string
-  /** Bolinha colorida ou ícone curto à esquerda. */
+  /** Bolinha colorida à esquerda. */
   dot?: string
+  /** Ícone à esquerda (ex.: bandeira); tem prioridade sobre `dot`. */
+  icon?: ReactNode
   hint?: string
 }
 
@@ -114,7 +116,7 @@ export function Dropdown<T extends string>({
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => pick(o.value)}
             >
-              {o.dot && <span className="jdd__dot" style={{ background: o.dot }} />}
+              {o.icon ?? (o.dot && <span className="jdd__dot" style={{ background: o.dot }} />)}
               <span className="jdd__option-text">
                 {o.label}
                 {o.hint && <small>{o.hint}</small>}

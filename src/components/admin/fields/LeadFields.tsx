@@ -4,6 +4,7 @@ import { useField } from '@payloadcms/ui'
 import type { SelectFieldClientComponent } from 'payload'
 
 import { LEAD_FORMS, LEAD_STATUS, SITE_META } from '../leadMeta'
+import { Flag } from '../ui/Flag'
 
 /** Status do lead como botões: um clique troca o status (salva ao salvar o lead). */
 export const LeadStatusField: SelectFieldClientComponent = ({ path, readOnly }) => {
@@ -44,9 +45,7 @@ export const LeadSiteField: SelectFieldClientComponent = ({ path }) => {
     <div className="jf">
       <span className="jf-label">Site de origem</span>
       <span className="jf-badge">
-        <span className="jf-badge__flag" style={{ background: site.gradient }}>
-          {site.short}
-        </span>
+        <Flag site={value ?? 'br'} size={24} />
         {site.label}
       </span>
     </div>

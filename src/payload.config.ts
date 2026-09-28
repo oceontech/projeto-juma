@@ -39,7 +39,7 @@ export default buildConfig({
         '/components/admin/SiteSwitcher#SiteSwitcher',
         '/components/admin/NavOverview#NavOverview',
       ],
-      afterNavLinks: ['/components/admin/NavAccount#NavAccount'],
+      logout: { Button: '/components/admin/NavAccount#NavAccount' },
       views: {
         dashboard: { Component: '/components/admin/Dashboard#Dashboard' },
       },

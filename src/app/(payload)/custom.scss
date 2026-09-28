@@ -46,9 +46,23 @@ html[data-theme='light'] {
     linear-gradient(160deg, #06110a 0%, #050806 60%, #040504 100%);
 }
 
-html,
+// Fundo numa camada fixa só: com o gradiente em html e body ao mesmo tempo,
+// as duas camadas se somavam e aparecia uma faixa mais clara ao rolar.
+html {
+  background: #050806;
+}
+
 body {
-  background: var(--juma-bg) fixed;
+  background: transparent;
+
+  &::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: var(--juma-bg);
+    pointer-events: none;
+  }
 }
 
 body {
@@ -131,10 +145,11 @@ h3 {
 
   @media (max-width: 1024px) {
     background: var(--juma-bg);
+    background-attachment: fixed;
   }
 
   .nav__scroll {
-    padding: 18px 12px 12px;
+    padding: 18px 12px 0;
   }
 
   .nav__header {
@@ -229,9 +244,29 @@ h3 {
     display: none;
   }
 
+  // Conta + sair: sempre visíveis no pé da sidebar, mesmo com a lista rolada.
+  // O fundo fixo repete o gradiente da página, então não aparece emenda.
   .nav__controls {
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    align-self: stretch;
+    margin-top: auto;
+    padding: 10px 0 12px;
+    gap: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    background: var(--juma-bg);
+    background-attachment: fixed;
     color: #a1a1aa;
+
+    > :first-child {
+      margin-top: 0;
+    }
+
+    // Menu de configurações do Payload (vazio aqui)
+    > :not(.juma-account):empty {
+      display: none;
+    }
   }
 
   .nav__log-out {
@@ -336,11 +371,16 @@ h3 {
 }
 
 .juma-account {
-  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
 }
 
 .juma-account__card {
   display: flex;
+  flex: 1;
+  min-width: 0;
   align-items: center;
   gap: 10px;
   padding: 6px;
@@ -364,10 +404,52 @@ h3 {
   font-size: 12px;
 }
 
+.juma-account__avatar {
+  flex: none;
+}
+
+.juma-account__logout {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  color: #71717a;
+
+  svg {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.12);
+    color: #fca5a5;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #22c55e;
+    outline-offset: 1px;
+  }
+}
+
 .juma-account__text {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   line-height: 1.25;
+
+  b,
+  small {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
 
   b {
     color: #f4f4f5;
@@ -1130,23 +1212,10 @@ textarea {
   }
 }
 
-.jd-flag {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #fff;
-
-  &--br {
-    background: linear-gradient(145deg, #22c55e, #15803d);
-  }
-
-  &--us {
-    background: linear-gradient(145deg, #60a5fa, #1d4ed8);
-  }
+.jd-site-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
 }
 
 .jd-pill {
@@ -1474,23 +1543,17 @@ textarea {
   height: 40px;
   flex: none;
   border-radius: 999px;
-  color: #fff;
+  background: #eef2ef;
+  color: #1f3a2a;
   font-size: 12.5px;
   letter-spacing: 0.02em;
   font-weight: 700;
 
-  i {
+  .jl-avatar__flag {
     position: absolute;
-    right: -7px;
-    bottom: -5px;
-    padding: 1px 4px;
-    border-radius: 999px;
-    background: #fff;
-    color: var(--juma-ink);
-    font-size: 8.5px;
-    font-style: normal;
-    font-weight: 700;
-    box-shadow: 0 0 0 1px var(--juma-line);
+    right: -3px;
+    bottom: -3px;
+    box-shadow: 0 0 0 2px #fff !important;
   }
 }
 
@@ -1853,21 +1916,11 @@ textarea {
   font-size: 13.5px;
   font-weight: 500;
 
-  &:not(:has(.jf-badge__flag)) {
+  &:not(:has(.juma-flag)) {
     padding-left: 12px;
   }
 }
 
-.jf-badge__flag {
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 999px;
-  color: #fff;
-  font-size: 9.5px;
-  font-weight: 700;
-}
 
 .jf-date__trigger {
   display: flex;
@@ -2180,6 +2233,25 @@ textarea {
   }
 }
 
+// Menu mobile aberto: o botão de fechar vai para a direita, longe da logo.
+@media (max-width: 1024px) {
+  .nav .nav__header {
+    width: 100%;
+    pointer-events: none;
+  }
+
+  .nav .nav__header-content {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 20px 14px 0 0;
+
+    > * {
+      pointer-events: auto;
+    }
+  }
+}
+
 // A barra de luz do item ativo passa da borda: sem rolagem lateral na sidebar.
 .nav .nav__scroll {
   overflow-x: hidden;
@@ -2207,4 +2279,20 @@ textarea {
     font-weight: 600;
     font-variant-numeric: tabular-nums;
   }
+}
+
+// Globo do seletor de site (opção "Todos")
+.juma-globe {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  opacity: 0.8;
+}
+
+.jdd__option .juma-flag,
+.jdd__trigger .juma-flag {
+  flex: none;
 }

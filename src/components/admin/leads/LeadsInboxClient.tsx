@@ -7,6 +7,7 @@ import { useEffect, useState, useTransition } from 'react'
 
 import { LEAD_FORMS, LEAD_STATUS, SITE_META, relativeDate, statusMeta, type LeadStatus } from '../leadMeta'
 import { Dropdown } from '../ui/Dropdown'
+import { Flag } from '../ui/Flag'
 
 export type InboxLead = {
   id: number
@@ -152,9 +153,9 @@ export function LeadsInboxClient({ leads, counts, currentStatus, search, page, t
             return (
               <li key={lead.id} className="jl-row">
                 <Link href={`/admin/collections/leads/${lead.id}`} className="jl-row__main">
-                  <span className="jl-avatar" style={{ background: site.gradient }} title={site.label}>
+                  <span className="jl-avatar" title={site.label}>
                     {initials(lead.nome)}
-                    <i>{site.short}</i>
+                    <Flag site={lead.site} size={17} className="jl-avatar__flag" />
                   </span>
                   <span className="jl-row__who">
                     <b>
