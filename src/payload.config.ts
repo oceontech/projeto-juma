@@ -1,8 +1,9 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import { pt } from '@payloadcms/translations/languages/pt'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
-import { buildConfig } from 'payload'
+import { buildConfig, type Payload } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
@@ -48,30 +49,58 @@ export default buildConfig({
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
+  // Banco exclusivo do painel (Neon "juma-painel", via Marketplace da Vercel).
+  // O nome tem prefixo para nunca cair no DATABASE_URL antigo, que é de outra aplicação.
+  // O schema só muda por migrations (src/migrations): `npm run migrate:create` e `npm run migrate`.
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URL || '',
+      connectionString: process.env.PAYLOAD_DATABASE_URL || '',
     },
+    push: false,
+    migrationDir: path.resolve(dirname, 'migrations'),
   }),
   sharp,
-  plugins: [],
+  plugins: [
+    // Uploads da coleção Media no Vercel Blob (store "juma-painel-midia").
+    vercelBlobStorage({
+      enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+      // Toda a mídia do site é pública: a URL aponta direto para a CDN do Blob,
+      // sem passar pelo servidor do Payload (a opção vale por coleção).
+      collections: { media: { disablePayloadAccessControl: true } },
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    }),
+  ],
   // Usuários criados antes dos papéis existirem ficam sem acesso. Se não houver
   // nenhum admin, o usuário mais antigo vira admin dos dois sites.
   onInit: async (payload) => {
-    const { totalDocs } = await payload.count({
-      collection: 'users',
-      where: { papel: { equals: 'admin' } },
-      overrideAccess: true,
-    })
-    if (totalDocs > 0) return
-    const { docs } = await payload.find({ collection: 'users', sort: 'createdAt', limit: 1, overrideAccess: true })
-    if (!docs[0]) return
-    await payload.update({
-      collection: 'users',
-      id: docs[0].id,
-      data: { papel: 'admin', sites: ['br', 'us'] },
-      overrideAccess: true,
-    })
-    payload.logger.info(`Papel admin atribuído a ${docs[0].email}`)
+    try {
+      await promoteFirstAdmin(payload)
+    } catch (err) {
+      // Banco ainda sem as tabelas (antes da primeira migration): nada a fazer.
+      payload.logger.warn({ err, msg: 'onInit: verificação de admin ignorada' })
+    }
   },
 })
+
+async function promoteFirstAdmin(payload: Payload) {
+  const { totalDocs } = await payload.count({
+    collection: 'users',
+    where: { papel: { equals: 'admin' } },
+    overrideAccess: true,
+  })
+  if (totalDocs > 0) return
+  const { docs } = await payload.find({
+    collection: 'users',
+    sort: 'createdAt',
+    limit: 1,
+    overrideAccess: true,
+  })
+  if (!docs[0]) return
+  await payload.update({
+    collection: 'users',
+    id: docs[0].id,
+    data: { papel: 'admin', sites: ['br', 'us'] },
+    overrideAccess: true,
+  })
+  payload.logger.info(`Papel admin atribuído a ${docs[0].email}`)
+}

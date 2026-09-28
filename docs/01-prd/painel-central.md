@@ -403,12 +403,16 @@ site EUA (Vercel · app Next 16 separado)
 >   - REST público de criação fechado.
 >   - Painel com status, responsável e notas, em português.
 >   - Testes em `tests/int/leads.int.spec.ts`.
+> - **Feito: infraestrutura na Vercel.**
+>   - Neon `juma-painel` (iad1), lido de `PAYLOAD_DATABASE_URL`, com migration inicial aplicada.
+>   - Blob público `juma-painel-midia`; a mídia sai direto da CDN.
+>   - Chave dos leads nos dois projetos: `LEADS_INTAKE_KEY_US` no BR; `LEADS_INTAKE_KEY` e `LEADS_INTAKE_URL` no EUA.
+>   - Schema só por migrations, aplicadas no build de produção.
 > - **Pendente para ir ao ar:**
->   - **banco próprio do Payload:** o `DATABASE_URL` do `.env` aponta para o banco de outra aplicação, com tabelas `leads`, `page_views` e `cta_events`; não pode receber o schema;
->   - migrations;
->   - Vercel Blob (D2);
->   - e-mail para recuperação de senha (D3);
->   - variáveis `LEADS_INTAKE_KEY_US` (BR) e `LEADS_INTAKE_URL`/`LEADS_INTAKE_KEY` (EUA);
+>   - publicar juntas as branches `feat/painel-leads` (BR) e `feat/leads-no-painel` (EUA). O EUA já tem `LEADS_INTAKE_URL` em produção, e o endpoint só existe depois do deploy do BR;
+>   - criar o primeiro usuário em `/admin` (vira admin);
+>   - Resend para recuperação de senha (D3), conta criada pela Juma/Oceon;
+>   - remover da Vercel o `DATABASE_URL` antigo do `site-juma`, que é de outra aplicação;
 >   - exportação CSV.
 
 **MVP**

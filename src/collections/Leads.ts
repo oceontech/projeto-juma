@@ -1,15 +1,25 @@
-import { timingSafeEqual } from 'crypto'
 import { addDataAndFileToRequest, type CollectionConfig, type PayloadRequest } from 'payload'
 
 import { bySite, hasRole, isAdmin } from '../access/roles'
 import { LEAD_FORMS, ingestLead, type LeadInput, type LeadMeta } from '../features/leads/server/ingest'
 
+/**
+ * Comparação em tempo constante. Sem `crypto` de propósito: o CLI do Payload
+ * (tsx) não resolve `node:crypto` ao carregar a config no Windows.
+ */
+function sameSecret(a: string, b: string) {
+  if (a.length !== b.length) return false
+  let diff = 0
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  return diff === 0
+}
+
 /** Chave do site americano para `POST /api/leads/intake` (server-to-server). */
 function intakeSite(req: PayloadRequest): 'us' | null {
   const sent = req.headers.get('x-leads-key') ?? ''
   const expected = process.env.LEADS_INTAKE_KEY_US ?? ''
-  if (!expected || sent.length !== expected.length) return null
-  return timingSafeEqual(Buffer.from(sent), Buffer.from(expected)) ? 'us' : null
+  if (!expected) return null
+  return sameSecret(sent, expected) ? 'us' : null
 }
 
 export const Leads: CollectionConfig = {

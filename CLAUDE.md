@@ -6,23 +6,27 @@ Site da **Juma Agro** (fertilizantes especiais e aminoácidos), feito pela agên
 
 - **Next.js 16** + React 19 + TypeScript (App Router)
 - **Payload CMS 3.85** integrado (mesmo app), adapter **Postgres** (`@payloadcms/db-postgres`)
-- Banco: **Neon** (lê `process.env.DATABASE_URL`)
+- Banco: **Neon `juma-painel`** (Marketplace da Vercel, região iad1), lido de `PAYLOAD_DATABASE_URL`. O `DATABASE_URL` antigo é de **outra aplicação** e não é usado.
+- Mídia do painel: **Vercel Blob** `juma-painel-midia` (público, `BLOB_READ_WRITE_TOKEN`), via `@payloadcms/storage-vercel-blob`
 - Gerenciador: **npm** (há `package-lock.json`; o bloco `pnpm`/`engines` no `package.json` é resíduo do template Payload, ignorar). Node 24 em dev.
-- A instalar conforme as fases: Cloudinary (mídia), Sentry (erros), Umami (analytics, Fase 2)
+- A instalar conforme as fases: Sentry (erros), Umami (analytics), Resend (só recuperação de senha e aviso de lead)
 - **Animação — motor único: GSAP + ScrollTrigger + Lenis** (o que está no `package.json`: `gsap`, `@gsap/react`, `lenis`). **Sem segunda lib de animação de UI** — nada de Framer Motion ou React Three Fiber (ADR-021). **Three.js/WebGL** (efeito de água) entra **só sob demanda** para o pico da jornada, via import dinâmico, **ainda não instalado** e condicionado ao gate de performance (ADR-011). As skills `gsap-scrolltrigger`, `threejs-webgl`, `react-three-fiber`, `motion-framer`, `locomotive-scroll`, `modern-web-design`, `web3d-integration-patterns` são **referência** (disparam sozinhas), não dependências instaladas.
 - **Prompts de site "cara de awards":** skill do projeto `motion-site-prompts` (`.claude/skills/motion-site-prompts/`) — método das 5 camadas, tokens de movimento e template pronto para colar. A stack-padrão da Juma é o motor único **GSAP/ScrollTrigger + Lenis** (Three.js só sob demanda). Use sempre que for escrever um prompt de hero/landing/seção animada. Tokens de movimento reais do código vivem em `src/features/animation/motion.ts` (a skill referencia, o código manda).
 
 ## Como rodar
 
-1. `.env` precisa de `DATABASE_URL` (string pooler do Neon) e `PAYLOAD_SECRET` (já gerado).
-   **Atenção (28/09/2026):** o `DATABASE_URL` atual do `.env` aponta para o banco de outra aplicação (tabelas `leads`, `page_views`, `cta_events`). Não rode o Payload nele: o push de schema alteraria essas tabelas. Use um banco Neon exclusivo do Payload, ou um Postgres local para testar (`tests/int/leads.int.spec.ts` só roda em `localhost`).
+1. `vercel env pull .env.local` (projeto ligado a `site-juma`) traz `PAYLOAD_DATABASE_URL`, `BLOB_READ_WRITE_TOKEN` e `LEADS_INTAKE_KEY_US`. `PAYLOAD_SECRET` fica no `.env`. Modelo em `.env.example`.
+   **Atenção:** o `.env.local` aponta para o banco de produção do painel. Para testar à vontade, use um Postgres local (ver o cabeçalho de `tests/int/leads.int.spec.ts`).
 2. `npm run dev` → site em `localhost:3000`, painel em `/admin`.
-3. `npm run generate:types` após mudar coleções.
+3. Mudou coleção? `npm run generate:types`, depois `npm run migrate:create -- <nome>` e `npm run migrate`. O schema **só muda por migration** (`push: false`). O deploy de produção roda as migrations no build (`scripts/migrate-on-vercel.mjs`); preview não, porque usa o mesmo banco.
+   - Os scripts `migrate*` passam por `scripts/payload-cli.mjs`: o CLI padrão do Payload quebra no Windows com Node 24 ao gerar migration.
+   - Na migration gerada, troque o import para `import { type MigrateDownArgs, type MigrateUpArgs, sql } from '@payloadcms/db-postgres'` (sem `type`, o Vitest quebra).
 
 ## Estrutura
 
 - `src/app/(frontend)/` → site público · `src/app/(payload)/` → painel (não mexer na fiação do Payload sem necessidade)
-- `src/collections/` → Products, Cultures, CalculatorData, Articles, Pages, Leads, Media, Users
+- `src/collections/` → Products, Cultures, Articles, Pages, Leads, Media, Users · `src/access/roles.ts` → papéis (admin, editor, comercial) e escopo por site · `src/migrations/` → migrations do banco
+- `src/features/leads/` → pop-up de lead, `WhatsAppLink`, captura de origem e `server/ingest.ts` (entrada única de leads, usada também por `POST /api/leads/intake` do site EUA)
 - `src/globals/Settings.ts` → vagas, contato, redes
 - `src/payload.config.ts` → config + localização (pt-BR padrão, en, es)
 - `docs/` → toda a documentação (PRD canônico em `docs/01-prd/`, decisões, copy, processos) · `assets/` → mídia-fonte (hero, herança, produtos) · `public/` → cópia servida pelo build

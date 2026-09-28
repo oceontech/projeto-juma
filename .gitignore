@@ -60,3 +60,4 @@ Thumbs.db
 /sessão catalogo produtos/
 
 .vercel
+.env*

@@ -84,6 +84,11 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
+      // Mídia enviada pelo painel (Vercel Blob, store "juma-painel-midia").
+      {
+        protocol: 'https',
+        hostname: '*.public.blob.vercel-storage.com',
+      },
     ],
   },
   // O programa "Desata" virou "Olho no Alvo" — redirect permanente pra quem

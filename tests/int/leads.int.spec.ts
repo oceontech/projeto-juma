@@ -7,11 +7,13 @@ import { ingestLead } from '@/features/leads/server/ingest'
 
 /**
  * Leads e papéis do painel. Este teste APAGA usuários e leads: só roda contra
- * um Postgres local (ex.: DATABASE_URL=postgres://postgres:juma@localhost:55432/juma).
+ * um Postgres local, com as migrations aplicadas no início. Exemplo:
+ *   docker run -d --name juma-pg -e POSTGRES_PASSWORD=juma -e POSTGRES_DB=juma -p 55432:5432 postgres:16-alpine
+ *   PAYLOAD_DATABASE_URL=postgres://postgres:juma@localhost:55432/juma PAYLOAD_SECRET=teste npm run test:int
  */
 const dbHost = (() => {
   try {
-    return new URL(process.env.DATABASE_URL ?? '').hostname
+    return new URL(process.env.PAYLOAD_DATABASE_URL ?? '').hostname
   } catch {
     return ''
   }
@@ -32,6 +34,8 @@ const base = {
 describe.skipIf(!isLocalDb)('leads', () => {
   beforeAll(async () => {
     payload = await getPayload({ config: await config })
+    // O schema só existe por migrations (push desligado).
+    await payload.db.migrate()
     await payload.delete({ collection: 'leads', where: { id: { exists: true } }, overrideAccess: true })
     await payload.delete({ collection: 'users', where: { id: { exists: true } }, overrideAccess: true })
 
