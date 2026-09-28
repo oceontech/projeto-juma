@@ -370,7 +370,7 @@ export function ProductGrid() {
                 </span>
                 <div className="relative z-10 h-full w-full flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
                   <Image
-                    src={product.image || "/produtos/placeholder-produto.png"}
+                    src={product.image || "/brand/logo-juma-agro.png"}
                     alt={`${t('productImageAlt')} ${product.name}`}
                     width={400}
                     height={400}

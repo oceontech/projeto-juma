@@ -69,7 +69,6 @@ export interface Config {
   collections: {
     products: Product;
     cultures: Culture;
-    'calculator-data': CalculatorDatum;
     articles: Article;
     pages: Page;
     leads: Lead;
@@ -84,7 +83,6 @@ export interface Config {
   collectionsSelect: {
     products: ProductsSelect<false> | ProductsSelect<true>;
     cultures: CulturesSelect<false> | CulturesSelect<true>;
-    'calculator-data': CalculatorDataSelect<false> | CalculatorDataSelect<true>;
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     leads: LeadsSelect<false> | LeadsSelect<true>;
@@ -299,30 +297,6 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "calculator-data".
- */
-export interface CalculatorDatum {
-  id: number;
-  produto: number | Product;
-  cultura: number | Culture;
-  /**
-   * Ex: 0,5 L/ha
-   */
-  dosagem?: string | null;
-  /**
-   * Ganho médio do ensaio (na unidade abaixo)
-   */
-  ganhoMedio: number;
-  unidade?: string | null;
-  /**
-   * Ex: ensaio DETEC 2023
-   */
-  fonteDado?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "articles".
  */
 export interface Article {
@@ -468,10 +442,6 @@ export interface PayloadLockedDocument {
         value: number | Culture;
       } | null)
     | ({
-        relationTo: 'calculator-data';
-        value: number | CalculatorDatum;
-      } | null)
-    | ({
         relationTo: 'articles';
         value: number | Article;
       } | null)
@@ -594,20 +564,6 @@ export interface CulturesSelect<T extends boolean = true> {
         id?: T;
       };
   produtosRelacionados?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "calculator-data_select".
- */
-export interface CalculatorDataSelect<T extends boolean = true> {
-  produto?: T;
-  cultura?: T;
-  dosagem?: T;
-  ganhoMedio?: T;
-  unidade?: T;
-  fonteDado?: T;
   updatedAt?: T;
   createdAt?: T;
 }

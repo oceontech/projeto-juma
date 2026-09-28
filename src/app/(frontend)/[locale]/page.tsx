@@ -15,7 +15,6 @@ const ProofStrip      = dynamic(() => import('@/features/home/components/ProofSt
 const Problem         = dynamic(() => import('@/features/home/components/Problem').then(m => m.Problem))
 const Solution        = dynamic(() => import('@/features/home/components/Solution').then(m => m.Solution))
 const Lines           = dynamic(() => import('@/features/home/components/Lines').then(m => m.Lines))
-// HomeCalculator removida temporariamente (dados de ganho/hectare ainda não confirmados) — componente preservado em @/features/home/components/HomeCalculator
 const HomeExperience  = dynamic(() => import('@/features/home/components/HomeExperience').then(m => m.HomeExperience))
 const GlobalPresence  = dynamic(() => import('@/features/home/components/GlobalPresence').then(m => m.GlobalPresence))
 const HomeTestimonials = dynamic(() => import('@/features/home/components/HomeTestimonials').then(m => m.HomeTestimonials))

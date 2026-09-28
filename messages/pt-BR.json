@@ -10,7 +10,6 @@
     "desafio": "Desafio",
     "programa": "Programa",
     "linhas": "Linhas",
-    "calculadora": "Calculadora",
     "experience": "Experience",
     "presenca": "Presença",
     "depoimentos": "Depoimentos",
@@ -21,7 +20,6 @@
     "home": "Início",
     "products": "Produtos",
     "cultures": "Culturas",
-    "calculator": "Calculadora",
     "experience": "Juma Experience",
     "about": "Sobre",
     "articles": "Matérias",
@@ -737,33 +735,6 @@
       }
     ]
   },
-  "homeCalculator": {
-    "kicker": "Calcule seu ganho",
-    "title": "Quanto a Juma-Agro pode<br></br>render no seu <highlight>campo?</highlight>",
-    "desc": "Simule em segundos o ganho potencial em sacas e receita extra com base em dados médios de campo.",
-    "cultures": {
-      "soja": "Soja",
-      "milho": "Milho",
-      "cafe": "Café",
-      "cana": "Cana-de-açúcar",
-      "citros": "Citros",
-      "tomate": "Tomate"
-    },
-    "form": {
-      "culture": "Cultura",
-      "product": "Produto Juma-Agro",
-      "area": "Área (ha)",
-      "price": "Preço da saca (R$)",
-      "disclaimer": "Os valores são estimativas. Para um plano sob medida para a sua fazenda, fale com um técnico Juma-Agro."
-    },
-    "result": {
-      "extraBags": "Sacas extras estimadas",
-      "extraRev": "Receita extra estimada",
-      "averageGain": "Ganho médio de +{gain} {unit} com {product} · projetado para {area} ha.",
-      "priceBase": "Com base no preço médio da saca informado.",
-      "disclaimer": "Estimativa baseada em dados médios de campo. Resultados reais variam conforme cultivar, manejo, solo e clima."
-    }
-  },
   "homeExperience": {
     "immersion": "Programa de imersão",
     "kicker": "Juma Experience",
@@ -867,22 +838,6 @@
     "recommendedEyebrow": "Produtos recomendados",
     "recommendedTitle": "A linha indicada<br></br><highlight>{prepFor} {name}.</highlight>",
     "recommendedLede": "Os produtos que aparecem com mais frequência no manejo com a Juma-Agro.",
-    "calcEyebrow": "Calcule seu ganho",
-    "calcTitle": "Quanto a Juma-Agro rende<br></br>{prepYour} {name}?",
-    "calcLede": "Simule o ganho com base na sua área, no produto recomendado e no preço atual da saca.",
-    "calcProductLabel": "Produto Juma-Agro",
-    "calcAreaLabel": "Área (ha)",
-    "calcPriceLabel": "Preço da saca (R$)",
-    "calcYieldLabel": "Produtividade atual (sc/ha)",
-    "calcFormLede": "Estimativa para lavoura em produção. Para programa sob medida, fale com um técnico Juma-Agro.",
-    "calcExtraBags": "Sacas extras estimadas",
-    "calcGainAverage": "Ganho médio de <strong>+{gain} sc/ha</strong> · projetado para sua área informada.",
-    "calcExtraRev": "Receita extra estimada",
-    "calcBasePrice": "Com base no preço médio da saca informado.",
-    "calcSelect": "Selecione...",
-    "calcBagsUnit": "sc",
-    "calcCurrency": "R$",
-    "calcDisclaimer": "Estimativa baseada em dados médios de campo. Resultados reais variam conforme cultivar, manejo, solo e clima.",
     "sourceLabel": "Fonte"
   },
   "cultureData": {

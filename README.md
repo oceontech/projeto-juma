@@ -1,31 +1,26 @@
-# Projeto Juma Agro — Oceon
+# Juma Agro — site institucional (Oceon)
 
-> Novo site institucional + calculadora de produtividade + painel administrativo (CMS)
-> **Cliente:** Juma Agro · **Agência:** Oceon · **Aprovador:** Rodrigo Henrique Moraes
+Site da **Juma Agro** em Next.js 16 com Payload CMS 3 no mesmo app (painel em `/admin`). O mapa do projeto, as regras e a fase atual estão no [`CLAUDE.md`](CLAUDE.md).
 
-## Mapa da documentação
+## Rodar
+
+1. Copie `.env.example` para `.env` e preencha `DATABASE_URL` (pooler do Neon) e `PAYLOAD_SECRET`.
+2. `npm install`
+3. `npm run dev` → site em `localhost:3000`, painel em `localhost:3000/admin`.
+4. Depois de mudar coleções: `npm run generate:types`.
+
+Testes: `npm run test:int` (Vitest) e `npm run test:e2e` (Playwright, sobe o `npm run dev`).
+
+Deploy: Vercel (projeto `site-juma`).
+
+## Documentação
 
 | Pasta | Conteúdo |
 |---|---|
-| [docs/00-contexto/](docs/00-contexto/) | Quem é o cliente, briefing consolidado, análise do site antigo, inventário de/para e redirects |
-| [docs/01-prd-site/](docs/01-prd-site/) | PRD v3.0 revisado (fonte de verdade técnica) + registro de decisões (ADRs) |
-| [docs/02-processos-oceon/](docs/02-processos-oceon/) | PRDs dos processos da agência — do onboarding ao pós-lançamento |
-| [docs/03-pendencias/](docs/03-pendencias/) | Checklist vivo de pendências do cliente e internas |
-| [docs/04-copy/](docs/04-copy/) | Copy completa do site: fundamentos narrativos + todas as páginas, prontas para design/CMS |
-| [docs/05-design-direction/](docs/05-design-direction/) | Direção de design e animação: estrutura da home, hero, fotos de herança, scroll horizontal, guardrails de performance |
-| [.firecrawl/](.firecrawl/) | Raspagem completa do site antigo (98 páginas: markdown + links + screenshots + PDFs) |
-
-## Estado atual (junho 2026)
-
-- [x] Site antigo raspado integralmente (98/98 páginas íntegras, 15 recuperadas após falha do servidor)
-- [x] Briefing v1.0 coletado e analisado
-- [x] PRD v2.3 revisado → consolidado como **v3.0** com correções aplicadas
-- [x] De/para de produtos e culturas confirmado (catálogo idêntico; slugs antigos enganosos)
-- [ ] Pendências do cliente em aberto — ver [docs/03-pendencias/](docs/03-pendencias/pendencias.md)
-- [ ] Início da Fase 0 (fundação) — aguarda logo vetorial e confirmação de domínio
-
-## Fontes originais
-
-- Briefing: `C:\Users\Dell G15\Downloads\Coleta Briefing Juma - Baite.md`
-- PRD v2.3: `C:\Users\Dell G15\Downloads\juma-agro-prd-v2.md`
-- Site antigo (produção): https://juma-agro.com.br
+| [docs/00-contexto/](docs/00-contexto/) | Cliente, briefing consolidado, análise do site antigo, inventário e redirects |
+| [docs/01-prd/](docs/01-prd/) | PRD canônico e apoios (copy, cores por produto, técnicas, painel admin, painel central BR+EUA) |
+| [docs/02-decisoes/](docs/02-decisoes/) | Registro de decisões (ADRs) |
+| [docs/03-processos-oceon/](docs/03-processos-oceon/) | Processos da agência, do onboarding ao pós-lançamento |
+| [docs/04-copy/](docs/04-copy/) | Copy oficial de todas as páginas |
+| [docs/05-pendencias/](docs/05-pendencias/) | Pendências do cliente e internas |
+| [docs/06-materiais/](docs/06-materiais/) | Materiais de referência do cliente |

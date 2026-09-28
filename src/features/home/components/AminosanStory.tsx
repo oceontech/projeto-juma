@@ -1282,7 +1282,7 @@ function SimpleVersion({ t, isMobile, reduced }: { t: TFn; isMobile: boolean; re
             aria-label={t('videoAlt')}
             className="absolute inset-0 h-full w-full object-cover object-bottom opacity-0 z-0"
           >
-            <source src="/heritage/desktop/morph-aminosan.mp4" type="video/mp4" />
+            <source src="/heritage/desktop/full-transition-aminosan.mp4" type="video/mp4" />
           </video>
         </div>
       </div>

@@ -7,7 +7,7 @@
 | # | Item | Bloqueia | Responsável | Status |
 |---|---|---|---|---|
 | 1 | **Logo em vetor (.ai/.svg)** | Fase 0 — design system | Rodrigo (Juma) | ⛔ Pendente |
-| 2 | **Tabela da calculadora** (produto × cultura × dosagem × ganho médio × fonte) | Fase 2 — calculadora | Rodrigo (Juma) | ⛔ Vazia no briefing — calculadora retirada da home e da página de culturas em 03/08/2026 até os dados chegarem (ver nota abaixo) |
+| 2 | **Tabela da calculadora** (produto × cultura × dosagem × ganho médio × fonte) | — | — | ✖ Cancelada em 28/09/2026: calculadora removida do site (ADR-022) |
 | 3 | **Domínio definitivo** (.com.br como principal?) | Fase 0 — DNS/infra | Rodrigo (Juma) | ⚠️ A confirmar |
 | 4 | **Acessos Registro.br + Hostgator** (canal seguro) | Go-live — migração DNS | Rodrigo (Juma) | ⚠️ Aguardando |
 
@@ -22,7 +22,7 @@
 | 9 | Fontes oficiais do site (briefing 1.3 vazio) | Tipografia | Oceon propôs Montserrat (validar c/ cliente) | Proposta feita |
 | 10 | Confirmar de/para de produtos com o cliente (KMEP→RevigoPHOS, Acorda→Acorda Ultra, destino dos PDFs antigos) | Redirects 301 | Oceon → Rodrigo | Mapeado, falta validar |
 
-> **Nota — calculadora fora do ar (03/08/2026):** componentes preservados, não deletados. `HomeCalculator` (home) continua em `src/features/home/components/HomeCalculator.tsx`, só sem import/render em `src/app/(frontend)/[locale]/page.tsx` (procurar comentário "HomeCalculator removida temporariamente"). Da página de culturas, a calculadora foi extraída de `CulturePage.tsx` para `src/features/cultures/components/CultureCalculator.tsx` (não importada em nenhum lugar hoje). O item de nav "calculadora" também foi removido de `SectionNav.tsx`. Para religar quando a tabela de dados (item #2) chegar: reimportar os dois componentes nos lugares indicados — cabe num único prompt.
+> **Nota — calculadora removida (28/09/2026):** os componentes `HomeCalculator` e `CultureCalculator`, a coleção `CalculatorData` e as chaves de tradução saíram do código (ADR-022). Para recuperar, buscar no histórico do git.
 
 ## ✅ Resolvidas
 

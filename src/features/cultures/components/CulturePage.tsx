@@ -15,7 +15,6 @@ import { useTranslations } from 'next-intl'
 
 const WHATSAPP = 'https://wa.me/5519999648186'
 
-export type CalcProduct = { id: string; label: string; gainPerHa: number }
 export type ManageProduct = { name: string; dose: string }
 export type ManagePhase = { label: string; fase: string; products: ManageProduct[] }
 export type RecommendedProduct = { slug: string; name: string; tag: string; desc: string; labelColor: string; image?: string }
@@ -40,92 +39,48 @@ export const REC_META: Record<string, { name: string, labelColor: string, image?
 export type CultureMeta = {
   gradient: string
   image: string
-  calcProducts: CalcProduct[]
 }
 
 export const META: Record<string, CultureMeta> = {
   cafe: {
     gradient: 'linear-gradient(165deg, #6c4226 0%, #2a1a10 100%)',
     image: '/assets/cultures/cafe.webp?v=20260731',
-    calcProducts: [
-      { id: 'aminosan', label: 'Aminosan', gainPerHa: 6 },
-      { id: 'fitofert', label: 'Fitofert', gainPerHa: 4 },
-      { id: 'revigophos', label: 'RevigoPhos Amino', gainPerHa: 3 },
-    ],
   },
   soja: {
     gradient: 'linear-gradient(165deg, #5d7a3a, #2c3a18)',
     image: '/assets/cultures/soja.webp?v=20260731b',
-    calcProducts: [
-      { id: 'aminosan', label: 'Aminosan', gainPerHa: 12 },
-      { id: 'fitofert', label: 'Fitofert', gainPerHa: 7 },
-      { id: 'acorda', label: 'Acorda Ultra', gainPerHa: 4 },
-    ],
   },
   milho: {
     gradient: 'linear-gradient(165deg, #c3a445, #6b4f15)',
     image: '/assets/cultures/milho.webp?v=20260731b',
-    calcProducts: [
-      { id: 'aminosan', label: 'Aminosan', gainPerHa: 10 },
-      { id: 'revigo', label: 'Revigo + Milho', gainPerHa: 8 },
-      { id: 'fitofert', label: 'Fitofert', gainPerHa: 6 },
-    ],
   },
   cana: {
     gradient: 'linear-gradient(165deg, #7fa356, #364a1f)',
     image: '/assets/cultures/cana.webp?v=20260731',
-    calcProducts: [
-      { id: 'acorda', label: 'Acorda Cana', gainPerHa: 8 },
-      { id: 'aminosan', label: 'Aminosan', gainPerHa: 5 },
-    ],
   },
   algodao: {
     gradient: 'linear-gradient(165deg, #e7dfc9, #87826a)',
     image: '/assets/cultures/algodao.webp?v=20260731',
-    calcProducts: [
-      { id: 'aminosan', label: 'Aminosan', gainPerHa: 6 },
-      { id: 'fitofert', label: 'Fitofert', gainPerHa: 4 },
-    ],
   },
   feijao: {
     gradient: 'linear-gradient(165deg, #8b5e3b, #2f1f12)',
     image: '/assets/cultures/feijao.webp?v=20260731b',
-    calcProducts: [
-      { id: 'aminosan', label: 'Aminosan', gainPerHa: 8 },
-      { id: 'fitofert', label: 'Fitofert', gainPerHa: 5 },
-    ],
   },
   citros: {
     gradient: 'linear-gradient(165deg, #d3a52a, #5e4910)',
     image: '/assets/cultures/limao.webp?v=20260731',
-    calcProducts: [
-      { id: 'aminosan', label: 'Aminosan', gainPerHa: 5 },
-      { id: 'fitofert', label: 'Fitofert', gainPerHa: 4 },
-    ],
   },
   batata: {
     gradient: 'linear-gradient(165deg, #a08562, #463623)',
     image: '/assets/cultures/batata.webp?v=20260731',
-    calcProducts: [
-      { id: 'aminosan', label: 'Aminosan', gainPerHa: 7 },
-      { id: 'fitofert', label: 'Fitofert', gainPerHa: 5 },
-    ],
   },
   tomate: {
     gradient: 'linear-gradient(165deg, #b73a2a, #4e1410)',
     image: '/assets/cultures/tomate.webp?v=20260731',
-    calcProducts: [
-      { id: 'aminosan', label: 'Aminosan', gainPerHa: 7 },
-      { id: 'fitofert', label: 'Fitofert', gainPerHa: 5 },
-    ],
   },
   pastagem: {
     gradient: 'linear-gradient(165deg, #80a558, #2c3e1d)',
     image: '/assets/cultures/pastagem.webp?v=20260731',
-    calcProducts: [
-      { id: 'revigo', label: 'Revigo + Pasto', gainPerHa: 6 },
-      { id: 'aminosan', label: 'Aminosan', gainPerHa: 4 },
-    ],
   },
 }
 
@@ -629,7 +584,6 @@ export function CulturePage({ slug }: { slug: string }) {
           </section>
         )}
 
-        {/* Calculadora — removida temporariamente, ver CultureCalculator.tsx */}
 
         {/* CTA Final */}
         <HomeCtaFinal />

@@ -28,7 +28,7 @@ export const ARTICLES_DATA: Article[] = [
     category: 'manejo',
     date: '22 ABR 2026',
     readTime: '10 MIN',
-    image: '/materias/capa-destaque.png',
+    image: '/materias/capa-destaque.webp',
     color: 'from-green-700 to-emerald-950',
     translations: {
       'pt-BR': {
@@ -302,7 +302,7 @@ export const ARTICLES_DATA: Article[] = [
     category: 'pesquisa',
     date: '18 MAR 2026',
     readTime: '7 MIN',
-    image: '/materias/aminoacidos-foliares.png',
+    image: '/materias/aminoacidos-foliares.webp',
     color: 'from-purple-600 to-purple-950',
     translations: {
       'pt-BR': {
@@ -360,7 +360,7 @@ export const ARTICLES_DATA: Article[] = [
     category: 'sustentabilidade',
     date: '11 MAR 2026',
     readTime: '4 MIN',
-    image: '/materias/calda-eficiente.png',
+    image: '/materias/calda-eficiente.webp',
     color: 'from-teal-600 to-emerald-950',
     translations: {
       'pt-BR': {

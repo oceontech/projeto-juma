@@ -1,20 +1,17 @@
-import { test, expect, Page } from '@playwright/test'
+import { test, expect } from '@playwright/test'
 
 test.describe('Frontend', () => {
-  let page: Page
+  test('home abre em pt-BR com o título do site', async ({ page }) => {
+    await page.goto('/pt-BR')
 
-  test.beforeAll(async ({ browser }, testInfo) => {
-    const context = await browser.newContext()
-    page = await context.newPage()
+    await expect(page).toHaveTitle(/Juma-Agro/)
+    await expect(page.locator('main')).toBeVisible()
   })
 
-  test('can go on homepage', async ({ page }) => {
-    await page.goto('http://localhost:3000')
-
-    await expect(page).toHaveTitle(/Payload Blank Template/)
-
-    const heading = page.locator('h1').first()
-
-    await expect(heading).toHaveText('Welcome to your new project.')
+  test('páginas principais respondem sem erro', async ({ page }) => {
+    for (const path of ['/pt-BR/produtos', '/pt-BR/culturas', '/pt-BR/materias', '/pt-BR/contato']) {
+      const response = await page.goto(path)
+      expect(response?.status(), path).toBeLessThan(400)
+    }
   })
 })

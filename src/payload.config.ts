@@ -9,7 +9,6 @@ import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Products } from './collections/Products'
 import { Cultures } from './collections/Cultures'
-import { CalculatorData } from './collections/CalculatorData'
 import { Articles } from './collections/Articles'
 import { Leads } from './collections/Leads'
 import { Pages } from './collections/Pages'
@@ -25,7 +24,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Products, Cultures, CalculatorData, Articles, Pages, Leads, Media, Users],
+  collections: [Products, Cultures, Articles, Pages, Leads, Media, Users],
   globals: [Settings],
   localization: {
     locales: [
@@ -36,6 +35,8 @@ export default buildConfig({
     defaultLocale: 'pt-BR',
     fallback: true,
   },
+  // Sem GraphQL (ADR-003): o site e o painel usam REST + Local API.
+  graphQL: { disable: true },
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

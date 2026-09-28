@@ -10,7 +10,6 @@
     "desafio": "Challenge",
     "programa": "Program",
     "linhas": "Lines",
-    "calculadora": "Calculator",
     "experience": "Experience",
     "presenca": "Presence",
     "depoimentos": "Reviews",
@@ -21,7 +20,6 @@
     "home": "Home",
     "products": "Products",
     "cultures": "Crops",
-    "calculator": "Calculator",
     "experience": "Juma Experience",
     "about": "About",
     "articles": "Articles",
@@ -737,33 +735,6 @@
       }
     ]
   },
-  "homeCalculator": {
-    "kicker": "Calculate your gain",
-    "title": "How much can Juma-Agro<br></br>yield in your <highlight>field?</highlight>",
-    "desc": "Simulate in seconds the potential gain in bags and extra revenue based on average field data.",
-    "cultures": {
-      "soja": "Soybeans",
-      "milho": "Corn",
-      "cafe": "Coffee",
-      "cana": "Sugarcane",
-      "citros": "Citrus",
-      "tomate": "Tomato"
-    },
-    "form": {
-      "culture": "Crop",
-      "product": "Juma-Agro Product",
-      "area": "Area (ha)",
-      "price": "Bag price ($)",
-      "disclaimer": "Values are estimates. For a tailored plan for your farm, speak with a Juma-Agro technician."
-    },
-    "result": {
-      "extraBags": "Estimated extra bags",
-      "extraRev": "Estimated extra revenue",
-      "averageGain": "Average gain of +{gain} {unit} with {product} · projected for {area} ha.",
-      "priceBase": "Based on the reported average bag price.",
-      "disclaimer": "Estimate based on average field data. Actual results vary by cultivar, management, soil, and climate."
-    }
-  },
   "homeExperience": {
     "immersion": "Immersion program",
     "kicker": "Juma Experience",
@@ -867,22 +838,6 @@
     "recommendedEyebrow": "Recommended products",
     "recommendedTitle": "The indicated line<br></br><highlight>for {name}.</highlight>",
     "recommendedLede": "The products that appear most frequently in management with Juma-Agro.",
-    "calcEyebrow": "Calculate your gain",
-    "calcTitle": "How much does Juma-Agro yield<br></br>in your {name}?",
-    "calcLede": "Simulate the gain based on your area, recommended product and current bag price.",
-    "calcProductLabel": "Juma-Agro Product",
-    "calcAreaLabel": "Area (ha)",
-    "calcPriceLabel": "Bag price ($)",
-    "calcYieldLabel": "Current yield (bags/ha)",
-    "calcFormLede": "Estimate for a crop in production. For a tailored program, speak with a Juma-Agro technician.",
-    "calcExtraBags": "Estimated extra bags",
-    "calcGainAverage": "Average gain of <strong>+{gain} bags/ha</strong> · projected for your informed area.",
-    "calcExtraRev": "Estimated extra revenue",
-    "calcBasePrice": "Based on the reported average bag price.",
-    "calcSelect": "Select...",
-    "calcBagsUnit": "bags",
-    "calcCurrency": "$",
-    "calcDisclaimer": "Estimate based on average field data. Actual results vary by cultivar, management, soil, and climate.",
     "sourceLabel": "Source"
   },
   "cultureData": {

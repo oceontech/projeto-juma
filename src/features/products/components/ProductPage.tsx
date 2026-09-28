@@ -547,7 +547,7 @@ export function ProductPage({ slug }: { slug: string }) {
                   max-width:100%. */}
               <div className="relative z-10 h-full w-full flex items-center justify-center transition-transform duration-500 hover:scale-105">
                 <Image
-                  src={product.image || "/produtos/placeholder-produto.png"}
+                  src={product.image || "/brand/logo-juma-agro.png"}
                   alt={`Imagem do produto ${product.name}`}
                   width={1000}
                   height={1000}
@@ -915,7 +915,7 @@ export function ProductPage({ slug }: { slug: string }) {
                       </span>
                       <div className="relative z-10 h-[80%] w-full flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
                         <Image
-                          src={rel.image || "/produtos/placeholder-produto.png"}
+                          src={rel.image || "/brand/logo-juma-agro.png"}
                           alt={`Imagem do produto ${rel.name}`}
                           width={300}
                           height={450}

@@ -44,7 +44,7 @@ Site da **Juma Agro** (fertilizantes especiais e aminoácidos), feito pela agên
 
 - **Home = filme contínuo:** hero declaração "Juntos alimentamos o mundo" → jornada fase a fase (campo/folha/solo/gota) → herança (família + morph do frasco antigo→novo) → catálogo de produtos em **scroll horizontal com a cor de fundo mudando por produto** → culturas → números → experience → CTA. Ver `docs/01-prd/PRD.md` (seção 7).
 - **Cor por produto:** cada produto tem cor de fundo do rótulo; vizinhos nunca da mesma família. Tokens em `docs/01-prd/cores-por-produto.md`.
-- **Painel admin:** estética "Media Hub by Ocean" (sidebar escura flutuante, fundo claro, Geist). Fase 5. Ver `docs/01-prd/painel-admin.md`.
+- **Painel admin:** estética "Media Hub by Ocean" (sidebar escura flutuante, fundo claro, Geist). Fase 5. Ver `docs/01-prd/painel-admin.md`. Painel BR+EUA em `/admin` (escopo, módulos, modelo de dados, roadmap, varredura de arquivos sem uso): `docs/01-prd/painel-central.md`.
 
 ## Onde está a verdade
 
