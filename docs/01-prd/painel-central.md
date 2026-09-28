@@ -408,12 +408,30 @@ site EUA (Vercel · app Next 16 separado)
 >   - Blob público `juma-painel-midia`; a mídia sai direto da CDN.
 >   - Chave dos leads nos dois projetos: `LEADS_INTAKE_KEY_US` no BR; `LEADS_INTAKE_KEY` e `LEADS_INTAKE_URL` no EUA.
 >   - Schema só por migrations, aplicadas no build de produção.
-> - **Pendente para ir ao ar:**
->   - publicar juntas as branches `feat/painel-leads` (BR) e `feat/leads-no-painel` (EUA). O EUA já tem `LEADS_INTAKE_URL` em produção, e o endpoint só existe depois do deploy do BR;
->   - criar o primeiro usuário em `/admin` (vira admin);
->   - Resend para recuperação de senha (D3), conta criada pela Juma/Oceon;
->   - remover da Vercel o `DATABASE_URL` antigo do `site-juma`, que é de outra aplicação;
->   - exportação CSV.
+> - **Publicado em 28/09/2026:**
+>   - BR em `juma-agro.com.br` e EUA em `juma-agro-eua.vercel.app`, com leads dos dois sites chegando ao painel (verificado em produção);
+>   - primeiro admin criado;
+>   - `DATABASE_URL` antigo removido do `site-juma`.
+>
+> **O que falta para finalizar o painel** (ordem proposta):
+> 1. **Conteúdo do BR no CMS.** Matérias, produtos e culturas ainda estão no código (`articlesData.ts`, `messages/*.json`, arrays nos componentes), por isso não aparecem no painel. É preciso:
+>    - ajustar as coleções aos campos reais das páginas (seção 4);
+>    - rodar o seed que importa o conteúdo atual (pt-BR, en, es), unificando as duplicações;
+>    - trocar as páginas para ler do Payload, com revalidação ao publicar;
+>    - comparar as páginas antes e depois em screenshots.
+> 2. **UI do painel (tema Media Hub, `painel-admin.md`):**
+>    - sidebar escura flutuante com o seletor Todos / Brasil / EUA;
+>    - tokens de cor, Geist, login e logo;
+>    - listas e formulários restilizados.
+> 3. **Visão geral:** o dashboard com os cards de leads, o gráfico e os últimos contatos.
+> 4. **Umami (analytics):** nada instalado ainda.
+>    - conta (Umami Cloud ou self-host);
+>    - script e eventos nos dois sites;
+>    - tela Analytics no painel via API.
+> 5. **Configurações do site:** contato, redes, textos legais e aviso, com as páginas de privacidade e termos. Também o liga/desliga dos blocos HOLD e a indexação do EUA.
+> 6. **Depoimentos e Redirecionamentos.**
+> 7. **Exportação CSV dos leads.**
+> 8. **Resend, por último:** recuperação de senha e aviso de lead novo.
 
 **MVP**
 1. **Infra:**
