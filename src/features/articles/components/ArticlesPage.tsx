@@ -11,65 +11,10 @@ import { onPageEntrance } from '@/features/animation/pageEntrance'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { DropdownMenu } from '@/components/ui/dropdown-menu'
+import type { ArticleView } from '../queries'
 
 const ARTICLE_CATEGORY_KEYS = ['all', 'manejo', 'nutricao', 'pecuaria', 'pesquisa', 'sustentabilidade'] as const
 
-const ARTICLES = [
-  {
-    id: 'nutricao-fase-certa',
-    title: 'Nutrição na fase certa: o que muda na produtividade da soja',
-    category: 'nutricao',
-    date: '15 ABR 2026',
-    readTime: '6 MIN',
-    color: 'from-green-600 to-green-800',
-    image: '/materias/nutricao-fase-certa.webp'
-  },
-  {
-    id: 'manejo-pastagem',
-    title: 'Manejo de pastagem: recuperação e ganho de peso',
-    category: 'pecuaria',
-    date: '02 ABR 2026',
-    readTime: '8 MIN',
-    color: 'from-amber-600 to-orange-800',
-    image: '/materias/manejo-pastagem.webp'
-  },
-  {
-    id: 'tratamento-sementes',
-    title: 'Tratamento de sementes: o que esperar de um arranque vigoroso',
-    category: 'manejo',
-    date: '25 MAR 2026',
-    readTime: '5 MIN',
-    color: 'from-blue-600 to-indigo-800',
-    image: '/materias/tratamento-sementes.webp'
-  },
-  {
-    id: 'aminoacidos-foliares',
-    title: 'Aminoácidos foliares: como funciona a absorção na planta',
-    category: 'pesquisa',
-    date: '18 MAR 2026',
-    readTime: '7 MIN',
-    color: 'from-purple-600 to-purple-900',
-    image: '/materias/aminoacidos-foliares.webp'
-  },
-  {
-    id: 'calda-eficiente',
-    title: 'Calda eficiente, menos deriva: a contribuição da tecnologia de aplicação',
-    category: 'sustentabilidade',
-    date: '11 MAR 2026',
-    readTime: '4 MIN',
-    color: 'from-teal-600 to-emerald-800',
-    image: '/materias/calda-eficiente.webp'
-  },
-  {
-    id: 'floracao-cafe',
-    title: 'Floração do café: por que ela define metade da sua safra',
-    category: 'nutricao',
-    date: '04 MAR 2026',
-    readTime: '6 MIN',
-    color: 'from-green-600 to-green-800',
-    image: '/materias/floracao-cafe.webp'
-  }
-]
 
 function ArrowTopRightIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -79,7 +24,7 @@ function ArrowTopRightIcon(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-export function ArticlesPage() {
+export function ArticlesPage({ articles }: { articles: ArticleView[] }) {
   const t = useTranslations('articlesPage')
   const [activeCategory, setActiveCategory] = useState('all')
 
@@ -212,11 +157,16 @@ export function ArticlesPage() {
     { scope: containerRef, dependencies: [reduced] }
   )
 
-  const filteredArticles = ARTICLES.filter(a => activeCategory === 'all' || a.category === activeCategory)
+  // Destaque: a mais recente marcada no painel; sem marcação, a mais recente.
+  const featuredArticle = articles.find((a) => a.featured) ?? articles[0]
+  // Em "todas", a matéria de destaque já aparece no bloco grande e sai da grade.
+  const filteredArticles = articles.filter((a) =>
+    activeCategory === 'all' ? a.id !== featuredArticle?.id : a.category === activeCategory,
+  )
 
   const getCategoryCount = (id: string) => {
-    if (id === 'all') return ARTICLES.length
-    return ARTICLES.filter((a) => a.category === id).length
+    if (id === 'all') return articles.length
+    return articles.filter((a) => a.category === id).length
   }
 
   return (
@@ -254,14 +204,14 @@ export function ArticlesPage() {
         </div>
 
       {/* Destaque */}
-      {activeCategory === 'all' && (
+      {activeCategory === 'all' && featuredArticle && (
         <div ref={featuredRef} className="mb-24">
           <Link
-            href="/materias/como-reduzir-o-estresse"
+            href={`/materias/${featuredArticle.id}`}
             className="group flex flex-col md:flex-row rounded-3xl overflow-hidden border border-foreground/10 bg-white shadow-sm hover:shadow-xl transition-all duration-300"
           >
             <div className="md:w-1/2 relative min-h-[300px] md:min-h-[400px] bg-gradient-to-br from-[#004C26] to-green-900 overflow-hidden">
-              <Image src="/materias/capa-destaque.webp" alt={t('featuredTitle')} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+              <Image src={featuredArticle.image} alt={featuredArticle.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500" />
               <span className="absolute top-6 left-6 z-10 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full bg-white/90 backdrop-blur text-foreground shadow-sm">
                 {t('featuredBadge')}
@@ -273,10 +223,10 @@ export function ArticlesPage() {
                 {t('featuredLabel')}
               </span>
               <h2 className="text-subtitle text-2xl md:text-3xl font-black text-foreground mb-4 group-hover:text-primary transition-colors">
-                {t('featuredTitle')}
+                {featuredArticle.title}
               </h2>
               <p className="text-foreground/70 leading-relaxed mb-8 flex-1">
-                {t('featuredBody')}
+                {featuredArticle.subtitle}
               </p>
               <span className="inline-flex items-center gap-2 text-primary font-bold uppercase tracking-wider text-sm transition-transform group-hover:translate-x-1">
                 {t('readArticle')} <ArrowTopRightIcon className="h-4 w-4" />

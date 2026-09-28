@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic'
 import { HeroJornada }      from '@/features/home/components/HeroJornada'
 import { SectionNav }       from '@/features/home/components/SectionNav'
 import { SectionPull }     from '@/features/animation/SectionPull'
+import { getHomeArticles } from '@/features/articles/queries'
 
 // Seções abaixo da dobra do "filme contínuo": code-split em chunks separados
 // (continuam com SSR normal — só tiram peso do bundle inicial de hidratação).
@@ -26,6 +27,7 @@ export default async function HomePage(props: {
 }) {
   const { locale } = await props.params
   setRequestLocale(locale)
+  const articles = await getHomeArticles(locale)
 
   return (
     <>
@@ -68,7 +70,7 @@ export default async function HomePage(props: {
         <HomeTestimonials />
       </SectionPull>
       <SectionPull id="sec-materias" className="scroll-mt-24">
-        <HomeBlog />
+        <HomeBlog articles={articles} />
       </SectionPull>
       <div id="sec-contato" data-nav-theme="dark" className="scroll-mt-24">
         <HomeCtaFinal />

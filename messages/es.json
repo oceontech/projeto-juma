@@ -538,8 +538,6 @@
     },
     "featuredBadge": "Manejo · Destacado",
     "featuredLabel": "En alza · 22 ABR 2026",
-    "featuredTitle": "Cómo reducir el estrés del cultivo en la sequía — sin perder productividad.",
-    "featuredBody": "Tres decisiones de manejo nutricional que mantienen su cultivo activo cuando el cielo se cierra. Una guía práctica basada en ensayos reales realizados con productores en MT, GO y BA.",
     "readArticle": "Leer artículo",
     "allArticlesEyebrow": "Todos los artículos",
     "allArticlesTitleStart": "Últimas",
@@ -792,26 +790,7 @@
     "desc": "Conocimiento agronómico aplicado, escrito para quienes están en el día a día del campo.",
     "readArticle": "Leer artículo",
     "viewAll": "Ver todos los artículos",
-    "articles": [
-      {
-        "category": "Manejo",
-        "date": "15 ABR 2026",
-        "readTime": "6 min de lectura",
-        "title": "Cómo reducir el estrés del cultivo en la sequía"
-      },
-      {
-        "category": "Nutrición",
-        "date": "02 ABR 2026",
-        "readTime": "8 min de lectura",
-        "title": "Nutrición en la etapa correcta: qué cambia en la productividad de la soja"
-      },
-      {
-        "category": "Ganadería",
-        "date": "18 MAR 2026",
-        "readTime": "5 min de lectura",
-        "title": "Manejo de pasturas: recuperación y ganancia de peso"
-      }
-    ]
+    "readTime": "{n} min de lectura"
   },
   "homeCtaFinal": {
     "kicker": "Próximo paso",

@@ -538,8 +538,6 @@
     },
     "featuredBadge": "Management · Featured",
     "featuredLabel": "Trending · Apr 22 2026",
-    "featuredTitle": "How to reduce crop stress during drought — without losing productivity.",
-    "featuredBody": "Three nutritional management decisions that keep your crop active when the sky closes. A practical guide based on real trials conducted with growers in MT, GO and BA.",
     "readArticle": "Read article",
     "allArticlesEyebrow": "All articles",
     "allArticlesTitleStart": "Latest",
@@ -792,26 +790,7 @@
     "desc": "Applied agronomic knowledge, written for those in the day-to-day of the field.",
     "readArticle": "Read article",
     "viewAll": "View all articles",
-    "articles": [
-      {
-        "category": "Management",
-        "date": "APR 15 2026",
-        "readTime": "6 min read",
-        "title": "How to reduce crop stress during drought"
-      },
-      {
-        "category": "Nutrition",
-        "date": "APR 02 2026",
-        "readTime": "8 min read",
-        "title": "Nutrition at the right stage: what changes in soybean productivity"
-      },
-      {
-        "category": "Livestock",
-        "date": "MAR 18 2026",
-        "readTime": "5 min read",
-        "title": "Pasture management: recovery and weight gain"
-      }
-    ]
+    "readTime": "{n} min read"
   },
   "homeCtaFinal": {
     "kicker": "Next step",

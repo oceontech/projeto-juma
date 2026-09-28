@@ -11,39 +11,12 @@ import { DUR, EASE, blurPx } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
+import type { ArticleView } from '@/features/articles/queries'
 
-const ARTICLES = [
-  {
-    slug: 'como-reduzir-o-estresse',
-    category: 'Manejo',
-    date: '15 ABR 2026',
-    readTime: '6 min de leitura',
-    title: 'Como reduzir o estresse da lavoura na seca',
-    bg: 'linear-gradient(135deg, #2d4a1a 0%, #4a7a2a 100%)',
-    image: '/materias/capa-destaque.webp',
-  },
-  {
-    slug: 'nutricao-fase-certa',
-    category: 'Nutrição',
-    date: '02 ABR 2026',
-    readTime: '8 min de leitura',
-    title: 'Nutrição na fase certa: o que muda na produtividade da soja',
-    bg: 'linear-gradient(135deg, #3a5c20 0%, #5a8a30 100%)',
-    image: '/materias/nutricao-fase-certa.webp',
-  },
-  {
-    slug: 'manejo-pastagem',
-    category: 'Pecuária',
-    date: '18 MAR 2026',
-    readTime: '5 min de leitura',
-    title: 'Manejo de pastagem: recuperação e ganho de peso',
-    bg: 'linear-gradient(135deg, #1a3a12 0%, #2d6020 100%)',
-    image: '/materias/manejo-pastagem.webp',
-  },
-]
 
-export function HomeBlog() {
+export function HomeBlog({ articles }: { articles: ArticleView[] }) {
   const t = useTranslations('homeBlog');
+  const tCat = useTranslations('articlesPage.categories');
   const reduced = useReducedMotion()
   const ref = useRef<HTMLElement>(null)
 
@@ -135,20 +108,20 @@ export function HomeBlog() {
 
         {/* Cards */}
         <div className="grid md:grid-cols-3 gap-5">
-          {ARTICLES.map((a, i) => (
+          {articles.map((a) => (
             <Link
-              key={i}
-              href={`/materias/${a.slug}`}
+              key={a.id}
+              href={`/materias/${a.id}`}
               data-blog-card
               className="rounded-[24px] overflow-hidden flex flex-col group hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               style={{ backgroundColor: '#F2F6F2', border: '1px solid rgba(0,0,0,.06)' }}
             >
               {/* Capa: gradiente por baixo enquanto a foto carrega */}
               <div className="relative h-[200px] overflow-hidden">
-                <div className="w-full h-full" style={{ background: a.bg }} />
+                <div className={`w-full h-full bg-gradient-to-br ${a.color}`} />
                 <Image
                   src={a.image}
-                  alt={t(`articles.${i}.title`)}
+                  alt={a.title}
                   fill
                   sizes="(min-width: 768px) 33vw, 100vw"
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -157,17 +130,17 @@ export function HomeBlog() {
                   className="absolute top-4 left-4 text-[11px] font-bold tracking-[0.10em] uppercase rounded-full px-3 py-1.5"
                   style={{ backgroundColor: 'rgba(0,0,0,.5)', color: '#fff', backdropFilter: 'blur(8px)' }}
                 >
-                  {t(`articles.${i}.category`)}
+                  {tCat(a.category)}
                 </span>
               </div>
 
               {/* Conteúdo */}
               <div className="p-6 flex flex-col gap-3 flex-1">
                 <span className="text-[11px] font-semibold tracking-[0.08em] uppercase" style={{ color: '#7a8f6e' }}>
-                  {t(`articles.${i}.date`)} · {t(`articles.${i}.readTime`)}
+                  {a.date} · {t('readTime', { n: a.readMinutes })}
                 </span>
                 <h3 className="text-[18px] text-subtitle font-bold leading-[1.35] tracking-[-0.01em] flex-1 group-hover:text-primary transition-colors duration-300" style={{ color: '#0F1A0A' }}>
-                  {t(`articles.${i}.title`)}
+                  {a.title}
                 </h3>
                 <span
                   className="inline-flex items-center gap-2 text-[14px] font-semibold transition-transform duration-300 group-hover:translate-x-1"

@@ -296,43 +296,70 @@ export interface Media {
   focalY?: number | null;
 }
 /**
+ * Matérias do blog do site Brasil. Edite em cada idioma pelo seletor "Local" no topo.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "articles".
  */
 export interface Article {
   id: number;
-  titulo: string;
+  /**
+   * Endereço: /materias/<slug>. Só letras minúsculas, números e hífen.
+   */
   slug: string;
-  capa?: (number | null) | Media;
-  autor?: string | null;
-  data?: string | null;
-  conteudo?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  tags?:
+  categoria: 'manejo' | 'nutricao' | 'pecuaria' | 'pesquisa' | 'sustentabilidade';
+  data: string;
+  /**
+   * A mais recente marcada aparece no bloco grande do topo.
+   */
+  destaque?: boolean | null;
+  /**
+   * A home mostra as 3 mais recentes marcadas.
+   */
+  destaqueHome?: boolean | null;
+  /**
+   * Calculado pelo texto. Marque a opção abaixo para definir à mão.
+   */
+  tempoLeitura?: number | null;
+  tempoLeituraManual?: boolean | null;
+  titulo: string;
+  /**
+   * Aparece abaixo do título e como descrição no Google.
+   */
+  subtitulo?: string | null;
+  capa: number | Media;
+  /**
+   * Aparece enquanto a foto carrega.
+   */
+  cor?:
+    | (
+        | 'from-green-700 to-emerald-950'
+        | 'from-green-600 to-green-800'
+        | 'from-teal-600 to-emerald-800'
+        | 'from-amber-600 to-orange-800'
+        | 'from-blue-600 to-indigo-800'
+        | 'from-purple-600 to-purple-900'
+      )
+    | null;
+  /**
+   * Como aparece na matéria. Ex.: Eng. Agrônomo Marcos Silva
+   */
+  assinatura?: string | null;
+  introducao?: string | null;
+  secoes?:
     | {
-        tag?: string | null;
+        titulo?: string | null;
+        /**
+         * Deixe uma linha em branco entre os parágrafos.
+         */
+        paragrafos: string;
         id?: string | null;
       }[]
     | null;
-  seo?: {
-    title?: string | null;
-    description?: string | null;
-  };
+  citacao?: string | null;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -655,26 +682,30 @@ export interface CulturesSelect<T extends boolean = true> {
  * via the `definition` "articles_select".
  */
 export interface ArticlesSelect<T extends boolean = true> {
-  titulo?: T;
   slug?: T;
-  capa?: T;
-  autor?: T;
+  categoria?: T;
   data?: T;
-  conteudo?: T;
-  tags?:
+  destaque?: T;
+  destaqueHome?: T;
+  tempoLeitura?: T;
+  tempoLeituraManual?: T;
+  titulo?: T;
+  subtitulo?: T;
+  capa?: T;
+  cor?: T;
+  assinatura?: T;
+  introducao?: T;
+  secoes?:
     | T
     | {
-        tag?: T;
+        titulo?: T;
+        paragrafos?: T;
         id?: T;
       };
-  seo?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-      };
+  citacao?: T;
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -4,17 +4,19 @@ import React, { useRef } from 'react'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
-import { useTranslations, useLocale } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal , bindSectionReveal, revealToggleActions } from '@/features/animation/charReveal'
 import { onPageEntrance } from '@/features/animation/pageEntrance'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
-import { ARTICLES_DATA, Article } from '../data/articlesData'
+import type { ArticleView } from '../queries'
 import { WhatsAppLink } from '@/features/leads/components/WhatsAppLink'
 
 interface ArticlePageProps {
-  slug: string
+  article: ArticleView
+  /** Até 3 outras matérias para o "Leia também". */
+  related: ArticleView[]
 }
 
 function ArrowLeftIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -53,13 +55,11 @@ function ClockIcon(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-export function ArticlePage({ slug }: ArticlePageProps) {
+export function ArticlePage({ article, related }: ArticlePageProps) {
   const t = useTranslations('articleDetailPage')
   const tCat = useTranslations('articlesPage.categories')
-  const locale = useLocale() as 'pt-BR' | 'en' | 'es'
   const reduced = useReducedMotion()
 
-  const article = ARTICLES_DATA.find((a) => a.id === slug)
 
   const containerRef = useRef<HTMLDivElement>(null)
   const heroRef = useRef<HTMLDivElement>(null)
@@ -205,17 +205,11 @@ export function ArticlePage({ slug }: ArticlePageProps) {
         if (imageRef.current) gsap.set(imageRef.current, { scale: 1, opacity: 1 })
       }
     },
-    { scope: containerRef, dependencies: [slug, reduced] }
+    { scope: containerRef, dependencies: [article.id, reduced] }
   )
 
-  if (!article) return null
-
-  const translation = article.translations[locale] || article.translations['pt-BR']
-
-  // Find 3 related articles (exclude current one)
-  const relatedArticles = ARTICLES_DATA
-    .filter((a) => a.id !== slug)
-    .slice(0, 3)
+  const translation = article
+  const relatedArticles = related
 
   return (
     <div ref={containerRef} className="bg-[#F8FAF8] text-foreground min-h-screen">
@@ -368,7 +362,7 @@ export function ArticlePage({ slug }: ArticlePageProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {relatedArticles.map((rel) => {
-              const relTrans = rel.translations[locale] || rel.translations['pt-BR']
+              const relTrans = rel
               return (
                 <Link
                   key={rel.id}

@@ -538,8 +538,6 @@
     },
     "featuredBadge": "Manejo · Destaque",
     "featuredLabel": "Em alta · 22 ABR 2026",
-    "featuredTitle": "Como reduzir o estresse da lavoura na seca — sem perder produtividade.",
-    "featuredBody": "Três decisões de manejo nutricional que mantêm sua lavoura ativa quando o céu fecha. Um guia prático com base em ensaios reais conduzidos com produtores em MT, GO e BA.",
     "readArticle": "Ler matéria",
     "allArticlesEyebrow": "Todas as matérias",
     "allArticlesTitleStart": "Últimas",
@@ -792,26 +790,7 @@
     "desc": "Conhecimento agronômico aplicado, escrito para quem está no dia a dia do campo.",
     "readArticle": "Ler matéria",
     "viewAll": "Ver todas as matérias",
-    "articles": [
-      {
-        "category": "Manejo",
-        "date": "15 ABR 2026",
-        "readTime": "6 min de leitura",
-        "title": "Como reduzir o estresse da lavoura na seca"
-      },
-      {
-        "category": "Nutrição",
-        "date": "02 ABR 2026",
-        "readTime": "8 min de leitura",
-        "title": "Nutrição na fase certa: o que muda na produtividade da soja"
-      },
-      {
-        "category": "Pecuária",
-        "date": "18 MAR 2026",
-        "readTime": "5 min de leitura",
-        "title": "Manejo de pastagem: recuperação e ganho de peso"
-      }
-    ]
+    "readTime": "{n} min de leitura"
   },
   "homeCtaFinal": {
     "kicker": "Próximo passo",
