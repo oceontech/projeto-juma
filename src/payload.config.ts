@@ -25,13 +25,32 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    // O tema escuro/claro é do próprio painel (src/app/(payload)/custom.scss).
+    theme: 'light',
+    meta: { titleSuffix: ' · Painel Juma' },
+    components: {
+      graphics: {
+        Logo: '/components/admin/Brand#Logo',
+        Icon: '/components/admin/Brand#Icon',
+      },
+      beforeNavLinks: [
+        '/components/admin/Brand#SidebarBrand',
+        '/components/admin/SiteSwitcher#SiteSwitcher',
+        '/components/admin/NavOverview#NavOverview',
+      ],
+      afterNavLinks: ['/components/admin/NavAccount#NavAccount'],
+      views: {
+        dashboard: { Component: '/components/admin/Dashboard#Dashboard' },
+      },
+    },
   },
   // Interface do painel em português para a equipe da Juma.
   i18n: {
     supportedLanguages: { pt },
     fallbackLanguage: 'pt',
   },
-  collections: [Products, Cultures, Articles, Pages, Leads, Media, Users],
+  // A ordem aqui é a ordem dos grupos na sidebar: Operação, Conteúdo, Site, Biblioteca, Administração.
+  collections: [Leads, Articles, Products, Cultures, Pages, Media, Users],
   globals: [Settings],
   localization: {
     locales: [

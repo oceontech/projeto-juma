@@ -32,11 +32,26 @@ export const isLoggedIn: Access = ({ req }) => Boolean(panelUser(req))
 export const isAdmin: Access = ({ req }) => hasRole(req, 'admin')
 export const isAdminField: FieldAccess = ({ req }) => hasRole(req, 'admin')
 
-/** Restringe a leitura aos sites do usuário. Admin vê tudo. */
+/** Cookie do seletor de site da sidebar do painel ("Todos", "Brasil", "EUA"). */
+export const SITE_COOKIE = 'painel_site'
+
+/** Site escolhido no seletor do painel, ou null para "Todos". */
+export function selectedSite(req: PayloadRequest): Site | null {
+  const cookie = req.headers?.get?.('cookie') ?? ''
+  const value = cookie.match(new RegExp(`(?:^|;\\s*)${SITE_COOKIE}=([^;]+)`))?.[1]
+  return value === 'br' || value === 'us' ? value : null
+}
+
+/**
+ * Restringe a leitura aos sites do usuário e, dentro deles, ao site escolhido
+ * no seletor do painel. Admin enxerga os dois sites.
+ */
 export function bySite(req: PayloadRequest, ...roles: Role[]): boolean | Where {
   const user = panelUser(req)
   if (!user?.papel || !roles.includes(user.papel)) return false
-  if (user.papel === 'admin') return true
-  const sites = user.sites?.length ? user.sites : []
+  const allowed: Site[] = user.papel === 'admin' ? [...SITES] : user.sites?.length ? user.sites : []
+  const chosen = selectedSite(req)
+  const sites = chosen && allowed.includes(chosen) ? [chosen] : allowed
+  if (user.papel === 'admin' && sites.length === SITES.length) return true
   return { site: { in: sites } }
 }

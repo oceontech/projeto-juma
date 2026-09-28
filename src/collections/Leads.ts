@@ -27,7 +27,7 @@ export const Leads: CollectionConfig = {
   labels: { singular: 'Lead', plural: 'Leads' },
   admin: {
     useAsTitle: 'nome',
-    defaultColumns: ['nome', 'site', 'status', 'formulario', 'contexto.produto', 'responsavel', 'createdAt'],
+    defaultColumns: ['nome', 'site', 'status', 'formulario', 'contexto.produto', 'createdAt'],
     listSearchableFields: ['nome', 'email', 'telefone', 'empresa'],
     group: 'Operação',
     description: 'Contatos que chegaram pelos sites. Mude o status conforme o atendimento avança.',
@@ -73,7 +73,7 @@ export const Leads: CollectionConfig = {
         { label: 'Convertido', value: 'convertido' },
         { label: 'Descartado', value: 'descartado' },
       ],
-      admin: { position: 'sidebar' },
+      admin: { position: 'sidebar', components: { Cell: '/components/admin/LeadCells#StatusCell' } },
     },
     {
       name: 'responsavel',
@@ -91,7 +91,7 @@ export const Leads: CollectionConfig = {
         { label: 'Estados Unidos', value: 'us' },
       ],
       access: { update: () => false },
-      admin: { position: 'sidebar' },
+      admin: { position: 'sidebar', components: { Cell: '/components/admin/LeadCells#SiteCell' } },
     },
     {
       name: 'formulario',

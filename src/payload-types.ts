@@ -67,11 +67,11 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    leads: Lead;
+    articles: Article;
     products: Product;
     cultures: Culture;
-    articles: Article;
     pages: Page;
-    leads: Lead;
     media: Media;
     users: User;
     'payload-kv': PayloadKv;
@@ -81,11 +81,11 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
+    leads: LeadsSelect<false> | LeadsSelect<true>;
+    articles: ArticlesSelect<false> | ArticlesSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
     cultures: CulturesSelect<false> | CulturesSelect<true>;
-    articles: ArticlesSelect<false> | ArticlesSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
-    leads: LeadsSelect<false> | LeadsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -130,6 +130,221 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * Contatos que chegaram pelos sites. Mude o status conforme o atendimento avança.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leads".
+ */
+export interface Lead {
+  id: number;
+  status: 'novo' | 'em-contato' | 'qualificado' | 'convertido' | 'descartado';
+  responsavel?: (number | null) | User;
+  site: 'br' | 'us';
+  formulario?: ('whatsapp' | 'contato' | 'trial' | 'trial-compact') | null;
+  /**
+   * Preenchido quando o mesmo e-mail ou telefone já tinha chegado antes.
+   */
+  duplicadoDe?: (number | null) | Lead;
+  nome: string;
+  empresa?: string | null;
+  email?: string | null;
+  /**
+   * Só dígitos, com DDI/DDD quando informado.
+   */
+  telefone?: string | null;
+  mensagem?: string | null;
+  /**
+   * De onde veio o interesse: a página em que o contato clicou.
+   */
+  contexto?: {
+    produto?: string | null;
+    cultura?: string | null;
+    detalhe?: string | null;
+  };
+  /**
+   * Respostas próprias de cada formulário (estado, acres, região…).
+   */
+  dados?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  notas?:
+    | {
+        texto: string;
+        autor?: (number | null) | User;
+        data?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  pagina?: string | null;
+  locale?: string | null;
+  variante?: string | null;
+  /**
+   * Último toque antes do contato. O primeiro toque fica no JSON abaixo.
+   */
+  rastreamento?: {
+    utmSource?: string | null;
+    utmMedium?: string | null;
+    utmCampaign?: string | null;
+    utmTerm?: string | null;
+    utmContent?: string | null;
+    gclid?: string | null;
+    fbclid?: string | null;
+    referrer?: string | null;
+    landing?: string | null;
+    primeiroToque?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+  };
+  dispositivo?: {
+    tipo?: string | null;
+    navegador?: string | null;
+  };
+  geo?: {
+    pais?: string | null;
+    regiao?: string | null;
+    cidade?: string | null;
+  };
+  consentimento?: {
+    texto?: string | null;
+    data?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  nome?: string | null;
+  /**
+   * Admin: tudo. Editor: conteúdo do Brasil. Comercial: trabalha os leads.
+   */
+  papel: 'admin' | 'editor' | 'comercial';
+  /**
+   * Sites cujos leads e conteúdos este usuário enxerga.
+   */
+  sites: ('br' | 'us')[];
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
+}
+/**
+ * Matérias do blog do site Brasil. Edite em cada idioma pelo seletor "Local" no topo.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "articles".
+ */
+export interface Article {
+  id: number;
+  /**
+   * Endereço: /materias/<slug>. Só letras minúsculas, números e hífen.
+   */
+  slug: string;
+  categoria: 'manejo' | 'nutricao' | 'pecuaria' | 'pesquisa' | 'sustentabilidade';
+  data: string;
+  /**
+   * A mais recente marcada aparece no bloco grande do topo.
+   */
+  destaque?: boolean | null;
+  /**
+   * A home mostra as 3 mais recentes marcadas.
+   */
+  destaqueHome?: boolean | null;
+  /**
+   * Calculado pelo texto. Marque a opção abaixo para definir à mão.
+   */
+  tempoLeitura?: number | null;
+  tempoLeituraManual?: boolean | null;
+  titulo: string;
+  /**
+   * Aparece abaixo do título e como descrição no Google.
+   */
+  subtitulo?: string | null;
+  capa: number | Media;
+  /**
+   * Aparece enquanto a foto carrega.
+   */
+  cor?:
+    | (
+        | 'from-green-700 to-emerald-950'
+        | 'from-green-600 to-green-800'
+        | 'from-teal-600 to-emerald-800'
+        | 'from-amber-600 to-orange-800'
+        | 'from-blue-600 to-indigo-800'
+        | 'from-purple-600 to-purple-900'
+      )
+    | null;
+  /**
+   * Como aparece na matéria. Ex.: Eng. Agrônomo Marcos Silva
+   */
+  assinatura?: string | null;
+  introducao?: string | null;
+  secoes?:
+    | {
+        titulo?: string | null;
+        /**
+         * Deixe uma linha em branco entre os parágrafos.
+         */
+        paragrafos: string;
+        id?: string | null;
+      }[]
+    | null;
+  citacao?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Imagens e arquivos usados pelos sites. O texto alternativo é obrigatório.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
 }
 /**
  * Produtos do site Brasil. Textos em cada idioma pelo seletor "Local" no topo.
@@ -274,25 +489,6 @@ export interface Product {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-}
-/**
  * Culturas do site Brasil. Textos em cada idioma pelo seletor "Local" no topo.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -402,72 +598,6 @@ export interface Culture {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * Matérias do blog do site Brasil. Edite em cada idioma pelo seletor "Local" no topo.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "articles".
- */
-export interface Article {
-  id: number;
-  /**
-   * Endereço: /materias/<slug>. Só letras minúsculas, números e hífen.
-   */
-  slug: string;
-  categoria: 'manejo' | 'nutricao' | 'pecuaria' | 'pesquisa' | 'sustentabilidade';
-  data: string;
-  /**
-   * A mais recente marcada aparece no bloco grande do topo.
-   */
-  destaque?: boolean | null;
-  /**
-   * A home mostra as 3 mais recentes marcadas.
-   */
-  destaqueHome?: boolean | null;
-  /**
-   * Calculado pelo texto. Marque a opção abaixo para definir à mão.
-   */
-  tempoLeitura?: number | null;
-  tempoLeituraManual?: boolean | null;
-  titulo: string;
-  /**
-   * Aparece abaixo do título e como descrição no Google.
-   */
-  subtitulo?: string | null;
-  capa: number | Media;
-  /**
-   * Aparece enquanto a foto carrega.
-   */
-  cor?:
-    | (
-        | 'from-green-700 to-emerald-950'
-        | 'from-green-600 to-green-800'
-        | 'from-teal-600 to-emerald-800'
-        | 'from-amber-600 to-orange-800'
-        | 'from-blue-600 to-indigo-800'
-        | 'from-purple-600 to-purple-900'
-      )
-    | null;
-  /**
-   * Como aparece na matéria. Ex.: Eng. Agrônomo Marcos Silva
-   */
-  assinatura?: string | null;
-  introducao?: string | null;
-  secoes?:
-    | {
-        titulo?: string | null;
-        /**
-         * Deixe uma linha em branco entre os parágrafos.
-         */
-        paragrafos: string;
-        id?: string | null;
-      }[]
-    | null;
-  citacao?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages".
  */
@@ -498,134 +628,6 @@ export interface Page {
   createdAt: string;
 }
 /**
- * Contatos que chegaram pelos sites. Mude o status conforme o atendimento avança.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "leads".
- */
-export interface Lead {
-  id: number;
-  status: 'novo' | 'em-contato' | 'qualificado' | 'convertido' | 'descartado';
-  responsavel?: (number | null) | User;
-  site: 'br' | 'us';
-  formulario?: ('whatsapp' | 'contato' | 'trial' | 'trial-compact') | null;
-  /**
-   * Preenchido quando o mesmo e-mail ou telefone já tinha chegado antes.
-   */
-  duplicadoDe?: (number | null) | Lead;
-  nome: string;
-  empresa?: string | null;
-  email?: string | null;
-  /**
-   * Só dígitos, com DDI/DDD quando informado.
-   */
-  telefone?: string | null;
-  mensagem?: string | null;
-  /**
-   * De onde veio o interesse: a página em que o contato clicou.
-   */
-  contexto?: {
-    produto?: string | null;
-    cultura?: string | null;
-    detalhe?: string | null;
-  };
-  /**
-   * Respostas próprias de cada formulário (estado, acres, região…).
-   */
-  dados?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  notas?:
-    | {
-        texto: string;
-        autor?: (number | null) | User;
-        data?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  pagina?: string | null;
-  locale?: string | null;
-  variante?: string | null;
-  /**
-   * Último toque antes do contato. O primeiro toque fica no JSON abaixo.
-   */
-  rastreamento?: {
-    utmSource?: string | null;
-    utmMedium?: string | null;
-    utmCampaign?: string | null;
-    utmTerm?: string | null;
-    utmContent?: string | null;
-    gclid?: string | null;
-    fbclid?: string | null;
-    referrer?: string | null;
-    landing?: string | null;
-    primeiroToque?:
-      | {
-          [k: string]: unknown;
-        }
-      | unknown[]
-      | string
-      | number
-      | boolean
-      | null;
-  };
-  dispositivo?: {
-    tipo?: string | null;
-    navegador?: string | null;
-  };
-  geo?: {
-    pais?: string | null;
-    regiao?: string | null;
-    cidade?: string | null;
-  };
-  consentimento?: {
-    texto?: string | null;
-    data?: string | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
- */
-export interface User {
-  id: number;
-  nome?: string | null;
-  /**
-   * Admin: tudo. Editor: conteúdo do Brasil. Comercial: trabalha os leads.
-   */
-  papel: 'admin' | 'editor' | 'comercial';
-  /**
-   * Sites cujos leads e conteúdos este usuário enxerga.
-   */
-  sites: ('br' | 'us')[];
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
-}
-/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -650,6 +652,14 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
+        relationTo: 'leads';
+        value: number | Lead;
+      } | null)
+    | ({
+        relationTo: 'articles';
+        value: number | Article;
+      } | null)
+    | ({
         relationTo: 'products';
         value: number | Product;
       } | null)
@@ -658,16 +668,8 @@ export interface PayloadLockedDocument {
         value: number | Culture;
       } | null)
     | ({
-        relationTo: 'articles';
-        value: number | Article;
-      } | null)
-    | ({
         relationTo: 'pages';
         value: number | Page;
-      } | null)
-    | ({
-        relationTo: 'leads';
-        value: number | Lead;
       } | null)
     | ({
         relationTo: 'media';
@@ -718,6 +720,106 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leads_select".
+ */
+export interface LeadsSelect<T extends boolean = true> {
+  status?: T;
+  responsavel?: T;
+  site?: T;
+  formulario?: T;
+  duplicadoDe?: T;
+  nome?: T;
+  empresa?: T;
+  email?: T;
+  telefone?: T;
+  mensagem?: T;
+  contexto?:
+    | T
+    | {
+        produto?: T;
+        cultura?: T;
+        detalhe?: T;
+      };
+  dados?: T;
+  notas?:
+    | T
+    | {
+        texto?: T;
+        autor?: T;
+        data?: T;
+        id?: T;
+      };
+  pagina?: T;
+  locale?: T;
+  variante?: T;
+  rastreamento?:
+    | T
+    | {
+        utmSource?: T;
+        utmMedium?: T;
+        utmCampaign?: T;
+        utmTerm?: T;
+        utmContent?: T;
+        gclid?: T;
+        fbclid?: T;
+        referrer?: T;
+        landing?: T;
+        primeiroToque?: T;
+      };
+  dispositivo?:
+    | T
+    | {
+        tipo?: T;
+        navegador?: T;
+      };
+  geo?:
+    | T
+    | {
+        pais?: T;
+        regiao?: T;
+        cidade?: T;
+      };
+  consentimento?:
+    | T
+    | {
+        texto?: T;
+        data?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "articles_select".
+ */
+export interface ArticlesSelect<T extends boolean = true> {
+  slug?: T;
+  categoria?: T;
+  data?: T;
+  destaque?: T;
+  destaqueHome?: T;
+  tempoLeitura?: T;
+  tempoLeituraManual?: T;
+  titulo?: T;
+  subtitulo?: T;
+  capa?: T;
+  cor?: T;
+  assinatura?: T;
+  introducao?: T;
+  secoes?:
+    | T
+    | {
+        titulo?: T;
+        paragrafos?: T;
+        id?: T;
+      };
+  citacao?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -861,36 +963,6 @@ export interface CulturesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "articles_select".
- */
-export interface ArticlesSelect<T extends boolean = true> {
-  slug?: T;
-  categoria?: T;
-  data?: T;
-  destaque?: T;
-  destaqueHome?: T;
-  tempoLeitura?: T;
-  tempoLeituraManual?: T;
-  titulo?: T;
-  subtitulo?: T;
-  capa?: T;
-  cor?: T;
-  assinatura?: T;
-  introducao?: T;
-  secoes?:
-    | T
-    | {
-        titulo?: T;
-        paragrafos?: T;
-        id?: T;
-      };
-  citacao?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages_select".
  */
 export interface PagesSelect<T extends boolean = true> {
@@ -902,76 +974,6 @@ export interface PagesSelect<T extends boolean = true> {
     | {
         title?: T;
         description?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "leads_select".
- */
-export interface LeadsSelect<T extends boolean = true> {
-  status?: T;
-  responsavel?: T;
-  site?: T;
-  formulario?: T;
-  duplicadoDe?: T;
-  nome?: T;
-  empresa?: T;
-  email?: T;
-  telefone?: T;
-  mensagem?: T;
-  contexto?:
-    | T
-    | {
-        produto?: T;
-        cultura?: T;
-        detalhe?: T;
-      };
-  dados?: T;
-  notas?:
-    | T
-    | {
-        texto?: T;
-        autor?: T;
-        data?: T;
-        id?: T;
-      };
-  pagina?: T;
-  locale?: T;
-  variante?: T;
-  rastreamento?:
-    | T
-    | {
-        utmSource?: T;
-        utmMedium?: T;
-        utmCampaign?: T;
-        utmTerm?: T;
-        utmContent?: T;
-        gclid?: T;
-        fbclid?: T;
-        referrer?: T;
-        landing?: T;
-        primeiroToque?: T;
-      };
-  dispositivo?:
-    | T
-    | {
-        tipo?: T;
-        navegador?: T;
-      };
-  geo?:
-    | T
-    | {
-        pais?: T;
-        regiao?: T;
-        cidade?: T;
-      };
-  consentimento?:
-    | T
-    | {
-        texto?: T;
-        data?: T;
       };
   updatedAt?: T;
   createdAt?: T;

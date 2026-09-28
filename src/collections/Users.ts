@@ -8,6 +8,7 @@ export const Users: CollectionConfig = {
   admin: {
     useAsTitle: 'email',
     defaultColumns: ['nome', 'email', 'papel', 'sites'],
+    group: 'Administração',
   },
   auth: {
     // Bloqueia a conta por 10 minutos após 5 senhas erradas seguidas.
