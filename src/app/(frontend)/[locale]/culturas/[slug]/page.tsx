@@ -2,20 +2,22 @@ import { notFound } from 'next/navigation'
 import { setRequestLocale } from 'next-intl/server'
 
 import { CulturePage } from '@/features/cultures/components/CulturePage'
-import { CULTURE_SLUGS } from '@/features/cultures/data/slugs'
+import { getCulture, getCultures } from '@/features/cultures/queries'
 import { routing } from '@/i18n/routing'
 
-export function generateStaticParams() {
-  return routing.locales.flatMap((locale) =>
-    CULTURE_SLUGS.map((slug) => ({ locale, slug })),
-  )
+export async function generateStaticParams() {
+  // Os slugs são os mesmos nos 3 idiomas; culturas novas renderizam na primeira visita.
+  const cultures = await getCultures(routing.defaultLocale)
+  return routing.locales.flatMap((locale) => cultures.map((c) => ({ locale, slug: c.slug })))
 }
 
 export async function generateMetadata(props: {
   params: Promise<{ locale: string; slug: string }>
 }) {
-  const { slug } = await props.params
-  return { title: `${slug.charAt(0).toUpperCase() + slug.slice(1)} · Culturas · Juma-Agro` }
+  const { locale, slug } = await props.params
+  const culture = await getCulture(slug, locale)
+  if (!culture) return { title: 'Juma-Agro' }
+  return { title: `${culture.name} · Juma-Agro`, description: culture.description }
 }
 
 export default async function CulturaPage(props: {
@@ -24,11 +26,12 @@ export default async function CulturaPage(props: {
   const { locale, slug } = await props.params
   setRequestLocale(locale)
 
-  if (!(CULTURE_SLUGS as readonly string[]).includes(slug)) notFound()
+  const culture = await getCulture(slug, locale)
+  if (!culture) notFound()
 
   return (
     <div>
-      <CulturePage slug={slug} />
+      <CulturePage culture={culture} />
     </div>
   )
 }

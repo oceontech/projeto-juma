@@ -5,6 +5,7 @@ import { HeroJornada }      from '@/features/home/components/HeroJornada'
 import { SectionNav }       from '@/features/home/components/SectionNav'
 import { SectionPull }     from '@/features/animation/SectionPull'
 import { getHomeArticles } from '@/features/articles/queries'
+import { getCultureCards } from '@/features/cultures/queries'
 
 // Seções abaixo da dobra do "filme contínuo": code-split em chunks separados
 // (continuam com SSR normal — só tiram peso do bundle inicial de hidratação).
@@ -27,7 +28,7 @@ export default async function HomePage(props: {
 }) {
   const { locale } = await props.params
   setRequestLocale(locale)
-  const articles = await getHomeArticles(locale)
+  const [articles, cultures] = await Promise.all([getHomeArticles(locale), getCultureCards(locale)])
 
   return (
     <>
@@ -46,7 +47,7 @@ export default async function HomePage(props: {
         <HomeProductShowcase />
       </div>
       <SectionPull id="sec-culturas" className="scroll-mt-24">
-        <HomeCultures />
+        <HomeCultures cultures={cultures} />
       </SectionPull>
       <SectionPull id="sec-numeros" data-nav-theme="dark" className="scroll-mt-24">
         <ProofStrip />

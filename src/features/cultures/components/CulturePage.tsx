@@ -22,67 +22,12 @@ export type Challenge = { stage: string; title: string; desc: string }
 /** Preposição correta para o gênero da cultura em pt-BR (a soja, o milho, os citros). */
 export type CulturePrep = { in: string; of: string; for: string; your: string }
 
-export const REC_META: Record<string, { name: string, labelColor: string, image?: string }> = {
-  'acorda-ultra': { name: 'Acorda Ultra', labelColor: '#008dc2', image: '/produtos/acorda-ultra.webp' },
-  'acorda-cana': { name: 'Acorda Cana', labelColor: '#79ab34', image: '/produtos/acorda-cana.webp' },
-  'aduban': { name: 'Aduban', labelColor: '#ad1115', image: '/produtos/aduban.webp' },
-  'aminosan': { name: 'Aminosan®', labelColor: '#006838', image: '/produtos/aminosan.webp' },
-  'fitofert': { name: 'Fitofert', labelColor: '#006838', image: '/produtos/fitofert.webp' },
-  'revigophos-amino': { name: 'RevigoPhos Amino', labelColor: '#312783', image: '/produtos/revigophos-amino.webp' },
-  'revigo-comoni': { name: 'Revigo CoMoNi', labelColor: '#312783', image: '/produtos/revigo-comoni.webp' },
-  'revigo-milho': { name: 'Revigo + Milho', labelColor: '#312783', image: '/produtos/revigo-milho.webp' },
-  'revigo-pasto': { name: 'Revigo + Pasto', labelColor: '#312783', image: '/produtos/revigo-pasto.webp' },
-  'kmep-ultra': { name: 'Kmep Ultra', labelColor: '#ad1115', image: '/produtos/kmep-ultra.webp' },
-  'redutan-sili-4': { name: 'Redutan NPK Sili-4', labelColor: '#006838', image: '/produtos/redutan-sili-4.webp' }
-}
 
 export type CultureMeta = {
   gradient: string
   image: string
 }
 
-export const META: Record<string, CultureMeta> = {
-  cafe: {
-    gradient: 'linear-gradient(165deg, #6c4226 0%, #2a1a10 100%)',
-    image: '/assets/cultures/cafe.webp?v=20260731',
-  },
-  soja: {
-    gradient: 'linear-gradient(165deg, #5d7a3a, #2c3a18)',
-    image: '/assets/cultures/soja.webp?v=20260731b',
-  },
-  milho: {
-    gradient: 'linear-gradient(165deg, #c3a445, #6b4f15)',
-    image: '/assets/cultures/milho.webp?v=20260731b',
-  },
-  cana: {
-    gradient: 'linear-gradient(165deg, #7fa356, #364a1f)',
-    image: '/assets/cultures/cana.webp?v=20260731',
-  },
-  algodao: {
-    gradient: 'linear-gradient(165deg, #e7dfc9, #87826a)',
-    image: '/assets/cultures/algodao.webp?v=20260731',
-  },
-  feijao: {
-    gradient: 'linear-gradient(165deg, #8b5e3b, #2f1f12)',
-    image: '/assets/cultures/feijao.webp?v=20260731b',
-  },
-  citros: {
-    gradient: 'linear-gradient(165deg, #d3a52a, #5e4910)',
-    image: '/assets/cultures/limao.webp?v=20260731',
-  },
-  batata: {
-    gradient: 'linear-gradient(165deg, #a08562, #463623)',
-    image: '/assets/cultures/batata.webp?v=20260731',
-  },
-  tomate: {
-    gradient: 'linear-gradient(165deg, #b73a2a, #4e1410)',
-    image: '/assets/cultures/tomate.webp?v=20260731',
-  },
-  pastagem: {
-    gradient: 'linear-gradient(165deg, #80a558, #2c3e1d)',
-    image: '/assets/cultures/pastagem.webp?v=20260731',
-  },
-}
 
 export type CultureData = CultureMeta & {
   name: string
@@ -227,36 +172,8 @@ function MobileChallengesMarquee({ challenges }: { challenges: Challenge[] }) {
   )
 }
 
-export function CulturePage({ slug }: { slug: string }) {
+export function CulturePage({ culture }: { culture: CultureData }) {
   const tPage = useTranslations('culturePage')
-  const tData = useTranslations('cultureData')
-  const meta = META[slug]
-  
-  const culture: CultureData | null = meta ? {
-    ...meta,
-    name: tData(`${slug}.name`),
-    badge: tData(`${slug}.badge`),
-    description: tData(`${slug}.description`),
-    actua: tData.raw(`${slug}.actua`) as string[],
-    challenges: Object.values(tData.raw(`${slug}.challenges`) as Record<string, Challenge>),
-    management: Object.values(tData.raw(`${slug}.management`) as Record<string, ManagePhase>).map((v) => ({
-      label: v.label,
-      fase: v.fase,
-      products: v.products || []
-    })),
-    prep: tData.raw(`${slug}.prep`) as CulturePrep,
-    managementNote: tData(`${slug}.managementNote`),
-    source: tData(`${slug}.source`),
-    recommended: Object.entries(tData.raw(`${slug}.recommended`) as Record<string, { tag: string; desc: string }>).map(([recSlug, recData]) => ({
-      slug: recSlug,
-      name: REC_META[recSlug]?.name || recSlug,
-      tag: recData.tag,
-      desc: recData.desc,
-      labelColor: REC_META[recSlug]?.labelColor || '#000000',
-      image: REC_META[recSlug]?.image
-    }))
-  } : null;
-
   const reduced = useReducedMotion()
   const heroRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)

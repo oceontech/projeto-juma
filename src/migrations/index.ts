@@ -3,6 +3,8 @@ import * as migration_20260928_163241_materias_campos from './20260928_163241_ma
 import * as migration_20260928_163302_materias_limpeza from './20260928_163302_materias_limpeza';
 import * as migration_20260928_173058_produtos_campos from './20260928_173058_produtos_campos';
 import * as migration_20260928_173128_produtos_limpeza from './20260928_173128_produtos_limpeza';
+import * as migration_20260928_180201_culturas_campos from './20260928_180201_culturas_campos';
+import * as migration_20260928_180341_culturas_limpeza from './20260928_180341_culturas_limpeza';
 
 export const migrations = [
   {
@@ -28,6 +30,16 @@ export const migrations = [
   {
     up: migration_20260928_173128_produtos_limpeza.up,
     down: migration_20260928_173128_produtos_limpeza.down,
-    name: '20260928_173128_produtos_limpeza'
+    name: '20260928_173128_produtos_limpeza',
+  },
+  {
+    up: migration_20260928_180201_culturas_campos.up,
+    down: migration_20260928_180201_culturas_campos.down,
+    name: '20260928_180201_culturas_campos',
+  },
+  {
+    up: migration_20260928_180341_culturas_limpeza.up,
+    down: migration_20260928_180341_culturas_limpeza.down,
+    name: '20260928_180341_culturas_limpeza'
   },
 ];

@@ -11,21 +11,10 @@ import { DUR, EASE, blurPx } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Container } from '@/components/layout/Container'
 import { useTranslations } from 'next-intl'
+import type { CultureCard } from '@/features/cultures/queries'
 
-const CULTURES = [
-  { slug: 'soja',     label: 'Soja',           idx: '01', bg: 'linear-gradient(135deg, #2d6a1f 0%, #4a8c2a 100%)', image: '/assets/cultures/soja.webp?v=20260731b' },
-  { slug: 'milho',    label: 'Milho',           idx: '02', bg: 'linear-gradient(135deg, #6b8c22 0%, #8fad2e 100%)', image: '/assets/cultures/milho.webp?v=20260731b' },
-  { slug: 'cafe',     label: 'Café',            idx: '03', bg: 'linear-gradient(135deg, #4a2c0e 0%, #7a4a1a 100%)', image: '/assets/cultures/cafe.webp?v=20260731' },
-  { slug: 'cana',     label: 'Cana-de-açúcar',  idx: '04', bg: 'linear-gradient(135deg, #3d6b1a 0%, #5e9926 100%)', image: '/assets/cultures/cana.webp?v=20260731' },
-  { slug: 'algodao',  label: 'Algodão',         idx: '05', bg: 'linear-gradient(135deg, #5a7a3a 0%, #829b55 100%)', image: '/assets/cultures/algodao.webp?v=20260731' },
-  { slug: 'feijao',   label: 'Feijão',          idx: '06', bg: 'linear-gradient(135deg, #6b3a0e 0%, #9a5e24 100%)', image: '/assets/cultures/feijao.webp?v=20260731b' },
-  { slug: 'citros',   label: 'Citros',          idx: '07', bg: 'linear-gradient(135deg, #7a5a0a 0%, #b8850f 100%)', image: '/assets/cultures/limao.webp?v=20260731' },
-  { slug: 'batata',   label: 'Batata',          idx: '08', bg: 'linear-gradient(135deg, #5a4a0a 0%, #8f7520 100%)', image: '/assets/cultures/batata.webp?v=20260731' },
-  { slug: 'tomate',   label: 'Tomate',          idx: '09', bg: 'linear-gradient(135deg, #7a1a0e 0%, #b52a1a 100%)', image: '/assets/cultures/tomate.webp?v=20260731' },
-  { slug: 'pastagem', label: 'Pastagem',        idx: '10', bg: 'linear-gradient(135deg, #1a5c14 0%, #2e8c24 100%)', image: '/assets/cultures/pastagem.webp?v=20260731' },
-]
 
-export function HomeCultures() {
+export function HomeCultures({ cultures }: { cultures: CultureCard[] }) {
   const t = useTranslations('homeCultures')
   const reduced = useReducedMotion()
   const ref = useRef<HTMLElement>(null)
@@ -148,17 +137,17 @@ export function HomeCultures() {
         <div
           className="grid grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3 auto-rows-[140px] sm:auto-rows-[200px]"
         >
-          {CULTURES.map((c, i) => (
+          {cultures.map((c) => (
             <Link
               key={c.slug}
               href={`/culturas/${c.slug}`}
               data-culture-card
               className="relative rounded-[20px] overflow-hidden group cursor-pointer"
-              style={{ background: c.bg }}
+              style={{ background: c.homeBackground }}
             >
               <Image
                 src={c.image}
-                alt={t(`cultures.${i}`)}
+                alt={c.name}
                 fill
                 sizes="(min-width: 1024px) 20vw, 50vw"
                 quality={80}
@@ -177,12 +166,12 @@ export function HomeCultures() {
                   className="text-[10px] sm:text-[11px] font-bold tracking-[0.12em] uppercase"
                   style={{ color: 'rgba(255,255,255,.9)' }}
                 >
-                  {c.idx}
+                  {c.index}
                 </span>
                 <span
                   className="text-subtitle text-[13px] sm:text-[16px] font-bold text-white leading-[1.1] tracking-[-0.01em]"
                 >
-                  {t(`cultures.${i}`)}
+                  {c.name}
                 </span>
               </div>
             </Link>

@@ -293,65 +293,113 @@ export interface Media {
   focalY?: number | null;
 }
 /**
+ * Culturas do site Brasil. Textos em cada idioma pelo seletor "Local" no topo.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "cultures".
  */
 export interface Culture {
   id: number;
-  nome: string;
+  /**
+   * Endereço: /culturas/<slug>.
+   */
   slug: string;
-  nomeCientifico?: string | null;
+  /**
+   * Menor aparece primeiro na grade e na home.
+   */
+  ordem?: number | null;
+  nome: string;
+  /**
+   * Pílula acima do nome. Ex.: Grão
+   */
+  etiqueta?: string | null;
+  descricao?: string | null;
+  /**
+   * Foto de campo usada no topo, na grade e na home.
+   */
   foto?: (number | null) | Media;
-  introducao?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  comoAtua?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  desafios?:
+  /**
+   * Um item por linha.
+   */
+  listaAtuacao?: string | null;
+  listaDesafios?:
     | {
+        /**
+         * Ex.: 01 · Tratamento de sementes
+         */
+        etapa?: string | null;
         titulo?: string | null;
         descricao?: string | null;
         id?: string | null;
       }[]
     | null;
-  manejoPorFase?:
+  /**
+   * Texto do folheto de sugestões de nutrição da cultura.
+   */
+  fasesManejo?:
     | {
-        fase?: string | null;
         /**
-         * Produtos recomendados na fase
+         * Ex.: Fase 01
          */
-        produtos?: string | null;
+        rotulo?: string | null;
+        /**
+         * Ex.: Tratamento de sementes ou V2
+         */
+        fase?: string | null;
+        itens?:
+          | {
+              /**
+               * Nome livre: vale também para produtos sem página no site.
+               */
+              produto?: string | null;
+              dose?: string | null;
+              id?: string | null;
+            }[]
+          | null;
         id?: string | null;
       }[]
     | null;
-  produtosRelacionados?: (number | Product)[] | null;
+  notaManejo?: string | null;
+  /**
+   * Ex.: Folheto Juma-Agro · Sugestões de nutrição para soja (2025)
+   */
+  fonte?: string | null;
+  /**
+   * Nome, cor e foto vêm do cadastro do produto.
+   */
+  recomendados?:
+    | {
+        produto: number | Product;
+        tag?: string | null;
+        descricao?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  preposicoes?: {
+    /**
+     * na / no / nos
+     */
+    em?: string | null;
+    /**
+     * da / do / dos
+     */
+    de?: string | null;
+    /**
+     * para a / para o
+     */
+    para?: string | null;
+    /**
+     * na sua / no seu
+     */
+    sua?: string | null;
+  };
+  aparencia?: {
+    gradienteHero?: string | null;
+    fundoHome?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * Matérias do blog do site Brasil. Edite em cada idioma pelo seletor "Local" no topo.
@@ -754,29 +802,62 @@ export interface ProductsSelect<T extends boolean = true> {
  * via the `definition` "cultures_select".
  */
 export interface CulturesSelect<T extends boolean = true> {
-  nome?: T;
   slug?: T;
-  nomeCientifico?: T;
+  ordem?: T;
+  nome?: T;
+  etiqueta?: T;
+  descricao?: T;
   foto?: T;
-  introducao?: T;
-  comoAtua?: T;
-  desafios?:
+  listaAtuacao?: T;
+  listaDesafios?:
     | T
     | {
+        etapa?: T;
         titulo?: T;
         descricao?: T;
         id?: T;
       };
-  manejoPorFase?:
+  fasesManejo?:
     | T
     | {
+        rotulo?: T;
         fase?: T;
-        produtos?: T;
+        itens?:
+          | T
+          | {
+              produto?: T;
+              dose?: T;
+              id?: T;
+            };
         id?: T;
       };
-  produtosRelacionados?: T;
+  notaManejo?: T;
+  fonte?: T;
+  recomendados?:
+    | T
+    | {
+        produto?: T;
+        tag?: T;
+        descricao?: T;
+        id?: T;
+      };
+  preposicoes?:
+    | T
+    | {
+        em?: T;
+        de?: T;
+        para?: T;
+        sua?: T;
+      };
+  aparencia?:
+    | T
+    | {
+        gradienteHero?: T;
+        fundoHome?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

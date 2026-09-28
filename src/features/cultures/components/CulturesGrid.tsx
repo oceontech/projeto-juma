@@ -10,19 +10,8 @@ import { createCharReveal , bindSectionReveal, revealToggleActions } from '@/fea
 import { onPageEntrance } from '@/features/animation/pageEntrance'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
+import type { CultureCard } from '../queries'
 
-const CULTURE_KEYS = [
-  { id: 'soja', num: '01', color: 'from-green-600 to-green-800', image: '/assets/cultures/soja.webp?v=20260731b' },
-  { id: 'milho', num: '02', color: 'from-yellow-500 to-amber-700', image: '/assets/cultures/milho.webp?v=20260731b' },
-  { id: 'cafe', num: '03', color: 'from-amber-700 to-orange-900', image: '/assets/cultures/cafe.webp?v=20260731' },
-  { id: 'cana', num: '04', color: 'from-lime-500 to-green-700', image: '/assets/cultures/cana.webp?v=20260731' },
-  { id: 'algodao', num: '05', color: 'from-blue-100 to-slate-300', text: 'text-foreground', image: '/assets/cultures/algodao.webp?v=20260731' },
-  { id: 'feijao', num: '06', color: 'from-orange-800 to-red-900', image: '/assets/cultures/feijao.webp?v=20260731b' },
-  { id: 'citros', num: '07', color: 'from-orange-400 to-orange-600', image: '/assets/cultures/limao.webp?v=20260731' },
-  { id: 'batata', num: '08', color: 'from-amber-200 to-yellow-600', text: 'text-foreground', image: '/assets/cultures/batata.webp?v=20260731' },
-  { id: 'tomate', num: '09', color: 'from-red-500 to-red-700', image: '/assets/cultures/tomate.webp?v=20260731' },
-  { id: 'pastagem', num: '10', color: 'from-green-400 to-green-600', image: '/assets/cultures/pastagem.webp?v=20260731' },
-] as const
 
 function ArrowTopRightIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -65,7 +54,7 @@ function TargetIcon(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-export function CulturesGrid() {
+export function CulturesGrid({ cultures }: { cultures: CultureCard[] }) {
   const t = useTranslations('culturesPage')
   const reduced = useReducedMotion()
   const containerRef = useRef<HTMLDivElement>(null)
@@ -243,26 +232,26 @@ export function CulturesGrid() {
 
         {/* Grade de Culturas */}
         <div ref={gridRef} className="grid grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-4 mb-32">
-        {CULTURE_KEYS.map((culture) => (
+        {cultures.map((culture) => (
           <Link
-            key={culture.id}
-            href={`/culturas/${culture.id}`}
+            key={culture.slug}
+            href={`/culturas/${culture.slug}`}
             data-culture-card
             className="group relative flex flex-col justify-end h-36 sm:h-64 lg:h-72 rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
           >
             <Image
               src={culture.image}
-              alt={t(`cultures.${culture.id}`)}
+              alt={culture.name}
               fill
               className="object-cover group-hover:scale-110 transition-transform duration-700"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 pointer-events-none" />
             <div className="relative z-10 p-3 sm:p-6 flex flex-col justify-end h-full pointer-events-none">
               <span className="text-white/60 font-mono text-[10px] sm:text-sm font-bold tracking-widest mb-0.5 sm:mb-1 group-hover:text-white/90 transition-colors">
-                {culture.num}
+                {culture.index}
               </span>
               <span className="text-white text-subtitle text-[13px] sm:text-2xl font-bold tracking-tight leading-[1.1]">
-                {t(`cultures.${culture.id}`)}
+                {culture.name}
               </span>
             </div>
             <div className="hidden sm:block absolute top-6 right-6 z-10 text-white opacity-0 -translate-x-4 translate-y-4 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-300">
