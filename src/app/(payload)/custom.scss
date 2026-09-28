@@ -1,9 +1,8 @@
 /*
- * Tema do painel Juma: fundo escuro verde-preto, sidebar sobre o fundo e a
- * área de trabalho num grande painel claro arredondado. Verde Juma e verde vivo
- * nos destaques; KPIs escuros e claros; pílulas suaves.
- * Só variáveis e classes públicas do Payload, mais os componentes em
- * src/components/admin.
+ * Tema do painel Juma: fundo escuro verde-preto, sidebar compacta sobre o fundo
+ * e a área de trabalho num painel claro arredondado. Verde Juma e verde vivo nos
+ * destaques. Nenhum controle nativo à vista: selects, datas e checkboxes têm a
+ * identidade do painel (componentes em src/components/admin).
  */
 @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap');
 
@@ -13,11 +12,14 @@ html[data-theme='light'] {
   --juma-green: #004c26;
   --juma-green-hover: #003a1d;
   --juma-lime: #22c55e;
+  --juma-lime-soft: rgba(34, 197, 94, 0.14);
   --juma-mint: #dff3e4;
   --juma-canvas: #f4f5f3;
   --juma-card: #ffffff;
   --juma-line: #e7e8e4;
+  --juma-line-strong: #d6d8d2;
   --juma-muted: #71717a;
+  --juma-focus: 0 0 0 3px rgba(34, 197, 94, 0.25);
 
   --theme-bg: var(--juma-canvas);
   --theme-input-bg: #ffffff;
@@ -34,12 +36,13 @@ html[data-theme='light'] {
   --style-radius-s: 8px;
   --style-radius-m: 12px;
   --style-radius-l: 18px;
-  --nav-width: 272px;
+  --nav-width: 236px;
 
   --juma-shadow: 0 1px 2px rgba(12, 20, 15, 0.04), 0 10px 30px rgba(12, 20, 15, 0.06);
+  --juma-pop: 0 12px 40px rgba(12, 20, 15, 0.16), 0 0 0 1px rgba(12, 20, 15, 0.06);
   --juma-bg:
-    radial-gradient(900px 600px at -10% 110%, rgba(34, 197, 94, 0.28), transparent 60%),
-    radial-gradient(700px 500px at 0% 0%, rgba(0, 76, 38, 0.55), transparent 65%),
+    radial-gradient(900px 600px at -10% 110%, rgba(34, 197, 94, 0.22), transparent 60%),
+    radial-gradient(700px 500px at 0% 0%, rgba(0, 76, 38, 0.5), transparent 65%),
     linear-gradient(160deg, #06110a 0%, #050806 60%, #040504 100%);
 }
 
@@ -61,7 +64,12 @@ h3 {
   letter-spacing: -0.03em;
 }
 
-/* ─── Área de trabalho: painel claro arredondado sobre o fundo escuro ─── */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--juma-focus);
+}
+
+/* ─── Área de trabalho ───────────────────────────────────────────────── */
 @media (min-width: 1025px) {
   .template-default {
     background: transparent;
@@ -69,11 +77,23 @@ h3 {
 
   .template-default__wrap {
     background: var(--juma-canvas);
-    margin: 12px 12px 12px 0;
-    border-radius: 28px;
-    min-height: calc(100vh - 24px);
+    margin: 10px 10px 10px 0;
+    border-radius: 24px;
+    min-height: calc(100vh - 20px);
     overflow: clip;
     box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+  }
+
+  // Sidebar sempre aberta no desktop (NavOverview): sem botão de recolher.
+  .template-default__nav-toggler-wrapper {
+    display: none;
+  }
+}
+
+@media (max-width: 1024px) {
+  .template-default__wrap {
+    background: var(--juma-canvas);
+    min-height: 100vh;
   }
 }
 
@@ -83,18 +103,38 @@ h3 {
   backdrop-filter: none;
 }
 
-/* ─── Sidebar ─────────────────────────────────────────────────────────── */
+// Descrição da coleção só na lista; na edição ela repete o que a tela já diz.
+.doc-header__after-header .custom-view-description {
+  display: none;
+}
+
+// Abas da ficha: somem quando só existe "Editar".
+.doc-tabs:has(.doc-tabs__tabs > :only-child) {
+  display: none;
+}
+
+.juma-home-icon {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: var(--juma-muted);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ─── Sidebar compacta ───────────────────────────────────────────────── */
 .nav {
   background: transparent;
   border: 0;
-  color: #d4d4d8;
+  color: #a1a1aa;
 
   @media (max-width: 1024px) {
     background: var(--juma-bg);
   }
 
   .nav__scroll {
-    padding: 22px 16px 16px;
+    padding: 18px 12px 12px;
   }
 
   .nav__header {
@@ -102,60 +142,86 @@ h3 {
   }
 
   .nav-group {
-    margin-top: 10px;
+    margin-top: 14px;
   }
 
   .nav-group__toggle {
-    color: #6b7280;
-    font-size: 11px;
+    color: #52525b;
+    font-size: 10.5px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    padding: 8px 4px;
+    letter-spacing: 0.12em;
+    padding: 4px 10px 6px;
+
+    svg {
+      width: 12px;
+      opacity: 0.6;
+    }
   }
 
   .nav__link {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 12px;
-    color: #e4e4e7;
-    border-radius: 14px;
-    padding: 7px 10px 7px 7px;
-    margin: 2px 0;
-    font-size: 14.5px;
+    gap: 11px;
+    height: 36px;
+    padding: 0 10px;
+    margin: 1px 0;
+    border-radius: 10px;
+    color: #a1a1aa;
+    font-size: 13.5px;
     font-weight: 500;
     transition:
-      background 0.15s ease,
-      color 0.15s ease;
+      background 0.18s ease,
+      color 0.18s ease;
 
+    // Ícone como máscara: segue a cor do item.
     &::before {
       content: '';
       flex: none;
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      background-color: rgba(255, 255, 255, 0.06);
-      background-image: var(--nav-icon, none);
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: 17px;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+      width: 17px;
+      height: 17px;
+      background-color: currentColor;
+      -webkit-mask: var(--nav-icon, none) center / contain no-repeat;
+      mask: var(--nav-icon, none) center / contain no-repeat;
+      opacity: 0.85;
+      transition:
+        background-color 0.18s ease,
+        transform 0.18s ease;
     }
 
     &:hover,
     &:focus-visible {
-      background: rgba(255, 255, 255, 0.05);
-      color: #fff;
+      color: #f4f4f5;
+      background: rgba(255, 255, 255, 0.045);
+
+      &::before {
+        transform: translateX(1px);
+      }
     }
   }
 
-  .nav__link:has(.nav__link-indicator) {
-    background: rgba(255, 255, 255, 0.09);
+  // Página ativa: faixa verde suave, barra de luz à esquerda e ícone verde.
+  .nav__link:has(.nav__link-indicator),
+  .nav__link[aria-current='page'] {
     color: #fff;
+    background: linear-gradient(90deg, rgba(34, 197, 94, 0.16), rgba(34, 197, 94, 0.02) 85%);
 
     &::before {
-      background-color: var(--juma-green);
-      box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.45);
+      background-color: var(--juma-lime);
+      opacity: 1;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: -12px;
+      top: 9px;
+      bottom: 9px;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: var(--juma-lime);
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.8);
     }
   }
 
@@ -169,7 +235,7 @@ h3 {
   }
 
   .nav__log-out {
-    color: #a1a1aa;
+    color: #71717a;
 
     &:hover {
       color: #fff;
@@ -177,16 +243,15 @@ h3 {
   }
 }
 
-// Ícones dos itens (traços brancos, estilo lucide), por destino do link.
 @function juma-icon($path) {
-  @return url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23f4f4f5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">#{$path}</svg>');
+  @return url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">#{$path}</svg>');
 }
 
 .nav__link[href$='/admin'] {
-  --nav-icon: #{juma-icon('<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>')};
+  --nav-icon: #{juma-icon('<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>')};
 }
 #nav-leads {
-  --nav-icon: #{juma-icon('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>')};
+  --nav-icon: #{juma-icon('<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13l3.5 7v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z"/>')};
 }
 #nav-articles {
   --nav-icon: #{juma-icon('<path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/>')};
@@ -201,144 +266,102 @@ h3 {
   --nav-icon: #{juma-icon('<path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5"/>')};
 }
 #nav-media {
-  --nav-icon: #{juma-icon('<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/>')};
+  --nav-icon: #{juma-icon('<rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/>')};
 }
 #nav-users {
   --nav-icon: #{juma-icon('<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/>')};
 }
 .nav__link[id^='nav-global-'] {
-  --nav-icon: #{juma-icon('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>')};
-}
-
-// No desktop a sidebar fica sempre aberta (NavOverview): sem botão de recolher.
-@media (min-width: 1025px) {
-  .template-default__nav-toggler-wrapper {
-    display: none;
-  }
+  --nav-icon: #{juma-icon('<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>')};
 }
 
 .juma-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 2px 4px 18px;
+  display: block;
+  padding: 2px 10px 18px;
 
   img {
-    height: 30px;
+    display: block;
+    height: 40px;
     width: auto;
   }
-
-  span {
-    padding: 3px 9px;
-    border-radius: 999px;
-    background: rgba(34, 197, 94, 0.16);
-    color: #4ade80;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-  }
 }
 
-// Rótulo de seção e componentes próprios da sidebar
 .juma-nav-label {
-  margin: 18px 4px 8px;
-  color: #6b7280;
-  font-size: 11px;
+  margin: 16px 10px 6px;
+  color: #52525b;
+  font-size: 10.5px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
 }
 
-.juma-site {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 12px 10px 10px;
-  margin: 6px 0 4px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.06);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
-  cursor: pointer;
+// Seletor de site (usa o Dropdown próprio)
+.juma-site.jdd {
+  display: block;
+  width: 100%;
+  margin: 0 0 4px;
 
-  select {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
+  .jdd__trigger {
+    width: 100%;
+    height: 38px;
+    padding: 0 10px;
+    gap: 9px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+    color: #f4f4f5;
+    font-size: 13.5px;
+
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.08);
+    }
+  }
+
+  .jdd__menu {
+    left: 0;
+    right: 0;
   }
 }
 
-.juma-site__icon {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 11px;
-  background: linear-gradient(145deg, #2fdc6a, #0f8a3a);
-  color: #04130a;
-  font-size: 12px;
-  font-weight: 700;
-
-  &--us {
-    background: linear-gradient(145deg, #60a5fa, #1d4ed8);
-    color: #fff;
-  }
+.juma-site__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
 }
 
 .juma-site__text {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  line-height: 1.2;
-
-  small {
-    color: #a1a1aa;
-    font-size: 11px;
-  }
-
-  b {
-    color: #fff;
-    font-size: 14px;
-    font-weight: 600;
-  }
-}
-
-.juma-site__chevron {
-  width: 16px;
-  height: 16px;
-  margin-left: auto;
-  color: #a1a1aa;
+  flex: 1;
+  text-align: left;
 }
 
 .juma-account {
-  margin-top: auto;
-  padding-top: 12px;
+  margin-top: 18px;
 }
 
 .juma-account__card {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px;
-  border-radius: 14px;
+  gap: 10px;
+  padding: 6px;
+  border-radius: 10px;
   text-decoration: none;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.045);
   }
 }
 
 .juma-account__avatar {
   display: grid;
   place-items: center;
-  width: 38px;
-  height: 38px;
+  width: 32px;
+  height: 32px;
   border-radius: 999px;
   background: linear-gradient(145deg, #2fdc6a, #0f8a3a);
   color: #04130a;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .juma-account__text {
@@ -347,18 +370,141 @@ h3 {
   line-height: 1.25;
 
   b {
-    color: #fff;
-    font-size: 14px;
+    color: #f4f4f5;
+    font-size: 13px;
     font-weight: 600;
   }
 
   small {
-    color: #a1a1aa;
-    font-size: 12px;
+    color: #71717a;
+    font-size: 11.5px;
   }
 }
 
-/* ─── Botões ─────────────────────────────────────────────────────────── */
+/* ─── Dropdown próprio (src/components/admin/ui/Dropdown.tsx) ────────── */
+.jdd {
+  position: relative;
+  display: inline-block;
+}
+
+.jdd__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+  }
+}
+
+.jdd__chevron {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.6;
+}
+
+.jdd__dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 999px;
+}
+
+.jdd__menu {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 6px);
+  min-width: 200px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: var(--juma-pop);
+  animation: jdd-in 0.14s ease-out;
+
+  &--left {
+    left: 0;
+  }
+
+  &--right {
+    right: 0;
+  }
+}
+
+.jdd--dark .jdd__menu {
+  background: #111a14;
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+@keyframes jdd-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+
+.jdd__option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 9px;
+  font-size: 13.5px;
+  color: var(--juma-ink);
+  cursor: pointer;
+
+  &.is-active {
+    background: #f1f3ef;
+  }
+
+  &.is-selected {
+    font-weight: 600;
+  }
+
+  small {
+    display: block;
+    color: var(--juma-muted);
+    font-size: 12px;
+    font-weight: 400;
+  }
+
+  .jdd--dark & {
+    color: #e4e4e7;
+
+    &.is-active {
+      background: rgba(255, 255, 255, 0.07);
+    }
+  }
+}
+
+.jdd__option-text {
+  flex: 1;
+}
+
+.jdd__check {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--juma-lime);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ─── Controles do Payload com a identidade do painel ────────────────── */
 .btn--style-primary {
   background-color: var(--juma-ink);
   color: #fff;
@@ -376,18 +522,232 @@ h3 {
   border-radius: 999px;
 }
 
-/* ─── Listas, cards e formulários ────────────────────────────────────── */
-.collection-list__wrap,
-.collection-edit,
-.doc-header {
-  --theme-bg: var(--juma-canvas);
+// "Criar novo" ao lado do título da lista padrão: botão de verdade.
+.list-header__create-new-button,
+.collection-list__header .btn--style-pill {
+  background: var(--juma-ink) !important;
+  color: #fff !important;
 }
 
+input,
+textarea {
+  border-radius: var(--style-radius-m) !important;
+}
+
+.field-type input:focus,
+.field-type textarea:focus {
+  border-color: var(--juma-lime) !important;
+  box-shadow: var(--juma-focus) !important;
+}
+
+// Select do Payload (react-select, prefixo "rs")
+.rs__control {
+  min-height: 42px !important;
+  border-radius: var(--style-radius-m) !important;
+  border-color: var(--juma-line-strong) !important;
+  box-shadow: none !important;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:hover {
+    border-color: #b9bdb4 !important;
+  }
+
+  &--menu-is-open,
+  &--is-focused {
+    border-color: var(--juma-lime) !important;
+    box-shadow: var(--juma-focus) !important;
+  }
+}
+
+.rs__menu {
+  margin-top: 6px !important;
+  padding: 6px !important;
+  border-radius: 14px !important;
+  background: #fff !important;
+  box-shadow: var(--juma-pop) !important;
+  overflow: hidden;
+}
+
+.rs__option {
+  border-radius: 9px;
+  padding: 9px 10px !important;
+  font-size: 13.5px;
+  color: var(--juma-ink) !important;
+  background: transparent !important;
+  cursor: pointer !important;
+
+  &--is-focused {
+    background: #f1f3ef !important;
+  }
+
+  &--is-selected {
+    font-weight: 600;
+    background: var(--juma-lime-soft) !important;
+    color: var(--juma-green) !important;
+  }
+}
+
+.rs__multi-value {
+  border-radius: 999px !important;
+  background: #eef6f0 !important;
+  padding: 0 4px 0 8px;
+}
+
+.rs__indicator-separator {
+  display: none;
+}
+
+// Checkbox vira chave liga/desliga. No Payload o quadrado visível é o wrapper
+// (.checkbox-input__input) e o input fica invisível por cima dele.
+.checkbox-input {
+  align-items: center;
+  gap: 10px;
+
+  .checkbox-input__input {
+    position: relative;
+    flex: none;
+    width: 38px !important;
+    height: 22px !important;
+    border: 0 !important;
+    border-radius: 999px !important;
+    background: #d9dbd5 !important;
+    box-shadow: none !important;
+    transition: background 0.18s ease;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      transition: transform 0.18s ease;
+      pointer-events: none;
+    }
+
+    input[type='checkbox'] {
+      position: absolute;
+      inset: 0;
+      width: 100% !important;
+      height: 100% !important;
+      margin: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    &:has(input:focus-visible) {
+      box-shadow: var(--juma-focus) !important;
+    }
+  }
+
+  .checkbox-input__icon {
+    display: none !important;
+  }
+
+  &--checked .checkbox-input__input {
+    background: var(--juma-lime) !important;
+
+    &::after {
+      transform: translateX(16px);
+    }
+  }
+}
+
+// Seletor de idioma e menus do Payload (popups)
+.localizer-button {
+  border-radius: 999px !important;
+  background: #fff !important;
+  box-shadow: inset 0 0 0 1px var(--juma-line);
+  padding: 6px 12px !important;
+}
+
+.popup__content {
+  border-radius: 14px !important;
+  box-shadow: var(--juma-pop) !important;
+  border: 0 !important;
+}
+
+.popup-button-list__button {
+  border-radius: 9px !important;
+
+  &:hover {
+    background: #f1f3ef !important;
+  }
+
+  &--selected {
+    background: var(--juma-lime-soft) !important;
+    color: var(--juma-green) !important;
+    font-weight: 600;
+  }
+}
+
+// Calendário do Payload (datas que não usam o campo próprio)
+.react-datepicker {
+  border: 0 !important;
+  border-radius: 16px !important;
+  box-shadow: var(--juma-pop) !important;
+  font-family: var(--font-body) !important;
+}
+
+.react-datepicker__header {
+  background: #fff !important;
+  border: 0 !important;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background: var(--juma-green) !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+}
+
+// Abas das fichas (Página, Culturas, Aplicação…)
+.tabs-field__tabs {
+  gap: 4px;
+  flex-wrap: nowrap !important;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--juma-line) !important;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.tabs-field__tab-button {
+  flex: none;
+  white-space: nowrap;
+}
+
+.tabs-field__tab-button {
+  border-radius: 10px 10px 0 0;
+  font-weight: 500 !important;
+
+  &--active {
+    color: var(--juma-green) !important;
+    box-shadow: inset 0 -2px 0 var(--juma-lime);
+  }
+}
+
+// Listas (array) e grupos como cartões
+.array-field__draggable-rows .collapsible,
+.collapsible-field > .collapsible {
+  border-radius: 14px !important;
+  border-color: var(--juma-line) !important;
+  background: #fff;
+}
+
+// Tabelas padrão (mídia, usuários, páginas): rolagem horizontal no celular.
 .table {
   background: var(--juma-card);
   border-radius: var(--style-radius-l);
   box-shadow: var(--juma-shadow);
-  overflow: hidden;
+  overflow-x: auto;
 
   table {
     font-variant-numeric: tabular-nums;
@@ -411,12 +771,6 @@ h3 {
   box-shadow: var(--juma-shadow);
 }
 
-input,
-textarea,
-.react-select .rs__control {
-  border-radius: var(--style-radius-m) !important;
-}
-
 /* ─── Login ──────────────────────────────────────────────────────────── */
 .template-minimal {
   background: var(--juma-bg);
@@ -427,10 +781,32 @@ textarea,
   border-radius: 28px;
   padding: 40px !important;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+
+  @media (max-width: 600px) {
+    padding: 28px 20px !important;
+    border-radius: 22px;
+  }
 }
 
 .login__brand {
   margin-bottom: 28px;
+}
+
+.juma-login-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  img {
+    height: 64px;
+    width: auto;
+  }
+
+  span {
+    font-size: 13px;
+    color: var(--juma-muted);
+  }
 }
 
 /* ─── Visão geral (src/components/admin/Dashboard.tsx) ───────────────── */
@@ -894,5 +1270,941 @@ textarea,
 
   .jd-kpi--xl {
     font-size: 44px;
+  }
+}
+
+/* ─── Listas próprias: caixa de entrada de leads e grade de conteúdo ─── */
+.jl {
+  padding: 26px 32px 48px;
+  color: var(--juma-ink);
+  transition: opacity 0.15s ease;
+
+  &.is-pending {
+    opacity: 0.6;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+.jl-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+
+  h1 {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 4px 0 0;
+    color: var(--juma-muted);
+    font-size: 13.5px;
+  }
+}
+
+.jl-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+
+  .jl-tabs {
+    margin: 0;
+  }
+}
+
+.jl-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 14px;
+  padding: 4px;
+  border-radius: 14px;
+  background: #e9ebe6;
+  width: max-content;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.jl-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 10px;
+  color: #52525b !important;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    color: var(--juma-ink) !important;
+  }
+
+  &.is-active {
+    background: #fff;
+    color: var(--juma-ink) !important;
+    box-shadow: 0 1px 3px rgba(12, 20, 15, 0.1);
+  }
+}
+
+.jl-tab__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+}
+
+.jl-tab__count {
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(12, 20, 15, 0.06);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+
+  .is-active & {
+    background: var(--juma-ink);
+    color: #fff;
+  }
+}
+
+.jl-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 14px;
+  margin-bottom: 16px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--juma-line);
+  transition: box-shadow 0.15s ease;
+
+  &:focus-within {
+    box-shadow:
+      inset 0 0 0 1px var(--juma-lime),
+      var(--juma-focus);
+  }
+
+  svg {
+    width: 17px;
+    height: 17px;
+    flex: none;
+    fill: none;
+    stroke: var(--juma-muted);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: 0 !important;
+    outline: 0;
+    background: transparent;
+    font: inherit;
+    font-size: 14px;
+    box-shadow: none !important;
+  }
+
+  &--inline {
+    margin: 0;
+    width: min(340px, 100%);
+    height: 42px;
+  }
+}
+
+.jl-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: var(--juma-shadow);
+}
+
+.jl-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 18px;
+  border-top: 1px solid #f0f1ee;
+  transition: background 0.12s ease;
+
+  &:first-child {
+    border-top: 0;
+  }
+
+  &:hover {
+    background: #fafbf9;
+  }
+}
+
+.jl-row__main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.jl-avatar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  font-weight: 700;
+
+  i {
+    position: absolute;
+    right: -7px;
+    bottom: -5px;
+    padding: 1px 4px;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--juma-ink);
+    font-size: 8.5px;
+    font-style: normal;
+    font-weight: 700;
+    box-shadow: 0 0 0 1px var(--juma-line);
+  }
+}
+
+.jl-row__who {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  b {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14.5px;
+    font-weight: 600;
+  }
+
+  small {
+    overflow: hidden;
+    color: var(--juma-muted);
+    font-size: 12.5px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.jl-repeat {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: #f4f4f5;
+  color: var(--juma-muted);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 500;
+}
+
+.jl-row__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.jl-form {
+  color: var(--juma-muted);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.jl-row__side {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.jl-status .jdd__trigger {
+  padding: 0;
+}
+
+.jl-status__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px 5px 11px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: filter 0.15s ease;
+
+  &:hover {
+    filter: brightness(0.96);
+  }
+}
+
+.jl-when {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 78px;
+  color: var(--juma-muted);
+  font-size: 12.5px;
+  white-space: nowrap;
+
+  small {
+    font-size: 11.5px;
+    color: #a1a1aa;
+  }
+}
+
+.jl-empty {
+  display: grid;
+  gap: 4px;
+  padding: 48px 20px;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: var(--juma-shadow);
+  text-align: center;
+  color: var(--juma-muted);
+
+  b {
+    color: var(--juma-ink);
+    font-size: 16px;
+  }
+}
+
+.jl-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 20px;
+  color: var(--juma-muted);
+  font-size: 13px;
+}
+
+.jl-pager__btn {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--juma-line);
+  color: var(--juma-ink) !important;
+  font-weight: 500;
+
+  &.is-disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+}
+
+// Grade de conteúdo
+.jc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &--products {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+.jc-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: var(--juma-shadow);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 2px 4px rgba(12, 20, 15, 0.05),
+      0 18px 40px rgba(12, 20, 15, 0.1);
+  }
+}
+
+.jc-card__media {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: #eceee9;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+
+  .jc-card:hover & img {
+    transform: scale(1.03);
+  }
+
+  .jc-grid--products & {
+    aspect-ratio: 1 / 1;
+    background: radial-gradient(circle at 50% 40%, #fff, #eef0ec);
+
+    img {
+      object-fit: contain;
+      padding: 18px;
+    }
+  }
+}
+
+.jc-card__placeholder {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: #a1a1aa;
+  font-size: 12.5px;
+}
+
+.jc-status {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+
+  &--published {
+    background: rgba(220, 252, 231, 0.92);
+    color: #166534;
+  }
+
+  &--draft {
+    background: rgba(254, 243, 199, 0.95);
+    color: #92400e;
+  }
+}
+
+.jc-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px 16px;
+
+  b {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  small {
+    color: var(--juma-muted);
+    font-size: 12.5px;
+  }
+}
+
+.jc-color {
+  width: 10px;
+  height: 10px;
+  flex: none;
+  border-radius: 999px;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--juma-line);
+}
+
+.jc-card__foot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 10px;
+  flex-wrap: wrap;
+
+  em {
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #eef6f0;
+    color: var(--juma-green);
+    font-size: 11.5px;
+    font-style: normal;
+    font-weight: 500;
+  }
+}
+
+.jc-updated {
+  margin-left: auto;
+  color: #a1a1aa;
+  font-size: 11.5px;
+}
+
+/* ─── Campos próprios (src/components/admin/fields) ──────────────────── */
+.jf {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.jf-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--juma-ink);
+
+  .required {
+    margin-left: 4px;
+    color: #ef4444;
+  }
+}
+
+.jf-help {
+  color: var(--juma-muted);
+  font-size: 12.5px;
+}
+
+.jf-error {
+  color: #dc2626;
+  font-size: 12.5px;
+}
+
+.jf-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.jf-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--juma-line-strong);
+  color: #3f3f46;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:hover:not(.is-active):not(:disabled) {
+    background: #f4f5f3;
+  }
+
+  &.is-active {
+    font-weight: 600;
+  }
+}
+
+.jf-chip__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+}
+
+.jf-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  padding: 6px 12px 6px 6px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--juma-line);
+  font-size: 13.5px;
+  font-weight: 500;
+
+  &:not(:has(.jf-badge__flag)) {
+    padding-left: 12px;
+  }
+}
+
+.jf-badge__flag {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 700;
+}
+
+.jf-date__trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 42px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--style-radius-m);
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--juma-line-strong);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    box-shadow: inset 0 0 0 1px #b9bdb4;
+  }
+
+  &[aria-expanded='true'] {
+    box-shadow:
+      inset 0 0 0 1px var(--juma-lime),
+      var(--juma-focus);
+  }
+
+  &:disabled {
+    background: #f4f5f3;
+    cursor: default;
+  }
+
+  svg {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: var(--juma-muted);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+  }
+}
+
+.jf-cal {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 296px;
+  padding: 14px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: var(--juma-pop);
+  animation: jdd-in 0.14s ease-out;
+}
+
+.jf-cal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+
+  b {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+
+  button {
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 10px;
+    background: #f4f5f3;
+    font-size: 18px;
+    cursor: pointer;
+
+    &:hover {
+      background: #e9ebe6;
+    }
+  }
+}
+
+.jf-cal__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.jf-cal__dow {
+  padding: 4px 0 6px;
+  color: #a1a1aa;
+  font-size: 11px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.jf-cal__day {
+  height: 36px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+
+  &:hover {
+    background: #f1f3ef;
+  }
+
+  &.is-today {
+    box-shadow: inset 0 0 0 1px var(--juma-lime);
+  }
+
+  &.is-selected {
+    background: var(--juma-green);
+    color: #fff;
+    font-weight: 600;
+  }
+}
+
+.jf-cal__foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+
+  button {
+    border: 0;
+    background: transparent;
+    color: var(--juma-green);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+}
+
+/* ─── Celular ────────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .jl {
+    padding: 18px 16px 40px;
+  }
+
+  .jl-head {
+    align-items: flex-start;
+    flex-direction: column;
+
+    h1 {
+      font-size: 26px;
+    }
+  }
+
+  .jl-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .jl-search--inline {
+    width: 100%;
+  }
+
+  .jl-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'main side'
+      'meta meta';
+    gap: 8px 12px;
+    padding: 14px;
+  }
+
+  .jl-row__main {
+    grid-area: main;
+  }
+
+  .jl-row__meta {
+    grid-area: meta;
+    padding-left: 50px;
+  }
+
+  .jl-row__side {
+    grid-area: side;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+
+  .jc-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .jc-card__body {
+    padding: 10px 12px 12px;
+
+    b {
+      font-size: 13.5px;
+    }
+  }
+
+  .jc-updated {
+    display: none;
+  }
+
+  .jf-cal {
+    width: min(296px, calc(100vw - 32px));
+  }
+}
+
+@media (max-width: 420px) {
+  .jc-grid:not(.jc-grid--products) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.jf-answers {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 8px;
+  margin: 0;
+
+  div {
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: inset 0 0 0 1px var(--juma-line);
+  }
+
+  dt {
+    color: var(--juma-muted);
+    font-size: 12px;
+  }
+
+  dd {
+    margin: 2px 0 0;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
+.jf-badge--link {
+  color: var(--juma-green) !important;
+  text-decoration: none;
+
+  &:hover {
+    box-shadow: inset 0 0 0 1px var(--juma-lime);
+  }
+}
+
+/* ─── Upload de imagens e arquivos ───────────────────────────────────── */
+.dropzone {
+  min-height: 132px;
+  border: 1.5px dashed var(--juma-line-strong) !important;
+  border-radius: 16px !important;
+  background: #fff !important;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+
+  &:hover {
+    border-color: var(--juma-lime) !important;
+    background: #fbfdfb !important;
+  }
+}
+
+.upload__dropzoneContent {
+  gap: 10px;
+}
+
+.upload__dropzoneContent__buttons .btn {
+  border-radius: 999px !important;
+  background: var(--juma-ink) !important;
+  color: #fff !important;
+
+  & + .upload__dropzoneContent__orText + .btn,
+  &:last-child {
+    background: #fff !important;
+    color: var(--juma-ink) !important;
+    box-shadow: inset 0 0 0 1px var(--juma-line-strong);
+  }
+}
+
+.upload__dragAndDropText {
+  color: var(--juma-muted);
+  font-size: 12.5px;
+}
+
+.upload-relationship-details,
+.upload-field-card,
+.file-details {
+  border-radius: 16px !important;
+  border-color: var(--juma-line) !important;
+  background: #fff !important;
+  box-shadow: var(--juma-shadow);
+  overflow: hidden;
+}
+
+.upload-relationship-details__thumbnail img,
+.file-details-draggable__thumbnail img {
+  border-radius: 10px;
+}
+
+/* Ficha do lead no celular: status, responsável e origem antes dos dados. */
+@media (max-width: 1024px) {
+  .collection-edit--leads .document-fields {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .collection-edit--leads .document-fields__sidebar-wrap {
+    order: -1;
+  }
+}
+
+// A barra de luz do item ativo passa da borda: sem rolagem lateral na sidebar.
+.nav .nav__scroll {
+  overflow-x: hidden;
+}
+
+// Rótulo das linhas das listas (RowLabel)
+.jf-rowlabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  color: var(--juma-ink);
+
+  i {
+    display: grid;
+    place-items: center;
+    min-width: 26px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #eef6f0;
+    color: var(--juma-green);
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
   }
 }

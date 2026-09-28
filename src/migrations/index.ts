@@ -5,6 +5,7 @@ import * as migration_20260928_173058_produtos_campos from './20260928_173058_pr
 import * as migration_20260928_173128_produtos_limpeza from './20260928_173128_produtos_limpeza';
 import * as migration_20260928_180201_culturas_campos from './20260928_180201_culturas_campos';
 import * as migration_20260928_180341_culturas_limpeza from './20260928_180341_culturas_limpeza';
+import * as migration_20260928_194610_sem_autosave from './20260928_194610_sem_autosave';
 
 export const migrations = [
   {
@@ -40,6 +41,11 @@ export const migrations = [
   {
     up: migration_20260928_180341_culturas_limpeza.up,
     down: migration_20260928_180341_culturas_limpeza.down,
-    name: '20260928_180341_culturas_limpeza'
+    name: '20260928_180341_culturas_limpeza',
+  },
+  {
+    up: migration_20260928_194610_sem_autosave.up,
+    down: migration_20260928_194610_sem_autosave.down,
+    name: '20260928_194610_sem_autosave'
   },
 ];

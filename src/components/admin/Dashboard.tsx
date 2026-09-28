@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import type { AdminViewServerProps, PayloadRequest } from 'payload'
 
+import { LEAD_FORMS as FORMS, statusMeta } from './leadMeta'
+
 /**
  * Visão geral do painel (views.dashboard). Números reais de leads e conteúdo.
  * As consultas passam o `req` com overrideAccess: false, então respeitam o
@@ -22,20 +24,6 @@ type LeadRow = {
 }
 
 const DAY = 24 * 60 * 60 * 1000
-const STATUS: Record<string, { label: string; bg: string; fg: string }> = {
-  novo: { label: 'Novo', bg: '#dcfce7', fg: '#166534' },
-  'em-contato': { label: 'Em contato', bg: '#fef3c7', fg: '#92400e' },
-  qualificado: { label: 'Qualificado', bg: '#dbeafe', fg: '#1e40af' },
-  convertido: { label: 'Convertido', bg: '#004c26', fg: '#ffffff' },
-  descartado: { label: 'Descartado', bg: '#f4f4f5', fg: '#71717a' },
-}
-const FORMS: Record<string, string> = {
-  whatsapp: 'Pop-up WhatsApp',
-  contato: 'Página de contato',
-  trial: 'Trial',
-  'trial-compact': 'Trial (LP)',
-}
-
 const fmt = new Intl.NumberFormat('pt-BR')
 const dayKey = (d: Date) => d.toISOString().slice(0, 10)
 
@@ -272,7 +260,7 @@ export async function Dashboard({ initPageResult }: AdminViewServerProps) {
               </thead>
               <tbody>
                 {recent.map((l) => {
-                  const st = STATUS[l.status] ?? STATUS.novo
+                  const st = statusMeta(l.status)
                   const interest = l.contexto?.produto || l.contexto?.cultura
                   return (
                     <tr key={l.id}>

@@ -143,9 +143,6 @@ export interface Lead {
   responsavel?: (number | null) | User;
   site: 'br' | 'us';
   formulario?: ('whatsapp' | 'contato' | 'trial' | 'trial-compact') | null;
-  /**
-   * Preenchido quando o mesmo e-mail ou telefone já tinha chegado antes.
-   */
   duplicadoDe?: (number | null) | Lead;
   nome: string;
   empresa?: string | null;
@@ -163,9 +160,6 @@ export interface Lead {
     cultura?: string | null;
     detalhe?: string | null;
   };
-  /**
-   * Respostas próprias de cada formulário (estado, acres, região…).
-   */
   dados?:
     | {
         [k: string]: unknown;
@@ -260,7 +254,7 @@ export interface User {
   collection: 'users';
 }
 /**
- * Matérias do blog do site Brasil. Edite em cada idioma pelo seletor "Local" no topo.
+ * Matérias do blog do site Brasil. Edite em cada idioma pelo seletor "Idioma" no topo.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "articles".
@@ -347,7 +341,7 @@ export interface Media {
   focalY?: number | null;
 }
 /**
- * Produtos do site Brasil. Textos em cada idioma pelo seletor "Local" no topo.
+ * Produtos do site Brasil. Textos em cada idioma pelo seletor "Idioma" no topo.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "products".
@@ -489,7 +483,7 @@ export interface Product {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * Culturas do site Brasil. Textos em cada idioma pelo seletor "Local" no topo.
+ * Culturas do site Brasil. Textos em cada idioma pelo seletor "Idioma" no topo.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "cultures".

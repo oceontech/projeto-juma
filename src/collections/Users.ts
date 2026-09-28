@@ -9,6 +9,7 @@ export const Users: CollectionConfig = {
     useAsTitle: 'email',
     defaultColumns: ['nome', 'email', 'papel', 'sites'],
     group: 'Administração',
+    hideAPIURL: true,
   },
   auth: {
     // Bloqueia a conta por 10 minutos após 5 senhas erradas seguidas.
@@ -61,7 +62,9 @@ export const Users: CollectionConfig = {
         { label: 'Comercial', value: ROLES[2] },
       ],
       access: { create: isAdminField, update: isAdminField },
-      admin: { description: 'Admin: tudo. Editor: conteúdo do Brasil. Comercial: trabalha os leads.' },
+      admin: {
+        description: 'Admin: tudo. Editor: conteúdo do Brasil. Comercial: trabalha os leads.',
+      },
     },
     {
       name: 'sites',

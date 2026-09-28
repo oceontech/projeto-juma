@@ -1,7 +1,12 @@
 import { addDataAndFileToRequest, type CollectionConfig, type PayloadRequest } from 'payload'
 
 import { bySite, hasRole, isAdmin } from '../access/roles'
-import { LEAD_FORMS, ingestLead, type LeadInput, type LeadMeta } from '../features/leads/server/ingest'
+import {
+  LEAD_FORMS,
+  ingestLead,
+  type LeadInput,
+  type LeadMeta,
+} from '../features/leads/server/ingest'
 
 /**
  * Comparação em tempo constante. Sem `crypto` de propósito: o CLI do Payload
@@ -31,6 +36,9 @@ export const Leads: CollectionConfig = {
     listSearchableFields: ['nome', 'email', 'telefone', 'empresa'],
     group: 'Operação',
     description: 'Contatos que chegaram pelos sites. Mude o status conforme o atendimento avança.',
+    hideAPIURL: true,
+    pagination: { defaultLimit: 20 },
+    components: { views: { list: { Component: '/components/admin/leads/LeadsInbox#LeadsInbox' } } },
   },
   defaultSort: '-createdAt',
   access: {
@@ -73,14 +81,17 @@ export const Leads: CollectionConfig = {
         { label: 'Convertido', value: 'convertido' },
         { label: 'Descartado', value: 'descartado' },
       ],
-      admin: { position: 'sidebar', components: { Cell: '/components/admin/LeadCells#StatusCell' } },
+      admin: {
+        position: 'sidebar',
+        components: { Field: '/components/admin/fields/LeadFields#LeadStatusField' },
+      },
     },
     {
       name: 'responsavel',
       label: 'Responsável',
       type: 'relationship',
       relationTo: 'users',
-      admin: { position: 'sidebar' },
+      admin: { position: 'sidebar', allowCreate: false },
     },
     {
       name: 'site',
@@ -91,7 +102,10 @@ export const Leads: CollectionConfig = {
         { label: 'Estados Unidos', value: 'us' },
       ],
       access: { update: () => false },
-      admin: { position: 'sidebar', components: { Cell: '/components/admin/LeadCells#SiteCell' } },
+      admin: {
+        position: 'sidebar',
+        components: { Field: '/components/admin/fields/LeadFields#LeadSiteField' },
+      },
     },
     {
       name: 'formulario',
@@ -103,7 +117,11 @@ export const Leads: CollectionConfig = {
         { label: 'Trial (completo)', value: LEAD_FORMS[2] },
         { label: 'Trial (compacto)', value: LEAD_FORMS[3] },
       ],
-      admin: { position: 'sidebar', readOnly: true },
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        components: { Field: '/components/admin/fields/LeadFields#LeadFormField' },
+      },
     },
     {
       name: 'duplicadoDe',
@@ -113,7 +131,7 @@ export const Leads: CollectionConfig = {
       admin: {
         position: 'sidebar',
         readOnly: true,
-        description: 'Preenchido quando o mesmo e-mail ou telefone já tinha chegado antes.',
+        components: { Field: '/components/admin/fields/ReadOnlyFields#DuplicateOfField' },
       },
     },
 
@@ -129,7 +147,12 @@ export const Leads: CollectionConfig = {
       type: 'row',
       fields: [
         { name: 'email', type: 'email', index: true },
-        { name: 'telefone', type: 'text', index: true, admin: { description: 'Só dígitos, com DDI/DDD quando informado.' } },
+        {
+          name: 'telefone',
+          type: 'text',
+          index: true,
+          admin: { description: 'Só dígitos, com DDI/DDD quando informado.' },
+        },
       ],
     },
     { name: 'mensagem', type: 'textarea' },
@@ -152,7 +175,10 @@ export const Leads: CollectionConfig = {
       name: 'dados',
       label: 'Campos do formulário',
       type: 'json',
-      admin: { readOnly: true, description: 'Respostas próprias de cada formulário (estado, acres, região…).' },
+      admin: {
+        readOnly: true,
+        components: { Field: '/components/admin/fields/ReadOnlyFields#FormAnswersField' },
+      },
     },
 
     // --- notas internas
@@ -161,6 +187,14 @@ export const Leads: CollectionConfig = {
       label: 'Notas internas',
       type: 'array',
       labels: { singular: 'Nota', plural: 'Notas' },
+      admin: {
+        components: {
+          RowLabel: {
+            path: '/components/admin/fields/RowLabel#RowLabel',
+            clientProps: { fields: ['texto'], fallback: 'Nota' },
+          },
+        },
+      },
       fields: [
         { name: 'texto', type: 'textarea', required: true },
         {
@@ -176,7 +210,10 @@ export const Leads: CollectionConfig = {
             {
               name: 'data',
               type: 'date',
-              admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } },
+              admin: {
+                readOnly: true,
+                components: { Field: '/components/admin/fields/DateField#DateField' },
+              },
               hooks: { beforeChange: [({ value }) => value ?? new Date().toISOString()] },
             },
           ],
@@ -201,7 +238,10 @@ export const Leads: CollectionConfig = {
         {
           name: 'rastreamento',
           type: 'group',
-          admin: { readOnly: true, description: 'Último toque antes do contato. O primeiro toque fica no JSON abaixo.' },
+          admin: {
+            readOnly: true,
+            description: 'Último toque antes do contato. O primeiro toque fica no JSON abaixo.',
+          },
           fields: [
             {
               type: 'row',
@@ -261,7 +301,11 @@ export const Leads: CollectionConfig = {
           admin: { readOnly: true },
           fields: [
             { name: 'texto', type: 'textarea' },
-            { name: 'data', type: 'date', admin: { date: { pickerAppearance: 'dayAndTime' } } },
+            {
+              name: 'data',
+              type: 'date',
+              admin: { components: { Field: '/components/admin/fields/DateField#DateField' } },
+            },
           ],
         },
       ],

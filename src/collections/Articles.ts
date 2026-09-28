@@ -1,4 +1,8 @@
-import type { CollectionAfterChangeHook, CollectionAfterDeleteHook, CollectionConfig } from 'payload'
+import type {
+  CollectionAfterChangeHook,
+  CollectionAfterDeleteHook,
+  CollectionConfig,
+} from 'payload'
 
 import { hasRole } from '../access/roles'
 import { ARTICLE_CATEGORIES, ARTICLE_COLORS } from '../features/articles/options'
@@ -15,7 +19,12 @@ function readingMinutes(data: Record<string, unknown>): number {
 }
 
 const revalidate: CollectionAfterChangeHook = ({ doc, previousDoc }) => {
-  revalidateSite(['/', '/materias', `/materias/${doc.slug}`, previousDoc?.slug ? `/materias/${previousDoc.slug}` : null])
+  revalidateSite([
+    '/',
+    '/materias',
+    `/materias/${doc.slug}`,
+    previousDoc?.slug ? `/materias/${previousDoc.slug}` : null,
+  ])
   return doc
 }
 const revalidateOnDelete: CollectionAfterDeleteHook = ({ doc }) => {
@@ -30,11 +39,18 @@ export const Articles: CollectionConfig = {
     useAsTitle: 'titulo',
     defaultColumns: ['titulo', 'categoria', 'data', '_status', 'destaque', 'destaqueHome'],
     group: 'Conteúdo',
-    description: 'Matérias do blog do site Brasil. Edite em cada idioma pelo seletor "Local" no topo.',
+    description:
+      'Matérias do blog do site Brasil. Edite em cada idioma pelo seletor "Idioma" no topo.',
     listSearchableFields: ['titulo', 'slug'],
+    hideAPIURL: true,
+    pagination: { defaultLimit: 24 },
+    components: {
+      views: { list: { Component: '/components/admin/content/ContentGrid#ContentGrid' } },
+    },
   },
   defaultSort: '-data',
-  versions: { drafts: { autosave: { interval: 2000 } }, maxPerDoc: 30 },
+  // Rascunho salvo por botão, sem autosave: abrir "Novo" e desistir não cria rascunho vazio.
+  versions: { drafts: true, maxPerDoc: 30 },
   access: {
     // O site só enxerga o que está publicado; o painel vê rascunhos.
     read: ({ req }) => (req.user ? true : { _status: { equals: 'published' } }),
@@ -60,7 +76,10 @@ export const Articles: CollectionConfig = {
       required: true,
       unique: true,
       index: true,
-      admin: { position: 'sidebar', description: 'Endereço: /materias/<slug>. Só letras minúsculas, números e hífen.' },
+      admin: {
+        position: 'sidebar',
+        description: 'Endereço: /materias/<slug>. Só letras minúsculas, números e hífen.',
+      },
       validate: (value: unknown) =>
         typeof value === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value)
           ? true
@@ -78,13 +97,19 @@ export const Articles: CollectionConfig = {
       type: 'date',
       required: true,
       defaultValue: () => new Date().toISOString(),
-      admin: { position: 'sidebar', date: { pickerAppearance: 'dayOnly', displayFormat: 'dd/MM/yyyy' } },
+      admin: {
+        position: 'sidebar',
+        components: { Field: '/components/admin/fields/DateField#DateField' },
+      },
     },
     {
       name: 'destaque',
       label: 'Destaque na página de matérias',
       type: 'checkbox',
-      admin: { position: 'sidebar', description: 'A mais recente marcada aparece no bloco grande do topo.' },
+      admin: {
+        position: 'sidebar',
+        description: 'A mais recente marcada aparece no bloco grande do topo.',
+      },
     },
     {
       name: 'destaqueHome',
@@ -97,7 +122,10 @@ export const Articles: CollectionConfig = {
       label: 'Tempo de leitura (min)',
       type: 'number',
       min: 1,
-      admin: { position: 'sidebar', description: 'Calculado pelo texto. Marque a opção abaixo para definir à mão.' },
+      admin: {
+        position: 'sidebar',
+        description: 'Calculado pelo texto. Marque a opção abaixo para definir à mão.',
+      },
     },
     {
       name: 'tempoLeituraManual',
@@ -149,7 +177,15 @@ export const Articles: CollectionConfig = {
       type: 'array',
       localized: true,
       labels: { singular: 'Seção', plural: 'Seções' },
-      admin: { initCollapsed: true },
+      admin: {
+        initCollapsed: true,
+        components: {
+          RowLabel: {
+            path: '/components/admin/fields/RowLabel#RowLabel',
+            clientProps: { fields: ['titulo'], fallback: 'Seção' },
+          },
+        },
+      },
       fields: [
         { name: 'titulo', label: 'Título da seção', type: 'text' },
         {

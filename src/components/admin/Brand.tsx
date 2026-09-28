@@ -1,34 +1,37 @@
 /**
- * Marca da Juma no painel. <img> simples: o painel não passa pelo otimizador
- * de imagens do site.
+ * Marca da Juma no painel: o logo original (o mesmo da navbar dos sites) só no
+ * topo da sidebar e no login. <img> simples: o painel não passa pelo
+ * otimizador de imagens do site; o arquivo já é uma versão leve (10 KB).
  */
+const LOGO = '/brand/logo-juma-agro-painel.webp'
 
-/** Logo grande da tela de login. */
+/** Logo da tela de login. */
 export function Logo() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+    <div className="juma-login-brand">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/brand/logo-juma-agro.png" alt="Juma Agro" style={{ height: 56, width: 'auto' }} />
-      <span style={{ fontSize: 13, color: '#71717a' }}>Painel de gestão dos sites</span>
+      <img src={LOGO} alt="Juma Agro" width={144} height={73} />
+      <span>Painel de gestão dos sites</span>
     </div>
   )
 }
 
-/** Ícone do cabeçalho (link para a Visão geral), sobre o painel claro. */
+/** Início do caminho no cabeçalho: ícone neutro (a marca fica só na sidebar). */
 export function Icon() {
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src="/brand/logo-juma-agro.png" alt="Juma Agro" style={{ height: 22, width: 'auto' }} />
+    <svg className="juma-home-icon" viewBox="0 0 24 24" aria-label="Visão geral" role="img">
+      <path d="M3 11l9-8 9 8" />
+      <path d="M5 10v10h14V10" />
+    </svg>
   )
 }
 
-/** Marca branca no topo da sidebar escura. */
+/** Logo no topo da sidebar. */
 export function SidebarBrand() {
   return (
-    <div className="juma-brand">
+    <a className="juma-brand" href="/admin" aria-label="Juma Agro — visão geral do painel">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/brand/logo-juma-agro-branca.png" alt="Juma Agro" />
-      <span>Painel</span>
-    </div>
+      <img src={LOGO} alt="Juma Agro" width={96} height={49} />
+    </a>
   )
 }

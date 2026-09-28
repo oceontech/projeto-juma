@@ -27,6 +27,7 @@ export default buildConfig({
     },
     // O tema escuro/claro é do próprio painel (src/app/(payload)/custom.scss).
     theme: 'light',
+    dateFormat: 'dd/MM/yyyy HH:mm',
     meta: { titleSuffix: ' · Painel Juma' },
     components: {
       graphics: {
@@ -48,6 +49,9 @@ export default buildConfig({
   i18n: {
     supportedLanguages: { pt },
     fallbackLanguage: 'pt',
+    translations: {
+      pt: { general: { locale: 'Idioma', locales: 'Idiomas', allLocales: 'Todos os idiomas' } },
+    },
   },
   // A ordem aqui é a ordem dos grupos na sidebar: Operação, Conteúdo, Site, Biblioteca, Administração.
   collections: [Leads, Articles, Products, Cultures, Pages, Media, Users],

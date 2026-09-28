@@ -84,6 +84,12 @@ const tabs: Field = {
           type: 'array',
           labels: { singular: 'Grupo', plural: 'Grupos' },
           admin: {
+            components: {
+              RowLabel: {
+                path: '/components/admin/fields/RowLabel#RowLabel',
+                clientProps: { fields: ['rotulo'], fallback: 'Grupo' },
+              },
+            },
             initCollapsed: true,
             description:
               'Use quando o rótulo autoriza a cultura só em foliar ou só em TS. Substitui a lista acima.',
@@ -112,7 +118,15 @@ const tabs: Field = {
           name: 'problemas',
           type: 'array',
           labels: { singular: 'Problema', plural: 'Problemas' },
-          admin: { initCollapsed: true },
+          admin: {
+            components: {
+              RowLabel: {
+                path: '/components/admin/fields/RowLabel#RowLabel',
+                clientProps: { fields: ['titulo'], fallback: 'Problema' },
+              },
+            },
+            initCollapsed: true,
+          },
           fields: [
             {
               type: 'row',
@@ -143,7 +157,15 @@ const tabs: Field = {
           label: 'Benefícios',
           type: 'array',
           labels: { singular: 'Benefício', plural: 'Benefícios' },
-          admin: { initCollapsed: true },
+          admin: {
+            components: {
+              RowLabel: {
+                path: '/components/admin/fields/RowLabel#RowLabel',
+                clientProps: { fields: ['titulo'], fallback: 'Benefício' },
+              },
+            },
+            initCollapsed: true,
+          },
           fields: [
             { name: 'titulo', label: 'Título', type: 'text', localized: true },
             { name: 'descricao', label: 'Descrição', type: 'textarea', localized: true },
@@ -160,6 +182,12 @@ const tabs: Field = {
           type: 'array',
           labels: { singular: 'Tabela', plural: 'Tabelas' },
           admin: {
+            components: {
+              RowLabel: {
+                path: '/components/admin/fields/RowLabel#RowLabel',
+                clientProps: { fields: ['rotulo'], fallback: 'Tabela' },
+              },
+            },
             initCollapsed: true,
             description: 'Texto literal do rótulo. Uma tabela por forma de aplicação.',
           },
@@ -170,7 +198,15 @@ const tabs: Field = {
               name: 'linhas',
               type: 'array',
               labels: { singular: 'Linha', plural: 'Linhas' },
-              admin: { initCollapsed: true },
+              admin: {
+                components: {
+                  RowLabel: {
+                    path: '/components/admin/fields/RowLabel#RowLabel',
+                    clientProps: { fields: ['cultura', 'quando'], fallback: 'Linha' },
+                  },
+                },
+                initCollapsed: true,
+              },
               fields: [
                 { name: 'cultura', type: 'text', localized: true },
                 { name: 'quando', label: 'Quando / como', type: 'textarea', localized: true },
@@ -195,6 +231,12 @@ const tabs: Field = {
           type: 'array',
           labels: { singular: 'Resultado', plural: 'Resultados' },
           admin: {
+            components: {
+              RowLabel: {
+                path: '/components/admin/fields/RowLabel#RowLabel',
+                clientProps: { fields: ['valor', 'unidade'], fallback: 'Resultado' },
+              },
+            },
             initCollapsed: true,
             description: 'Todo número precisa vir com a fonte do ensaio na descrição.',
           },
@@ -270,11 +312,17 @@ export const Products: CollectionConfig = {
     useAsTitle: 'nome',
     defaultColumns: ['nome', 'categoria', 'ordem', '_status'],
     group: 'Conteúdo',
-    description: 'Produtos do site Brasil. Textos em cada idioma pelo seletor "Local" no topo.',
+    description: 'Produtos do site Brasil. Textos em cada idioma pelo seletor "Idioma" no topo.',
+    hideAPIURL: true,
+    pagination: { defaultLimit: 24 },
+    components: {
+      views: { list: { Component: '/components/admin/content/ContentGrid#ContentGrid' } },
+    },
     listSearchableFields: ['nome', 'slug'],
   },
   defaultSort: 'ordem',
-  versions: { drafts: { autosave: { interval: 2000 } }, maxPerDoc: 30 },
+  // Rascunho salvo por botão, sem autosave: abrir "Novo" e desistir não cria rascunho vazio.
+  versions: { drafts: true, maxPerDoc: 30 },
   access: {
     read: ({ req }) => (req.user ? true : { _status: { equals: 'published' } }),
     create: ({ req }) => hasRole(req, 'admin', 'editor'),
