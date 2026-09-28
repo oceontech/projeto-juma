@@ -11,6 +11,7 @@ import {
 } from '@/config/site'
 import { Container } from './Container'
 import { FooterReveal } from './FooterReveal'
+import { WhatsAppLink } from '@/features/leads/components/WhatsAppLink'
 import { socialIcons } from '@/components/icons/social'
 
 export function Footer() {
@@ -87,14 +88,11 @@ export function Footer() {
             <ul className="flex flex-col gap-md text-sm">
               <li className="flex flex-col">
                 <span className="text-white/50">{tf('whatsappLabel')}</span>
-                <a
-                  href={contact.whatsappHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <WhatsAppLink
                   className="text-body-regular text-white/90 transition-colors hover:text-white"
                 >
                   {contact.whatsappNumber}
-                </a>
+                </WhatsAppLink>
               </li>
               <li className="flex flex-col">
                 <span className="text-white/50">{tf('emailLabel')}</span>

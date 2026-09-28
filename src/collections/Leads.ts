@@ -1,30 +1,260 @@
-import type { CollectionConfig } from 'payload'
+import { timingSafeEqual } from 'crypto'
+import { addDataAndFileToRequest, type CollectionConfig, type PayloadRequest } from 'payload'
+
+import { bySite, hasRole, isAdmin } from '../access/roles'
+import { LEAD_FORMS, ingestLead, type LeadInput, type LeadMeta } from '../features/leads/server/ingest'
+
+/** Chave do site americano para `POST /api/leads/intake` (server-to-server). */
+function intakeSite(req: PayloadRequest): 'us' | null {
+  const sent = req.headers.get('x-leads-key') ?? ''
+  const expected = process.env.LEADS_INTAKE_KEY_US ?? ''
+  if (!expected || sent.length !== expected.length) return null
+  return timingSafeEqual(Buffer.from(sent), Buffer.from(expected)) ? 'us' : null
+}
 
 export const Leads: CollectionConfig = {
   slug: 'leads',
   labels: { singular: 'Lead', plural: 'Leads' },
   admin: {
     useAsTitle: 'nome',
-    defaultColumns: ['nome', 'telefone', 'email', 'contexto', 'createdAt'],
-    group: 'Site',
+    defaultColumns: ['nome', 'site', 'status', 'formulario', 'contexto.produto', 'responsavel', 'createdAt'],
+    listSearchableFields: ['nome', 'email', 'telefone', 'empresa'],
+    group: 'Operação',
+    description: 'Contatos que chegaram pelos sites. Mude o status conforme o atendimento avança.',
   },
+  defaultSort: '-createdAt',
   access: {
-    // Qualquer visitante pode criar um lead (pop-up do WhatsApp);
-    // só usuários do painel leem/editam.
-    create: () => true,
-    read: ({ req }) => Boolean(req.user),
-    update: ({ req }) => Boolean(req.user),
-    delete: ({ req }) => Boolean(req.user),
+    // O site grava pela Local API (server action) e o EUA pelo endpoint com chave.
+    // Pelo painel, admin e comercial podem registrar um contato feito por telefone.
+    create: ({ req }) => hasRole(req, 'admin', 'comercial'),
+    read: ({ req }) => bySite(req, 'admin', 'editor', 'comercial'),
+    update: ({ req }) => bySite(req, 'admin', 'comercial'),
+    delete: isAdmin,
   },
+  endpoints: [
+    {
+      path: '/intake',
+      method: 'post',
+      handler: async (req) => {
+        const site = intakeSite(req)
+        if (!site) return Response.json({ ok: false, error: 'unauthorized' }, { status: 401 })
+
+        await addDataAndFileToRequest(req)
+        const body = (req.data ?? {}) as { lead?: LeadInput; meta?: LeadMeta }
+        if (!body.lead) return Response.json({ ok: false, error: 'invalid' }, { status: 400 })
+
+        const result = await ingestLead(req.payload, site, body.lead, body.meta ?? {})
+        const status = result.ok ? 201 : result.error === 'server' ? 500 : 400
+        return Response.json(result, { status })
+      },
+    },
+  ],
   fields: [
-    { name: 'nome', type: 'text', required: true },
-    { name: 'email', type: 'email' },
-    { name: 'telefone', type: 'text', required: true },
-    { name: 'origem', type: 'text', admin: { description: 'Página de onde o lead clicou' } },
+    // --- barra lateral: o que o comercial mexe no dia a dia
+    {
+      name: 'status',
+      type: 'select',
+      required: true,
+      defaultValue: 'novo',
+      options: [
+        { label: 'Novo', value: 'novo' },
+        { label: 'Em contato', value: 'em-contato' },
+        { label: 'Qualificado', value: 'qualificado' },
+        { label: 'Convertido', value: 'convertido' },
+        { label: 'Descartado', value: 'descartado' },
+      ],
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'responsavel',
+      label: 'Responsável',
+      type: 'relationship',
+      relationTo: 'users',
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'site',
+      type: 'select',
+      required: true,
+      options: [
+        { label: 'Brasil', value: 'br' },
+        { label: 'Estados Unidos', value: 'us' },
+      ],
+      access: { update: () => false },
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'formulario',
+      label: 'Formulário',
+      type: 'select',
+      options: [
+        { label: 'Pop-up do WhatsApp', value: LEAD_FORMS[0] },
+        { label: 'Página de contato', value: LEAD_FORMS[1] },
+        { label: 'Trial (completo)', value: LEAD_FORMS[2] },
+        { label: 'Trial (compacto)', value: LEAD_FORMS[3] },
+      ],
+      admin: { position: 'sidebar', readOnly: true },
+    },
+    {
+      name: 'duplicadoDe',
+      label: 'Repetição de',
+      type: 'relationship',
+      relationTo: 'leads',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Preenchido quando o mesmo e-mail ou telefone já tinha chegado antes.',
+      },
+    },
+
+    // --- contato
+    {
+      type: 'row',
+      fields: [
+        { name: 'nome', type: 'text', required: true },
+        { name: 'empresa', label: 'Empresa / fazenda', type: 'text' },
+      ],
+    },
+    {
+      type: 'row',
+      fields: [
+        { name: 'email', type: 'email', index: true },
+        { name: 'telefone', type: 'text', index: true, admin: { description: 'Só dígitos, com DDI/DDD quando informado.' } },
+      ],
+    },
+    { name: 'mensagem', type: 'textarea' },
     {
       name: 'contexto',
-      type: 'text',
-      admin: { description: 'Produto ou cultura associado ao clique' },
+      type: 'group',
+      admin: { description: 'De onde veio o interesse: a página em que o contato clicou.' },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            { name: 'produto', type: 'text' },
+            { name: 'cultura', type: 'text' },
+            { name: 'detalhe', type: 'text' },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'dados',
+      label: 'Campos do formulário',
+      type: 'json',
+      admin: { readOnly: true, description: 'Respostas próprias de cada formulário (estado, acres, região…).' },
+    },
+
+    // --- notas internas
+    {
+      name: 'notas',
+      label: 'Notas internas',
+      type: 'array',
+      labels: { singular: 'Nota', plural: 'Notas' },
+      fields: [
+        { name: 'texto', type: 'textarea', required: true },
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'autor',
+              type: 'relationship',
+              relationTo: 'users',
+              admin: { readOnly: true },
+              hooks: { beforeChange: [({ value, req }) => value ?? req.user?.id] },
+            },
+            {
+              name: 'data',
+              type: 'date',
+              admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } },
+              hooks: { beforeChange: [({ value }) => value ?? new Date().toISOString()] },
+            },
+          ],
+        },
+      ],
+    },
+
+    // --- origem e rastreamento (somente leitura)
+    {
+      type: 'collapsible',
+      label: 'Origem e rastreamento',
+      admin: { initCollapsed: true },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            { name: 'pagina', label: 'Página', type: 'text', admin: { readOnly: true } },
+            { name: 'locale', label: 'Idioma', type: 'text', admin: { readOnly: true } },
+            { name: 'variante', label: 'Variante A/B', type: 'text', admin: { readOnly: true } },
+          ],
+        },
+        {
+          name: 'rastreamento',
+          type: 'group',
+          admin: { readOnly: true, description: 'Último toque antes do contato. O primeiro toque fica no JSON abaixo.' },
+          fields: [
+            {
+              type: 'row',
+              fields: [
+                { name: 'utmSource', label: 'utm_source', type: 'text' },
+                { name: 'utmMedium', label: 'utm_medium', type: 'text' },
+                { name: 'utmCampaign', label: 'utm_campaign', type: 'text' },
+              ],
+            },
+            {
+              type: 'row',
+              fields: [
+                { name: 'utmTerm', label: 'utm_term', type: 'text' },
+                { name: 'utmContent', label: 'utm_content', type: 'text' },
+                { name: 'gclid', type: 'text' },
+                { name: 'fbclid', type: 'text' },
+              ],
+            },
+            {
+              type: 'row',
+              fields: [
+                { name: 'referrer', type: 'text' },
+                { name: 'landing', label: 'Página de entrada', type: 'text' },
+              ],
+            },
+            { name: 'primeiroToque', label: 'Primeiro toque', type: 'json' },
+          ],
+        },
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'dispositivo',
+              type: 'group',
+              admin: { readOnly: true },
+              fields: [
+                { name: 'tipo', type: 'text' },
+                { name: 'navegador', type: 'text' },
+              ],
+            },
+            {
+              name: 'geo',
+              label: 'Localização aproximada',
+              type: 'group',
+              admin: { readOnly: true },
+              fields: [
+                { name: 'pais', label: 'País', type: 'text' },
+                { name: 'regiao', label: 'Estado / região', type: 'text' },
+                { name: 'cidade', type: 'text' },
+              ],
+            },
+          ],
+        },
+        {
+          name: 'consentimento',
+          type: 'group',
+          admin: { readOnly: true },
+          fields: [
+            { name: 'texto', type: 'textarea' },
+            { name: 'data', type: 'date', admin: { date: { pickerAppearance: 'dayAndTime' } } },
+          ],
+        },
+      ],
     },
   ],
   timestamps: true,

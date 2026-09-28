@@ -388,6 +388,29 @@ site EUA (Vercel · app Next 16 separado)
 
 ## 9. Roadmap
 
+> **Andamento em 28/09/2026 (branches `feat/painel-leads` no BR e `feat/leads-no-painel` no EUA):**
+> - **Feito: papéis e escopo por site.**
+>   - Admin, editor e comercial, com os sites de cada usuário.
+>   - O primeiro usuário nasce admin.
+>   - Se o banco não tiver admin, o usuário mais antigo vira admin.
+>   - Bloqueio após 5 senhas erradas.
+> - **Feito: leads nos dois sites.**
+>   - Pop-up BR antes do WhatsApp em todos os CTAs, com a copy oficial nos 3 idiomas e mensagem por produto ou cultura.
+>   - Formulário de contato BR gravando.
+>   - Trial EUA enviando por `POST /api/leads/intake`, com chave.
+>   - Cada lead guarda UTM de primeiro e último toque, página, variante A/B, dispositivo, geo pelos headers da Vercel e consentimento.
+>   - Deduplicação por e-mail/telefone, isca anti-robô e tempo mínimo de envio.
+>   - REST público de criação fechado.
+>   - Painel com status, responsável e notas, em português.
+>   - Testes em `tests/int/leads.int.spec.ts`.
+> - **Pendente para ir ao ar:**
+>   - **banco próprio do Payload:** o `DATABASE_URL` do `.env` aponta para o banco de outra aplicação, com tabelas `leads`, `page_views` e `cta_events`; não pode receber o schema;
+>   - migrations;
+>   - Vercel Blob (D2);
+>   - e-mail para recuperação de senha (D3);
+>   - variáveis `LEADS_INTAKE_KEY_US` (BR) e `LEADS_INTAKE_URL`/`LEADS_INTAKE_KEY` (EUA);
+>   - exportação CSV.
+
 **MVP**
 1. **Infra:**
    - storage no Vercel Blob;

@@ -1,4 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { pt } from '@payloadcms/translations/languages/pt'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -23,6 +24,11 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+  },
+  // Interface do painel em português para a equipe da Juma.
+  i18n: {
+    supportedLanguages: { pt },
+    fallbackLanguage: 'pt',
   },
   collections: [Products, Cultures, Articles, Pages, Leads, Media, Users],
   globals: [Settings],
@@ -49,4 +55,23 @@ export default buildConfig({
   }),
   sharp,
   plugins: [],
+  // Usuários criados antes dos papéis existirem ficam sem acesso. Se não houver
+  // nenhum admin, o usuário mais antigo vira admin dos dois sites.
+  onInit: async (payload) => {
+    const { totalDocs } = await payload.count({
+      collection: 'users',
+      where: { papel: { equals: 'admin' } },
+      overrideAccess: true,
+    })
+    if (totalDocs > 0) return
+    const { docs } = await payload.find({ collection: 'users', sort: 'createdAt', limit: 1, overrideAccess: true })
+    if (!docs[0]) return
+    await payload.update({
+      collection: 'users',
+      id: docs[0].id,
+      data: { papel: 'admin', sites: ['br', 'us'] },
+      overrideAccess: true,
+    })
+    payload.logger.info(`Papel admin atribuído a ${docs[0].email}`)
+  },
 })

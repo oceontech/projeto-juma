@@ -11,9 +11,9 @@ import { DUR, EASE } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { Leaf, Target, AlertTriangle, ListChecks, Package, Rocket } from 'lucide-react'
 import { HomeCtaFinal } from '@/features/home/components/HomeCtaFinal'
+import { WhatsAppLink } from '@/features/leads/components/WhatsAppLink'
 import { useTranslations } from 'next-intl'
 
-const WHATSAPP = 'https://wa.me/5519999648186'
 
 export type ManageProduct = { name: string; dose: string }
 export type ManagePhase = { label: string; fase: string; products: ManageProduct[] }
@@ -368,17 +368,15 @@ export function CulturePage({ slug }: { slug: string }) {
             </p>
             
             <div className="flex flex-wrap justify-center items-center gap-4">
-              <a
-                href={WHATSAPP}
-                target="_blank"
-                rel="noopener noreferrer"
+              <WhatsAppLink
+                context={{ cultura: culture.name }}
                 className="inline-flex items-center gap-2.5 h-[54px] px-[28px] rounded-full btn-type text-white bg-[#004B26] hover:bg-[#003A1D] transition-all hover:-translate-y-px shadow-lg"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="w-4 h-4">
                   <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
                 </svg>
                 {tPage('whatsappBtn')}
-              </a>
+              </WhatsAppLink>
               {hasManagement && (
                 <a
                   href="#manejo"

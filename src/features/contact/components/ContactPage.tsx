@@ -1,15 +1,19 @@
 'use client'
 
 import React, { useRef, useState } from 'react'
-import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/layout/Container'
 import { DropdownMenu } from '@/components/ui/dropdown-menu'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { gsap, ScrollTrigger, useGSAP } from '@/features/animation/gsap'
 import { createCharReveal , bindSectionReveal, revealToggleActions } from '@/features/animation/charReveal'
 import { onPageEntrance } from '@/features/animation/pageEntrance'
 import { DUR, EASE } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
+import { submitLead } from '@/features/leads/actions'
+import { useLead } from '@/features/leads/components/LeadProvider'
+import { WhatsAppLink } from '@/features/leads/components/WhatsAppLink'
+import { whatsappUrl } from '@/features/leads/whatsapp'
+import { contact } from '@/config/site'
 
 function ArrowTopRightIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -67,6 +71,11 @@ export function ContactPage() {
   const [cultura, setCultura] = useState('Soja')
   const [produto, setProduto] = useState(t('productDefault'))
   const [wpp, setWpp] = useState('')
+  const tLead = useTranslations('leadPopup')
+  const locale = useLocale()
+  const lead = useLead()
+  const [sendState, setSendState] = useState<'idle' | 'sending' | 'error'>('idle')
+  const formShownAt = useRef(0)
 
   const handleWppChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, '')
@@ -169,9 +178,47 @@ export function ContactPage() {
     { scope: containerRef, dependencies: [reduced] }
   )
 
-  const handleWhatsAppSubmit = (e: React.FormEvent) => {
+  // Grava o contato no painel (formulário "contato") e só então abre a conversa.
+  const handleWhatsAppSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    window.open('https://wa.me/5519999648186', '_blank')
+    if (sendState === 'sending') return
+    const form = e.currentTarget
+    const data = new FormData(form)
+    const text = (name: string) => String(data.get(name) ?? '').trim()
+    const produtoEscolhido = produto !== t('productDefault') ? produto : undefined
+    const message = lead
+      ? lead.messageFor(produtoEscolhido ? { produto: produtoEscolhido } : undefined)
+      : tLead('messages.default')
+
+    // A aba abre no clique; se abrisse depois do await, o navegador bloquearia.
+    const tab = window.open('', '_blank')
+    setSendState('sending')
+    const result = await submitLead({
+      formulario: 'contato',
+      nome: text('nome'),
+      email: text('email'),
+      telefone: wpp,
+      mensagem: text('mensagem'),
+      locale,
+      pagina: window.location.pathname,
+      contexto: { produto: produtoEscolhido, cultura },
+      dados: { regiao: text('regiao'), cultura, produto: produtoEscolhido },
+      consentimento: t('privacyNote'),
+      website: text('website'),
+      tempoMs: formShownAt.current ? Date.now() - formShownAt.current : undefined,
+    }).catch(() => ({ ok: false as const }))
+
+    if (!result.ok) {
+      tab?.close()
+      setSendState('error')
+      return
+    }
+    setSendState('idle')
+    form.reset()
+    setWpp('')
+    const url = whatsappUrl(message)
+    if (tab) tab.location.href = url
+    else window.location.href = url
   }
 
   return (
@@ -196,6 +243,9 @@ export function ContactPage() {
         <div data-contact-form className="lg:w-2/3">
           <form
             onSubmit={handleWhatsAppSubmit}
+            onFocus={() => {
+              if (!formShownAt.current) formShownAt.current = Date.now()
+            }}
             className="bg-white rounded-3xl p-8 md:p-12 border border-foreground/10 shadow-sm"
           >
             <h2 data-form-title className="font-montserrat uppercase text-2xl md:text-3xl font-black text-foreground tracking-tight mb-8 leading-[0.95]">
@@ -269,15 +319,25 @@ export function ContactPage() {
               </div>
             </div>
 
+            {/* Isca para robôs: invisível para pessoas e leitores de tela. */}
+            <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute -left-[9999px] h-px w-px opacity-0" />
+
+            {sendState === 'error' && (
+              <p className="mb-6 text-sm text-red-700" role="alert">
+                {tLead('errorSend', { phone: contact.whatsappNumber })}
+              </p>
+            )}
+
             <div className="flex flex-col sm:flex-row items-center gap-6 pt-6 border-t border-foreground/10">
               <p className="text-xs text-foreground/50 leading-relaxed flex-1">
                 {t('privacyNote')}
               </p>
               <button
                 type="submit"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-white px-8 py-4 rounded-full btn-type transition-transform hover:scale-105 shadow-md"
+                disabled={sendState === 'sending'}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-white px-8 py-4 rounded-full btn-type transition-transform hover:scale-105 shadow-md disabled:opacity-70"
               >
-                {t('submitButton')}
+                {sendState === 'sending' ? tLead('sending') : t('submitButton')}
                 <WhatsAppIcon className="h-4 w-4" />
               </button>
             </div>
@@ -287,7 +347,7 @@ export function ContactPage() {
         {/* Informações */}
         <div data-contact-sidebar className="lg:w-1/3 flex flex-col gap-8">
           <div className="p-6 sm:p-8 rounded-3xl bg-foreground/5 border border-foreground/10 flex flex-col gap-8">
-            <a data-contact-item href="https://wa.me/5519999648186" target="_blank" rel="noopener noreferrer" className="flex items-start gap-4 group">
+            <WhatsAppLink data-contact-item className="flex items-start gap-4 group">
               <div className="shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-primary text-white shadow-md group-hover:scale-110 transition-transform">
                 <WhatsAppIcon className="h-5 w-5" />
               </div>
@@ -295,7 +355,7 @@ export function ContactPage() {
                 <b className="block text-lg font-bold text-foreground group-hover:text-primary transition-colors">(19) 99964-8186</b>
                 <span className="text-sm text-foreground/60 leading-tight">{t('whatsappSubtitle')}</span>
               </div>
-            </a>
+            </WhatsAppLink>
 
             <div data-contact-item className="flex items-start gap-4">
               <div className="shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-white text-primary shadow-sm border border-foreground/10">
@@ -394,14 +454,12 @@ export function ContactPage() {
           </p>
         </div>
         <div className="relative z-10 shrink-0">
-          <Link
-            href="https://wa.me/5519999648186"
-            target="_blank"
+          <WhatsAppLink
             className="inline-flex items-center gap-3 bg-white text-primary px-8 py-4 rounded-full btn-type transition-transform hover:scale-105 shadow-xl hover:shadow-yellow-400/20"
           >
             {t('ctaButton')}
             <WhatsAppIcon className="h-4 w-4" />
-          </Link>
+          </WhatsAppLink>
         </div>
       </div>
       </div>

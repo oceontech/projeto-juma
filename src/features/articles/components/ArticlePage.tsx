@@ -11,6 +11,7 @@ import { onPageEntrance } from '@/features/animation/pageEntrance'
 import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { ARTICLES_DATA, Article } from '../data/articlesData'
+import { WhatsAppLink } from '@/features/leads/components/WhatsAppLink'
 
 interface ArticlePageProps {
   slug: string
@@ -427,15 +428,13 @@ export function ArticlePage({ slug }: ArticlePageProps) {
             </p>
           </div>
           <div className="relative z-10 shrink-0">
-            <a
-              href="https://wa.me/5519999648186"
-              target="_blank"
-              rel="noopener noreferrer"
+            <WhatsAppLink
+              context={{ detalhe: `Matéria: ${translation.title}` }}
               className="inline-flex items-center gap-3 bg-white text-primary px-8 py-4 rounded-full btn-type transition-transform hover:scale-105 shadow-xl hover:shadow-yellow-400/20"
             >
               {t('ctaButton')}
               <ArrowTopRightIcon className="h-4 w-4" />
-            </a>
+            </WhatsAppLink>
           </div>
         </div>
       </Container>

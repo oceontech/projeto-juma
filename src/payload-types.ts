@@ -365,22 +365,96 @@ export interface Page {
   createdAt: string;
 }
 /**
+ * Contatos que chegaram pelos sites. Mude o status conforme o atendimento avança.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "leads".
  */
 export interface Lead {
   id: number;
+  status: 'novo' | 'em-contato' | 'qualificado' | 'convertido' | 'descartado';
+  responsavel?: (number | null) | User;
+  site: 'br' | 'us';
+  formulario?: ('whatsapp' | 'contato' | 'trial' | 'trial-compact') | null;
+  /**
+   * Preenchido quando o mesmo e-mail ou telefone já tinha chegado antes.
+   */
+  duplicadoDe?: (number | null) | Lead;
   nome: string;
+  empresa?: string | null;
   email?: string | null;
-  telefone: string;
   /**
-   * Página de onde o lead clicou
+   * Só dígitos, com DDI/DDD quando informado.
    */
-  origem?: string | null;
+  telefone?: string | null;
+  mensagem?: string | null;
   /**
-   * Produto ou cultura associado ao clique
+   * De onde veio o interesse: a página em que o contato clicou.
    */
-  contexto?: string | null;
+  contexto?: {
+    produto?: string | null;
+    cultura?: string | null;
+    detalhe?: string | null;
+  };
+  /**
+   * Respostas próprias de cada formulário (estado, acres, região…).
+   */
+  dados?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  notas?:
+    | {
+        texto: string;
+        autor?: (number | null) | User;
+        data?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  pagina?: string | null;
+  locale?: string | null;
+  variante?: string | null;
+  /**
+   * Último toque antes do contato. O primeiro toque fica no JSON abaixo.
+   */
+  rastreamento?: {
+    utmSource?: string | null;
+    utmMedium?: string | null;
+    utmCampaign?: string | null;
+    utmTerm?: string | null;
+    utmContent?: string | null;
+    gclid?: string | null;
+    fbclid?: string | null;
+    referrer?: string | null;
+    landing?: string | null;
+    primeiroToque?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+  };
+  dispositivo?: {
+    tipo?: string | null;
+    navegador?: string | null;
+  };
+  geo?: {
+    pais?: string | null;
+    regiao?: string | null;
+    cidade?: string | null;
+  };
+  consentimento?: {
+    texto?: string | null;
+    data?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -390,6 +464,15 @@ export interface Lead {
  */
 export interface User {
   id: number;
+  nome?: string | null;
+  /**
+   * Admin: tudo. Editor: conteúdo do Brasil. Comercial: trabalha os leads.
+   */
+  papel: 'admin' | 'editor' | 'comercial';
+  /**
+   * Sites cujos leads e conteúdos este usuário enxerga.
+   */
+  sites: ('br' | 'us')[];
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -615,11 +698,68 @@ export interface PagesSelect<T extends boolean = true> {
  * via the `definition` "leads_select".
  */
 export interface LeadsSelect<T extends boolean = true> {
+  status?: T;
+  responsavel?: T;
+  site?: T;
+  formulario?: T;
+  duplicadoDe?: T;
   nome?: T;
+  empresa?: T;
   email?: T;
   telefone?: T;
-  origem?: T;
-  contexto?: T;
+  mensagem?: T;
+  contexto?:
+    | T
+    | {
+        produto?: T;
+        cultura?: T;
+        detalhe?: T;
+      };
+  dados?: T;
+  notas?:
+    | T
+    | {
+        texto?: T;
+        autor?: T;
+        data?: T;
+        id?: T;
+      };
+  pagina?: T;
+  locale?: T;
+  variante?: T;
+  rastreamento?:
+    | T
+    | {
+        utmSource?: T;
+        utmMedium?: T;
+        utmCampaign?: T;
+        utmTerm?: T;
+        utmContent?: T;
+        gclid?: T;
+        fbclid?: T;
+        referrer?: T;
+        landing?: T;
+        primeiroToque?: T;
+      };
+  dispositivo?:
+    | T
+    | {
+        tipo?: T;
+        navegador?: T;
+      };
+  geo?:
+    | T
+    | {
+        pais?: T;
+        regiao?: T;
+        cidade?: T;
+      };
+  consentimento?:
+    | T
+    | {
+        texto?: T;
+        data?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -646,6 +786,9 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  nome?: T;
+  papel?: T;
+  sites?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

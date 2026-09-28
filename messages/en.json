@@ -3938,5 +3938,27 @@
       "member1Name": "Agronomist Anderson Souza de Jesus",
       "member1Role": "Juma-Agro Project Manager"
     }
+  },
+  "leadPopup": {
+    "title": "Before we open the chat, what should we call you?",
+    "lede": "Your details go to our support team, and only to them.",
+    "nameLabel": "Your name",
+    "emailLabel": "Your email",
+    "emailPlaceholder": "name@example.com",
+    "phoneLabel": "Your WhatsApp",
+    "phonePlaceholder": "+1 (555) 123-4567",
+    "submit": "Open the chat on WhatsApp",
+    "sending": "Sending…",
+    "support": "It takes ten seconds, and the conversation starts right away.",
+    "errorField": "Could you check this field? That way we can get back to you.",
+    "saved": "Done, {nome}. Opening WhatsApp.",
+    "errorSend": "Something failed on our side. Try again or message us directly: {phone}.",
+    "close": "Close",
+    "messages": {
+      "default": "Hi! I found you through the website and would like to know more about Juma products.",
+      "product": "Hi! I found you through the website and would like to know more about {produto}.",
+      "culture": "Hi! I found you through the website and would like a program for {cultura}.",
+      "experience": "Hi! I would like to schedule a visit through Juma Experience."
+    }
   }
 }

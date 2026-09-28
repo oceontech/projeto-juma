@@ -15,6 +15,7 @@ Site da **Juma Agro** (fertilizantes especiais e aminoácidos), feito pela agên
 ## Como rodar
 
 1. `.env` precisa de `DATABASE_URL` (string pooler do Neon) e `PAYLOAD_SECRET` (já gerado).
+   **Atenção (28/09/2026):** o `DATABASE_URL` atual do `.env` aponta para o banco de outra aplicação (tabelas `leads`, `page_views`, `cta_events`). Não rode o Payload nele: o push de schema alteraria essas tabelas. Use um banco Neon exclusivo do Payload, ou um Postgres local para testar (`tests/int/leads.int.spec.ts` só roda em `localhost`).
 2. `npm run dev` → site em `localhost:3000`, painel em `/admin`.
 3. `npm run generate:types` após mudar coleções.
 

@@ -12,6 +12,8 @@ import { Veil } from '@/features/veil/Veil'
 import { RESET_SCROLL_SCRIPT, VEIL_SRC } from '@/features/veil/config'
 import { SmoothScroll } from '@/features/animation/SmoothScroll'
 import { MobileLogo } from '@/components/layout/MobileLogo'
+import { LeadProvider } from '@/features/leads/components/LeadProvider'
+import { TouchCapture } from '@/features/leads/components/TouchCapture'
 import '../globals.css'
 
 const montserrat = Montserrat({
@@ -89,13 +91,16 @@ export default async function LocaleLayout(props: {
       <body suppressHydrationWarning className="flex min-h-[100dvh] w-full max-w-full flex-col overflow-x-hidden relative">
         <NextIntlClientProvider messages={messages}>
           <SmoothScroll>
-            <Veil />
-            <Navbar />
-            <MobileLogo />
-            <main id="main" className="flex-1 w-full max-w-full overflow-x-hidden">
-              {props.children}
-            </main>
-            <Footer />
+            <LeadProvider>
+              <TouchCapture />
+              <Veil />
+              <Navbar />
+              <MobileLogo />
+              <main id="main" className="flex-1 w-full max-w-full overflow-x-hidden">
+                {props.children}
+              </main>
+              <Footer />
+            </LeadProvider>
           </SmoothScroll>
         </NextIntlClientProvider>
       </body>

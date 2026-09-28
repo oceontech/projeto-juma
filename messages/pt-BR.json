@@ -3938,5 +3938,27 @@
       "member1Name": "Eng. Agrônomo Anderson Souza de Jesus",
       "member1Role": "Gestor do Projeto Juma-Agro"
     }
+  },
+  "leadPopup": {
+    "title": "Antes de abrir a conversa, como podemos te chamar?",
+    "lede": "Seus dados vão para o nosso time de atendimento, e só para ele.",
+    "nameLabel": "Seu nome",
+    "emailLabel": "Seu e-mail",
+    "emailPlaceholder": "nome@exemplo.com.br",
+    "phoneLabel": "Seu WhatsApp",
+    "phonePlaceholder": "(DDD) 99999-9999",
+    "submit": "Abrir conversa no WhatsApp",
+    "sending": "Enviando…",
+    "support": "Leva dez segundos e a conversa já começa.",
+    "errorField": "Confere esse campo? Assim garantimos o retorno.",
+    "saved": "Pronto, {nome}. Abrindo seu WhatsApp.",
+    "errorSend": "Falhou do nosso lado. Tente de novo ou chame direto: {phone}.",
+    "close": "Fechar",
+    "messages": {
+      "default": "Olá! Vim pelo site e quero saber mais sobre os produtos Juma.",
+      "product": "Olá! Vim pelo site e quero saber mais sobre o {produto}.",
+      "culture": "Olá! Vim pelo site e quero um programa para {cultura}.",
+      "experience": "Olá! Quero agendar uma visita pela Juma Experience."
+    }
   }
 }
