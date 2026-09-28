@@ -1,14 +1,11 @@
 import React from 'react'
-import { getTranslations } from 'next-intl/server'
+import { setRequestLocale } from 'next-intl/server'
 import { ProductGrid } from '@/features/products/components/ProductGrid'
+import { getProductCards } from '@/features/products/queries'
 
 // Otimização de metadados para SEO
 export async function generateMetadata(props: { params: Promise<{ locale: string }> }) {
   const { locale } = await props.params
-  const t = await getTranslations({ locale, namespace: 'common' })
-
-  // Por enquanto usando strings diretas, conforme acordado (hardcoded na etapa visual),
-  // mas deixando a estrutura de metadados pronta.
   const title = locale === 'pt-BR' ? 'Produtos · Juma-Agro' : locale === 'en' ? 'Products · Juma-Agro' : 'Productos · Juma-Agro'
   
   return {
@@ -16,10 +13,14 @@ export async function generateMetadata(props: { params: Promise<{ locale: string
   }
 }
 
-export default function ProdutosPage() {
+export default async function ProdutosPage(props: { params: Promise<{ locale: string }> }) {
+  const { locale } = await props.params
+  setRequestLocale(locale)
+  const products = await getProductCards(locale)
+
   return (
     <div className="pt-[120px] pb-32">
-      <ProductGrid />
+      <ProductGrid products={products} />
     </div>
   )
 }

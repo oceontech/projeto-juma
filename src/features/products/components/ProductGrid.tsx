@@ -11,6 +11,7 @@ import { onPageEntrance } from '@/features/animation/pageEntrance'
 import { DUR, EASE } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { DropdownMenu } from '@/components/ui/dropdown-menu'
+import type { ProductCard } from '../queries'
 
 const CATEGORY_IDS = [
   { id: 'all', key: 'all' as const },
@@ -35,148 +36,6 @@ const CULTURE_IDS = [
   { id: 'cul-pastagem', key: 'pastagem' as const },
 ]
 
-const PRODUCTS = [
-  {
-    id: 'acorda-cana',
-    name: 'Acorda Cana',
-    tKey: 'acordaCana' as const,
-    categoryId: 'cat-tratamento',
-    cultures: ['cul-cana'],
-    color: '#79ab34',
-    href: '/produtos/acorda-cana',
-    image: '/produtos/acorda-cana.webp',
-  },
-  {
-    id: 'acorda-ultra',
-    name: 'Acorda Ultra',
-    tKey: 'acordaUltra' as const,
-    categoryId: 'cat-tratamento',
-    cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-algodao', 'cul-feijao', 'cul-citros', 'cul-tomate', 'cul-batata'],
-    color: '#008dc2',
-    href: '/produtos/acorda-ultra',
-    image: '/produtos/acorda-ultra.webp',
-  },
-  {
-    id: 'aduban',
-    name: 'Aduban',
-    tKey: 'aduban' as const,
-    categoryId: 'cat-tratamento',
-    cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-algodao', 'cul-feijao', 'cul-citros', 'cul-tomate', 'cul-batata'],
-    color: '#ad1115',
-    href: '/produtos/aduban',
-    image: '/produtos/aduban.webp',
-  },
-  {
-    id: 'aminosan',
-    name: 'Aminosan®',
-    tKey: 'aminosan' as const,
-    categoryId: 'cat-nutricao',
-    cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-algodao', 'cul-feijao', 'cul-citros', 'cul-tomate', 'cul-batata'],
-    color: '#006838',
-    href: '/produtos/aminosan',
-    image: '/produtos/aminosan.webp',
-  },
-  {
-    id: 'fitofert',
-    name: 'Fitofert',
-    tKey: 'fitofert' as const,
-    categoryId: 'cat-nutricao',
-    cultures: ['cul-soja', 'cul-cafe', 'cul-feijao', 'cul-citros', 'cul-tomate'],
-    color: '#006838',
-    href: '/produtos/fitofert',
-    image: '/produtos/fitofert.webp',
-  },
-  {
-    id: 'revigo-comoni',
-    name: 'Revigo CoMoNi',
-    tKey: 'revigoComoni' as const,
-    categoryId: 'cat-nutricao',
-    cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-algodao', 'cul-feijao', 'cul-citros', 'cul-cana'],
-    color: '#312783',
-    href: '/produtos/revigo-comoni',
-    image: '/produtos/revigo-comoni.webp',
-  },
-  {
-    id: 'revigophos-amino',
-    name: 'RevigoPhos Amino',
-    tKey: 'revigophosAmino' as const,
-    categoryId: 'cat-nutricao',
-    cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-feijao', 'cul-citros', 'cul-tomate', 'cul-batata', 'cul-pastagem'],
-    color: '#312783',
-    href: '/produtos/revigophos-amino',
-    image: '/produtos/revigophos-amino.webp',
-  },
-  {
-    id: 'revigo-cobre-ultra',
-    name: 'Revigo Cobre Ultra',
-    tKey: 'revigoCobreUltra' as const,
-    categoryId: 'cat-nutricao',
-    cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-feijao', 'cul-citros', 'cul-tomate', 'cul-batata'],
-    color: '#312783',
-    href: '/produtos/revigo-cobre-ultra',
-    image: '/produtos/revigo-cobre-ultra.webp',
-  },
-  {
-    id: 'kmep-ultra',
-    name: 'Kmep Ultra',
-    tKey: 'kmepUltra' as const,
-    categoryId: 'cat-protecao',
-    cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-algodao', 'cul-feijao', 'cul-citros', 'cul-tomate', 'cul-batata'],
-    color: '#ad1115',
-    href: '/produtos/kmep-ultra',
-    image: '/produtos/kmep-ultra.webp',
-  },
-  {
-    id: 'redutan-sili-4',
-    name: 'Redutan NPK Sili-4',
-    tKey: 'redutanSili4' as const,
-    categoryId: 'cat-aplicacao',
-    cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-algodao', 'cul-feijao', 'cul-citros', 'cul-tomate', 'cul-batata', 'cul-cana', 'cul-pastagem'],
-    color: '#006838',
-    href: '/produtos/redutan-sili-4',
-    image: '/produtos/redutan-sili-4.webp',
-  },
-  {
-    id: 'redutan-sili-5',
-    name: 'Redutan NPK Sili-5',
-    tKey: 'redutanSili5' as const,
-    categoryId: 'cat-aplicacao',
-    cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-algodao', 'cul-feijao', 'cul-citros', 'cul-tomate', 'cul-batata', 'cul-cana', 'cul-pastagem'],
-    color: '#7d252a',
-    href: '/produtos/redutan-sili-5',
-    image: '/produtos/redutan-sili-5.webp',
-  },
-  {
-    id: 'supermix',
-    name: 'Supermix',
-    tKey: 'supermix' as const,
-    categoryId: 'cat-aplicacao',
-    cultures: ['cul-soja', 'cul-milho', 'cul-cafe', 'cul-algodao', 'cul-feijao', 'cul-citros', 'cul-tomate', 'cul-batata', 'cul-cana', 'cul-pastagem'],
-    color: '#388123',
-    href: '/produtos/supermix',
-    image: '/produtos/supermix.webp',
-  },
-  {
-    id: 'revigo-milho',
-    name: 'Revigo + Milho',
-    tKey: 'revigoMilho' as const,
-    categoryId: 'cat-manejo',
-    cultures: ['cul-milho'],
-    color: '#312783',
-    href: '/produtos/revigo-milho',
-    image: '/produtos/revigo-milho.webp',
-  },
-  {
-    id: 'revigo-pasto',
-    name: 'Revigo + Pasto',
-    tKey: 'revigoPasto' as const,
-    categoryId: 'cat-manejo',
-    cultures: ['cul-pastagem', 'cul-milho'],
-    color: '#312783',
-    href: '/produtos/revigo-pasto',
-    image: '/produtos/revigo-pasto.webp',
-  },
-]
 
 function ArrowTopRightIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -186,7 +45,7 @@ function ArrowTopRightIcon(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-export function ProductGrid() {
+export function ProductGrid({ products }: { products: ProductCard[] }) {
   const t = useTranslations('productsPage')
   const [activeCategory, setActiveCategory] = useState('all')
   const [activeCulture, setActiveCulture] = useState('all')
@@ -295,15 +154,15 @@ export function ProductGrid() {
     { scope: containerRef, dependencies: [reduced] }
   )
 
-  const filteredProducts = PRODUCTS.filter((p) => {
+  const filteredProducts = products.filter((p) => {
     const matchCat = activeCategory === 'all' || p.categoryId === activeCategory
     const matchCul = activeCulture === 'all' || p.cultures.includes(activeCulture)
     return matchCat && matchCul
   })
 
   const getCategoryCount = (id: string) => {
-    if (id === 'all') return PRODUCTS.length
-    return PRODUCTS.filter((p) => p.categoryId === id).length
+    if (id === 'all') return products.length
+    return products.filter((p) => p.categoryId === id).length
   }
 
   return (
@@ -366,7 +225,7 @@ export function ProductGrid() {
                   className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[#ebf4e3]"
                 />
                 <span className="absolute top-4 left-4 z-10 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded bg-white/90 backdrop-blur text-foreground shadow-sm">
-                  {t(`products.${product.tKey}.tag`)}
+                  {product.tag}
                 </span>
                 <div className="relative z-10 h-full w-full flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
                   <Image
@@ -385,7 +244,7 @@ export function ProductGrid() {
                   {product.name}
                 </h3>
                 <p className="text-sm text-foreground/70 leading-relaxed mb-6 flex-1">
-                  {t(`products.${product.tKey}.description`)}
+                  {product.description}
                 </p>
                 <div className="self-end mt-auto flex items-center justify-center h-10 w-10 rounded-full bg-primary/5 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-white">
                   <ArrowTopRightIcon className="h-4 w-4" />

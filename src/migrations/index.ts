@@ -1,6 +1,8 @@
 import * as migration_20260928_154008_inicial from './20260928_154008_inicial';
 import * as migration_20260928_163241_materias_campos from './20260928_163241_materias_campos';
 import * as migration_20260928_163302_materias_limpeza from './20260928_163302_materias_limpeza';
+import * as migration_20260928_173058_produtos_campos from './20260928_173058_produtos_campos';
+import * as migration_20260928_173128_produtos_limpeza from './20260928_173128_produtos_limpeza';
 
 export const migrations = [
   {
@@ -16,6 +18,16 @@ export const migrations = [
   {
     up: migration_20260928_163302_materias_limpeza.up,
     down: migration_20260928_163302_materias_limpeza.down,
-    name: '20260928_163302_materias_limpeza'
+    name: '20260928_163302_materias_limpeza',
+  },
+  {
+    up: migration_20260928_173058_produtos_campos.up,
+    down: migration_20260928_173058_produtos_campos.down,
+    name: '20260928_173058_produtos_campos',
+  },
+  {
+    up: migration_20260928_173128_produtos_limpeza.up,
+    down: migration_20260928_173128_produtos_limpeza.down,
+    name: '20260928_173128_produtos_limpeza'
   },
 ];

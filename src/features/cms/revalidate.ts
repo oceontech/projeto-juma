@@ -21,3 +21,4 @@ export function revalidateSite(paths: (string | null | undefined)[]) {
     }
   }
 }
+

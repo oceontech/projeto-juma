@@ -132,88 +132,165 @@ export interface UserAuthOperations {
   };
 }
 /**
+ * Produtos do site Brasil. Textos em cada idioma pelo seletor "Local" no topo.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "products".
  */
 export interface Product {
   id: number;
-  nome: string;
+  /**
+   * Endereço: /produtos/<slug>.
+   */
   slug: string;
-  linha:
-    | 'arranque-inicial'
-    | 'nutricao-fisiologia'
-    | 'protecao-cultivos'
-    | 'tecnologia-aplicacao'
-    | 'manejos-integrados';
   /**
-   * Cor de fundo do produto em hex, ex: #006838
+   * Filtro do catálogo.
    */
-  corFundo?: string | null;
+  categoria: 'cat-tratamento' | 'cat-nutricao' | 'cat-protecao' | 'cat-aplicacao' | 'cat-manejo';
+  culturasFiltro?:
+    | (
+        | 'cul-soja'
+        | 'cul-milho'
+        | 'cul-cafe'
+        | 'cul-cana'
+        | 'cul-algodao'
+        | 'cul-feijao'
+        | 'cul-citros'
+        | 'cul-tomate'
+        | 'cul-batata'
+        | 'cul-pastagem'
+      )[]
+    | null;
+  embalagens?: ('1L' | '10L' | '20L')[] | null;
   /**
-   * Texto branco sobre a cor de fundo
+   * Pílulas e destaques da página. Formato #RRGGBB.
    */
-  textoClaro?: boolean | null;
-  tamanhos?: ('1l' | '10l' | '20l')[] | null;
-  culturas?: (number | Culture)[] | null;
-  descricaoCurta?: string | null;
-  descricaoCompleta?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  beneficios?:
+  corRotulo: string;
+  /**
+   * Vazio = cor do rótulo.
+   */
+  corCard?: string | null;
+  /**
+   * Menor aparece primeiro no catálogo.
+   */
+  ordem?: number | null;
+  nome: string;
+  /**
+   * Pílula acima do nome. Ex.: Nutrição e Fisiologia Vegetal
+   */
+  tag?: string | null;
+  descricao?: string | null;
+  /**
+   * Imagem quadrada com fundo transparente ou claro.
+   */
+  frasco?: (number | null) | Media;
+  /**
+   * Uma por linha.
+   */
+  culturasRotulo?: string | null;
+  /**
+   * Use quando o rótulo autoriza a cultura só em foliar ou só em TS. Substitui a lista acima.
+   */
+  gruposCulturas?:
     | {
-        texto?: string | null;
+        rotulo?: string | null;
+        /**
+         * Uma por linha.
+         */
+        culturas?: string | null;
         id?: string | null;
       }[]
     | null;
-  modoUso?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  resultados?:
+  /**
+   * Ex.: adjuvante dosado por volume de calda. Substitui a lista de culturas.
+   */
+  notaCulturas?: string | null;
+  problemas?:
+    | {
+        icone: 'seed' | 'sun' | 'drop' | 'leaf' | 'shield' | 'chart';
+        titulo?: string | null;
+        descricao?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  listaBeneficios?:
+    | {
+        titulo?: string | null;
+        descricao?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Texto literal do rótulo. Uma tabela por forma de aplicação.
+   */
+  aplicacoes?:
+    | {
+        rotulo?: string | null;
+        nota?: string | null;
+        linhas?:
+          | {
+              cultura?: string | null;
+              quando?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  notaAplicacoes?: string | null;
+  /**
+   * Todo número precisa vir com a fonte do ensaio na descrição.
+   */
+  listaResultados?:
     | {
         /**
-         * Ex: +13,4 sc/ha
+         * Ex.: +13,4
          */
         valor?: string | null;
         /**
-         * Ex: ensaio DETEC
+         * Ex.: sc/ha
          */
-        fonte?: string | null;
-        cultura?: string | null;
+        unidade?: string | null;
+        descricao?: string | null;
         id?: string | null;
       }[]
     | null;
-  galeria?: (number | Media)[] | null;
   /**
-   * Posição no scroll horizontal do catálogo
+   * Quatro fotos: a 1ª fica grande e a 4ª larga.
    */
-  ordemCatalogo?: number | null;
-  destaqueHome?: boolean | null;
+  galeria?: (number | Media)[] | null;
+  relacionados?:
+    | {
+        produto: number | Product;
+        tag?: string | null;
+        descricao?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  tagCatalogo?: string | null;
+  resumoCatalogo?: string | null;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -275,25 +352,6 @@ export interface Culture {
   produtosRelacionados?: (number | Product)[] | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
 }
 /**
  * Matérias do blog do site Brasil. Edite em cada idioma pelo seletor "Local" no topo.
@@ -618,35 +676,78 @@ export interface PayloadMigration {
  * via the `definition` "products_select".
  */
 export interface ProductsSelect<T extends boolean = true> {
-  nome?: T;
   slug?: T;
-  linha?: T;
-  corFundo?: T;
-  textoClaro?: T;
-  tamanhos?: T;
-  culturas?: T;
-  descricaoCurta?: T;
-  descricaoCompleta?: T;
-  beneficios?:
+  categoria?: T;
+  culturasFiltro?: T;
+  embalagens?: T;
+  corRotulo?: T;
+  corCard?: T;
+  ordem?: T;
+  nome?: T;
+  tag?: T;
+  descricao?: T;
+  frasco?: T;
+  culturasRotulo?: T;
+  gruposCulturas?:
     | T
     | {
-        texto?: T;
+        rotulo?: T;
+        culturas?: T;
         id?: T;
       };
-  modoUso?: T;
-  resultados?:
+  notaCulturas?: T;
+  problemas?:
+    | T
+    | {
+        icone?: T;
+        titulo?: T;
+        descricao?: T;
+        id?: T;
+      };
+  listaBeneficios?:
+    | T
+    | {
+        titulo?: T;
+        descricao?: T;
+        id?: T;
+      };
+  aplicacoes?:
+    | T
+    | {
+        rotulo?: T;
+        nota?: T;
+        linhas?:
+          | T
+          | {
+              cultura?: T;
+              quando?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  notaAplicacoes?: T;
+  listaResultados?:
     | T
     | {
         valor?: T;
-        fonte?: T;
-        cultura?: T;
+        unidade?: T;
+        descricao?: T;
         id?: T;
       };
   galeria?: T;
-  ordemCatalogo?: T;
-  destaqueHome?: T;
+  relacionados?:
+    | T
+    | {
+        produto?: T;
+        tag?: T;
+        descricao?: T;
+        id?: T;
+      };
+  tagCatalogo?: T;
+  resumoCatalogo?: T;
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
