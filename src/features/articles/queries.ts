@@ -3,14 +3,15 @@ import config from '@payload-config'
 import { getPayload } from 'payload'
 import { cache } from 'react'
 
-import type { Article as ArticleDoc, Media } from '@/payload-types'
-
-import type { ArticleCategory } from './options'
+import type { Article as ArticleDoc, Categoria, Media } from '@/payload-types'
 
 /** Matéria pronta para as páginas, já no idioma pedido. */
 export type ArticleView = {
   id: string
-  category: ArticleCategory
+  /** Endereço da categoria (filtro) e nome no idioma pedido (Blog › Categorias). */
+  category: string
+  categoryLabel: string
+  categoryOrder: number
   /** "22 ABR 2026" */
   date: string
   /** "10 MIN" */
@@ -25,8 +26,10 @@ export type ArticleView = {
   sections: { title?: string; content: string[] }[]
   quote?: string
   featured: boolean
-  featuredHome: boolean
 }
+
+/** Fundo verde Juma mostrado enquanto a capa carrega. */
+const COVER_COLOR = 'from-green-700 to-emerald-950'
 
 type Locale = 'pt-BR' | 'en' | 'es'
 
@@ -40,14 +43,18 @@ function formatDate(iso: string, locale: Locale) {
 function toView(doc: ArticleDoc, locale: Locale): ArticleView {
   const capa = doc.capa as Media | number | null | undefined
   const minutes = doc.tempoLeitura ?? 1
+  const tema = doc.tema as Categoria | number | null | undefined
+  const cat = typeof tema === 'object' && tema ? tema : null
   return {
     id: doc.slug,
-    category: doc.categoria as ArticleCategory,
+    category: cat?.slug ?? 'geral',
+    categoryLabel: cat?.nome ?? '',
+    categoryOrder: cat?.ordem ?? 100,
     date: formatDate(doc.data, locale),
     readTime: `${minutes} MIN`,
     readMinutes: minutes,
     image: (typeof capa === 'object' && capa?.url) || '/brand/logo-juma-agro.png',
-    color: doc.cor ?? 'from-green-700 to-emerald-950',
+    color: COVER_COLOR,
     title: doc.titulo,
     subtitle: doc.subtitulo ?? '',
     author: doc.assinatura ?? '',
@@ -61,7 +68,6 @@ function toView(doc: ArticleDoc, locale: Locale): ArticleView {
     })),
     quote: doc.citacao ?? undefined,
     featured: Boolean(doc.destaque),
-    featuredHome: Boolean(doc.destaqueHome),
   }
 }
 
@@ -85,9 +91,7 @@ export async function getArticle(slug: string, locale: string) {
   return articles.find((a) => a.id === slug) ?? null
 }
 
-/** As 3 mais recentes marcadas para a home; completa com as mais recentes. */
+/** A home mostra sempre as 3 mais recentes. */
 export async function getHomeArticles(locale: string) {
-  const articles = await getArticles(locale)
-  const marked = articles.filter((a) => a.featuredHome)
-  return [...marked, ...articles.filter((a) => !a.featuredHome)].slice(0, 3)
+  return (await getArticles(locale)).slice(0, 3)
 }

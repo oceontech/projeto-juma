@@ -57,7 +57,6 @@ function ClockIcon(props: React.SVGProps<SVGSVGElement>) {
 
 export function ArticlePage({ article, related }: ArticlePageProps) {
   const t = useTranslations('articleDetailPage')
-  const tCat = useTranslations('articlesPage.categories')
   const reduced = useReducedMotion()
 
 
@@ -259,7 +258,7 @@ export function ArticlePage({ article, related }: ArticlePageProps) {
           {/* Meta Info */}
           <div data-meta className="flex flex-wrap items-center gap-4 text-xs font-semibold uppercase tracking-widest text-[#7A8F6E] mb-6">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F2F6F2] text-primary">
-              {tCat(article.category)}
+              {article.categoryLabel}
             </span>
             <div className="h-1.5 w-1.5 rounded-full bg-[#7A8F6E]/40" />
             <span className="flex items-center gap-1.5">
@@ -380,7 +379,7 @@ export function ArticlePage({ article, related }: ArticlePageProps) {
                     />
                     <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500" />
                     <span className="absolute top-4 left-4 z-10 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-white/90 backdrop-blur text-foreground shadow-sm">
-                      {tCat(rel.category)}
+                      {rel.categoryLabel}
                     </span>
                   </div>
 

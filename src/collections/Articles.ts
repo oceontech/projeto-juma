@@ -6,7 +6,6 @@ import type {
 } from 'payload'
 
 import { hasRole } from '../access/roles'
-import { ARTICLE_CATEGORIES, ARTICLE_COLORS } from '../features/articles/options'
 import { revalidateSite } from '../features/cms/revalidate'
 
 /** Minutos de leitura a partir do texto (≈ 200 palavras por minuto). */
@@ -33,6 +32,13 @@ const revalidateOnDelete: CollectionAfterDeleteHook = ({ doc }) => {
   return doc
 }
 
+/** Assistente de IA no começo de cada etapa (components/admin/blog/AiAssist). */
+const ai = (name: string, step: 'assunto' | 'capa' | 'texto' | 'publicacao'): Field => ({
+  name,
+  type: 'ui',
+  admin: { components: { Field: { path: '/components/admin/blog/AiAssist#AiAssist', clientProps: { site: 'br', step } } } },
+})
+
 /** Rodapé de cada etapa do post ("← anterior · próxima →"). */
 const step = (name: string, clientProps: { prev?: string; next?: string; last?: boolean }): Field => ({
   name,
@@ -45,7 +51,7 @@ export const Articles: CollectionConfig = {
   labels: { singular: 'Matéria', plural: 'Blog' },
   admin: {
     useAsTitle: 'titulo',
-    defaultColumns: ['titulo', 'categoria', 'data', '_status', 'destaque', 'destaqueHome'],
+    defaultColumns: ['titulo', 'tema', 'data', '_status', 'destaque'],
     group: 'Conteúdo',
     description: 'Matéria do blog do site Brasil, em 4 etapas. Traduza pelo seletor "Idioma do conteúdo" no topo.',
     listSearchableFields: ['titulo', 'slug'],
@@ -68,7 +74,8 @@ export const Articles: CollectionConfig = {
   hooks: {
     beforeChange: [
       ({ data }) => {
-        if (data && !data.tempoLeituraManual) data.tempoLeitura = readingMinutes(data)
+        // A IA estima na revisão final; sem ela, conta pelas palavras.
+        if (data && !data.tempoLeitura) data.tempoLeitura = readingMinutes(data)
         return data
       },
     ],
@@ -83,13 +90,20 @@ export const Articles: CollectionConfig = {
       admin: { position: 'sidebar', components: { Field: '/components/admin/blog/ArticlePreview#ArticlePreview' } },
     },
     {
-      // Etapas do post: as abas viram a linha do tempo do alto.
+      // Progresso e etapas do post (as abas do Payload ficam escondidas).
+      name: 'passos',
+      type: 'ui',
+      admin: { components: { Field: { path: '/components/admin/blog/PostStepper#PostStepper', clientProps: { site: 'br' } } } },
+    },
+    {
+      // Etapas do post: cada aba é uma etapa da barra de progresso.
       type: 'tabs',
       tabs: [
         {
           label: 'Assunto',
           description: 'Sobre o que é a matéria e quem assina.',
           fields: [
+            ai('iaAssunto', 'assunto'),
             {
               name: 'titulo',
               label: 'Título',
@@ -109,11 +123,16 @@ export const Articles: CollectionConfig = {
               type: 'row',
               fields: [
                 {
-                  name: 'categoria',
-                  type: 'select',
+                  name: 'tema',
+                  label: 'Categoria',
+                  type: 'relationship',
+                  relationTo: 'categorias',
                   required: true,
-                  options: ARTICLE_CATEGORIES.map((c) => ({ label: c.label, value: c.value })),
-                  admin: { width: '50%' },
+                  filterOptions: { site: { equals: 'br' } },
+                  admin: {
+                    width: '50%',
+                    description: 'O assunto principal: vira etiqueta e filtro na página de matérias. Nenhuma serve? Crie uma no +.',
+                  },
                 },
                 {
                   name: 'assinatura',
@@ -131,25 +150,13 @@ export const Articles: CollectionConfig = {
           label: 'Capa',
           description: 'A foto que abre a matéria e aparece nos cards do site.',
           fields: [
+            ai('iaCapa', 'capa'),
             {
-              type: 'row',
-              fields: [
-                {
-                  name: 'capa',
-                  type: 'upload',
-                  relationTo: 'media',
-                  required: true,
-                  admin: { width: '60%', description: 'Foto na horizontal, de preferência com 1600 px de largura ou mais.' },
-                },
-                {
-                  name: 'cor',
-                  label: 'Cor de fundo da capa',
-                  type: 'select',
-                  defaultValue: ARTICLE_COLORS[0].value,
-                  options: ARTICLE_COLORS.map((c) => ({ label: c.label, value: c.value })),
-                  admin: { width: '40%', description: 'Aparece enquanto a foto carrega.' },
-                },
-              ],
+              name: 'capa',
+              type: 'upload',
+              relationTo: 'media',
+              required: true,
+              admin: { description: 'Foto na horizontal, de preferência com 1600 px de largura ou mais. Ou gere uma com a IA acima.' },
             },
             step('passo2', { prev: 'Assunto', next: 'Texto' }),
           ],
@@ -158,6 +165,7 @@ export const Articles: CollectionConfig = {
           label: 'Texto',
           description: 'Introdução, seções com intertítulo e uma citação em destaque.',
           fields: [
+            ai('iaTexto', 'texto'),
             {
               name: 'introducao',
               label: 'Introdução',
@@ -206,6 +214,7 @@ export const Articles: CollectionConfig = {
           label: 'Publicação',
           description: 'Endereço, data e onde a matéria aparece no site.',
           fields: [
+            ai('iaPublicacao', 'publicacao'),
             {
               name: 'slug',
               type: 'text',
@@ -239,31 +248,14 @@ export const Articles: CollectionConfig = {
                   name: 'destaque',
                   label: 'Destaque na página de matérias',
                   type: 'checkbox',
-                  admin: { width: '50%', description: 'A mais recente marcada aparece no bloco grande do topo.' },
+                  admin: { width: '50%', description: 'A mais recente marcada aparece no bloco grande do topo. A home mostra sempre as 3 mais recentes.' },
                 },
-                {
-                  name: 'destaqueHome',
-                  label: 'Mostrar na home',
-                  type: 'checkbox',
-                  admin: { width: '50%', description: 'A home mostra as 3 mais recentes marcadas.' },
-                },
-              ],
-            },
-            {
-              type: 'row',
-              fields: [
                 {
                   name: 'tempoLeitura',
                   label: 'Tempo de leitura (min)',
                   type: 'number',
                   min: 1,
-                  admin: { width: '50%', description: 'Calculado pelo texto ao salvar.' },
-                },
-                {
-                  name: 'tempoLeituraManual',
-                  label: 'Definir tempo de leitura à mão',
-                  type: 'checkbox',
-                  admin: { width: '50%' },
+                  admin: { width: '50%', description: 'Estimado pela IA na revisão final. Vazio: calculado pelo texto ao salvar.' },
                 },
               ],
             },

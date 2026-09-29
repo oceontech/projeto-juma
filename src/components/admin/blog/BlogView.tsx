@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation'
 import type { AdminViewServerProps, Where } from 'payload'
 
 import { SITES, selectedSite, type Site } from '@/access/roles'
-import { ARTICLE_CATEGORIES } from '@/features/articles/options'
 
 import { BlogViewClient, type BlogCard } from './BlogViewClient'
 
@@ -14,12 +13,7 @@ import { BlogViewClient, type BlogCard } from './BlogViewClient'
  */
 
 type Doc = Record<string, any>
-const US_CATEGORY: Record<string, string> = {
-  'field-notes': 'Field notes',
-  'crop-nutrition': 'Crop nutrition',
-  trials: 'Trials',
-  company: 'Company',
-}
+const categoryName = (tema: unknown) => (typeof tema === 'object' && tema && 'nome' in tema ? String((tema as { nome?: string }).nome ?? '') : '')
 
 const fmtDate = (iso?: string | null) =>
   iso ? new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '') : null
@@ -74,7 +68,7 @@ export async function BlogView({ initPageResult, params, searchParams }: AdminVi
       href: `/admin/collections/articles/${d.id}`,
       title: d.titulo || 'Sem título',
       image: image(d.capa),
-      meta: [ARTICLE_CATEGORIES.find((c) => c.value === d.categoria)?.label, fmtDate(d.data)].filter(Boolean) as string[],
+      meta: [categoryName(d.tema), fmtDate(d.data)].filter(Boolean) as string[],
       status: (d._status === 'published' ? 'published' : 'draft') as BlogCard['status'],
       date: d.data ?? d.createdAt,
       updatedAt: d.updatedAt,
@@ -85,7 +79,7 @@ export async function BlogView({ initPageResult, params, searchParams }: AdminVi
       href: `/admin/collections/posts-us/${d.id}`,
       title: d.title || 'Untitled',
       image: image(d.cover),
-      meta: [US_CATEGORY[d.category as string], fmtDate(d.date)].filter(Boolean) as string[],
+      meta: [categoryName(d.tema), fmtDate(d.date)].filter(Boolean) as string[],
       status: (d._status === 'published' ? 'published' : 'draft') as BlogCard['status'],
       date: d.date ?? d.createdAt,
       updatedAt: d.updatedAt,

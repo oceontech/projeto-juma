@@ -38,20 +38,7 @@ function parseDate(value: string) {
   return new Date(`${year}-${MONTHS[month.toUpperCase()]}-${day.padStart(2, '0')}T12:00:00.000Z`).toISOString()
 }
 
-// As cores antigas tinham variações fora da paleta; cada família vira a opção mais próxima.
-type Cor = (typeof import('../../src/features/articles/options'))['ARTICLE_COLORS'][number]['value']
-function color(value: string): Cor {
-  if (value.startsWith('from-green-7')) return 'from-green-700 to-emerald-950'
-  if (value.startsWith('from-green')) return 'from-green-600 to-green-800'
-  if (value.startsWith('from-teal')) return 'from-teal-600 to-emerald-800'
-  if (value.startsWith('from-amber')) return 'from-amber-600 to-orange-800'
-  if (value.startsWith('from-blue')) return 'from-blue-600 to-indigo-800'
-  if (value.startsWith('from-purple')) return 'from-purple-600 to-purple-900'
-  return 'from-green-700 to-emerald-950'
-}
-
 const FEATURED = 'como-reduzir-o-estresse'
-const HOME = ['como-reduzir-o-estresse', 'nutricao-fase-certa', 'manejo-pastagem']
 
 type Translation = (typeof ARTICLES_DATA)[number]['translations']['pt-BR']
 const localized = (t: Translation) => ({
@@ -94,17 +81,19 @@ for (const article of ARTICLES_DATA) {
       })
     })())
 
+  // Categoria: registro da coleção "categorias" (criado pela migration de 29/09/2026).
+  const tema = (
+    await payload.find({ collection: 'categorias', where: { slug: { equals: article.category } }, limit: 1, overrideAccess: true })
+  ).docs[0]
+
   const base = {
     slug: article.id,
-    categoria: article.category,
+    tema: tema?.id,
     data: parseDate(article.date),
     capa: media.id,
-    cor: color(article.color),
     destaque: article.id === FEATURED,
-    destaqueHome: HOME.includes(article.id),
     // Mantém o tempo de leitura definido pela equipe ("10 MIN"), em vez do calculado.
     tempoLeitura: parseInt(article.readTime, 10) || 1,
-    tempoLeituraManual: true,
     _status: 'published' as const,
   }
 

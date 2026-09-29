@@ -13,7 +13,6 @@ import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { DropdownMenu } from '@/components/ui/dropdown-menu'
 import type { ArticleView } from '../queries'
 
-const ARTICLE_CATEGORY_KEYS = ['all', 'manejo', 'nutricao', 'pecuaria', 'pesquisa', 'sustentabilidade'] as const
 
 
 function ArrowTopRightIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -27,6 +26,10 @@ function ArrowTopRightIcon(props: React.SVGProps<SVGSVGElement>) {
 export function ArticlesPage({ articles }: { articles: ArticleView[] }) {
   const t = useTranslations('articlesPage')
   const [activeCategory, setActiveCategory] = useState('all')
+  // Categorias do painel (Blog › Categorias) que têm matéria publicada, na ordem definida lá.
+  const categories = [...new Map(articles.map((a) => [a.category, { id: a.category, label: a.categoryLabel, order: a.categoryOrder }])).values()]
+    .filter((c) => c.label)
+    .sort((a, b) => a.order - b.order)
 
   const reduced = useReducedMotion()
   const containerRef = useRef<HTMLDivElement>(null)
@@ -190,15 +193,15 @@ export function ArticlesPage({ articles }: { articles: ArticleView[] }) {
         <div ref={filtersRef} className="relative z-50 flex flex-col md:flex-row md:items-center gap-4 mb-16">
           <div className="flex flex-wrap gap-4 items-center">
             <DropdownMenu 
-              options={ARTICLE_CATEGORY_KEYS.map(cat => ({
-                label: t(`categories.${cat}`),
+              options={['all', ...categories.map((c) => c.id)].map(cat => ({
+                label: cat === 'all' ? t('categories.all') : (categories.find((c) => c.id === cat)?.label ?? cat),
                 active: activeCategory === cat,
                 count: getCategoryCount(cat),
                 onClick: () => setActiveCategory(cat)
               }))}
             >
               <span className="font-semibold text-foreground/60 mr-1">{t('filterLabel')}</span> 
-              {t(`categories.${activeCategory}`)}
+              {activeCategory === 'all' ? t('categories.all') : categories.find((c) => c.id === activeCategory)?.label}
             </DropdownMenu>
           </div>
         </div>
@@ -268,7 +271,7 @@ export function ArticlesPage({ articles }: { articles: ArticleView[] }) {
                   <Image src={article.image} alt={article.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                   <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500" />
                   <span className="absolute top-4 left-4 z-10 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-white/90 backdrop-blur text-foreground shadow-sm">
-                    {t(`categories.${article.category}`)}
+                    {article.categoryLabel}
                   </span>
                 </div>
 

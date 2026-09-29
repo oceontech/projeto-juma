@@ -15,6 +15,8 @@ import * as migration_20260929_181108_destaques_blog_eua from './20260929_181108
 import * as migration_20260929_181500_destaques_conteudo from './20260929_181500_destaques_conteudo';
 import * as migration_20260929_194053_sem_paginas_redirecionamentos from './20260929_194053_sem_paginas_redirecionamentos';
 import * as migration_20260929_202609_redes_separadas from './20260929_202609_redes_separadas';
+import * as migration_20260929_231659_categorias_etapa1 from './20260929_231659_categorias_etapa1';
+import * as migration_20260929_231851_categorias_etapa2 from './20260929_231851_categorias_etapa2';
 
 export const migrations = [
   {
@@ -100,6 +102,16 @@ export const migrations = [
   {
     up: migration_20260929_202609_redes_separadas.up,
     down: migration_20260929_202609_redes_separadas.down,
-    name: '20260929_202609_redes_separadas'
+    name: '20260929_202609_redes_separadas',
+  },
+  {
+    up: migration_20260929_231659_categorias_etapa1.up,
+    down: migration_20260929_231659_categorias_etapa1.down,
+    name: '20260929_231659_categorias_etapa1',
+  },
+  {
+    up: migration_20260929_231851_categorias_etapa2.up,
+    down: migration_20260929_231851_categorias_etapa2.down,
+    name: '20260929_231851_categorias_etapa2'
   },
 ];

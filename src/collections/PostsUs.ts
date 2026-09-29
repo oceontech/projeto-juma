@@ -19,6 +19,13 @@ const revalidateOnDelete: CollectionAfterDeleteHook = async ({ doc }) => {
   return doc
 }
 
+/** Assistente de IA no começo de cada etapa (components/admin/blog/AiAssist). */
+const ai = (name: string, step: 'assunto' | 'capa' | 'texto' | 'publicacao'): Field => ({
+  name,
+  type: 'ui',
+  admin: { components: { Field: { path: '/components/admin/blog/AiAssist#AiAssist', clientProps: { site: 'us', step } } } },
+})
+
 /** Rodapé de cada etapa do post ("← anterior · próxima →"). */
 const step = (name: string, clientProps: { prev?: string; next?: string; last?: boolean }): Field => ({
   name,
@@ -54,16 +61,31 @@ export const PostsUs: CollectionConfig = {
     {
       name: 'previa',
       type: 'ui',
-      admin: { position: 'sidebar', components: { Field: '/components/admin/blog/PostUsPreview#PostUsPreview' } },
+      admin: {
+        position: 'sidebar',
+        components: {
+          Field: {
+            path: '/components/admin/blog/PostUsPreview#PostUsPreview',
+            clientProps: { usSite: process.env.US_SITE_URL || 'https://juma-agro-eua.vercel.app' },
+          },
+        },
+      },
     },
     {
-      // Etapas do post: as abas viram a linha do tempo do alto.
+      // Progresso e etapas do post (as abas do Payload ficam escondidas).
+      name: 'passos',
+      type: 'ui',
+      admin: { components: { Field: { path: '/components/admin/blog/PostStepper#PostStepper', clientProps: { site: 'us' } } } },
+    },
+    {
+      // Etapas do post: cada aba é uma etapa da barra de progresso.
       type: 'tabs',
       tabs: [
         {
           label: 'Assunto',
           description: 'Tudo em inglês americano: é o que o site dos EUA mostra.',
           fields: [
+            ai('iaAssunto', 'assunto'),
             {
               name: 'title',
               label: 'Título (em inglês)',
@@ -81,16 +103,15 @@ export const PostsUs: CollectionConfig = {
               type: 'row',
               fields: [
                 {
-                  name: 'category',
+                  name: 'tema',
                   label: 'Categoria',
-                  type: 'select',
-                  options: [
-                    { label: 'Field notes', value: 'field-notes' },
-                    { label: 'Crop nutrition', value: 'crop-nutrition' },
-                    { label: 'Trials', value: 'trials' },
-                    { label: 'Company', value: 'company' },
-                  ],
-                  admin: { width: '50%' },
+                  type: 'relationship',
+                  relationTo: 'categorias',
+                  filterOptions: { site: { equals: 'us' } },
+                  admin: {
+                    width: '50%',
+                    description: 'O assunto do post: vira etiqueta no blog. Nenhuma serve? Crie uma no +.',
+                  },
                 },
                 { name: 'author', label: 'Autor', type: 'text', admin: { width: '50%', description: 'Ex.: Juma-Agro agronomy' } },
               ],
@@ -102,6 +123,7 @@ export const PostsUs: CollectionConfig = {
           label: 'Capa',
           description: 'A foto que abre o post e aparece no card da lista do blog.',
           fields: [
+            ai('iaCapa', 'capa'),
             {
               name: 'cover',
               label: 'Foto de capa',
@@ -116,6 +138,7 @@ export const PostsUs: CollectionConfig = {
           label: 'Texto',
           description: 'Descreva o que o produto entrega, nunca o efeito na planta ou no inseto (FIFRA). Todo número com fonte.',
           fields: [
+            ai('iaTexto', 'texto'),
             { name: 'body', label: 'Texto (em inglês)', type: 'richText' },
             {
               // HTML pronto para o site EUA, que não tem o editor do Payload instalado.
@@ -137,6 +160,7 @@ export const PostsUs: CollectionConfig = {
           label: 'Publicação',
           description: 'Endereço e data do post.',
           fields: [
+            ai('iaPublicacao', 'publicacao'),
             {
               name: 'slug',
               label: 'Endereço',
@@ -162,6 +186,13 @@ export const PostsUs: CollectionConfig = {
               required: true,
               defaultValue: () => new Date().toISOString(),
               admin: { components: { Field: '/components/admin/fields/DateField#DateField' } },
+            },
+            {
+              name: 'readMinutes',
+              label: 'Tempo de leitura (min)',
+              type: 'number',
+              min: 1,
+              admin: { description: 'Estimado pela IA na revisão final. Vazio: calculado pelo texto ao salvar.' },
             },
             step('passo4', { prev: 'Texto', last: true }),
           ],

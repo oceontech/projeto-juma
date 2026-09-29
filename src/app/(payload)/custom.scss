@@ -3998,3 +3998,635 @@ textarea {
     max-height: none;
   }
 }
+
+/* ─── Post: barra de progresso (PostStepper) ─────────────────────────── */
+.collection-edit--articles,
+.collection-edit--posts-us {
+  // As abas do Payload ficam escondidas: a barra de progresso comanda as etapas.
+  .tabs-field__tabs-wrap {
+    display: none !important;
+  }
+}
+
+.jps2 {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  margin: 0 0 20px;
+  padding: 16px 18px 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--juma-shadow);
+}
+
+.jps2__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.jps2__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--juma-ink);
+}
+
+.jps2__pct {
+  font-size: 13px;
+  font-weight: 700;
+  color: #15803d;
+  font-variant-numeric: tabular-nums;
+}
+
+.jps2__bar {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #ecede9;
+
+  span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #22c55e, #15803d);
+    transition: width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
+
+.jps2__steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.jps2__step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--juma-muted);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.18s ease;
+
+  &:hover {
+    background: #f4f5f2;
+  }
+
+  &.is-active {
+    background: #ecfdf3;
+    box-shadow: inset 0 0 0 1.5px #86efac;
+    color: var(--juma-ink);
+  }
+
+  &.is-done {
+    color: var(--juma-ink);
+  }
+}
+
+.jps2__dot {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1.5px var(--juma-line-strong);
+  font-size: 12.5px;
+  font-weight: 700;
+
+  .is-active & {
+    background: var(--juma-green);
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.18);
+    color: #fff;
+  }
+
+  .is-done & {
+    background: #22c55e;
+    box-shadow: none;
+    color: #fff;
+  }
+}
+
+.jps2__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  b {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  small {
+    overflow: hidden;
+    color: var(--juma-muted);
+    font-size: 11.5px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .is-done & small {
+    color: #15803d;
+  }
+}
+
+@media (max-width: 900px) {
+  .jps2__steps {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .jps2__step {
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px 2px;
+    text-align: center;
+  }
+
+  .jps2__text small {
+    display: none;
+  }
+}
+
+/* ─── Assistente de IA dentro das etapas ─────────────────────────────── */
+.jai {
+  margin: 0 0 22px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    linear-gradient(120deg, #86efac, #22c55e 40%, #a7f3d0) border-box;
+  border: 1.5px solid transparent;
+  box-shadow: 0 6px 24px rgba(34, 197, 94, 0.08);
+}
+
+.jai__head {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+
+  b {
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 2px 0 0;
+    color: var(--juma-muted);
+    font-size: 12.5px;
+    line-height: 1.45;
+  }
+}
+
+.jai__spark {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  padding: 5px;
+  border-radius: 9px;
+  background: linear-gradient(145deg, #22c55e, #15803d);
+  fill: #fff;
+}
+
+.jai__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.jai__btn {
+  flex: none;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: #0c140f;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s ease, opacity 0.18s ease;
+
+  &:hover:not(:disabled) {
+    background: #15803d;
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+
+  &--ghost {
+    background: #f1f2ef;
+    color: var(--juma-ink);
+
+    &:hover:not(:disabled) {
+      background: #e4f5ea;
+    }
+  }
+}
+
+.jai__spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 999px;
+  vertical-align: -2px;
+  animation: jai-spin 0.8s linear infinite;
+}
+
+@keyframes jai-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.jai__muted {
+  color: var(--juma-muted);
+  font-size: 12px;
+}
+
+.jai__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--juma-muted);
+
+  input {
+    height: 40px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 10px;
+    background: #f4f5f2;
+    font: inherit;
+    font-size: 13.5px;
+    color: var(--juma-ink);
+    outline: none;
+
+    &:focus {
+      box-shadow: inset 0 0 0 1.5px #22c55e;
+      background: #fff;
+    }
+  }
+}
+
+.jai__paste textarea {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border: 0;
+  border-radius: 12px;
+  background: #f4f5f2;
+  font: inherit;
+  font-size: 13.5px;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+
+  &:focus {
+    box-shadow: inset 0 0 0 1.5px #22c55e;
+    background: #fff;
+  }
+}
+
+.jai__results {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--juma-line);
+}
+
+.jai__label {
+  margin: 10px 0 6px;
+  color: var(--juma-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.jai__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 8px 8px 12px;
+  margin-bottom: 6px;
+  border-radius: 12px;
+  background: #f7f8f6;
+  font-size: 13.5px;
+
+  small {
+    color: var(--juma-muted);
+  }
+
+  .jai__btn {
+    flex: none;
+    height: 30px;
+  }
+}
+
+.jai__list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.jai__image {
+  margin: 12px 0 0;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #f4f5f2;
+
+  img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+  }
+
+  figcaption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    font-size: 12.5px;
+    color: var(--juma-muted);
+  }
+}
+
+.jai__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+
+  span {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #f7f8f6;
+  }
+
+  b {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  small {
+    color: var(--juma-muted);
+    font-size: 12px;
+  }
+
+  .is-ok b {
+    color: #15803d;
+  }
+
+  .is-warn b {
+    color: #b45309;
+  }
+}
+
+.jai__verdict {
+  margin: 10px 0 0;
+  font-size: 13.5px;
+  color: var(--juma-ink);
+}
+
+.jai__issues {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #fffbeb;
+    box-shadow: inset 0 0 0 1px #fde68a;
+    font-size: 13px;
+  }
+
+  em {
+    width: max-content;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: #fef3c7;
+    color: #92400e;
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  q {
+    color: #52525b;
+    font-style: italic;
+  }
+}
+
+/* ─── Prévia: página real, card, Google e tela cheia ─────────────────── */
+.jpv__head {
+  gap: 8px;
+}
+
+.jpv__full-btn {
+  flex: none;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: #0c140f;
+  color: #fff;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+
+  svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  &:hover {
+    background: #15803d;
+  }
+}
+
+.jpv-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: var(--juma-shadow), inset 0 0 0 1px var(--juma-line);
+
+  iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: 0;
+    transform-origin: 0 0;
+  }
+}
+
+.jpv__note {
+  margin: 8px 2px 0;
+  color: var(--juma-muted);
+  font-size: 11.5px;
+}
+
+.jpv-card {
+  overflow: hidden;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: var(--juma-shadow);
+
+  &--us {
+    background: #f6ffee;
+  }
+}
+
+.jpv-card__cover {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: linear-gradient(135deg, #15803d, #022c22);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.jpv-card__pill {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #0c140f;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.jpv-card__body {
+  padding: 14px 16px 18px;
+
+  small {
+    color: #a1a1aa;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+  }
+
+  h3 {
+    margin: 6px 0 4px;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.25;
+    color: #0c140f;
+
+    &.is-empty {
+      color: #a1a1aa;
+    }
+  }
+
+  p {
+    margin: 0;
+    color: #52525b;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+}
+
+.jpv-full {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  background: rgba(5, 8, 6, 0.86);
+  backdrop-filter: blur(6px);
+}
+
+.jpv-full__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 18px;
+  color: #fff;
+
+  b {
+    font-size: 14px;
+  }
+
+  .jsp {
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .jsp__opt {
+    color: rgba(255, 255, 255, 0.75);
+
+    &.is-active {
+      color: var(--juma-ink);
+    }
+  }
+}
+
+.jpv-full__stage {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  min-height: 0;
+  padding: 0 18px 18px;
+
+  .jpv-frame--full {
+    width: 100%;
+    height: 100%;
+    border-radius: 14px;
+  }
+
+  &--mobile .jpv-frame--full {
+    width: 390px;
+    max-width: 100%;
+  }
+}

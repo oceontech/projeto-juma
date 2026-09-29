@@ -13,11 +13,13 @@ import { Products } from './collections/Products'
 import { Cultures } from './collections/Cultures'
 import { Articles } from './collections/Articles'
 import { Leads } from './collections/Leads'
+import { Categories } from './collections/Categories'
 import { PostsUs } from './collections/PostsUs'
 import { HomeHighlights } from './globals/HomeHighlights'
 import { Settings } from './globals/Settings'
 import { SettingsUs } from './globals/SettingsUs'
 import { Social, SocialUs } from './globals/Social'
+import { aiHandler } from './features/ai/endpoint'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -61,7 +63,7 @@ export default buildConfig({
     },
   },
   // A ordem aqui é a ordem dos grupos na sidebar: Operação, Conteúdo, Site, Biblioteca, Administração.
-  collections: [Leads, Products, Cultures, Articles, PostsUs, Media, Users],
+  collections: [Leads, Products, Cultures, Articles, PostsUs, Categories, Media, Users],
   globals: [HomeHighlights, Settings, Social, SettingsUs, SocialUs],
   localization: {
     locales: [
@@ -72,6 +74,8 @@ export default buildConfig({
     defaultLocale: 'pt-BR',
     fallback: true,
   },
+  // Assistente de IA dos posts do blog: POST /api/ai/:action (admin e editor).
+  endpoints: [{ path: '/ai/:action', method: 'post', handler: aiHandler }],
   // Sem GraphQL (ADR-003): o site e o painel usam REST + Local API.
   graphQL: { disable: true },
   editor: lexicalEditor(),

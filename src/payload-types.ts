@@ -72,6 +72,7 @@ export interface Config {
     cultures: Culture;
     articles: Article;
     'posts-us': PostsUs;
+    categorias: Categoria;
     media: Media;
     users: User;
     'payload-kv': PayloadKv;
@@ -86,6 +87,7 @@ export interface Config {
     cultures: CulturesSelect<false> | CulturesSelect<true>;
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
     'posts-us': PostsUsSelect<false> | PostsUsSelect<true>;
+    categorias: CategoriasSelect<false> | CategoriasSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -552,28 +554,18 @@ export interface Article {
    * Uma frase que complementa o título. Também é a descrição no Google.
    */
   subtitulo?: string | null;
-  categoria: 'manejo' | 'nutricao' | 'pecuaria' | 'pesquisa' | 'sustentabilidade';
+  /**
+   * O assunto principal: vira etiqueta e filtro na página de matérias. Nenhuma serve? Crie uma no +.
+   */
+  tema: number | Categoria;
   /**
    * Como aparece na matéria. Ex.: Eng. Agrônomo Marcos Silva
    */
   assinatura?: string | null;
   /**
-   * Foto na horizontal, de preferência com 1600 px de largura ou mais.
+   * Foto na horizontal, de preferência com 1600 px de largura ou mais. Ou gere uma com a IA acima.
    */
   capa: number | Media;
-  /**
-   * Aparece enquanto a foto carrega.
-   */
-  cor?:
-    | (
-        | 'from-green-700 to-emerald-950'
-        | 'from-green-600 to-green-800'
-        | 'from-teal-600 to-emerald-800'
-        | 'from-amber-600 to-orange-800'
-        | 'from-blue-600 to-indigo-800'
-        | 'from-purple-600 to-purple-900'
-      )
-    | null;
   /**
    * O primeiro parágrafo, em destaque. Deixe uma linha em branco entre parágrafos.
    */
@@ -598,21 +590,37 @@ export interface Article {
   slug: string;
   data: string;
   /**
-   * A mais recente marcada aparece no bloco grande do topo.
+   * A mais recente marcada aparece no bloco grande do topo. A home mostra sempre as 3 mais recentes.
    */
   destaque?: boolean | null;
   /**
-   * A home mostra as 3 mais recentes marcadas.
-   */
-  destaqueHome?: boolean | null;
-  /**
-   * Calculado pelo texto ao salvar.
+   * Estimado pela IA na revisão final. Vazio: calculado pelo texto ao salvar.
    */
   tempoLeitura?: number | null;
-  tempoLeituraManual?: boolean | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * Assuntos do blog. Aparecem como etiqueta no post e viram filtro na página do blog.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categorias".
+ */
+export interface Categoria {
+  id: number;
+  /**
+   * Curto, uma ou duas palavras. Ex.: Nutrição, Manejo, Pecuária.
+   */
+  nome: string;
+  site: 'br' | 'us';
+  /**
+   * Menor aparece primeiro.
+   */
+  ordem?: number | null;
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * Posts do blog do site americano, em inglês. Descreva o que o produto entrega, nunca o efeito na planta ou no inseto (FIFRA), e todo número com fonte.
@@ -630,7 +638,10 @@ export interface PostsUs {
    * Uma ou duas frases. Aparece na lista do blog, no Google e ao compartilhar o link.
    */
   excerpt?: string | null;
-  category?: ('field-notes' | 'crop-nutrition' | 'trials' | 'company') | null;
+  /**
+   * O assunto do post: vira etiqueta no blog. Nenhuma serve? Crie uma no +.
+   */
+  tema?: (number | null) | Categoria;
   /**
    * Ex.: Juma-Agro agronomy
    */
@@ -657,6 +668,10 @@ export interface PostsUs {
   bodyHtml?: string | null;
   slug: string;
   date: string;
+  /**
+   * Estimado pela IA na revisão final. Vazio: calculado pelo texto ao salvar.
+   */
+  readMinutes?: number | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -704,6 +719,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'posts-us';
         value: number | PostsUs;
+      } | null)
+    | ({
+        relationTo: 'categorias';
+        value: number | Categoria;
       } | null)
     | ({
         relationTo: 'media';
@@ -972,10 +991,9 @@ export interface CulturesSelect<T extends boolean = true> {
 export interface ArticlesSelect<T extends boolean = true> {
   titulo?: T;
   subtitulo?: T;
-  categoria?: T;
+  tema?: T;
   assinatura?: T;
   capa?: T;
-  cor?: T;
   introducao?: T;
   secoes?:
     | T
@@ -988,9 +1006,7 @@ export interface ArticlesSelect<T extends boolean = true> {
   slug?: T;
   data?: T;
   destaque?: T;
-  destaqueHome?: T;
   tempoLeitura?: T;
-  tempoLeituraManual?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1002,16 +1018,29 @@ export interface ArticlesSelect<T extends boolean = true> {
 export interface PostsUsSelect<T extends boolean = true> {
   title?: T;
   excerpt?: T;
-  category?: T;
+  tema?: T;
   author?: T;
   cover?: T;
   body?: T;
   bodyHtml?: T;
   slug?: T;
   date?: T;
+  readMinutes?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categorias_select".
+ */
+export interface CategoriasSelect<T extends boolean = true> {
+  nome?: T;
+  site?: T;
+  ordem?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

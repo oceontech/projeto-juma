@@ -16,7 +16,6 @@ import type { ArticleView } from '@/features/articles/queries'
 
 export function HomeBlog({ articles }: { articles: ArticleView[] }) {
   const t = useTranslations('homeBlog');
-  const tCat = useTranslations('articlesPage.categories');
   const reduced = useReducedMotion()
   const ref = useRef<HTMLElement>(null)
 
@@ -130,7 +129,7 @@ export function HomeBlog({ articles }: { articles: ArticleView[] }) {
                   className="absolute top-4 left-4 text-[11px] font-bold tracking-[0.10em] uppercase rounded-full px-3 py-1.5"
                   style={{ backgroundColor: 'rgba(0,0,0,.5)', color: '#fff', backdropFilter: 'blur(8px)' }}
                 >
-                  {tCat(a.category)}
+                  {a.categoryLabel}
                 </span>
               </div>
 
