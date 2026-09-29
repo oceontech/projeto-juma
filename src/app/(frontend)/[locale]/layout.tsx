@@ -14,6 +14,7 @@ import { SmoothScroll } from '@/features/animation/SmoothScroll'
 import { MobileLogo } from '@/components/layout/MobileLogo'
 import { LeadProvider } from '@/features/leads/components/LeadProvider'
 import { TouchCapture } from '@/features/leads/components/TouchCapture'
+import { Analytics } from '@/features/analytics/Analytics'
 import '../globals.css'
 
 const montserrat = Montserrat({
@@ -103,6 +104,7 @@ export default async function LocaleLayout(props: {
             </LeadProvider>
           </SmoothScroll>
         </NextIntlClientProvider>
+        <Analytics />
       </body>
     </html>
   )

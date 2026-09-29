@@ -1,6 +1,9 @@
 import Link from 'next/link'
 import type { AdminViewServerProps, PayloadRequest } from 'payload'
 
+import { SITES, selectedSite, type Site } from '@/access/roles'
+import { loadTraffic, type Traffic } from '@/features/analytics/umami'
+
 import { LEAD_FORMS as FORMS, statusMeta } from './leadMeta'
 import { Flag } from './ui/Flag'
 
@@ -84,6 +87,94 @@ async function countPublished(req: PayloadRequest, collection: 'articles' | 'pro
   return { published: published.totalDocs, drafts: drafts.totalDocs }
 }
 
+const pct = (v: number) => `${(v * 100).toFixed(v && v < 0.1 ? 1 : 0).replace('.', ',')}%`
+const duration = (s: number) => (s >= 60 ? `${Math.floor(s / 60)} min ${Math.round(s % 60)} s` : `${Math.round(s)} s`)
+
+/** Visitas dos sites (Umami) e a taxa de conversão em lead. */
+function TrafficCard({ traffic, sites }: { traffic: Traffic | null; sites: Site[] }) {
+  if (!traffic) {
+    return (
+      <article className="jd-card jd-traffic jd-traffic--empty">
+        <div>
+          <h2>Visitas nos sites</h2>
+          <p className="jd-muted">
+            Os números de visitantes aparecem aqui assim que o analytics começar a receber dados.
+          </p>
+        </div>
+      </article>
+    )
+  }
+  const d = delta(traffic.visitors, traffic.visitorsPrev)
+  const rows = sites.map((s) => [s, traffic.sites[s]] as const).filter(([, t]) => t)
+  const pageviews = rows.reduce((sum, [, t]) => sum + t!.pageviews, 0)
+  const visits = rows.reduce((sum, [, t]) => sum + t!.visits, 0)
+  // Leads contados pelo próprio analytics: mesma base dos visitantes, então a
+  // taxa não se distorce com leads de antes da instalação ou cadastrados à mão.
+  const leads = rows.reduce((sum, [, t]) => sum + t!.leadEvents, 0)
+  const pages = rows
+    .flatMap(([s, t]) => t!.topPages.map((p) => ({ ...p, site: s })))
+    .sort((a, b) => b.views - a.views)
+    .slice(0, 5)
+
+  return (
+    <article className="jd-card jd-traffic">
+      <div className="jd-card__head">
+        <h2>Visitas nos sites</h2>
+        <span className="jd-chip">30 dias</span>
+      </div>
+      <div className="jd-traffic__body">
+        <div className="jd-traffic__stats">
+          <div>
+            <p className="jd-label">Visitantes</p>
+            <strong className="jd-kpi">{fmt.format(traffic.visitors)}</strong>
+            <Trend {...d} />
+          </div>
+          <div>
+            <p className="jd-label">Viraram lead</p>
+            <strong className="jd-kpi">{traffic.visitors ? pct(leads / traffic.visitors) : '—'}</strong>
+            <span className="jd-trend">
+              {fmt.format(leads)} lead{leads === 1 ? '' : 's'} de {fmt.format(traffic.visitors)} visitante{traffic.visitors === 1 ? '' : 's'}
+            </span>
+          </div>
+          <div>
+            <p className="jd-label">Páginas vistas</p>
+            <strong className="jd-kpi">{fmt.format(pageviews)}</strong>
+            <span className="jd-trend">{visits ? `${(pageviews / visits).toFixed(1).replace('.', ',')} por visita` : '—'}</span>
+          </div>
+          {rows.map(([s, t]) => (
+            <div key={s}>
+              <p className="jd-label jd-site-label">
+                <Flag site={s} size={14} />
+                {s === 'br' ? 'Brasil' : 'Estados Unidos'}
+              </p>
+              <strong className="jd-kpi">{fmt.format(t!.visitors)}</strong>
+              <span className="jd-trend">
+                {duration(t!.avgVisitSeconds)} por visita · {pct(t!.bounceRate)} saem na hora
+              </span>
+            </div>
+          ))}
+        </div>
+        <div className="jd-traffic__pages">
+          <p className="jd-label">Páginas mais vistas</p>
+          {pages.length ? (
+            <ol>
+              {pages.map((p) => (
+                <li key={`${p.site}${p.path}`}>
+                  <Flag site={p.site} size={14} />
+                  <span title={p.path}>{p.path === '/' ? 'Home' : p.path}</span>
+                  <b>{fmt.format(p.views)}</b>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p className="jd-muted">Sem visitas ainda.</p>
+          )}
+        </div>
+      </div>
+    </article>
+  )
+}
+
 export async function Dashboard({ initPageResult }: AdminViewServerProps) {
   const req = initPageResult.req
   const user = req.user as { nome?: string | null; email?: string; papel?: string } | null
@@ -92,7 +183,12 @@ export async function Dashboard({ initPageResult }: AdminViewServerProps) {
   const since60 = new Date(today.getTime() - 59 * DAY)
 
   const canSeeLeads = Boolean(user?.papel)
+  const userSites = (user as { sites?: Site[] | null } | null)?.sites
+  const allowedSites: Site[] = user?.papel === 'admin' ? [...SITES] : userSites?.length ? userSites : []
+  const chosen = selectedSite(req)
+  const trafficSites = chosen && allowedSites.includes(chosen) ? [chosen] : allowedSites
   const leads = canSeeLeads ? await loadLeads(req, since60) : []
+  const trafficPromise = loadTraffic(trafficSites, new Date(today.getTime() - 29 * DAY), now)
   const [articles, products, cultures] = await Promise.all([
     countPublished(req, 'articles'),
     countPublished(req, 'products'),
@@ -131,6 +227,7 @@ export async function Dashboard({ initPageResult }: AdminViewServerProps) {
   const byForm = new Map<string, number>()
   for (const l of last30) byForm.set(l.formulario ?? 'outro', (byForm.get(l.formulario ?? 'outro') ?? 0) + 1)
 
+  const traffic = await trafficPromise
   const recent = leads.slice(0, 6)
   const firstName = (user?.nome || user?.email || '').split(/[\s@]/)[0]
   const d30 = delta(last30.length, prev30.length)
@@ -185,6 +282,8 @@ export async function Dashboard({ initPageResult }: AdminViewServerProps) {
           <Trend {...dConv} />
         </article>
       </section>
+
+      <TrafficCard traffic={traffic} sites={trafficSites} />
 
       <section className="jd-grid">
         {/* Gráfico diário */}

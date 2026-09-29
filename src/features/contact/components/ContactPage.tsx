@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useRef, useState } from 'react'
+import { track } from '@/features/analytics/track'
 import { Container } from '@/components/layout/Container'
 import { DropdownMenu } from '@/components/ui/dropdown-menu'
 import { useLocale, useTranslations } from 'next-intl'
@@ -213,6 +214,7 @@ export function ContactPage() {
       setSendState('error')
       return
     }
+    track('lead', { formulario: 'contato', produto: produtoEscolhido, cultura })
     setSendState('idle')
     form.reset()
     setWpp('')

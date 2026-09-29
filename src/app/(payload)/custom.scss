@@ -2296,3 +2296,87 @@ textarea {
 .jdd__trigger .juma-flag {
   flex: none;
 }
+
+// Visitas nos sites (Umami)
+.jd-traffic {
+  margin-bottom: 16px;
+
+  &--empty h2 {
+    margin: 0 0 4px;
+  }
+}
+
+.jd-traffic__body {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 24px;
+}
+
+.jd-traffic__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 20px 24px;
+
+  .jd-kpi {
+    font-size: 28px;
+  }
+
+  .jd-trend {
+    margin-top: 8px;
+  }
+
+  .jd-site-label {
+    display: flex;
+  }
+}
+
+.jd-traffic__pages {
+  padding-left: 24px;
+  border-left: 1px solid var(--juma-line);
+
+  ol {
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--juma-line);
+    font-size: 13px;
+
+    &:last-child {
+      border-bottom: 0;
+    }
+
+    span {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    b {
+      font-weight: 600;
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .jd-traffic__body {
+    grid-template-columns: 1fr;
+  }
+
+  .jd-traffic__pages {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .jd-traffic__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

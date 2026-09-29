@@ -15,6 +15,7 @@ import {
 } from 'react'
 
 import { contact } from '@/config/site'
+import { track } from '@/features/analytics/track'
 import { useLenis } from '@/features/animation/SmoothScroll'
 
 import { submitLead } from '../actions'
@@ -76,6 +77,7 @@ export function LeadProvider({ children }: { children: ReactNode }) {
   const openWhatsApp = useCallback(
     (ctx?: LeadContext) => {
       if (document.cookie.includes(`${KNOWN_COOKIE}=`)) {
+        track('whatsapp', { produto: ctx?.produto, cultura: ctx?.cultura })
         window.open(whatsappUrl(messageFor(ctx)), '_blank', 'noopener,noreferrer')
         return
       }
@@ -163,6 +165,7 @@ export function LeadProvider({ children }: { children: ReactNode }) {
 
     document.cookie = `${KNOWN_COOKIE}=1; Max-Age=${KNOWN_MAX_AGE}; Path=/; SameSite=Lax`
     setStatus('saved')
+    track('lead', { formulario: 'whatsapp', produto: context?.produto, cultura: context?.cultura })
     const url = whatsappUrl(messageFor(context))
     if (tab) tab.location.href = url
     else window.location.href = url
