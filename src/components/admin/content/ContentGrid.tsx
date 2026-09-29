@@ -1,30 +1,16 @@
 import type { ListViewServerProps } from 'payload'
 
-import { ARTICLE_CATEGORIES } from '../../../features/articles/options'
 import { PRODUCT_CATEGORIES } from '../../../features/products/options'
 import { ContentGridClient, type ContentCard } from './ContentGridClient'
 
 /**
- * Lista de conteúdo em grade de cards (matérias, produtos e culturas).
+ * Lista de conteúdo em grade de cards (produtos e culturas; o blog tem tela própria).
  * Usa `data`, que o Payload já consultou a partir da URL (status, busca,
  * página), e busca só as imagens de capa para montar os cards.
  */
 type Doc = Record<string, any>
 
 const CONFIG = {
-  articles: {
-    title: 'Blog',
-    singular: 'matéria',
-    image: 'capa',
-    heading: (d: Doc) => d.titulo,
-    meta: (d: Doc) => [
-      ARTICLE_CATEGORIES.find((c) => c.value === d.categoria)?.label,
-      d.data ? new Date(d.data).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '') : null,
-    ],
-    flags: (d: Doc) => [d.destaque && 'Destaque', d.destaqueHome && 'Na home'].filter(Boolean) as string[],
-    color: () => null,
-    sort: '-data',
-  },
   products: {
     title: 'Produtos',
     singular: 'produto',
@@ -44,19 +30,6 @@ const CONFIG = {
     flags: (d: Doc) => (d.ordem != null ? [`Ordem ${d.ordem}`] : []),
     color: () => null,
     sort: 'ordem',
-  },
-  'posts-us': {
-    title: 'Blog',
-    singular: 'post',
-    image: 'cover',
-    heading: (d: Doc) => d.title,
-    meta: (d: Doc) => [
-      { 'field-notes': 'Field notes', 'crop-nutrition': 'Crop nutrition', trials: 'Trials', company: 'Company' }[d.category as string],
-      d.date ? new Date(d.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '') : null,
-    ],
-    flags: () => [] as string[],
-    color: () => null,
-    sort: '-date',
   },
 } as const
 

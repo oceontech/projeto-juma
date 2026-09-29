@@ -3364,3 +3364,117 @@ textarea {
     grid-template-columns: auto minmax(0, 1fr);
   }
 }
+
+/* ─── Seletor de site dentro das páginas ─────────────────────────────── */
+.jsp {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 999px;
+  background: #ecede9;
+}
+
+.jsp__opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--juma-muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+
+  &:hover {
+    color: var(--juma-ink);
+  }
+
+  &.is-active {
+    background: #fff;
+    color: var(--juma-ink);
+    box-shadow: 0 1px 2px rgba(12, 20, 15, 0.08), 0 2px 8px rgba(12, 20, 15, 0.06);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #22c55e;
+    outline-offset: 1px;
+  }
+}
+
+.jd-head__actions {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ─── Blog em destaque no card do site ───────────────────────────────── */
+.jsn-blog {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 0 0 4px;
+  border-radius: 10px;
+  background: linear-gradient(100deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.05));
+  box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.28);
+
+  .nav__link {
+    flex: 1;
+    color: #f4f4f5;
+    font-weight: 600;
+
+    &::before {
+      background-color: var(--juma-lime);
+      opacity: 1;
+    }
+  }
+
+  // O fundo verde já é o destaque: o ativo só ganha a barra de luz.
+  .nav__link[aria-current='page'] {
+    background: transparent;
+  }
+
+  &.is-active {
+    background: linear-gradient(100deg, rgba(34, 197, 94, 0.3), rgba(34, 197, 94, 0.1));
+  }
+}
+
+.jsn-blog__new {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  margin-right: 6px;
+  border-radius: 8px;
+  background: var(--juma-lime);
+  color: #04130a;
+  transition: transform 0.18s ease, background 0.18s ease;
+
+  svg {
+    width: 15px;
+    height: 15px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+  }
+
+  &:hover {
+    transform: scale(1.06);
+    background: #4ade80;
+  }
+}
+
+// Bandeira do site no cartão do post
+.jb-site {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  box-shadow: 0 0 0 2px #fff;
+}

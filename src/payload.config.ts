@@ -46,6 +46,7 @@ export default buildConfig({
       views: {
         dashboard: { Component: '/components/admin/Dashboard#Dashboard' },
         analytics: { Component: '/components/admin/analytics/AnalyticsView#AnalyticsView', path: '/analytics' },
+        blog: { Component: '/components/admin/blog/BlogView#BlogView', path: '/blog' },
         configuracoes: { Component: '/components/admin/settings/PanelSettings#PanelSettings', path: '/configuracoes' },
       },
     },

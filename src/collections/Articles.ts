@@ -45,7 +45,7 @@ export const Articles: CollectionConfig = {
     hideAPIURL: true,
     pagination: { defaultLimit: 24 },
     components: {
-      views: { list: { Component: '/components/admin/content/ContentGrid#ContentGrid' } },
+      views: { list: { Component: '/components/admin/blog/BlogRedirect#BlogRedirect' } },
     },
   },
   defaultSort: '-data',

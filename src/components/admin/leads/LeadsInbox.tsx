@@ -1,6 +1,7 @@
 import { headers } from 'next/headers'
 import type { ListViewServerProps, Where } from 'payload'
 
+import { SITES, selectedSite, type Site } from '../../../access/roles'
 import { LEAD_STATUS } from '../leadMeta'
 import { LeadsInboxClient, type InboxLead } from './LeadsInboxClient'
 
@@ -13,6 +14,10 @@ import { LeadsInboxClient, type InboxLead } from './LeadsInboxClient'
 export async function LeadsInbox(props: ListViewServerProps) {
   const { data, payload, user, searchParams, hasCreatePermission } = props
   const req = { headers: await headers(), user: user ?? null }
+  const u = user as { papel?: string; sites?: Site[] | null } | null
+  const allowed: Site[] = u?.papel === 'admin' ? [...SITES] : u?.sites?.length ? u.sites : []
+  const chosen = selectedSite(req as never)
+  const site = chosen && allowed.includes(chosen) ? chosen : 'todos'
 
   const params = (searchParams ?? {}) as Record<string, unknown>
   const where = params.where as { status?: { equals?: string } } | undefined
@@ -64,6 +69,7 @@ export async function LeadsInbox(props: ListViewServerProps) {
       totalPages={data.totalPages ?? 1}
       totalDocs={data.totalDocs ?? leads.length}
       canCreate={hasCreatePermission}
+      site={site}
       canExport={['admin', 'comercial'].includes((user as { papel?: string } | null)?.papel ?? '')}
     />
   )

@@ -18,6 +18,7 @@ import { PERIODS, TIMEZONE, loadReport, type Period, type Report, type Row } fro
 import { UMAMI_URL } from '@/features/analytics/umami'
 
 import { Flag } from '../ui/Flag'
+import { SitePicker } from '../ui/SitePicker'
 
 /**
  * Tela Analytics (/admin/analytics): tudo o que o Umami mede dos dois sites,
@@ -209,6 +210,7 @@ export async function AnalyticsView({ initPageResult, params, searchParams }: Ad
             <h1>Visitas</h1>
           </div>
           <div className="ja-head__actions">
+            <SitePicker value={chosen && allowed.includes(chosen) ? chosen : 'todos'} />
             {report && (
               <span className="ja-live" title="Pessoas com o site aberto nos últimos 5 minutos">
                 <i /> {fmt.format(report.active)} {report.active === 1 ? 'pessoa' : 'pessoas'} agora

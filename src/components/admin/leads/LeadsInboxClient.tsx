@@ -8,6 +8,7 @@ import { useEffect, useState, useTransition } from 'react'
 import { LEAD_FORMS, LEAD_STATUS, SITE_META, relativeDate, statusMeta, type LeadStatus } from '../leadMeta'
 import { Dropdown } from '../ui/Dropdown'
 import { Flag } from '../ui/Flag'
+import { SitePicker, type Choice } from '../ui/SitePicker'
 
 export type InboxLead = {
   id: number
@@ -35,6 +36,7 @@ type Props = {
   totalDocs: number
   canCreate: boolean
   canExport: boolean
+  site: Choice
 }
 
 const TABS = [{ value: 'todos', label: 'Todos' }, ...LEAD_STATUS.map((s) => ({ value: s.value, label: s.label }))]
@@ -63,7 +65,7 @@ function buildQuery(status: string, search: string, page = 1) {
   return `?${q.toString()}`
 }
 
-export function LeadsInboxClient({ leads, counts, currentStatus, search, page, totalPages, totalDocs, canCreate, canExport }: Props) {
+export function LeadsInboxClient({ leads, counts, currentStatus, search, page, totalPages, totalDocs, canCreate, canExport, site }: Props) {
   const router = useRouter()
   const pathname = usePathname()
   const [pending, startTransition] = useTransition()
@@ -108,6 +110,7 @@ export function LeadsInboxClient({ leads, counts, currentStatus, search, page, t
           </p>
         </div>
         <div className="jl-head__actions">
+          <SitePicker value={site} onChange={() => startTransition(() => router.refresh())} />
           {canExport && (
             <Dropdown
               label="Exportar planilha"

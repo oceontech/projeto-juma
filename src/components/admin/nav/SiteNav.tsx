@@ -1,7 +1,8 @@
 import { cookies } from 'next/headers'
 import type { SanitizedPermissions } from 'payload'
 
-import { SiteNavClient, type NavItem, type Choice } from './SiteNavClient'
+import type { Choice } from '../ui/SitePicker'
+import { SiteNavClient, type NavItem } from './SiteNavClient'
 
 /**
  * Sidebar do painel. No alto, o card do site escolhido: o seletor e, dentro
@@ -14,13 +15,11 @@ const BR: NavItem[] = [
   { kind: 'collection', slug: 'products', label: 'Produtos', icon: 'products' },
   { kind: 'global', slug: 'destaques', label: 'Destaques da home', icon: 'destaques' },
   { kind: 'collection', slug: 'cultures', label: 'Culturas', icon: 'cultures' },
-  { kind: 'collection', slug: 'articles', label: 'Blog', icon: 'blog' },
   { kind: 'global', slug: 'settings', label: 'Contato', icon: 'contact' },
   { kind: 'global', slug: 'redes', label: 'Redes sociais', icon: 'social' },
 ]
 
 const US: NavItem[] = [
-  { kind: 'collection', slug: 'posts-us', label: 'Blog', icon: 'blog' },
   { kind: 'global', slug: 'settings-us', label: 'Contato', icon: 'contact' },
   { kind: 'global', slug: 'redes-us', label: 'Redes sociais', icon: 'social' },
 ]
@@ -42,6 +41,10 @@ export async function SiteNav({ permissions }: { permissions?: SanitizedPermissi
       initial={initial}
       items={{ br: allowed(BR, permissions), us: allowed(US, permissions) }}
       canSeeLeads={Boolean(permissions?.collections?.leads?.read)}
+      blog={{
+        br: { read: Boolean(permissions?.collections?.articles?.read), create: Boolean(permissions?.collections?.articles?.create) },
+        us: { read: Boolean(permissions?.collections?.['posts-us']?.read), create: Boolean(permissions?.collections?.['posts-us']?.create) },
+      }}
     />
   )
 }

@@ -1,22 +1,24 @@
 'use client'
 
-import { useAuth, useNav } from '@payloadcms/ui'
+import { useNav } from '@payloadcms/ui'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 import { Dropdown } from '../ui/Dropdown'
 import { Flag } from '../ui/Flag'
+import { setPanelSite, useAllowedSites, usePanelSite, type Choice } from '../ui/SitePicker'
 
-export type Choice = 'todos' | 'br' | 'us'
 export type NavItem = { kind: 'collection' | 'global'; slug: string; label: string; icon: string }
 
 /**
  * O seletor grava a escolha num cookie que o controle de acesso lê
- * (src/access/roles.ts → bySite): Leads, Visão geral e Analytics mostram só o
- * site escolhido. Em "Todos os sites" o card fica só com o seletor.
+ * (src/access/roles.ts → bySite): Leads, Visão geral, Analytics e Blog mostram
+ * só o site escolhido. Anda junto com o seletor de dentro das páginas.
+ * O Blog abre o card, em destaque, em qualquer escolha (junta os dois sites).
  */
-const COOKIE = 'painel_site'
+type BlogPerms = Record<'br' | 'us', { read: boolean; create: boolean }>
+const NEW_POST = { br: '/admin/collections/articles/create', us: '/admin/collections/posts-us/create' }
 
 function Globe() {
   return (
@@ -48,33 +50,38 @@ export function SiteNavClient({
   initial,
   items,
   canSeeLeads,
+  blog,
 }: {
   initial: Choice
   items: Record<'br' | 'us', NavItem[]>
   canSeeLeads: boolean
+  blog: BlogPerms
 }) {
-  const { user } = useAuth<{ papel?: string; sites?: ('br' | 'us')[] }>()
   const { navOpen, setNavOpen } = useNav()
   const router = useRouter()
   const pathname = usePathname()
-  const [choice, setChoice] = useState<Choice>(initial)
+  const [choice, setChoice] = usePanelSite(initial)
 
   // No desktop a sidebar fica sempre aberta, como na referência.
   useEffect(() => {
     if (!navOpen && window.innerWidth > 1024) setNavOpen(true)
   }, [navOpen, setNavOpen])
 
-  const sites: ('br' | 'us')[] = user?.papel === 'admin' ? ['br', 'us'] : (user?.sites ?? [])
+  const sites = useAllowedSites()
   const single = sites.length < 2
   const current: Choice = single ? (sites[0] ?? 'br') : choice
   const meta = OPTIONS.find((o) => o.value === current)!
   const siteItems = current === 'todos' ? [] : items[current]
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
+  const blogScope = (current === 'todos' ? sites : [current]).filter((s) => blog[s].read)
+  const blogActive = isActive('/admin/blog') || isActive('/admin/collections/articles') || isActive('/admin/collections/posts-us')
+  // "+" cria no site do card; em "Todos" abre o Blog, onde se escolhe o site.
+  const newPost = current !== 'todos' && blog[current].create ? NEW_POST[current] : null
 
   const choose = (value: Choice) => {
-    document.cookie = `${COOKIE}=${value}; Path=/; Max-Age=${60 * 60 * 24 * 365}; SameSite=Lax`
     setChoice(value)
+    setPanelSite(value)
     // Numa tela do outro site, volta para a Visão geral.
     const onOtherSite = value !== 'todos' && (value === 'br' ? items.us : items.br).some((i) => isActive(hrefOf(i)))
     const onSiteScreen = value === 'todos' && [...items.br, ...items.us].some((i) => isActive(hrefOf(i)))
@@ -105,8 +112,20 @@ export function SiteNavClient({
             </>
           }
         />
-        {siteItems.length > 0 && (
+        {(siteItems.length > 0 || blogScope.length > 0) && (
           <nav className="jsn-card__links" aria-label={meta.label}>
+            {blogScope.length > 0 && (
+              <div className={`jsn-blog${blogActive ? ' is-active' : ''}`}>
+                <NavLink href="/admin/blog" icon="blog" label="Blog" active={blogActive} />
+                {newPost && (
+                  <Link href={newPost} className="jsn-blog__new" title="Novo post" aria-label="Novo post" prefetch={false}>
+                    <svg viewBox="0 0 24 24" aria-hidden>
+                      <path d="M12 5v14M5 12h14" />
+                    </svg>
+                  </Link>
+                )}
+              </div>
+            )}
             {siteItems.map((item) => (
               <NavLink key={item.slug} href={hrefOf(item)} icon={item.icon} label={item.label} active={isActive(hrefOf(item))} />
             ))}

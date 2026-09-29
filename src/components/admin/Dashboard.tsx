@@ -6,6 +6,7 @@ import { loadTraffic, type Traffic } from '@/features/analytics/umami'
 
 import { LEAD_FORMS as FORMS, statusMeta } from './leadMeta'
 import { Flag } from './ui/Flag'
+import { SitePicker } from './ui/SitePicker'
 
 /**
  * Visão geral do painel (views.dashboard). Números reais de leads e conteúdo.
@@ -248,11 +249,9 @@ export async function Dashboard({ initPageResult }: AdminViewServerProps) {
           <h1>Olá{firstName ? `, ${firstName}` : ''}</h1>
         </div>
         <div className="jd-head__actions">
-          <Link className="jd-btn jd-btn--ghost" href="/admin/collections/leads">
-            Ver leads
-          </Link>
-          <Link className="jd-btn" href="/admin/collections/articles/create">
-            Nova matéria
+          <SitePicker value={chosen && allowedSites.includes(chosen) ? chosen : 'todos'} />
+          <Link className="jd-btn" href="/admin/blog">
+            Blog
           </Link>
         </div>
       </header>

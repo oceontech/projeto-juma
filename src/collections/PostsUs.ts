@@ -31,7 +31,7 @@ export const PostsUs: CollectionConfig = {
       'Posts do blog do site americano, em inglês. Descreva o que o produto entrega, nunca o efeito na planta ou no inseto (FIFRA), e todo número com fonte.',
     hideAPIURL: true,
     pagination: { defaultLimit: 24 },
-    components: { views: { list: { Component: '/components/admin/content/ContentGrid#ContentGrid' } } },
+    components: { views: { list: { Component: '/components/admin/blog/BlogRedirect#BlogRedirect' } } },
   },
   defaultSort: '-date',
   versions: { drafts: true, maxPerDoc: 30 },

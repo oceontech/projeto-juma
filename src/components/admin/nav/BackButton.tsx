@@ -32,7 +32,9 @@ function target(pathname: string): { href: string; label: string } | null {
 
   if (section === 'account') return { href: '/admin/configuracoes', label: 'Configurações' }
   if (section === 'collections' && slug) {
-    const list = { href: `/admin/collections/${slug}`, label: LIST_LABEL[slug] ?? 'a lista' }
+    // Matérias e posts-us têm a lista junta em /admin/blog.
+    const blog = slug === 'articles' || slug === 'posts-us'
+    const list = blog ? { href: '/admin/blog', label: 'Blog' } : { href: `/admin/collections/${slug}`, label: LIST_LABEL[slug] ?? 'a lista' }
     if (!id) {
       // A lista de usuários fica dentro de Configurações; Mídia não está na sidebar.
       if (slug === 'users') return { href: '/admin/configuracoes', label: 'Configurações' }
