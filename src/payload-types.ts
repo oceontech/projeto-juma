@@ -537,7 +537,7 @@ export interface Culture {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * Matérias do blog do site Brasil. Edite em cada idioma pelo seletor "Idioma" no topo.
+ * Matéria do blog do site Brasil, em 4 etapas. Traduza pelo seletor "Idioma do conteúdo" no topo.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "articles".
@@ -545,29 +545,21 @@ export interface Culture {
 export interface Article {
   id: number;
   /**
-   * Endereço: /materias/<slug>. Só letras minúsculas, números e hífen.
+   * Curto e direto. Ex.: Nutrição na fase certa: o que muda na soja
    */
-  slug: string;
-  categoria: 'manejo' | 'nutricao' | 'pecuaria' | 'pesquisa' | 'sustentabilidade';
-  data: string;
-  /**
-   * A mais recente marcada aparece no bloco grande do topo.
-   */
-  destaque?: boolean | null;
-  /**
-   * A home mostra as 3 mais recentes marcadas.
-   */
-  destaqueHome?: boolean | null;
-  /**
-   * Calculado pelo texto. Marque a opção abaixo para definir à mão.
-   */
-  tempoLeitura?: number | null;
-  tempoLeituraManual?: boolean | null;
   titulo: string;
   /**
-   * Aparece abaixo do título e como descrição no Google.
+   * Uma frase que complementa o título. Também é a descrição no Google.
    */
   subtitulo?: string | null;
+  categoria: 'manejo' | 'nutricao' | 'pecuaria' | 'pesquisa' | 'sustentabilidade';
+  /**
+   * Como aparece na matéria. Ex.: Eng. Agrônomo Marcos Silva
+   */
+  assinatura?: string | null;
+  /**
+   * Foto na horizontal, de preferência com 1600 px de largura ou mais.
+   */
   capa: number | Media;
   /**
    * Aparece enquanto a foto carrega.
@@ -583,10 +575,12 @@ export interface Article {
       )
     | null;
   /**
-   * Como aparece na matéria. Ex.: Eng. Agrônomo Marcos Silva
+   * O primeiro parágrafo, em destaque. Deixe uma linha em branco entre parágrafos.
    */
-  assinatura?: string | null;
   introducao?: string | null;
+  /**
+   * Cada seção tem um intertítulo e o texto. Arraste para mudar a ordem.
+   */
   secoes?:
     | {
         titulo?: string | null;
@@ -597,7 +591,25 @@ export interface Article {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Opcional. Uma frase forte do texto, que aparece em destaque.
+   */
   citacao?: string | null;
+  slug: string;
+  data: string;
+  /**
+   * A mais recente marcada aparece no bloco grande do topo.
+   */
+  destaque?: boolean | null;
+  /**
+   * A home mostra as 3 mais recentes marcadas.
+   */
+  destaqueHome?: boolean | null;
+  /**
+   * Calculado pelo texto ao salvar.
+   */
+  tempoLeitura?: number | null;
+  tempoLeituraManual?: boolean | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -610,11 +622,22 @@ export interface Article {
  */
 export interface PostsUs {
   id: number;
+  /**
+   * Ex.: Foliar potassium in the Florida spray pass
+   */
   title: string;
   /**
-   * One or two sentences. Shows on the blog list, on Google and when the link is shared.
+   * Uma ou duas frases. Aparece na lista do blog, no Google e ao compartilhar o link.
    */
   excerpt?: string | null;
+  category?: ('field-notes' | 'crop-nutrition' | 'trials' | 'company') | null;
+  /**
+   * Ex.: Juma-Agro agronomy
+   */
+  author?: string | null;
+  /**
+   * Foto na horizontal, de preferência com 1600 px de largura ou mais.
+   */
   cover?: (number | null) | Media;
   body?: {
     root: {
@@ -632,13 +655,8 @@ export interface PostsUs {
     [k: string]: unknown;
   } | null;
   bodyHtml?: string | null;
-  /**
-   * Ex.: foliar-feeding-in-florida. Vira /blog/endereço.
-   */
   slug: string;
   date: string;
-  author?: string | null;
-  category?: ('field-notes' | 'crop-nutrition' | 'trials' | 'company') | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -952,18 +970,12 @@ export interface CulturesSelect<T extends boolean = true> {
  * via the `definition` "articles_select".
  */
 export interface ArticlesSelect<T extends boolean = true> {
-  slug?: T;
-  categoria?: T;
-  data?: T;
-  destaque?: T;
-  destaqueHome?: T;
-  tempoLeitura?: T;
-  tempoLeituraManual?: T;
   titulo?: T;
   subtitulo?: T;
+  categoria?: T;
+  assinatura?: T;
   capa?: T;
   cor?: T;
-  assinatura?: T;
   introducao?: T;
   secoes?:
     | T
@@ -973,6 +985,12 @@ export interface ArticlesSelect<T extends boolean = true> {
         id?: T;
       };
   citacao?: T;
+  slug?: T;
+  data?: T;
+  destaque?: T;
+  destaqueHome?: T;
+  tempoLeitura?: T;
+  tempoLeituraManual?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -984,13 +1002,13 @@ export interface ArticlesSelect<T extends boolean = true> {
 export interface PostsUsSelect<T extends boolean = true> {
   title?: T;
   excerpt?: T;
+  category?: T;
+  author?: T;
   cover?: T;
   body?: T;
   bodyHtml?: T;
   slug?: T;
   date?: T;
-  author?: T;
-  category?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;

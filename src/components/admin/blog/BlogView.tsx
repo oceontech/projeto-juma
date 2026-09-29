@@ -102,6 +102,8 @@ export async function BlogView({ initPageResult, params, searchParams }: AdminVi
       req={req}
       searchParams={searchParams}
       user={req.user ?? undefined}
+      // Telas próprias não recebem as ações globais (cabeçalho) sozinhas.
+      viewActions={req.payload.config.admin.components?.actions}
       visibleEntities={initPageResult.visibleEntities}
     >
       <BlogViewClient

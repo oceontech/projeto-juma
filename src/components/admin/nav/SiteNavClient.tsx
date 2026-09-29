@@ -18,7 +18,7 @@ export type NavItem = { kind: 'collection' | 'global'; slug: string; label: stri
  * O Blog abre o card, em destaque, em qualquer escolha (junta os dois sites).
  */
 type BlogPerms = Record<'br' | 'us', { read: boolean; create: boolean }>
-const NEW_POST = { br: '/admin/collections/articles/create', us: '/admin/collections/posts-us/create' }
+const NEW_POST = { br: '/admin/collections/articles/create?locale=pt-BR', us: '/admin/collections/posts-us/create' }
 
 function Globe() {
   return (

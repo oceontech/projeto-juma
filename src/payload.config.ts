@@ -31,6 +31,7 @@ export default buildConfig({
     // O tema escuro/claro é do próprio painel (src/app/(payload)/custom.scss).
     theme: 'light',
     dateFormat: 'dd/MM/yyyy HH:mm',
+    avatar: { Component: '/components/admin/nav/Avatar#Avatar' },
     meta: { titleSuffix: ' · Painel Juma' },
     components: {
       graphics: {
@@ -41,7 +42,7 @@ export default buildConfig({
         '/components/admin/Brand#SidebarBrand',
         '/components/admin/nav/SiteNav#SiteNav',
       ],
-      actions: ['/components/admin/nav/BackButton#BackButton'],
+      actions: ['/components/admin/nav/HeaderBar#HeaderBar'],
       logout: { Button: '/components/admin/NavAccount#NavAccount' },
       views: {
         dashboard: { Component: '/components/admin/Dashboard#Dashboard' },

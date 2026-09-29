@@ -45,6 +45,8 @@ export async function PanelSettings({ initPageResult, params, searchParams }: Ad
       req={req}
       searchParams={searchParams}
       user={req.user ?? undefined}
+      // Telas próprias não recebem as ações globais (cabeçalho) sozinhas.
+      viewActions={req.payload.config.admin.components?.actions}
       visibleEntities={initPageResult.visibleEntities}
     >
       <div className="juma-dash jps">

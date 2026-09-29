@@ -1,5 +1,5 @@
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
-import type { CollectionAfterChangeHook, CollectionAfterDeleteHook, CollectionConfig } from 'payload'
+import type { CollectionAfterChangeHook, CollectionAfterDeleteHook, CollectionConfig, Field } from 'payload'
 
 import { hasRole } from '../access/roles'
 import { revalidateUsSite } from '../features/cms/revalidateUs'
@@ -18,6 +18,13 @@ const revalidateOnDelete: CollectionAfterDeleteHook = async ({ doc }) => {
   await revalidateUsSite(['/', '/blog', `/blog/${doc.slug}`])
   return doc
 }
+
+/** Rodapé de cada etapa do post ("← anterior · próxima →"). */
+const step = (name: string, clientProps: { prev?: string; next?: string; last?: boolean }): Field => ({
+  name,
+  type: 'ui',
+  admin: { components: { Field: { path: '/components/admin/fields/StepFooter#StepFooter', clientProps } } },
+})
 
 export const PostsUs: CollectionConfig = {
   slug: 'posts-us',
@@ -43,59 +50,123 @@ export const PostsUs: CollectionConfig = {
   },
   hooks: { afterChange: [revalidate], afterDelete: [revalidateOnDelete] },
   fields: [
-    { name: 'title', label: 'Title', type: 'text', required: true },
+    // Prévia ao lado do formulário: página, Google e o que falta.
     {
-      name: 'excerpt',
-      label: 'Summary',
-      type: 'textarea',
-      admin: { rows: 2, description: 'One or two sentences. Shows on the blog list, on Google and when the link is shared.' },
-    },
-    { name: 'cover', label: 'Cover image', type: 'upload', relationTo: 'media' },
-    { name: 'body', label: 'Text', type: 'richText' },
-    {
-      // HTML pronto para o site EUA, que não tem o editor do Payload instalado.
-      name: 'bodyHtml',
-      type: 'text',
-      virtual: true,
-      admin: { hidden: true },
-      hooks: {
-        afterRead: [
-          ({ siblingData }) =>
-            siblingData?.body ? convertLexicalToHTML({ data: siblingData.body, disableContainer: true }) : '',
-        ],
-      },
+      name: 'previa',
+      type: 'ui',
+      admin: { position: 'sidebar', components: { Field: '/components/admin/blog/PostUsPreview#PostUsPreview' } },
     },
     {
-      name: 'slug',
-      label: 'Endereço',
-      type: 'text',
-      required: true,
-      unique: true,
-      index: true,
-      admin: { position: 'sidebar', description: 'Ex.: foliar-feeding-in-florida. Vira /blog/endereço.' },
-      validate: (value: unknown) =>
-        /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(String(value ?? '')) || 'Use só letras minúsculas, números e hífen.',
-    },
-    {
-      name: 'date',
-      label: 'Data',
-      type: 'date',
-      required: true,
-      defaultValue: () => new Date().toISOString(),
-      admin: { position: 'sidebar', date: { pickerAppearance: 'dayOnly', displayFormat: 'dd/MM/yyyy' } },
-    },
-    { name: 'author', label: 'Autor', type: 'text', admin: { position: 'sidebar' } },
-    {
-      name: 'category',
-      label: 'Categoria',
-      type: 'select',
-      options: [
-        { label: 'Field notes', value: 'field-notes' },
-        { label: 'Crop nutrition', value: 'crop-nutrition' },
-        { label: 'Trials', value: 'trials' },
-        { label: 'Company', value: 'company' },
+      // Etapas do post: as abas viram a linha do tempo do alto.
+      type: 'tabs',
+      tabs: [
+        {
+          label: 'Assunto',
+          description: 'Tudo em inglês americano: é o que o site dos EUA mostra.',
+          fields: [
+            {
+              name: 'title',
+              label: 'Título (em inglês)',
+              type: 'text',
+              required: true,
+              admin: { description: 'Ex.: Foliar potassium in the Florida spray pass' },
+            },
+            {
+              name: 'excerpt',
+              label: 'Resumo (em inglês)',
+              type: 'textarea',
+              admin: { rows: 2, description: 'Uma ou duas frases. Aparece na lista do blog, no Google e ao compartilhar o link.' },
+            },
+            {
+              type: 'row',
+              fields: [
+                {
+                  name: 'category',
+                  label: 'Categoria',
+                  type: 'select',
+                  options: [
+                    { label: 'Field notes', value: 'field-notes' },
+                    { label: 'Crop nutrition', value: 'crop-nutrition' },
+                    { label: 'Trials', value: 'trials' },
+                    { label: 'Company', value: 'company' },
+                  ],
+                  admin: { width: '50%' },
+                },
+                { name: 'author', label: 'Autor', type: 'text', admin: { width: '50%', description: 'Ex.: Juma-Agro agronomy' } },
+              ],
+            },
+            step('passo1', { next: 'Capa' }),
+          ],
+        },
+        {
+          label: 'Capa',
+          description: 'A foto que abre o post e aparece no card da lista do blog.',
+          fields: [
+            {
+              name: 'cover',
+              label: 'Foto de capa',
+              type: 'upload',
+              relationTo: 'media',
+              admin: { description: 'Foto na horizontal, de preferência com 1600 px de largura ou mais.' },
+            },
+            step('passo2', { prev: 'Assunto', next: 'Texto' }),
+          ],
+        },
+        {
+          label: 'Texto',
+          description: 'Descreva o que o produto entrega, nunca o efeito na planta ou no inseto (FIFRA). Todo número com fonte.',
+          fields: [
+            { name: 'body', label: 'Texto (em inglês)', type: 'richText' },
+            {
+              // HTML pronto para o site EUA, que não tem o editor do Payload instalado.
+              name: 'bodyHtml',
+              type: 'text',
+              virtual: true,
+              admin: { hidden: true },
+              hooks: {
+                afterRead: [
+                  ({ siblingData }) =>
+                    siblingData?.body ? convertLexicalToHTML({ data: siblingData.body, disableContainer: true }) : '',
+                ],
+              },
+            },
+            step('passo3', { prev: 'Capa', next: 'Publicação' }),
+          ],
+        },
+        {
+          label: 'Publicação',
+          description: 'Endereço e data do post.',
+          fields: [
+            {
+              name: 'slug',
+              label: 'Endereço',
+              type: 'text',
+              required: true,
+              unique: true,
+              index: true,
+              admin: {
+                components: {
+                  Field: {
+                    path: '/components/admin/fields/SlugField#SlugField',
+                    clientProps: { source: 'title', prefix: 'juma-agro-eua.vercel.app/blog/' },
+                  },
+                },
+              },
+              validate: (value: unknown) =>
+                /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(String(value ?? '')) || 'Use só letras minúsculas, números e hífen.',
+            },
+            {
+              name: 'date',
+              label: 'Data',
+              type: 'date',
+              required: true,
+              defaultValue: () => new Date().toISOString(),
+              admin: { components: { Field: '/components/admin/fields/DateField#DateField' } },
+            },
+            step('passo4', { prev: 'Texto', last: true }),
+          ],
+        },
       ],
-      admin: { position: 'sidebar' },
     },
   ],
 }

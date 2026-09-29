@@ -7,7 +7,7 @@ import { useEffect, useState, useTransition } from 'react'
 import { relativeDate } from '../leadMeta'
 import { Dropdown } from '../ui/Dropdown'
 import { Flag } from '../ui/Flag'
-import { SitePicker, type Choice } from '../ui/SitePicker'
+import type { Choice } from '../ui/SitePicker'
 
 export type BlogCard = {
   key: string
@@ -37,7 +37,7 @@ const TABS = [
 ] as const
 
 const NEW_POST = {
-  br: { href: '/admin/collections/articles/create', label: 'Matéria no site Brasil', hint: 'Em português, com tradução EN/ES' },
+  br: { href: '/admin/collections/articles/create?locale=pt-BR', label: 'Matéria no site Brasil', hint: 'Em português, com tradução EN/ES' },
   us: { href: '/admin/collections/posts-us/create', label: 'Post no site EUA', hint: 'Em inglês' },
 }
 
@@ -76,7 +76,6 @@ export function BlogViewClient(p: Props) {
           </p>
         </div>
         <div className="jl-head__actions">
-          <SitePicker value={p.site} onChange={() => startTransition(() => router.refresh())} />
           {creatable.length === 1 && (
             <Link className="jd-btn" href={NEW_POST[creatable[0]].href}>
               + Novo post
