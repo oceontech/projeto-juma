@@ -100,12 +100,16 @@ export interface Config {
   globals: {
     destaques: Destaque;
     settings: Setting;
+    redes: Rede;
     'settings-us': SettingsUs;
+    'redes-us': RedesUs;
   };
   globalsSelect: {
     destaques: DestaquesSelect<false> | DestaquesSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
+    redes: RedesSelect<false> | RedesSelect<true>;
     'settings-us': SettingsUsSelect<false> | SettingsUsSelect<true>;
+    'redes-us': RedesUsSelect<false> | RedesUsSelect<true>;
   };
   locale: 'pt-BR' | 'en' | 'es';
   widgets: {
@@ -1161,7 +1165,7 @@ export interface Destaque {
   createdAt?: string | null;
 }
 /**
- * Contato, endereços e redes que aparecem no site Brasil. Ao salvar, o site atualiza em alguns segundos.
+ * WhatsApp, telefone, e-mails, horário e endereços do site Brasil. Ao salvar, o site atualiza em alguns segundos.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "settings".
@@ -1201,21 +1205,27 @@ export interface Setting {
    * O que o Google Maps procura no mapa da página de contato.
    */
   mapa?: string | null;
-  /**
-   * Link completo do perfil. A rede sem link some do rodapé.
-   */
-  redes?: {
-    instagram?: string | null;
-    tiktok?: string | null;
-    youtube?: string | null;
-    linkedin?: string | null;
-    facebook?: string | null;
-  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
 /**
- * Contato, endereço e redes que aparecem no site dos EUA. Campo vazio não aparece no site.
+ * Link completo de cada perfil. A rede sem link some do rodapé do site Brasil.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redes".
+ */
+export interface Rede {
+  id: number;
+  instagram?: string | null;
+  tiktok?: string | null;
+  youtube?: string | null;
+  linkedin?: string | null;
+  facebook?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * E-mail, telefone, horário e endereço que aparecem no site dos EUA. Campo vazio não aparece no site.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "settings-us".
@@ -1239,16 +1249,22 @@ export interface SettingsUs {
    * Uma linha por quebra.
    */
   address?: string | null;
-  /**
-   * Link completo do perfil americano. Rede sem link não aparece no site.
-   */
-  social?: {
-    instagram?: string | null;
-    facebook?: string | null;
-    linkedin?: string | null;
-    youtube?: string | null;
-    x?: string | null;
-  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Link completo do perfil americano de cada rede. Rede sem link não aparece no site dos EUA.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redes-us".
+ */
+export interface RedesUs {
+  id: number;
+  instagram?: string | null;
+  facebook?: string | null;
+  linkedin?: string | null;
+  youtube?: string | null;
+  x?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1316,15 +1332,20 @@ export interface SettingsSelect<T extends boolean = true> {
         linhas?: T;
       };
   mapa?: T;
-  redes?:
-    | T
-    | {
-        instagram?: T;
-        tiktok?: T;
-        youtube?: T;
-        linkedin?: T;
-        facebook?: T;
-      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redes_select".
+ */
+export interface RedesSelect<T extends boolean = true> {
+  instagram?: T;
+  tiktok?: T;
+  youtube?: T;
+  linkedin?: T;
+  facebook?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1339,15 +1360,20 @@ export interface SettingsUsSelect<T extends boolean = true> {
   hours?: T;
   company?: T;
   address?: T;
-  social?:
-    | T
-    | {
-        instagram?: T;
-        facebook?: T;
-        linkedin?: T;
-        youtube?: T;
-        x?: T;
-      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redes-us_select".
+ */
+export interface RedesUsSelect<T extends boolean = true> {
+  instagram?: T;
+  facebook?: T;
+  linkedin?: T;
+  youtube?: T;
+  x?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

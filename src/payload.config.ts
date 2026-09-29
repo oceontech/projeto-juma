@@ -17,6 +17,7 @@ import { PostsUs } from './collections/PostsUs'
 import { HomeHighlights } from './globals/HomeHighlights'
 import { Settings } from './globals/Settings'
 import { SettingsUs } from './globals/SettingsUs'
+import { Social, SocialUs } from './globals/Social'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -38,13 +39,14 @@ export default buildConfig({
       },
       beforeNavLinks: [
         '/components/admin/Brand#SidebarBrand',
-        '/components/admin/SiteSwitcherServer#SiteSwitcherServer',
-        '/components/admin/NavOverview#NavOverview',
+        '/components/admin/nav/SiteNav#SiteNav',
       ],
+      actions: ['/components/admin/nav/BackButton#BackButton'],
       logout: { Button: '/components/admin/NavAccount#NavAccount' },
       views: {
         dashboard: { Component: '/components/admin/Dashboard#Dashboard' },
         analytics: { Component: '/components/admin/analytics/AnalyticsView#AnalyticsView', path: '/analytics' },
+        configuracoes: { Component: '/components/admin/settings/PanelSettings#PanelSettings', path: '/configuracoes' },
       },
     },
   },
@@ -58,7 +60,7 @@ export default buildConfig({
   },
   // A ordem aqui é a ordem dos grupos na sidebar: Operação, Conteúdo, Site, Biblioteca, Administração.
   collections: [Leads, Products, Cultures, Articles, PostsUs, Media, Users],
-  globals: [HomeHighlights, Settings, SettingsUs],
+  globals: [HomeHighlights, Settings, Social, SettingsUs, SocialUs],
   localization: {
     locales: [
       { label: 'Português', code: 'pt-BR' },

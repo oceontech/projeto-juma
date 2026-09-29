@@ -14,6 +14,7 @@ import * as migration_20260929_162701_redirecionamentos from './20260929_162701_
 import * as migration_20260929_181108_destaques_blog_eua from './20260929_181108_destaques_blog_eua';
 import * as migration_20260929_181500_destaques_conteudo from './20260929_181500_destaques_conteudo';
 import * as migration_20260929_194053_sem_paginas_redirecionamentos from './20260929_194053_sem_paginas_redirecionamentos';
+import * as migration_20260929_202609_redes_separadas from './20260929_202609_redes_separadas';
 
 export const migrations = [
   {
@@ -94,6 +95,11 @@ export const migrations = [
   {
     up: migration_20260929_194053_sem_paginas_redirecionamentos.up,
     down: migration_20260929_194053_sem_paginas_redirecionamentos.down,
-    name: '20260929_194053_sem_paginas_redirecionamentos'
+    name: '20260929_194053_sem_paginas_redirecionamentos',
+  },
+  {
+    up: migration_20260929_202609_redes_separadas.up,
+    down: migration_20260929_202609_redes_separadas.down,
+    name: '20260929_202609_redes_separadas'
   },
 ];

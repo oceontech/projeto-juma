@@ -21,14 +21,17 @@ const lines = (text?: string | null) =>
 export const getSiteSettings = cache(async (locale: Locale): Promise<SiteSettings> => {
   try {
     const payload = await getPayload({ config })
-    const s = await payload.findGlobal({ slug: 'settings', locale, fallbackLocale: 'pt-BR', depth: 0 })
-    const saved = Boolean(s.updatedAt)
+    const [s, r] = await Promise.all([
+      payload.findGlobal({ slug: 'settings', locale, fallbackLocale: 'pt-BR', depth: 0 }),
+      payload.findGlobal({ slug: 'redes', depth: 0 }),
+    ])
+    const saved = Boolean(r.updatedAt)
     const d = DEFAULT_SETTINGS
     const whatsapp = s.whatsapp?.trim() || d.whatsappNumber
     const phone = s.telefone?.trim() || d.phone
     const br = s.enderecoBR
     const us = s.enderecoUS
-    const redes = (s.redes ?? {}) as Record<string, string | null | undefined>
+    const redes = r as unknown as Record<string, string | null | undefined>
 
     return {
       whatsappNumber: whatsapp,

@@ -282,23 +282,28 @@ h3 {
   @return url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">#{$path}</svg>');
 }
 
-.nav__link[href$='/admin'] {
+.nav__link[href$='/admin'],
+.nav__link[data-icon='overview'] {
   --nav-icon: #{juma-icon('<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>')};
 }
-#nav-analytics {
+#nav-analytics,
+.nav__link[data-icon='analytics'] {
   --nav-icon: #{juma-icon('<path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 6-6"/>')};
 }
 #nav-leads,
-#nav-leads-top {
+.nav__link[data-icon='leads'] {
   --nav-icon: #{juma-icon('<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13l3.5 7v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z"/>')};
 }
-#nav-articles {
+#nav-articles,
+.nav__link[data-icon='blog'] {
   --nav-icon: #{juma-icon('<path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/>')};
 }
-#nav-products {
+#nav-products,
+.nav__link[data-icon='products'] {
   --nav-icon: #{juma-icon('<path d="M9 3h6v3l2 3v11a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V9l2-3z"/><path d="M7 13h10"/>')};
 }
-#nav-cultures {
+#nav-cultures,
+.nav__link[data-icon='cultures'] {
   --nav-icon: #{juma-icon('<path d="M12 22V11"/><path d="M12 11C12 6 8 3 4 3c0 4.5 3 8 8 8z"/><path d="M12 14c0-4 4-7 8-7 0 4-3 7-8 7z"/>')};
 }
 #nav-media {
@@ -3123,69 +3128,239 @@ textarea {
   }
 }
 
-/* ─── Sidebar por site (seletor no topo) ─────────────────────────────── */
-// Leads vêm dos links fixos do topo (NavOverview); o grupo do Payload sairia duplicado.
-.nav .nav-group:has(#nav-leads) {
-  display: none;
-}
-
-// "Todos os sites": só o geral (Visão geral, Leads, Analytics, Mídia, Usuários).
-.nav:has([data-panel-site='todos']) .nav-group:has(#nav-products, #nav-posts-us, #nav-global-settings, #nav-global-settings-us) {
-  display: none;
-}
-
-// Site Brasil: some o que é do EUA.
-.nav:has([data-panel-site='br']) {
-  #nav-posts-us,
-  #nav-global-settings-us {
-    display: none;
-  }
-}
-
-// Site EUA: some o que é do Brasil.
-.nav:has([data-panel-site='us']) {
-  #nav-products,
-  #nav-global-destaques,
-  #nav-cultures,
-  #nav-articles,
-  #nav-global-settings {
-    display: none;
-  }
-}
-
-// Destaques da home logo depois de Produtos (o Payload põe os globais no fim do grupo).
-.nav .nav-group__content:has(#nav-global-destaques) {
-  display: flex;
-  flex-direction: column;
-
-  > * {
-    order: 5;
-  }
-
-  > #nav-products {
-    order: 1;
-  }
-
-  > #nav-global-destaques {
-    order: 2;
-  }
-}
-
-#nav-posts-us {
-  --nav-icon: #{juma-icon('<path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/>')};
-}
-#nav-global-destaques {
+.nav__link[data-icon='destaques'] {
   --nav-icon: #{juma-icon('<path d="m12 3 2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>')};
 }
 
-// Biblioteca (Mídia, Usuários) sempre por último, antes da conta: o Payload
-// põe os grupos com configurações (globais) depois das coleções.
-.nav .nav__wrap {
-  > .nav-group:has(#nav-media) {
-    order: 1;
+
+.nav__link[data-icon='contact'] {
+  --nav-icon: #{juma-icon('<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>')};
+}
+.nav__link[data-icon='social'] {
+  --nav-icon: #{juma-icon('<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/>')};
+}
+.nav__link[data-icon='settings'] {
+  --nav-icon: #{juma-icon('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>')};
+}
+
+/* ─── Sidebar: card do site + itens gerais (components/admin/nav) ────── */
+// A sidebar é montada pelo SiteNav; os grupos padrão do Payload não aparecem.
+.nav .nav-group {
+  display: none;
+}
+
+// O card é o próprio fundo do seletor, que cresce e abraça os botões do site.
+.jsn-card {
+  width: 100%;
+  margin: 0 0 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+  transition: background 0.2s ease;
+
+  .juma-site.jdd {
+    margin: 0;
+
+    .jdd__trigger {
+      background: transparent;
+      box-shadow: none;
+    }
   }
 
-  > .nav__controls {
-    order: 2;
+  &--br,
+  &--us {
+    padding-bottom: 6px;
+  }
+
+  // O card só com o seletor ("Todos os sites") não precisa de folga embaixo.
+  &:not(:has(.jsn-card__links)) {
+    padding-bottom: 0;
+  }
+}
+
+.jsn-card__links {
+  display: flex;
+  flex-direction: column;
+  margin: 2px 6px 0;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+
+  // A barra de luz do ativo encosta na borda da sidebar, como nos itens de fora.
+  .nav__link[aria-current='page']::after {
+    left: -18px;
+  }
+}
+
+// Links ocupam a largura toda (o nav__wrap do Payload alinha ao início).
+.jsn-card,
+.jsn-general {
+  align-self: stretch;
+}
+
+.jsn-general {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.nav .nav__link[data-icon] {
+  width: 100%;
+  text-decoration: none;
+}
+
+/* ─── Botão Voltar no cabeçalho (no lugar da trilha) ──────────────────── */
+.app-header__step-nav-wrapper {
+  display: none;
+}
+
+.app-header__actions-wrapper {
+  flex: 1;
+  justify-content: flex-start;
+}
+
+.jback {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px 0 10px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--juma-line);
+  color: var(--juma-ink);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.18s ease;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  &:hover {
+    background: #eef6f0;
+  }
+}
+
+/* ─── Configurações do painel ─────────────────────────────────────────── */
+.jps-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.jps-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.jps-card__head {
+  width: 100%;
+
+  h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 2px 0 0;
+    color: var(--juma-muted);
+    font-size: 12.5px;
+  }
+
+  &--row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+}
+
+.jps-me {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.jps-list {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px solid var(--juma-line);
+
+    span:first-child {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    b {
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+
+    small {
+      color: var(--juma-muted);
+      font-size: 12px;
+    }
+  }
+}
+
+.jps-status {
+  flex: none;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #f4f4f5;
+  color: #71717a;
+  font-size: 12px;
+  font-weight: 600;
+
+  &.is-ok {
+    background: #dcfce7;
+    color: #166534;
+  }
+}
+
+.jps-link {
+  color: var(--juma-ink);
+  font-size: 13px;
+}
+
+.jps .ju-list {
+  width: 100%;
+}
+
+.jps-member {
+  grid-template-columns: auto minmax(0, 1.4fr) auto minmax(0, 1fr);
+  box-shadow: inset 0 0 0 1px var(--juma-line);
+}
+
+@media (max-width: 900px) {
+  .jps-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .jps-member {
+    grid-template-columns: auto minmax(0, 1fr);
   }
 }
