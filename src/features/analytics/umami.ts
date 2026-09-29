@@ -7,8 +7,9 @@ import type { Site } from '@/access/roles'
  * mostra o card de "sem dados" em vez de quebrar.
  */
 
-const API = process.env.UMAMI_API_URL?.replace(/\/$/, '')
-const WEBSITES: Record<Site, string | undefined> = {
+export const UMAMI_URL = process.env.UMAMI_API_URL?.replace(/\/$/, '')
+const API = UMAMI_URL
+export const WEBSITES: Record<Site, string | undefined> = {
   br: process.env.UMAMI_WEBSITE_BR,
   us: process.env.UMAMI_WEBSITE_US,
 }
@@ -31,16 +32,17 @@ async function getToken(force = false) {
   return token.value
 }
 
-async function get<T>(path: string, retry = true): Promise<T> {
+/** GET autenticado na API do Umami. `fresh` pula o cache (visitantes ao vivo). */
+export async function umamiGet<T>(path: string, { fresh = false, retry = true } = {}): Promise<T> {
   const res = await fetch(`${API}${path}`, {
     headers: { authorization: `Bearer ${await getToken()}` },
     // Os números mudam devagar: 5 minutos de cache poupa o Umami a cada visita ao painel.
-    next: { revalidate: 300 },
-    signal: AbortSignal.timeout(5000),
+    ...(fresh ? { cache: 'no-store' as const } : { next: { revalidate: 300 } }),
+    signal: AbortSignal.timeout(8000),
   })
   if (res.status === 401 && retry) {
     await getToken(true)
-    return get<T>(path, false)
+    return umamiGet<T>(path, { fresh, retry: false })
   }
   if (!res.ok) throw new Error(`Umami ${path} ${res.status}`)
   return (await res.json()) as T
@@ -71,9 +73,9 @@ export function analyticsConfigured() {
 async function siteTraffic(id: string, startAt: number, endAt: number): Promise<SiteTraffic> {
   const range = `startAt=${startAt}&endAt=${endAt}`
   const [stats, pages, events] = await Promise.all([
-    get<RawStats>(`/api/websites/${id}/stats?${range}`),
-    get<Metric[]>(`/api/websites/${id}/metrics?${range}&type=path&limit=5`),
-    get<Metric[]>(`/api/websites/${id}/metrics?${range}&type=event&limit=20`).catch(() => [] as Metric[]),
+    umamiGet<RawStats>(`/api/websites/${id}/stats?${range}`),
+    umamiGet<Metric[]>(`/api/websites/${id}/metrics?${range}&type=path&limit=5`),
+    umamiGet<Metric[]>(`/api/websites/${id}/metrics?${range}&type=event&limit=20`).catch(() => [] as Metric[]),
   ])
   const n = (v: unknown) => Number(v) || 0
   const visits = n(stats.visits)

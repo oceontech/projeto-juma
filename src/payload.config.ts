@@ -42,6 +42,7 @@ export default buildConfig({
       logout: { Button: '/components/admin/NavAccount#NavAccount' },
       views: {
         dashboard: { Component: '/components/admin/Dashboard#Dashboard' },
+        analytics: { Component: '/components/admin/analytics/AnalyticsView#AnalyticsView', path: '/analytics' },
       },
     },
   },

@@ -120,7 +120,9 @@ function TrafficCard({ traffic, sites }: { traffic: Traffic | null; sites: Site[
     <article className="jd-card jd-traffic">
       <div className="jd-card__head">
         <h2>Visitas nos sites</h2>
-        <span className="jd-chip">30 dias</span>
+        <Link className="jd-chip jd-chip--dark" href="/admin/analytics">
+          Ver analytics
+        </Link>
       </div>
       <div className="jd-traffic__body">
         <div className="jd-traffic__stats">
@@ -188,7 +190,12 @@ export async function Dashboard({ initPageResult }: AdminViewServerProps) {
   const chosen = selectedSite(req)
   const trafficSites = chosen && allowedSites.includes(chosen) ? [chosen] : allowedSites
   const leads = canSeeLeads ? await loadLeads(req, since60) : []
-  const trafficPromise = loadTraffic(trafficSites, new Date(today.getTime() - 29 * DAY), now)
+  const trafficPromise = loadTraffic(
+    trafficSites,
+    new Date(today.getTime() - 29 * DAY),
+    // Arredondado a 5 min: com o horário exato, o cache do fetch nunca servia.
+    new Date(Math.floor(now.getTime() / 300_000) * 300_000),
+  )
   const [articles, products, cultures] = await Promise.all([
     countPublished(req, 'articles'),
     countPublished(req, 'products'),
