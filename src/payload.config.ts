@@ -13,9 +13,7 @@ import { Products } from './collections/Products'
 import { Cultures } from './collections/Cultures'
 import { Articles } from './collections/Articles'
 import { Leads } from './collections/Leads'
-import { Pages } from './collections/Pages'
 import { PostsUs } from './collections/PostsUs'
-import { Redirects } from './collections/Redirects'
 import { HomeHighlights } from './globals/HomeHighlights'
 import { Settings } from './globals/Settings'
 import { SettingsUs } from './globals/SettingsUs'
@@ -59,7 +57,7 @@ export default buildConfig({
     },
   },
   // A ordem aqui é a ordem dos grupos na sidebar: Operação, Conteúdo, Site, Biblioteca, Administração.
-  collections: [Leads, Products, Cultures, Articles, Pages, PostsUs, Redirects, Media, Users],
+  collections: [Leads, Products, Cultures, Articles, PostsUs, Media, Users],
   globals: [HomeHighlights, Settings, SettingsUs],
   localization: {
     locales: [

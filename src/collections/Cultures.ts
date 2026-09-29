@@ -8,7 +8,6 @@ import type {
 
 import { hasRole, isAdminField } from '../access/roles'
 import { revalidateSite } from '../features/cms/revalidate'
-import { redirectOldSlugs } from './Redirects'
 
 // Uma cultura aparece na própria página, na grade /culturas e na home.
 async function revalidateCultures(payload: Payload, extraSlug?: string) {
@@ -269,7 +268,7 @@ export const Cultures: CollectionConfig = {
     // Culturas são referenciadas por produtos e pela home: só admin exclui.
     delete: ({ req }) => hasRole(req, 'admin'),
   },
-  hooks: { afterChange: [revalidate, redirectOldSlugs('cultures', '/culturas')], afterDelete: [revalidateOnDelete] },
+  hooks: { afterChange: [revalidate], afterDelete: [revalidateOnDelete] },
   fields: [
     {
       name: 'slug',

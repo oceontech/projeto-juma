@@ -15,7 +15,6 @@ import { MobileLogo } from '@/components/layout/MobileLogo'
 import { LeadProvider } from '@/features/leads/components/LeadProvider'
 import { TouchCapture } from '@/features/leads/components/TouchCapture'
 import { Analytics } from '@/features/analytics/Analytics'
-import { getPublishedPageSlugs } from '@/features/pages/queries'
 import { getSiteSettings } from '@/features/settings/queries'
 import { SiteSettingsProvider } from '@/features/settings/SiteSettingsProvider'
 import '../globals.css'
@@ -78,10 +77,7 @@ export default async function LocaleLayout(props: {
 
   // Load messages for the NextIntlClientProvider
   const messages = await getMessages()
-  const [settings, pageSlugs] = await Promise.all([
-    getSiteSettings(locale as 'pt-BR' | 'en' | 'es'),
-    getPublishedPageSlugs(),
-  ])
+  const settings = await getSiteSettings(locale as 'pt-BR' | 'en' | 'es')
 
   // Animação do véu: baixa em paralelo ao HTML. O crossOrigin precisa casar com o modo do fetch do Veil.
   preload(VEIL_SRC, { as: 'fetch', crossOrigin: 'anonymous' })
@@ -108,7 +104,7 @@ export default async function LocaleLayout(props: {
               <main id="main" className="flex-1 w-full max-w-full overflow-x-hidden">
                 {props.children}
               </main>
-              <Footer settings={settings} legalPages={pageSlugs} />
+              <Footer settings={settings} />
             </LeadProvider>
           </SmoothScroll>
           </SiteSettingsProvider>

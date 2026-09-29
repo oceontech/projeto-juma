@@ -71,9 +71,7 @@ export interface Config {
     products: Product;
     cultures: Culture;
     articles: Article;
-    pages: Page;
     'posts-us': PostsUs;
-    redirects: Redirect;
     media: Media;
     users: User;
     'payload-kv': PayloadKv;
@@ -87,9 +85,7 @@ export interface Config {
     products: ProductsSelect<false> | ProductsSelect<true>;
     cultures: CulturesSelect<false> | CulturesSelect<true>;
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
-    pages: PagesSelect<false> | PagesSelect<true>;
     'posts-us': PostsUsSelect<false> | PostsUsSelect<true>;
-    redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -603,42 +599,6 @@ export interface Article {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * Páginas de texto do site Brasil, como política de privacidade, termos de uso ou uma campanha. O endereço vira juma-agro.com.br/endereço.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages".
- */
-export interface Page {
-  id: number;
-  titulo: string;
-  /**
-   * Só letras minúsculas, números e hífen. Ex.: politica-de-privacidade, termos-de-uso.
-   */
-  slug: string;
-  /**
-   * Aparece no Google e ao compartilhar o link. Até 160 caracteres.
-   */
-  resumo?: string | null;
-  conteudo?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
  * Posts do blog do site americano, em inglês. Descreva o que o produto entrega, nunca o efeito na planta ou no inseto (FIFRA), e todo número com fonte.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -678,37 +638,6 @@ export interface PostsUs {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
-}
-/**
- * Quem abrir o endereço antigo vai direto para o novo. Use para links do site antigo, materiais impressos e páginas que mudaram de nome. Vale em até 1 minuto.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "redirects".
- */
-export interface Redirect {
-  id: number;
-  /**
-   * Ex.: /produtos/aminosan-antigo ou o link completo do site antigo.
-   */
-  de: string;
-  /**
-   * Ex.: /pt-BR/produtos/aminosan. Pode ser um link de outro site (https://…).
-   */
-  para: string;
-  /**
-   * Ligado: o Google troca o link antigo pelo novo (use quase sempre). Desligado: desvio temporário.
-   */
-  permanente?: boolean | null;
-  /**
-   * Desligue para pausar sem apagar.
-   */
-  ativo?: boolean | null;
-  /**
-   * Por que existe (opcional).
-   */
-  observacao?: string | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -751,16 +680,8 @@ export interface PayloadLockedDocument {
         value: number | Article;
       } | null)
     | ({
-        relationTo: 'pages';
-        value: number | Page;
-      } | null)
-    | ({
         relationTo: 'posts-us';
         value: number | PostsUs;
-      } | null)
-    | ({
-        relationTo: 'redirects';
-        value: number | Redirect;
       } | null)
     | ({
         relationTo: 'media';
@@ -1054,19 +975,6 @@ export interface ArticlesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages_select".
- */
-export interface PagesSelect<T extends boolean = true> {
-  titulo?: T;
-  slug?: T;
-  resumo?: T;
-  conteudo?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts-us_select".
  */
 export interface PostsUsSelect<T extends boolean = true> {
@@ -1082,19 +990,6 @@ export interface PostsUsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "redirects_select".
- */
-export interface RedirectsSelect<T extends boolean = true> {
-  de?: T;
-  para?: T;
-  permanente?: T;
-  ativo?: T;
-  observacao?: T;
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1216,7 +1111,7 @@ export interface Destaque {
       | null;
   };
   /**
-   * Mínimo 2 para o carrossel funcionar. Arraste para mudar a ordem.
+   * Mínimo 2 para o carrossel funcionar. Arraste para mudar a ordem; clique no produto para abrir.
    */
   produtos?:
     | {

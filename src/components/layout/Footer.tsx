@@ -9,7 +9,7 @@ import { FooterReveal } from './FooterReveal'
 import { WhatsAppLink } from '@/features/leads/components/WhatsAppLink'
 import { socialIcons } from '@/components/icons/social'
 
-export function Footer({ settings, legalPages = [] }: { settings: SiteSettings; legalPages?: string[] }) {
+export function Footer({ settings }: { settings: SiteSettings }) {
   const { socials, addresses } = settings
   const t = useTranslations('nav')
   const tf = useTranslations('footer')
@@ -153,19 +153,6 @@ export function Footer({ settings, legalPages = [] }: { settings: SiteSettings; 
           <p className="text-body-regular max-w-none">
             © {year} {legalName}. {tf('rights')}
           </p>
-          {/* Só com a página publicada em Site › Páginas; sem ela o link daria 404. */}
-          <div className="flex flex-wrap gap-x-lg gap-y-xs">
-            {legalPages.includes('politica-de-privacidade') && (
-              <Link href="/politica-de-privacidade" className="text-body-regular text-white/70 transition-colors hover:text-white">
-                {tf('privacy')}
-              </Link>
-            )}
-            {legalPages.includes('termos-de-uso') && (
-              <Link href="/termos-de-uso" className="text-body-regular text-white/70 transition-colors hover:text-white">
-                {tf('terms')}
-              </Link>
-            )}
-          </div>
         </div>
 
         <a

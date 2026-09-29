@@ -13,6 +13,7 @@ import * as migration_20260929_161549_paginas_sem_seo from './20260929_161549_pa
 import * as migration_20260929_162701_redirecionamentos from './20260929_162701_redirecionamentos';
 import * as migration_20260929_181108_destaques_blog_eua from './20260929_181108_destaques_blog_eua';
 import * as migration_20260929_181500_destaques_conteudo from './20260929_181500_destaques_conteudo';
+import * as migration_20260929_194053_sem_paginas_redirecionamentos from './20260929_194053_sem_paginas_redirecionamentos';
 
 export const migrations = [
   {
@@ -89,5 +90,10 @@ export const migrations = [
     up: migration_20260929_181500_destaques_conteudo.up,
     down: migration_20260929_181500_destaques_conteudo.down,
     name: '20260929_181500_destaques_conteudo',
+  },
+  {
+    up: migration_20260929_194053_sem_paginas_redirecionamentos.up,
+    down: migration_20260929_194053_sem_paginas_redirecionamentos.down,
+    name: '20260929_194053_sem_paginas_redirecionamentos'
   },
 ];

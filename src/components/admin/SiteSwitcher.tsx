@@ -23,8 +23,6 @@ const SITE_OF: Record<string, Choice> = {
   '/admin/collections/products': 'br',
   '/admin/collections/cultures': 'br',
   '/admin/collections/articles': 'br',
-  '/admin/collections/pages': 'br',
-  '/admin/collections/redirects': 'br',
   '/admin/globals/settings': 'br',
   '/admin/globals/destaques': 'br',
   '/admin/collections/posts-us': 'us',
@@ -43,7 +41,7 @@ function Globe() {
 
 const OPTIONS = [
   { value: 'todos' as const, label: 'Todos os sites', hint: 'Leads e números juntos', icon: <Globe /> },
-  { value: 'br' as const, label: 'Site Brasil', hint: 'Produtos, culturas, blog…', icon: <Flag site="br" size={18} /> },
+  { value: 'br' as const, label: 'Site Brasil', hint: 'Produtos, destaques, culturas e blog', icon: <Flag site="br" size={18} /> },
   { value: 'us' as const, label: 'Site EUA', hint: 'Blog e contato', icon: <Flag site="us" size={18} /> },
 ]
 

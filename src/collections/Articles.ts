@@ -7,7 +7,6 @@ import type {
 import { hasRole } from '../access/roles'
 import { ARTICLE_CATEGORIES, ARTICLE_COLORS } from '../features/articles/options'
 import { revalidateSite } from '../features/cms/revalidate'
-import { redirectOldSlugs } from './Redirects'
 
 /** Minutos de leitura a partir do texto (≈ 200 palavras por minuto). */
 function readingMinutes(data: Record<string, unknown>): number {
@@ -66,7 +65,7 @@ export const Articles: CollectionConfig = {
         return data
       },
     ],
-    afterChange: [revalidate, redirectOldSlugs('articles', '/materias')],
+    afterChange: [revalidate],
     afterDelete: [revalidateOnDelete],
   },
   fields: [

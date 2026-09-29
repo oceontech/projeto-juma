@@ -26,9 +26,8 @@ Site da **Juma Agro** (fertilizantes especiais e aminoácidos), feito pela agên
 ## Estrutura
 
 - `src/app/(frontend)/` → site público · `src/app/(payload)/` → painel (não mexer na fiação do Payload sem necessidade)
-- `src/collections/` → Products, Cultures, Articles, Pages, Leads, Media, Users · `src/access/roles.ts` → papéis (admin, editor, comercial) e escopo por site · `src/migrations/` → migrations do banco
+- `src/collections/` → Products, Cultures, Articles (blog BR), PostsUs (blog EUA), Leads, Media, Users · `src/globals/` → Settings e SettingsUs (contato/redes de cada site), HomeHighlights (destaques da home; Aminosan fixo em 1º) · `src/access/roles.ts` → papéis (admin, editor, comercial) e escopo por site · `src/migrations/` → migrations do banco
 - `src/features/leads/` → pop-up de lead, `WhatsAppLink`, captura de origem e `server/ingest.ts` (entrada única de leads, usada também por `POST /api/leads/intake` do site EUA)
-- `src/globals/Settings.ts` → vagas, contato, redes
 - `src/payload.config.ts` → config + localização (pt-BR padrão, en, es)
 - `docs/` → toda a documentação (PRD canônico em `docs/01-prd/`, decisões, copy, processos) · `assets/` → mídia-fonte (hero, herança, produtos) · `public/` → cópia servida pelo build
 
