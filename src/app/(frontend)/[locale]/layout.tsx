@@ -15,6 +15,9 @@ import { MobileLogo } from '@/components/layout/MobileLogo'
 import { LeadProvider } from '@/features/leads/components/LeadProvider'
 import { TouchCapture } from '@/features/leads/components/TouchCapture'
 import { Analytics } from '@/features/analytics/Analytics'
+import { getPublishedPageSlugs } from '@/features/pages/queries'
+import { getSiteSettings } from '@/features/settings/queries'
+import { SiteSettingsProvider } from '@/features/settings/SiteSettingsProvider'
 import '../globals.css'
 
 const montserrat = Montserrat({
@@ -75,6 +78,10 @@ export default async function LocaleLayout(props: {
 
   // Load messages for the NextIntlClientProvider
   const messages = await getMessages()
+  const [settings, pageSlugs] = await Promise.all([
+    getSiteSettings(locale as 'pt-BR' | 'en' | 'es'),
+    getPublishedPageSlugs(),
+  ])
 
   // Animação do véu: baixa em paralelo ao HTML. O crossOrigin precisa casar com o modo do fetch do Veil.
   preload(VEIL_SRC, { as: 'fetch', crossOrigin: 'anonymous' })
@@ -91,6 +98,7 @@ export default async function LocaleLayout(props: {
       </head>
       <body suppressHydrationWarning className="flex min-h-[100dvh] w-full max-w-full flex-col overflow-x-hidden relative">
         <NextIntlClientProvider messages={messages}>
+          <SiteSettingsProvider value={settings}>
           <SmoothScroll>
             <LeadProvider>
               <TouchCapture />
@@ -100,9 +108,10 @@ export default async function LocaleLayout(props: {
               <main id="main" className="flex-1 w-full max-w-full overflow-x-hidden">
                 {props.children}
               </main>
-              <Footer />
+              <Footer settings={settings} legalPages={pageSlugs} />
             </LeadProvider>
           </SmoothScroll>
+          </SiteSettingsProvider>
         </NextIntlClientProvider>
         <Analytics />
       </body>

@@ -14,7 +14,8 @@ import { submitLead } from '@/features/leads/actions'
 import { useLead } from '@/features/leads/components/LeadProvider'
 import { WhatsAppLink } from '@/features/leads/components/WhatsAppLink'
 import { whatsappUrl } from '@/features/leads/whatsapp'
-import { contact } from '@/config/site'
+import { useSiteSettings } from '@/features/settings/SiteSettingsProvider'
+import { localPhone } from '@/features/settings/types'
 
 function ArrowTopRightIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -75,6 +76,7 @@ export function ContactPage() {
   const tLead = useTranslations('leadPopup')
   const locale = useLocale()
   const lead = useLead()
+  const settings = useSiteSettings()
   const [sendState, setSendState] = useState<'idle' | 'sending' | 'error'>('idle')
   const formShownAt = useRef(0)
 
@@ -218,7 +220,7 @@ export function ContactPage() {
     setSendState('idle')
     form.reset()
     setWpp('')
-    const url = whatsappUrl(message)
+    const url = whatsappUrl(settings.whatsappHref, message)
     if (tab) tab.location.href = url
     else window.location.href = url
   }
@@ -326,7 +328,7 @@ export function ContactPage() {
 
             {sendState === 'error' && (
               <p className="mb-6 text-sm text-red-700" role="alert">
-                {tLead('errorSend', { phone: contact.whatsappNumber })}
+                {tLead('errorSend', { phone: settings.whatsappNumber })}
               </p>
             )}
 
@@ -354,7 +356,7 @@ export function ContactPage() {
                 <WhatsAppIcon className="h-5 w-5" />
               </div>
               <div>
-                <b className="block text-lg font-bold text-foreground group-hover:text-primary transition-colors">(19) 99964-8186</b>
+                <b className="block text-lg font-bold text-foreground group-hover:text-primary transition-colors">{localPhone(settings.whatsappNumber)}</b>
                 <span className="text-sm text-foreground/60 leading-tight">{t('whatsappSubtitle')}</span>
               </div>
             </WhatsAppLink>
@@ -364,7 +366,7 @@ export function ContactPage() {
                 <PhoneIcon className="h-5 w-5" />
               </div>
               <div>
-                <b className="block text-lg font-bold text-foreground">(19) 3891-6415</b>
+                <a href={settings.phoneHref} className="block text-lg font-bold text-foreground hover:text-primary transition-colors">{settings.phone}</a>
                 <span className="text-sm text-foreground/60 leading-tight">{t('phoneSubtitle')}</span>
               </div>
             </div>
@@ -375,9 +377,9 @@ export function ContactPage() {
               </div>
               <ul className="min-w-0 flex-1 flex flex-col gap-4">
                 {[
-                  { address: 'marketing@juma-agro.com.br', label: t('emailSubtitle') },
-                  { address: 'analucia@juma-agro.com.br', label: t('emailPurchasing') },
-                  { address: 'rh@juma-agro.com.br', label: t('emailHr') },
+                  { address: settings.email, label: t('emailSubtitle') },
+                  { address: settings.emailPurchasing, label: t('emailPurchasing') },
+                  { address: settings.emailHr, label: t('emailHr') },
                 ].map(({ address, label }) => (
                   <li key={address} className="min-w-0">
                     <span className="block text-xs font-bold uppercase tracking-wider text-primary leading-snug">{label}</span>
@@ -397,8 +399,10 @@ export function ContactPage() {
                 <ClockIcon className="h-5 w-5" />
               </div>
               <div>
-                <b className="block text-lg font-bold text-foreground">{t('hoursMain')}</b>
-                <span className="text-sm text-foreground/60 leading-tight">{t('hoursAlt')}</span>
+                <b className="block text-lg font-bold text-foreground">{settings.hours[0] ?? t('hoursMain')}</b>
+                <span className="text-sm text-foreground/60 leading-tight">
+                  {settings.hours.length ? settings.hours.slice(1).join(' · ') : t('hoursAlt')}
+                </span>
               </div>
             </div>
 
@@ -415,13 +419,13 @@ export function ContactPage() {
 
           <a 
             data-contact-item 
-            href="https://www.google.com/maps/search/?api=1&query=Juma+Agro+R.+Victor+Acierini+2370+Mogi+Gua%C3%A7u+SP"
+            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.mapQuery)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="rounded-3xl bg-foreground/10 h-64 border border-foreground/10 relative overflow-hidden flex items-center justify-center group"
           >
             <iframe 
-              src="https://maps.google.com/maps?q=Juma%20Agro%2C%20R.%20Victor%20Acierini%2C%202370%2C%20Mogi%20Gua%C3%A7u%20-%20SP&t=&z=14&ie=UTF8&iwloc=&output=embed"
+              src={`https://maps.google.com/maps?q=${encodeURIComponent(settings.mapQuery)}&t=&z=14&ie=UTF8&iwloc=&output=embed`}
               className="absolute inset-0 w-full h-full border-0 pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity"
               aria-hidden="true"
               tabIndex={-1}

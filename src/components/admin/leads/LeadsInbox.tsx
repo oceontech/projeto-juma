@@ -64,6 +64,7 @@ export async function LeadsInbox(props: ListViewServerProps) {
       totalPages={data.totalPages ?? 1}
       totalDocs={data.totalDocs ?? leads.length}
       canCreate={hasCreatePermission}
+      canExport={['admin', 'comercial'].includes((user as { papel?: string } | null)?.papel ?? '')}
     />
   )
 }

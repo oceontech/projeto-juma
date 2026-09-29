@@ -7,6 +7,7 @@ import {
   type LeadInput,
   type LeadMeta,
 } from '../features/leads/server/ingest'
+import { exportLeadsCsv } from '../features/leads/server/exportCsv'
 
 /**
  * Comparação em tempo constante. Sem `crypto` de propósito: o CLI do Payload
@@ -50,6 +51,8 @@ export const Leads: CollectionConfig = {
     delete: isAdmin,
   },
   endpoints: [
+    // Planilha com os filtros da caixa de entrada (admin e comercial).
+    { path: '/export', method: 'get', handler: exportLeadsCsv },
     {
       path: '/intake',
       method: 'post',

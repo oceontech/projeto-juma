@@ -2,7 +2,7 @@
 
 import type { AnchorHTMLAttributes } from 'react'
 
-import { contact } from '@/config/site'
+import { useSiteSettings } from '@/features/settings/SiteSettingsProvider'
 
 import { whatsappUrl, type LeadContext } from '../whatsapp'
 import { useLead } from './LeadProvider'
@@ -17,7 +17,8 @@ type Props = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'target' | '
  */
 export function WhatsAppLink({ context, onClick, children, ...rest }: Props) {
   const lead = useLead()
-  const href = lead ? whatsappUrl(lead.messageFor(context)) : contact.whatsappHref
+  const { whatsappHref } = useSiteSettings()
+  const href = lead ? whatsappUrl(whatsappHref, lead.messageFor(context)) : whatsappHref
 
   return (
     <a

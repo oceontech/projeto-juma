@@ -592,13 +592,22 @@ export interface Culture {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Páginas de texto do site Brasil, como política de privacidade, termos de uso ou uma campanha. O endereço vira juma-agro.com.br/endereço.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages".
  */
 export interface Page {
   id: number;
   titulo: string;
+  /**
+   * Só letras minúsculas, números e hífen. Ex.: politica-de-privacidade, termos-de-uso.
+   */
   slug: string;
+  /**
+   * Aparece no Google e ao compartilhar o link. Até 160 caracteres.
+   */
+  resumo?: string | null;
   conteudo?: {
     root: {
       type: string;
@@ -614,12 +623,9 @@ export interface Page {
     };
     [k: string]: unknown;
   } | null;
-  seo?: {
-    title?: string | null;
-    description?: string | null;
-  };
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -962,15 +968,11 @@ export interface CulturesSelect<T extends boolean = true> {
 export interface PagesSelect<T extends boolean = true> {
   titulo?: T;
   slug?: T;
+  resumo?: T;
   conteudo?: T;
-  seo?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-      };
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1056,18 +1058,49 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
+ * Contato, endereços e redes que aparecem no site Brasil. Ao salvar, o site atualiza em alguns segundos.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "settings".
  */
 export interface Setting {
   id: number;
   /**
-   * WhatsApp de conversão, ex: +55 19 99964-8186
+   * Com DDI e DDD, como deve aparecer: +55 19 99964-8186. Todos os botões de WhatsApp usam este número.
    */
   whatsapp?: string | null;
+  /**
+   * Como deve aparecer: (19) 3891-6415.
+   */
   telefone?: string | null;
   email?: string | null;
-  horarioAtendimento?: string | null;
+  emailCompras?: string | null;
+  emailRH?: string | null;
+  /**
+   * Uma linha por período, ex.: "Seg a qui, 7h30 às 17h15" e "Sex, 7h30 às 16h". Vazio: usa o texto padrão do site.
+   */
+  horario?: string | null;
+  enderecoBR?: {
+    empresa?: string | null;
+    /**
+     * Uma linha por quebra.
+     */
+    linhas?: string | null;
+  };
+  enderecoUS?: {
+    empresa?: string | null;
+    /**
+     * Uma linha por quebra.
+     */
+    linhas?: string | null;
+  };
+  /**
+   * O que o Google Maps procura no mapa da página de contato.
+   */
+  mapa?: string | null;
+  /**
+   * Link completo do perfil. A rede sem link some do rodapé.
+   */
   redes?: {
     instagram?: string | null;
     tiktok?: string | null;
@@ -1086,7 +1119,22 @@ export interface SettingsSelect<T extends boolean = true> {
   whatsapp?: T;
   telefone?: T;
   email?: T;
-  horarioAtendimento?: T;
+  emailCompras?: T;
+  emailRH?: T;
+  horario?: T;
+  enderecoBR?:
+    | T
+    | {
+        empresa?: T;
+        linhas?: T;
+      };
+  enderecoUS?:
+    | T
+    | {
+        empresa?: T;
+        linhas?: T;
+      };
+  mapa?: T;
   redes?:
     | T
     | {

@@ -14,9 +14,9 @@ import {
   type ReactNode,
 } from 'react'
 
-import { contact } from '@/config/site'
 import { track } from '@/features/analytics/track'
 import { useLenis } from '@/features/animation/SmoothScroll'
+import { useSiteSettings } from '@/features/settings/SiteSettingsProvider'
 
 import { submitLead } from '../actions'
 import { whatsappUrl, type LeadContext } from '../whatsapp'
@@ -53,6 +53,7 @@ export function LeadProvider({ children }: { children: ReactNode }) {
   const t = useTranslations('leadPopup')
   const locale = useLocale()
   const lenis = useLenis()
+  const settings = useSiteSettings()
   const titleId = useId()
 
   const [open, setOpen] = useState(false)
@@ -78,7 +79,7 @@ export function LeadProvider({ children }: { children: ReactNode }) {
     (ctx?: LeadContext) => {
       if (document.cookie.includes(`${KNOWN_COOKIE}=`)) {
         track('whatsapp', { produto: ctx?.produto, cultura: ctx?.cultura })
-        window.open(whatsappUrl(messageFor(ctx)), '_blank', 'noopener,noreferrer')
+        window.open(whatsappUrl(settings.whatsappHref, messageFor(ctx)), '_blank', 'noopener,noreferrer')
         return
       }
       returnFocus.current = document.activeElement as HTMLElement | null
@@ -88,7 +89,7 @@ export function LeadProvider({ children }: { children: ReactNode }) {
       setStatus('idle')
       setOpen(true)
     },
-    [messageFor],
+    [messageFor, settings.whatsappHref],
   )
 
   const close = useCallback(() => {
@@ -166,7 +167,7 @@ export function LeadProvider({ children }: { children: ReactNode }) {
     document.cookie = `${KNOWN_COOKIE}=1; Max-Age=${KNOWN_MAX_AGE}; Path=/; SameSite=Lax`
     setStatus('saved')
     track('lead', { formulario: 'whatsapp', produto: context?.produto, cultura: context?.cultura })
-    const url = whatsappUrl(messageFor(context))
+    const url = whatsappUrl(settings.whatsappHref, messageFor(context))
     if (tab) tab.location.href = url
     else window.location.href = url
     window.setTimeout(() => setOpen(false), 1600)
@@ -328,7 +329,7 @@ export function LeadProvider({ children }: { children: ReactNode }) {
 
                   {status === 'error' && (
                     <p className="mt-4 text-sm text-red-700" role="alert">
-                      {t('errorSend', { phone: contact.whatsappNumber })}
+                      {t('errorSend', { phone: settings.whatsappNumber })}
                     </p>
                   )}
 

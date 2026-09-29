@@ -1,5 +1,3 @@
-import { contact } from '@/config/site'
-
 /**
  * Contexto do clique no WhatsApp. Vai para o lead (campo `contexto`) e escolhe
  * a mensagem pré-preenchida (docs/04-copy/07-contato-e-microcopy.md).
@@ -12,6 +10,7 @@ export type LeadContext = {
   tipo?: 'experience'
 }
 
-export function whatsappUrl(message: string) {
-  return `${contact.whatsappHref}?text=${encodeURIComponent(message)}`
+/** `href` é o link do WhatsApp das Configurações (`useSiteSettings().whatsappHref`). */
+export function whatsappUrl(href: string, message: string) {
+  return `${href}?text=${encodeURIComponent(message)}`
 }

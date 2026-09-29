@@ -2,19 +2,15 @@ import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 
 import { Link } from '@/i18n/navigation'
-import {
-  navLinks,
-  contact,
-  socials,
-  addresses,
-  legalName,
-} from '@/config/site'
+import { navLinks, legalName } from '@/config/site'
+import type { SiteSettings } from '@/features/settings/types'
 import { Container } from './Container'
 import { FooterReveal } from './FooterReveal'
 import { WhatsAppLink } from '@/features/leads/components/WhatsAppLink'
 import { socialIcons } from '@/components/icons/social'
 
-export function Footer() {
+export function Footer({ settings, legalPages = [] }: { settings: SiteSettings; legalPages?: string[] }) {
+  const { socials, addresses } = settings
   const t = useTranslations('nav')
   const tf = useTranslations('footer')
   const year = new Date().getFullYear()
@@ -91,30 +87,32 @@ export function Footer() {
                 <WhatsAppLink
                   className="text-body-regular text-white/90 transition-colors hover:text-white"
                 >
-                  {contact.whatsappNumber}
+                  {settings.whatsappNumber}
                 </WhatsAppLink>
               </li>
               <li className="flex flex-col">
                 <span className="text-white/50">{tf('emailLabel')}</span>
                 <a
-                  href={`mailto:${contact.email}`}
+                  href={`mailto:${settings.email}`}
                   className="text-body-regular break-all text-white/90 transition-colors hover:text-white"
                 >
-                  {contact.email}
+                  {settings.email}
                 </a>
               </li>
               <li className="flex flex-col">
                 <span className="text-white/50">{tf('phoneLabel')}</span>
                 <a
-                  href={contact.phoneHref}
+                  href={settings.phoneHref}
                   className="text-body-regular text-white/90 transition-colors hover:text-white"
                 >
-                  {contact.phone}
+                  {settings.phone}
                 </a>
               </li>
               <li className="flex flex-col">
                 <span className="text-white/50">{tf('hoursLabel')}</span>
-                <span className="text-body-regular text-white/90">{tf('hoursValue')}</span>
+                <span className="text-body-regular text-white/90">
+                  {settings.hours.length ? settings.hours.join(' · ') : tf('hoursValue')}
+                </span>
               </li>
             </ul>
           </div>
@@ -155,12 +153,19 @@ export function Footer() {
           <p className="text-body-regular max-w-none">
             © {year} {legalName}. {tf('rights')}
           </p>
-          <Link
-            href="/politica-de-privacidade"
-            className="text-body-regular text-white/70 transition-colors hover:text-white"
-          >
-            {tf('privacy')}
-          </Link>
+          {/* Só com a página publicada em Site › Páginas; sem ela o link daria 404. */}
+          <div className="flex flex-wrap gap-x-lg gap-y-xs">
+            {legalPages.includes('politica-de-privacidade') && (
+              <Link href="/politica-de-privacidade" className="text-body-regular text-white/70 transition-colors hover:text-white">
+                {tf('privacy')}
+              </Link>
+            )}
+            {legalPages.includes('termos-de-uso') && (
+              <Link href="/termos-de-uso" className="text-body-regular text-white/70 transition-colors hover:text-white">
+                {tf('terms')}
+              </Link>
+            )}
+          </div>
         </div>
 
         <a

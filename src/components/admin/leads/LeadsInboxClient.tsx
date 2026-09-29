@@ -34,10 +34,17 @@ type Props = {
   totalPages: number
   totalDocs: number
   canCreate: boolean
+  canExport: boolean
 }
 
 const TABS = [{ value: 'todos', label: 'Todos' }, ...LEAD_STATUS.map((s) => ({ value: s.value, label: s.label }))]
 const STATUS_OPTIONS = LEAD_STATUS.map((s) => ({ value: s.value, label: s.label, dot: s.dot }))
+const EXPORT_OPTIONS = [
+  { value: '0', label: 'Todo o período', hint: 'com os filtros desta tela' },
+  { value: '7', label: 'Últimos 7 dias' },
+  { value: '30', label: 'Últimos 30 dias' },
+  { value: '90', label: 'Últimos 90 dias' },
+]
 
 function initials(name: string) {
   return name
@@ -56,7 +63,7 @@ function buildQuery(status: string, search: string, page = 1) {
   return `?${q.toString()}`
 }
 
-export function LeadsInboxClient({ leads, counts, currentStatus, search, page, totalPages, totalDocs, canCreate }: Props) {
+export function LeadsInboxClient({ leads, counts, currentStatus, search, page, totalPages, totalDocs, canCreate, canExport }: Props) {
   const router = useRouter()
   const pathname = usePathname()
   const [pending, startTransition] = useTransition()
@@ -100,11 +107,37 @@ export function LeadsInboxClient({ leads, counts, currentStatus, search, page, t
             {search ? ` para “${search}”` : ''}
           </p>
         </div>
-        {canCreate && (
-          <Link className="jd-btn" href="/admin/collections/leads/create">
-            + Registrar contato
-          </Link>
-        )}
+        <div className="jl-head__actions">
+          {canExport && (
+            <Dropdown
+              label="Exportar planilha"
+              value={'' as string}
+              options={EXPORT_OPTIONS}
+              align="right"
+              onChange={(dias) => {
+                const q = new URLSearchParams()
+                if (currentStatus !== 'todos') q.set('status', currentStatus)
+                if (search) q.set('search', search)
+                if (dias !== '0') q.set('dias', dias)
+                window.location.href = `/api/leads/export?${q.toString()}`
+                toast.success('Planilha sendo baixada')
+              }}
+              trigger={
+                <span className="jd-btn jd-btn--ghost jl-export">
+                  <svg viewBox="0 0 24 24" aria-hidden>
+                    <path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                  </svg>
+                  Exportar planilha
+                </span>
+              }
+            />
+          )}
+          {canCreate && (
+            <Link className="jd-btn" href="/admin/collections/leads/create">
+              + Registrar contato
+            </Link>
+          )}
+        </div>
       </header>
 
       <nav className="jl-tabs" aria-label="Filtrar por status">

@@ -22,3 +22,12 @@ export function revalidateSite(paths: (string | null | undefined)[]) {
   }
 }
 
+
+/** Regera o site inteiro (rodapé e contato aparecem em todas as páginas). */
+export function revalidateAllPages() {
+  try {
+    revalidatePath('/', 'layout')
+  } catch {
+    // Fora do Next: nada a revalidar.
+  }
+}
