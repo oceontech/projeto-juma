@@ -26,6 +26,7 @@ import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import { useLenis } from '@/features/animation/SmoothScroll'
 import { Spotlight } from '@/components/ui/Spotlight'
 import { useTranslations } from 'next-intl'
+import type { ShowcaseProduct } from '@/features/home/showcase'
 
 /* â”€â”€ Tipos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
@@ -51,6 +52,8 @@ type Stat = {
 
 type ProductEntry = {
   name: string
+  /** Quebra do nome no título, quando o nome é longo. */
+  titleLines?: string[]
   line: string
   description: string
   stats: Stat[]
@@ -87,7 +90,7 @@ const STAT_ICONS: Record<StatIcon, LucideIcon> = {
 /* Texto (nome/linha/descrição/stats) vem das mensagens i18n por índice;
    este array dá cores, valores dos stats, href e a imagem do frasco. */
 
-const PRODUCTS: ProductEntry[] = [
+const DEFAULT_PRODUCTS: ProductEntry[] = [
   {
     name: 'AMINOSAN',
     line: 'LINHA REDUTAN',
@@ -104,6 +107,7 @@ const PRODUCTS: ProductEntry[] = [
   },
   {
     name: 'ACORDA ULTRA',
+    titleLines: ['Acorda', 'Ultra'],
     line: 'LINHA REDUTAN',
     description: 'O melhor no Tratamento de Sementes! Maior Germinação e Maior Vigor.',
     stats: [{ icon: 'sprout' }, { icon: 'roots' }, { icon: 'shield' }],
@@ -129,6 +133,7 @@ const PRODUCTS: ProductEntry[] = [
   },
   {
     name: 'REVIGOPHOS AMINO',
+    titleLines: ['Revigo', 'Phos', 'Amino'],
     line: 'LINHA JUMA',
     description: 'A Energia do Fósforo com a tecnologia dos aminoácidos!',
     stats: [{ icon: 'energy' }, { icon: 'metabolism' }, { icon: 'recovery' }],
@@ -141,7 +146,6 @@ const PRODUCTS: ProductEntry[] = [
   },
 ]
 
-const COUNT = PRODUCTS.length
 
 /** O corte aqui é 1024px (mesmo de `stillFullFrameProps`), não os 768px do
  *  `isMobile` do gsap.matchMedia deste componente — ver comentário longo
@@ -241,11 +245,11 @@ function stillFullFrameProps(): gsap.TweenVars {
 
 type Role = 'center' | 'left' | 'right' | 'hidden'
 
-function getRole(i: number, active: number): Role {
-  const d = (i - active + COUNT) % COUNT
+function getRole(i: number, active: number, count: number): Role {
+  const d = (i - active + count) % count
   if (d === 0) return 'center'
   if (d === 1) return 'right'
-  if (d === COUNT - 1) return 'left'
+  if (d === count - 1) return 'left'
   return 'hidden'
 }
 
@@ -391,8 +395,8 @@ function getRoleProps(role: Role, isMobile: boolean, index: number): RoleProps {
    globals.css; como o inline vence a folha, quem manda de fato é este objeto.
    `top`/`bottom` vêm declarados nos dois ramos porque o matchMedia re-executa
    ao trocar de breakpoint e o gsap.set só limpa o que ele mesmo escreve. */
-function getCatalogBottleProps(index: number, active: number, isMobile: boolean): RoleProps {
-  const props = getRoleProps(getRole(index, active), isMobile, index)
+function getCatalogBottleProps(index: number, active: number, isMobile: boolean, count: number): RoleProps {
+  const props = getRoleProps(getRole(index, active, count), isMobile, index)
   const box: RoleProps = isMobile
     ? { top: '34%', bottom: 'auto', width: '100%', height: '35%', y: 0 }
     : { top: 'auto', bottom: '8vh', width: 'auto', height: '68vh', y: -20 }
@@ -403,8 +407,32 @@ function getCatalogBottleProps(index: number, active: number, isMobile: boolean)
   }
 }
 
-export function HomeProductShowcase() {
+/**
+ * `products` vem do painel (Site Brasil › Destaques da home), com o Aminosan
+ * sempre em primeiro. Sem ele (painel nunca salvo), usa a lista acima com os
+ * textos das mensagens.
+ */
+export function HomeProductShowcase({
+  highlights,
+}: {
+  highlights?: { aminosan: Partial<ShowcaseProduct>; others: ShowcaseProduct[] } | null
+}) {
   const t = useTranslations('homeProductShowcase')
+  const defaults: ShowcaseProduct[] = DEFAULT_PRODUCTS.map((p, i) => ({
+    ...p,
+    titleLines: p.titleLines ?? [],
+    name: t(`products.${i}.name`),
+    description: t(`products.${i}.description`),
+    stats: p.stats.map((stat, si) => ({
+      icon: stat.icon,
+      title: t(`products.${i}.stats.${si}.title`),
+      label: t(`products.${i}.stats.${si}.label`),
+    })),
+  }))
+  // O Aminosan (índice 0) mantém cores, frasco e posição; do painel vêm só os textos.
+  const aminosan = { ...defaults[0], ...(highlights?.aminosan ?? {}) } as ShowcaseProduct
+  const PRODUCTS: ShowcaseProduct[] = highlights?.others.length ? [aminosan, ...highlights.others] : [aminosan, ...defaults.slice(1)]
+  const COUNT = PRODUCTS.length
 
   /* Transição de produto em andamento (marcado pelo useGSAP em volta de cada
      passo) e pin do catálogo ativo. Os dois seguram o `ScrollTrigger.refresh()`
@@ -612,7 +640,7 @@ export function HomeProductShowcase() {
 
           // Estado inicial dos frascos (carrossel)
           bottles.forEach((bottle, i) => {
-            gsap.set(bottle, getCatalogBottleProps(i, startIndex, isMobile))
+            gsap.set(bottle, getCatalogBottleProps(i, startIndex, isMobile, COUNT))
           })
           gsap.set(handoffStillRef.current, { autoAlpha: 0, scale: 1, filter: 'blur(0px)' })
 
@@ -927,7 +955,7 @@ export function HomeProductShowcase() {
             // Carrossel de frascos
             if (from === 0 && index !== 0) {
               gsap.set(bottles[0], {
-                ...getCatalogBottleProps(0, from, isMobile),
+                ...getCatalogBottleProps(0, from, isMobile, COUNT),
                 autoAlpha: 1,
                 opacity: 1,
               })
@@ -946,7 +974,7 @@ export function HomeProductShowcase() {
               // decide o valor final — só precisa ser aplicado uma vez, não
               // suavizado quadro a quadro. Aplicado no INÍCIO: quem perde o
               // centro desfoca já saindo, quem chega já entra nítido.
-              const { filter, ...animatedProps } = getCatalogBottleProps(i, index, isMobile)
+              const { filter, ...animatedProps } = getCatalogBottleProps(i, index, isMobile, COUNT)
               tl.set(bottle, { filter }, 0)
               tl.to(
                 bottle,
@@ -1066,7 +1094,7 @@ export function HomeProductShowcase() {
               '--pcs-accent-bg': PRODUCTS[i].accent,
             })
             if (!isMobile) gsap.to(spotlightRef.current, { opacity: 0.5, duration: 0.4, overwrite: 'auto' })
-            bottles.forEach((b, bi) => gsap.set(b, getCatalogBottleProps(bi, i, isMobile)))
+            bottles.forEach((b, bi) => gsap.set(b, getCatalogBottleProps(bi, i, isMobile, COUNT)))
             gsap.set(handoffStillRef.current, { autoAlpha: 0 })
             const p = parts(products[i])
             gsap.set([p.text, p.cta, ...p.stats], { autoAlpha: 1, x: 0, y: 0 })
@@ -1101,7 +1129,7 @@ export function HomeProductShowcase() {
             if (!isMobile) gsap.set(spotlightRef.current, { opacity: 0 })
             bottles.forEach((bottle, i) =>
               gsap.set(bottle, {
-                ...getCatalogBottleProps(i, 0, isMobile),
+                ...getCatalogBottleProps(i, 0, isMobile, COUNT),
                 autoAlpha: 0,
                 opacity: 0,
               }),
@@ -1455,11 +1483,11 @@ export function HomeProductShowcase() {
                nada mais se movendo), caindo exatamente por cima: troca de
                conteúdo parada e no mesmo lugar não tem janela "certa" pra
                perder, porque não há movimento nem tamanho pra competir. */
-            const catalogCenter = getCatalogBottleProps(0, 0, isMobile)
+            const catalogCenter = getCatalogBottleProps(0, 0, isMobile, COUNT)
             const handoffTransform = computeStillHandoff(isMobile)
             bottles.forEach((bottle, i) => {
               gsap.set(bottle, {
-                ...getCatalogBottleProps(i, 0, isMobile),
+                ...getCatalogBottleProps(i, 0, isMobile, COUNT),
                 autoAlpha: 0,
                 opacity: 0,
               })
@@ -1503,7 +1531,7 @@ export function HomeProductShowcase() {
               if (i === 0) return
               tl.to(
                 bottle,
-                { ...getCatalogBottleProps(i, 0, isMobile), duration: 0.6, ease: 'power2.out' },
+                { ...getCatalogBottleProps(i, 0, isMobile, COUNT), duration: 0.6, ease: 'power2.out' },
                 0.18,
               )
             })
@@ -2128,7 +2156,7 @@ export function HomeProductShowcase() {
     { scope: rootRef },
   )
 
-  if (reduced) return <ShowcaseReduced t={t} />
+  if (reduced) return <ShowcaseReduced t={t} products={PRODUCTS} />
 
   return (
     <div ref={rootRef} className="pcs-root">
@@ -2195,7 +2223,7 @@ export function HomeProductShowcase() {
           {/* Teatro de frascos — todos os produtos posicionados, GSAP anima */}
           <div className="pcs-bottle-theater" aria-hidden>
             {PRODUCTS.map((product, i) => {
-              const name = t(`products.${i}.name`)
+              const name = product.name
               return (
                 <div
                   key={name}
@@ -2228,8 +2256,8 @@ export function HomeProductShowcase() {
 
           {/* Painéis de texto — sobrepostos no grid (3 cols: texto | frasco | stats) */}
           {PRODUCTS.map((product, i) => {
-            const name = t(`products.${i}.name`)
-            const description = t(`products.${i}.description`)
+            const name = product.name
+            const description = product.description
             return (
               <article key={name} className="pcs-product">
                 {/* Coluna 1 — texto */}
@@ -2245,21 +2273,16 @@ export function HomeProductShowcase() {
                         className="h-full w-auto object-contain"
                       />
                     </div>
-                    <h2 className={`pcs-panel-title pcs-panel-title-${i}`}>
-                      {i === 1 ? (
-                        <>
-                          <span className="pcs-title-line">Acorda</span>{' '}
-                          <span className="pcs-title-line">Ultra</span>
-                        </>
-                      ) : i === 3 ? (
-                        <>
-                          <span className="pcs-title-line">Revigo</span>
-                          <span className="pcs-title-line">Phos</span>{' '}
-                          <span className="pcs-title-line">Amino</span>
-                        </>
-                      ) : (
-                        name
-                      )}
+                    {/* 0: Aminosan numa linha só; nomes quebrados em linhas usam o corpo menor. */}
+                    <h2 className={`pcs-panel-title ${i === 0 ? 'pcs-panel-title-0' : product.titleLines.length > 1 ? 'pcs-panel-title-lines' : ''}`}>
+                      {i !== 0 && product.titleLines.length > 1
+                        ? product.titleLines.map((line, li) => (
+                            <span key={li}>
+                              <span className="pcs-title-line">{line}</span>
+                              {li < product.titleLines.length - 1 ? ' ' : ''}
+                            </span>
+                          ))
+                        : name}
                     </h2>
                     <div className="pcs-panel-divider" style={{ background: product.accent }} />
                     <p className="pcs-panel-copy">{description}</p>
@@ -2301,8 +2324,8 @@ export function HomeProductShowcase() {
                 {/* Coluna 3 — stats */}
                 <div className="pcs-panel-stats">
                   {product.stats.map((stat, si) => {
-                    const statTitle = t(`products.${i}.stats.${si}.title`)
-                    const statLabel = t(`products.${i}.stats.${si}.label`)
+                    const statTitle = stat.title
+                    const statLabel = stat.label
                     const Icon = STAT_ICONS[stat.icon]
                     return (
                       <div
@@ -2347,7 +2370,7 @@ export function HomeProductShowcase() {
             key={product.name}
             type="button"
             className={`pcs-dot${i === 0 ? ' is-active' : ''}`}
-            aria-label={t(`products.${i}.name`)}
+            aria-label={product.name}
             onClick={() => goToIndexRef.current?.(i)}
             ref={(el) => {
               dotsRef.current[i] = el
@@ -2375,7 +2398,7 @@ export function HomeProductShowcase() {
    Versão acessível (prefers-reduced-motion)
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-function ShowcaseReduced({ t }: { t: ReturnType<typeof useTranslations> }) {
+function ShowcaseReduced({ t, products: PRODUCTS }: { t: ReturnType<typeof useTranslations>; products: ShowcaseProduct[] }) {
   return (
     <section className="bg-[#0a0a0a] py-24">
       <div className="mx-auto max-w-[100rem] min-[2000px]:max-w-[120rem] px-6 lg:px-8">
@@ -2384,8 +2407,8 @@ function ShowcaseReduced({ t }: { t: ReturnType<typeof useTranslations> }) {
         </p>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {PRODUCTS.map((product, i) => {
-            const name = t(`products.${i}.name`)
-            const description = t(`products.${i}.description`)
+            const name = product.name
+            const description = product.description
             return (
               <Link
                 key={name}

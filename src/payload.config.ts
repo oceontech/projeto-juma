@@ -14,8 +14,11 @@ import { Cultures } from './collections/Cultures'
 import { Articles } from './collections/Articles'
 import { Leads } from './collections/Leads'
 import { Pages } from './collections/Pages'
+import { PostsUs } from './collections/PostsUs'
 import { Redirects } from './collections/Redirects'
+import { HomeHighlights } from './globals/HomeHighlights'
 import { Settings } from './globals/Settings'
+import { SettingsUs } from './globals/SettingsUs'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -37,7 +40,7 @@ export default buildConfig({
       },
       beforeNavLinks: [
         '/components/admin/Brand#SidebarBrand',
-        '/components/admin/SiteSwitcher#SiteSwitcher',
+        '/components/admin/SiteSwitcherServer#SiteSwitcherServer',
         '/components/admin/NavOverview#NavOverview',
       ],
       logout: { Button: '/components/admin/NavAccount#NavAccount' },
@@ -56,8 +59,8 @@ export default buildConfig({
     },
   },
   // A ordem aqui é a ordem dos grupos na sidebar: Operação, Conteúdo, Site, Biblioteca, Administração.
-  collections: [Leads, Articles, Products, Cultures, Pages, Redirects, Media, Users],
-  globals: [Settings],
+  collections: [Leads, Products, Cultures, Articles, Pages, PostsUs, Redirects, Media, Users],
+  globals: [HomeHighlights, Settings, SettingsUs],
   localization: {
     locales: [
       { label: 'Português', code: 'pt-BR' },

@@ -30,7 +30,7 @@ export const Pages: CollectionConfig = {
   admin: {
     useAsTitle: 'titulo',
     defaultColumns: ['titulo', 'slug', '_status', 'updatedAt'],
-    group: 'Site',
+    group: 'Conteúdo',
     description:
       'Páginas de texto do site Brasil, como política de privacidade, termos de uso ou uma campanha. O endereço vira juma-agro.com.br/endereço.',
     hideAPIURL: true,

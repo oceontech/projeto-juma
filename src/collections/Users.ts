@@ -8,7 +8,7 @@ export const Users: CollectionConfig = {
   admin: {
     useAsTitle: 'email',
     defaultColumns: ['nome', 'email', 'papel', 'sites'],
-    group: 'Administração',
+    group: 'Biblioteca',
     hideAPIURL: true,
     components: { views: { list: { Component: '/components/admin/users/UsersList#UsersList' } } },
   },

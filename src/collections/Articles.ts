@@ -35,7 +35,7 @@ const revalidateOnDelete: CollectionAfterDeleteHook = ({ doc }) => {
 
 export const Articles: CollectionConfig = {
   slug: 'articles',
-  labels: { singular: 'Matéria', plural: 'Matérias' },
+  labels: { singular: 'Matéria', plural: 'Blog' },
   admin: {
     useAsTitle: 'titulo',
     defaultColumns: ['titulo', 'categoria', 'data', '_status', 'destaque', 'destaqueHome'],

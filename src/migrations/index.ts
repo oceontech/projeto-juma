@@ -11,6 +11,8 @@ import * as migration_20260929_161325_sem_horario_antigo from './20260929_161325
 import * as migration_20260929_161521_paginas_rascunho from './20260929_161521_paginas_rascunho';
 import * as migration_20260929_161549_paginas_sem_seo from './20260929_161549_paginas_sem_seo';
 import * as migration_20260929_162701_redirecionamentos from './20260929_162701_redirecionamentos';
+import * as migration_20260929_181108_destaques_blog_eua from './20260929_181108_destaques_blog_eua';
+import * as migration_20260929_181500_destaques_conteudo from './20260929_181500_destaques_conteudo';
 
 export const migrations = [
   {
@@ -76,6 +78,16 @@ export const migrations = [
   {
     up: migration_20260929_162701_redirecionamentos.up,
     down: migration_20260929_162701_redirecionamentos.down,
-    name: '20260929_162701_redirecionamentos'
+    name: '20260929_162701_redirecionamentos',
+  },
+  {
+    up: migration_20260929_181108_destaques_blog_eua.up,
+    down: migration_20260929_181108_destaques_blog_eua.down,
+    name: '20260929_181108_destaques_blog_eua',
+  },
+  {
+    up: migration_20260929_181500_destaques_conteudo.up,
+    down: migration_20260929_181500_destaques_conteudo.down,
+    name: '20260929_181500_destaques_conteudo',
   },
 ];

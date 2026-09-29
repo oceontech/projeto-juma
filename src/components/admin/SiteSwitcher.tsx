@@ -1,20 +1,36 @@
 'use client'
 
 import { useAuth } from '@payloadcms/ui'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 import { Dropdown } from './ui/Dropdown'
 import { Flag } from './ui/Flag'
 
 /**
  * Seletor "Todos / Brasil / EUA" no topo da sidebar. Grava a escolha num
- * cookie que o controle de acesso lê (src/access/roles.ts → bySite): as listas
- * de leads e os números da Visão geral passam a mostrar só o site escolhido,
- * sempre dentro dos sites que o usuário pode ver.
+ * cookie que o controle de acesso lê (src/access/roles.ts → bySite): leads,
+ * Visão geral e Analytics mostram só o site escolhido. Também troca os itens
+ * da sidebar: o marcador `data-panel-site` esconde, via CSS, o que é do outro
+ * site (em "Todos" fica só o geral). A escolha inicial vem do servidor
+ * (SiteSwitcherServer), então a sidebar já nasce certa, sem piscar.
  */
 const COOKIE = 'painel_site'
-type Choice = 'todos' | 'br' | 'us'
+export type Choice = 'todos' | 'br' | 'us'
+
+// Telas de um site só: ao trocar para o outro, volta para a Visão geral.
+const SITE_OF: Record<string, Choice> = {
+  '/admin/collections/products': 'br',
+  '/admin/collections/cultures': 'br',
+  '/admin/collections/articles': 'br',
+  '/admin/collections/pages': 'br',
+  '/admin/collections/redirects': 'br',
+  '/admin/globals/settings': 'br',
+  '/admin/globals/destaques': 'br',
+  '/admin/collections/posts-us': 'us',
+  '/admin/globals/settings-us': 'us',
+}
+const screenSite = (pathname: string) => SITE_OF[pathname.split('/').slice(0, 4).join('/')] ?? null
 
 function Globe() {
   return (
@@ -26,24 +42,16 @@ function Globe() {
 }
 
 const OPTIONS = [
-  { value: 'todos' as const, label: 'Todos os sites', icon: <Globe /> },
-  { value: 'br' as const, label: 'Juma Brasil', icon: <Flag site="br" size={18} /> },
-  { value: 'us' as const, label: 'Juma EUA', icon: <Flag site="us" size={18} /> },
+  { value: 'todos' as const, label: 'Todos os sites', hint: 'Leads e números juntos', icon: <Globe /> },
+  { value: 'br' as const, label: 'Site Brasil', hint: 'Produtos, culturas, blog…', icon: <Flag site="br" size={18} /> },
+  { value: 'us' as const, label: 'Site EUA', hint: 'Blog e contato', icon: <Flag site="us" size={18} /> },
 ]
 
-function readCookie(): Choice {
-  const value = document.cookie.match(new RegExp(`(?:^|;\\s*)${COOKIE}=([^;]+)`))?.[1]
-  return value === 'br' || value === 'us' ? value : 'todos'
-}
-
-export function SiteSwitcher() {
+export function SiteSwitcher({ initial }: { initial: Choice }) {
   const { user } = useAuth<{ papel?: string; sites?: ('br' | 'us')[] }>()
   const router = useRouter()
-  const [choice, setChoice] = useState<Choice>('todos')
-
-  useEffect(() => {
-    setChoice(readCookie())
-  }, [])
+  const pathname = usePathname()
+  const [choice, setChoice] = useState<Choice>(initial)
 
   const allowed: ('br' | 'us')[] = user?.papel === 'admin' ? ['br', 'us'] : (user?.sites ?? [])
   const single = allowed.length < 2
@@ -53,7 +61,9 @@ export function SiteSwitcher() {
   const choose = (value: Choice) => {
     document.cookie = `${COOKIE}=${value}; Path=/; Max-Age=${60 * 60 * 24 * 365}; SameSite=Lax`
     setChoice(value)
-    router.refresh()
+    const here = screenSite(pathname)
+    if (here && here !== value) router.push('/admin')
+    else router.refresh()
   }
 
   const trigger = (
@@ -69,15 +79,18 @@ export function SiteSwitcher() {
   )
 
   return (
-    <Dropdown
-      className="juma-site"
-      tone="dark"
-      label="Site exibido no painel"
-      value={current}
-      options={OPTIONS.filter((o) => o.value === 'todos' ? !single : allowed.includes(o.value))}
-      onChange={choose}
-      trigger={trigger}
-      disabled={single}
-    />
+    <>
+      <span data-panel-site={current} hidden />
+      <Dropdown
+        className="juma-site"
+        tone="dark"
+        label="Site exibido no painel"
+        value={current}
+        options={OPTIONS.filter((o) => (o.value === 'todos' ? !single : allowed.includes(o.value)))}
+        onChange={choose}
+        trigger={trigger}
+        disabled={single}
+      />
+    </>
   )
 }

@@ -771,8 +771,7 @@ html.lenis body { height: auto; }
   max-width: none;
   white-space: nowrap;
 }
-.pcs-panel-title-1,
-.pcs-panel-title-3 {
+.pcs-panel-title-lines {
   font-size: clamp(2.45rem, 4.6vw, 7rem);
   max-width: none;
 }
@@ -1147,8 +1146,7 @@ html.lenis body { height: auto; }
     font-size: clamp(2rem, 9.5vw, 3rem);
     max-width: none;
   }
-  .pcs-panel-title-1,
-  .pcs-panel-title-3 {
+  .pcs-panel-title-lines {
     font-size: clamp(1.85rem, 8.5vw, 2.7rem);
     max-width: none;
   }

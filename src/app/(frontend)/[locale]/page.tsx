@@ -6,6 +6,7 @@ import { SectionNav }       from '@/features/home/components/SectionNav'
 import { SectionPull }     from '@/features/animation/SectionPull'
 import { getHomeArticles } from '@/features/articles/queries'
 import { getCultureCards } from '@/features/cultures/queries'
+import { getHomeShowcase } from '@/features/home/queries'
 
 // Seções abaixo da dobra do "filme contínuo": code-split em chunks separados
 // (continuam com SSR normal — só tiram peso do bundle inicial de hidratação).
@@ -28,6 +29,7 @@ export default async function HomePage(props: {
 }) {
   const { locale } = await props.params
   setRequestLocale(locale)
+  const highlights = await getHomeShowcase(locale as 'pt-BR' | 'en' | 'es')
   const [articles, cultures] = await Promise.all([getHomeArticles(locale), getCultureCards(locale)])
 
   return (
@@ -44,7 +46,7 @@ export default async function HomePage(props: {
         <AminosanStory />
       </div>
       <div id="sec-produtos" data-nav-theme="dark" className="bg-[#030817] scroll-mt-24">
-        <HomeProductShowcase />
+        <HomeProductShowcase highlights={highlights} />
       </div>
       <SectionPull id="sec-culturas" className="scroll-mt-24">
         <HomeCultures cultures={cultures} />

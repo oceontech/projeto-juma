@@ -27,7 +27,8 @@ async function revalidateProducts(payload: Payload, extraSlug?: string) {
     overrideAccess: true,
   })
   const slugs = new Set([...docs.map((d) => d.slug), ...(extraSlug ? [extraSlug] : [])])
-  revalidateSite(['/produtos', ...[...slugs].map((slug) => `/produtos/${slug}`)])
+  // A home entra porque os destaques usam nome, frasco e embalagens do produto.
+  revalidateSite(['/', '/produtos', ...[...slugs].map((slug) => `/produtos/${slug}`)])
 }
 const revalidate: CollectionAfterChangeHook = async ({ doc, previousDoc, req }) => {
   await revalidateProducts(req.payload, previousDoc?.slug)

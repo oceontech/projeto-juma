@@ -13,7 +13,7 @@ type Doc = Record<string, any>
 
 const CONFIG = {
   articles: {
-    title: 'Matérias',
+    title: 'Blog',
     singular: 'matéria',
     image: 'capa',
     heading: (d: Doc) => d.titulo,
@@ -44,6 +44,19 @@ const CONFIG = {
     flags: (d: Doc) => (d.ordem != null ? [`Ordem ${d.ordem}`] : []),
     color: () => null,
     sort: 'ordem',
+  },
+  'posts-us': {
+    title: 'Blog',
+    singular: 'post',
+    image: 'cover',
+    heading: (d: Doc) => d.title,
+    meta: (d: Doc) => [
+      { 'field-notes': 'Field notes', 'crop-nutrition': 'Crop nutrition', trials: 'Trials', company: 'Company' }[d.category as string],
+      d.date ? new Date(d.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '') : null,
+    ],
+    flags: () => [] as string[],
+    color: () => null,
+    sort: '-date',
   },
 } as const
 

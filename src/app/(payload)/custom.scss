@@ -291,7 +291,8 @@ h3 {
 #nav-redirects {
   --nav-icon: #{juma-icon('<path d="M4 7h11a4 4 0 0 1 0 8H9"/><path d="m12 12-3 3 3 3"/>')};
 }
-#nav-leads {
+#nav-leads,
+#nav-leads-top {
   --nav-icon: #{juma-icon('<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13l3.5 7v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z"/>')};
 }
 #nav-articles {
@@ -3141,4 +3142,61 @@ textarea {
   .jm-card__actions {
     flex-direction: column;
   }
+}
+
+/* ─── Sidebar por site (seletor no topo) ─────────────────────────────── */
+// Leads vêm dos links fixos do topo (NavOverview); o grupo do Payload sairia duplicado.
+.nav .nav-group:has(#nav-leads) {
+  display: none;
+}
+
+// "Todos os sites": só o geral (Visão geral, Leads, Analytics, Mídia, Usuários).
+.nav:has([data-panel-site='todos']) .nav-group:has(#nav-products, #nav-posts-us, #nav-redirects, #nav-global-settings, #nav-global-settings-us) {
+  display: none;
+}
+
+// Site Brasil: some o que é do EUA.
+.nav:has([data-panel-site='br']) {
+  #nav-posts-us,
+  #nav-global-settings-us {
+    display: none;
+  }
+}
+
+// Site EUA: some o que é do Brasil.
+.nav:has([data-panel-site='us']) {
+  #nav-products,
+  #nav-global-destaques,
+  #nav-cultures,
+  #nav-articles,
+  #nav-pages,
+  #nav-redirects,
+  #nav-global-settings {
+    display: none;
+  }
+}
+
+// Destaques da home logo depois de Produtos (o Payload põe os globais no fim do grupo).
+.nav .nav-group__content:has(#nav-global-destaques) {
+  display: flex;
+  flex-direction: column;
+
+  > * {
+    order: 5;
+  }
+
+  > #nav-products {
+    order: 1;
+  }
+
+  > #nav-global-destaques {
+    order: 2;
+  }
+}
+
+#nav-posts-us {
+  --nav-icon: #{juma-icon('<path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/>')};
+}
+#nav-global-destaques {
+  --nav-icon: #{juma-icon('<path d="m12 3 2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>')};
 }

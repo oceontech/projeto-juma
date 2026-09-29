@@ -68,10 +68,11 @@ export interface Config {
   blocks: {};
   collections: {
     leads: Lead;
-    articles: Article;
     products: Product;
     cultures: Culture;
+    articles: Article;
     pages: Page;
+    'posts-us': PostsUs;
     redirects: Redirect;
     media: Media;
     users: User;
@@ -83,10 +84,11 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     leads: LeadsSelect<false> | LeadsSelect<true>;
-    articles: ArticlesSelect<false> | ArticlesSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
     cultures: CulturesSelect<false> | CulturesSelect<true>;
+    articles: ArticlesSelect<false> | ArticlesSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    'posts-us': PostsUsSelect<false> | PostsUsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -100,10 +102,14 @@ export interface Config {
   };
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('pt-BR' | 'en' | 'es') | ('pt-BR' | 'en' | 'es')[];
   globals: {
+    destaques: Destaque;
     settings: Setting;
+    'settings-us': SettingsUs;
   };
   globalsSelect: {
+    destaques: DestaquesSelect<false> | DestaquesSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
+    'settings-us': SettingsUsSelect<false> | SettingsUsSelect<true>;
   };
   locale: 'pt-BR' | 'en' | 'es';
   widgets: {
@@ -256,93 +262,6 @@ export interface User {
   collection: 'users';
 }
 /**
- * Matérias do blog do site Brasil. Edite em cada idioma pelo seletor "Idioma" no topo.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "articles".
- */
-export interface Article {
-  id: number;
-  /**
-   * Endereço: /materias/<slug>. Só letras minúsculas, números e hífen.
-   */
-  slug: string;
-  categoria: 'manejo' | 'nutricao' | 'pecuaria' | 'pesquisa' | 'sustentabilidade';
-  data: string;
-  /**
-   * A mais recente marcada aparece no bloco grande do topo.
-   */
-  destaque?: boolean | null;
-  /**
-   * A home mostra as 3 mais recentes marcadas.
-   */
-  destaqueHome?: boolean | null;
-  /**
-   * Calculado pelo texto. Marque a opção abaixo para definir à mão.
-   */
-  tempoLeitura?: number | null;
-  tempoLeituraManual?: boolean | null;
-  titulo: string;
-  /**
-   * Aparece abaixo do título e como descrição no Google.
-   */
-  subtitulo?: string | null;
-  capa: number | Media;
-  /**
-   * Aparece enquanto a foto carrega.
-   */
-  cor?:
-    | (
-        | 'from-green-700 to-emerald-950'
-        | 'from-green-600 to-green-800'
-        | 'from-teal-600 to-emerald-800'
-        | 'from-amber-600 to-orange-800'
-        | 'from-blue-600 to-indigo-800'
-        | 'from-purple-600 to-purple-900'
-      )
-    | null;
-  /**
-   * Como aparece na matéria. Ex.: Eng. Agrônomo Marcos Silva
-   */
-  assinatura?: string | null;
-  introducao?: string | null;
-  secoes?:
-    | {
-        titulo?: string | null;
-        /**
-         * Deixe uma linha em branco entre os parágrafos.
-         */
-        paragrafos: string;
-        id?: string | null;
-      }[]
-    | null;
-  citacao?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * Imagens e arquivos usados pelos sites. O texto alternativo é obrigatório.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-}
-/**
  * Produtos do site Brasil. Textos em cada idioma pelo seletor "Idioma" no topo.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -485,6 +404,30 @@ export interface Product {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Imagens e arquivos usados pelos sites. O texto alternativo é obrigatório.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  /**
+   * O que a imagem mostra, em uma frase. Lido por leitores de tela e pelo Google. Ex.: "Lavoura de soja no estádio R1".
+   */
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
  * Culturas do site Brasil. Textos em cada idioma pelo seletor "Idioma" no topo.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -594,6 +537,72 @@ export interface Culture {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Matérias do blog do site Brasil. Edite em cada idioma pelo seletor "Idioma" no topo.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "articles".
+ */
+export interface Article {
+  id: number;
+  /**
+   * Endereço: /materias/<slug>. Só letras minúsculas, números e hífen.
+   */
+  slug: string;
+  categoria: 'manejo' | 'nutricao' | 'pecuaria' | 'pesquisa' | 'sustentabilidade';
+  data: string;
+  /**
+   * A mais recente marcada aparece no bloco grande do topo.
+   */
+  destaque?: boolean | null;
+  /**
+   * A home mostra as 3 mais recentes marcadas.
+   */
+  destaqueHome?: boolean | null;
+  /**
+   * Calculado pelo texto. Marque a opção abaixo para definir à mão.
+   */
+  tempoLeitura?: number | null;
+  tempoLeituraManual?: boolean | null;
+  titulo: string;
+  /**
+   * Aparece abaixo do título e como descrição no Google.
+   */
+  subtitulo?: string | null;
+  capa: number | Media;
+  /**
+   * Aparece enquanto a foto carrega.
+   */
+  cor?:
+    | (
+        | 'from-green-700 to-emerald-950'
+        | 'from-green-600 to-green-800'
+        | 'from-teal-600 to-emerald-800'
+        | 'from-amber-600 to-orange-800'
+        | 'from-blue-600 to-indigo-800'
+        | 'from-purple-600 to-purple-900'
+      )
+    | null;
+  /**
+   * Como aparece na matéria. Ex.: Eng. Agrônomo Marcos Silva
+   */
+  assinatura?: string | null;
+  introducao?: string | null;
+  secoes?:
+    | {
+        titulo?: string | null;
+        /**
+         * Deixe uma linha em branco entre os parágrafos.
+         */
+        paragrafos: string;
+        id?: string | null;
+      }[]
+    | null;
+  citacao?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
  * Páginas de texto do site Brasil, como política de privacidade, termos de uso ou uma campanha. O endereço vira juma-agro.com.br/endereço.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -625,6 +634,47 @@ export interface Page {
     };
     [k: string]: unknown;
   } | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Posts do blog do site americano, em inglês. Descreva o que o produto entrega, nunca o efeito na planta ou no inseto (FIFRA), e todo número com fonte.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts-us".
+ */
+export interface PostsUs {
+  id: number;
+  title: string;
+  /**
+   * One or two sentences. Shows on the blog list, on Google and when the link is shared.
+   */
+  excerpt?: string | null;
+  cover?: (number | null) | Media;
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  bodyHtml?: string | null;
+  /**
+   * Ex.: foliar-feeding-in-florida. Vira /blog/endereço.
+   */
+  slug: string;
+  date: string;
+  author?: string | null;
+  category?: ('field-notes' | 'crop-nutrition' | 'trials' | 'company') | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -689,10 +739,6 @@ export interface PayloadLockedDocument {
         value: number | Lead;
       } | null)
     | ({
-        relationTo: 'articles';
-        value: number | Article;
-      } | null)
-    | ({
         relationTo: 'products';
         value: number | Product;
       } | null)
@@ -701,8 +747,16 @@ export interface PayloadLockedDocument {
         value: number | Culture;
       } | null)
     | ({
+        relationTo: 'articles';
+        value: number | Article;
+      } | null)
+    | ({
         relationTo: 'pages';
         value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'posts-us';
+        value: number | PostsUs;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -827,36 +881,6 @@ export interface LeadsSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "articles_select".
- */
-export interface ArticlesSelect<T extends boolean = true> {
-  slug?: T;
-  categoria?: T;
-  data?: T;
-  destaque?: T;
-  destaqueHome?: T;
-  tempoLeitura?: T;
-  tempoLeituraManual?: T;
-  titulo?: T;
-  subtitulo?: T;
-  capa?: T;
-  cor?: T;
-  assinatura?: T;
-  introducao?: T;
-  secoes?:
-    | T
-    | {
-        titulo?: T;
-        paragrafos?: T;
-        id?: T;
-      };
-  citacao?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1000,6 +1024,36 @@ export interface CulturesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "articles_select".
+ */
+export interface ArticlesSelect<T extends boolean = true> {
+  slug?: T;
+  categoria?: T;
+  data?: T;
+  destaque?: T;
+  destaqueHome?: T;
+  tempoLeitura?: T;
+  tempoLeituraManual?: T;
+  titulo?: T;
+  subtitulo?: T;
+  capa?: T;
+  cor?: T;
+  assinatura?: T;
+  introducao?: T;
+  secoes?:
+    | T
+    | {
+        titulo?: T;
+        paragrafos?: T;
+        id?: T;
+      };
+  citacao?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages_select".
  */
 export interface PagesSelect<T extends boolean = true> {
@@ -1007,6 +1061,24 @@ export interface PagesSelect<T extends boolean = true> {
   slug?: T;
   resumo?: T;
   conteudo?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts-us_select".
+ */
+export interface PostsUsSelect<T extends boolean = true> {
+  title?: T;
+  excerpt?: T;
+  cover?: T;
+  body?: T;
+  bodyHtml?: T;
+  slug?: T;
+  date?: T;
+  author?: T;
+  category?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1108,6 +1180,92 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
+ * Produtos da seção colorida da home, na ordem em que aparecem. O Aminosan abre sempre a seção; os demais você adiciona, tira e reordena arrastando.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "destaques".
+ */
+export interface Destaque {
+  id: number;
+  /**
+   * Não sai nem muda de posição: a animação da seção anterior termina no frasco dele. Aqui ficam só os textos.
+   */
+  aminosan?: {
+    descricao?: string | null;
+    /**
+     * Os 3 pontos à direita do frasco. Vazio usa o texto atual do site.
+     */
+    beneficios?:
+      | {
+          icone:
+            | 'recovery'
+            | 'leaf'
+            | 'bloom'
+            | 'sprout'
+            | 'roots'
+            | 'shield'
+            | 'bug'
+            | 'molecule'
+            | 'award'
+            | 'energy'
+            | 'metabolism';
+          titulo: string;
+          apoio?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Mínimo 2 para o carrossel funcionar. Arraste para mudar a ordem.
+   */
+  produtos?:
+    | {
+        /**
+         * Nome, frasco, embalagens e link vêm do cadastro do produto.
+         */
+        produto: number | Product;
+        /**
+         * Para quebrar nomes longos: uma linha por parte, ex.: "Acorda" e "Ultra". Vazio usa o nome do produto.
+         */
+        titulo?: string | null;
+        descricao: string;
+        /**
+         * Os 3 pontos à direita do frasco.
+         */
+        beneficios?:
+          | {
+              icone:
+                | 'recovery'
+                | 'leaf'
+                | 'bloom'
+                | 'sprout'
+                | 'roots'
+                | 'shield'
+                | 'bug'
+                | 'molecule'
+                | 'award'
+                | 'energy'
+                | 'metabolism';
+              titulo: string;
+              apoio?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Escura: o texto é branco. Ex.: #062418.
+         */
+        corFundo: string;
+        /**
+         * Anéis, ícones e embalagens. Ex.: #f2c94c.
+         */
+        corDestaque: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * Contato, endereços e redes que aparecem no site Brasil. Ao salvar, o site atualiza em alguns segundos.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1162,6 +1320,84 @@ export interface Setting {
   createdAt?: string | null;
 }
 /**
+ * Contato, endereço e redes que aparecem no site dos EUA. Campo vazio não aparece no site.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "settings-us".
+ */
+export interface SettingsUs {
+  id: number;
+  /**
+   * Ex.: sales@juma-agro.com
+   */
+  email?: string | null;
+  /**
+   * Como deve aparecer: +1 (863) 555-0100.
+   */
+  phone?: string | null;
+  /**
+   * Ex.: Mon–Fri, 8 a.m.–5 p.m. ET
+   */
+  hours?: string | null;
+  company?: string | null;
+  /**
+   * Uma linha por quebra.
+   */
+  address?: string | null;
+  /**
+   * Link completo do perfil americano. Rede sem link não aparece no site.
+   */
+  social?: {
+    instagram?: string | null;
+    facebook?: string | null;
+    linkedin?: string | null;
+    youtube?: string | null;
+    x?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "destaques_select".
+ */
+export interface DestaquesSelect<T extends boolean = true> {
+  aminosan?:
+    | T
+    | {
+        descricao?: T;
+        beneficios?:
+          | T
+          | {
+              icone?: T;
+              titulo?: T;
+              apoio?: T;
+              id?: T;
+            };
+      };
+  produtos?:
+    | T
+    | {
+        produto?: T;
+        titulo?: T;
+        descricao?: T;
+        beneficios?:
+          | T
+          | {
+              icone?: T;
+              titulo?: T;
+              apoio?: T;
+              id?: T;
+            };
+        corFundo?: T;
+        corDestaque?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "settings_select".
  */
@@ -1193,6 +1429,29 @@ export interface SettingsSelect<T extends boolean = true> {
         youtube?: T;
         linkedin?: T;
         facebook?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "settings-us_select".
+ */
+export interface SettingsUsSelect<T extends boolean = true> {
+  email?: T;
+  phone?: T;
+  hours?: T;
+  company?: T;
+  address?: T;
+  social?:
+    | T
+    | {
+        instagram?: T;
+        facebook?: T;
+        linkedin?: T;
+        youtube?: T;
+        x?: T;
       };
   updatedAt?: T;
   createdAt?: T;
