@@ -288,6 +288,9 @@ h3 {
 #nav-analytics {
   --nav-icon: #{juma-icon('<path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 6-6"/>')};
 }
+#nav-redirects {
+  --nav-icon: #{juma-icon('<path d="M4 7h11a4 4 0 0 1 0 8H9"/><path d="m12 12-3 3 3 3"/>')};
+}
 #nav-leads {
   --nav-icon: #{juma-icon('<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13l3.5 7v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z"/>')};
 }
@@ -2838,5 +2841,304 @@ textarea {
     stroke-width: 1.9;
     stroke-linecap: round;
     stroke-linejoin: round;
+  }
+}
+
+/* ─── Mídia em galeria ───────────────────────────────────────────────── */
+.jm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.jm-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 18px;
+  background: var(--juma-card);
+  box-shadow: var(--juma-shadow);
+  transition: box-shadow 0.2s, transform 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--juma-pop);
+  }
+}
+
+.jm-card__media {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 3;
+  background:
+    repeating-conic-gradient(#f1f2ef 0% 25%, #fafaf8 0% 50%) 50% / 16px 16px;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.jm-card__type {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #0c140f;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.jm-warn {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.jm-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px 12px;
+
+  b,
+  small {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  b {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  small {
+    color: var(--juma-muted);
+    font-size: 12px;
+  }
+}
+
+.jm-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 6px;
+  color: var(--juma-muted);
+  font-size: 11.5px;
+
+  .is-heavy {
+    color: #b45309;
+    font-weight: 600;
+  }
+}
+
+.jm-card__actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+
+  button,
+  a {
+    flex: 1;
+    padding: 7px 10px;
+    border: 0;
+    border-radius: 10px;
+    background: #f1f2ef;
+    color: var(--juma-ink);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      background: #e4f5ea;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+  }
+}
+
+/* ─── Usuários em cartões ────────────────────────────────────────────── */
+.ju-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ju-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  border-radius: 18px;
+  background: var(--juma-card);
+  box-shadow: var(--juma-shadow);
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    box-shadow: var(--juma-pop);
+  }
+}
+
+.ju-avatar {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: linear-gradient(145deg, #2fdc6a, #0f8a3a);
+  color: #04130a;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.ju-who,
+.ju-role {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+
+  small {
+    overflow: hidden;
+    color: var(--juma-muted);
+    font-size: 12px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+
+.ju-who b {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+
+  em {
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: #ecede9;
+    color: var(--juma-muted);
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 500;
+
+    &.is-locked {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+  }
+}
+
+.ju-pill {
+  width: max-content;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+
+  &--dark {
+    background: #0c140f;
+    color: #fff;
+  }
+
+  &--green {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  &--amber {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  &--gray {
+    background: #f4f4f5;
+    color: #71717a;
+  }
+}
+
+.ju-sites {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 13px;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+.ju-when {
+  color: var(--juma-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .ju-card {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px 14px;
+
+    .ju-role,
+    .ju-sites,
+    .ju-when {
+      grid-column: 2;
+    }
+  }
+}
+
+/* Célula liga/desliga nas listas */
+.jb-cell {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #f4f4f5;
+  color: #71717a;
+  font-size: 12px;
+  font-weight: 600;
+
+  &.is-on {
+    background: #dcfce7;
+    color: #166534;
+  }
+}
+
+@media (max-width: 640px) {
+  .jm-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .jm-card__body {
+    padding: 10px;
+  }
+
+  .jm-card__actions {
+    flex-direction: column;
   }
 }

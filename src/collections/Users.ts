@@ -10,6 +10,7 @@ export const Users: CollectionConfig = {
     defaultColumns: ['nome', 'email', 'papel', 'sites'],
     group: 'Administração',
     hideAPIURL: true,
+    components: { views: { list: { Component: '/components/admin/users/UsersList#UsersList' } } },
   },
   auth: {
     // Bloqueia a conta por 10 minutos após 5 senhas erradas seguidas.
@@ -49,9 +50,10 @@ export const Users: CollectionConfig = {
     ],
   },
   fields: [
-    { name: 'nome', type: 'text' },
+    { name: 'nome', label: 'Nome', type: 'text' },
     {
       name: 'papel',
+      label: 'Perfil',
       type: 'select',
       required: true,
       defaultValue: 'editor',
@@ -68,6 +70,7 @@ export const Users: CollectionConfig = {
     },
     {
       name: 'sites',
+      label: 'Sites',
       type: 'select',
       hasMany: true,
       required: true,

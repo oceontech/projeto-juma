@@ -10,6 +10,7 @@ import * as migration_20260929_161247_configuracoes_contato from './20260929_161
 import * as migration_20260929_161325_sem_horario_antigo from './20260929_161325_sem_horario_antigo';
 import * as migration_20260929_161521_paginas_rascunho from './20260929_161521_paginas_rascunho';
 import * as migration_20260929_161549_paginas_sem_seo from './20260929_161549_paginas_sem_seo';
+import * as migration_20260929_162701_redirecionamentos from './20260929_162701_redirecionamentos';
 
 export const migrations = [
   {
@@ -70,6 +71,11 @@ export const migrations = [
   {
     up: migration_20260929_161549_paginas_sem_seo.up,
     down: migration_20260929_161549_paginas_sem_seo.down,
-    name: '20260929_161549_paginas_sem_seo'
+    name: '20260929_161549_paginas_sem_seo',
+  },
+  {
+    up: migration_20260929_162701_redirecionamentos.up,
+    down: migration_20260929_162701_redirecionamentos.down,
+    name: '20260929_162701_redirecionamentos'
   },
 ];

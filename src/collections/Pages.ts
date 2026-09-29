@@ -2,6 +2,7 @@ import type { CollectionAfterChangeHook, CollectionAfterDeleteHook, CollectionCo
 
 import { hasRole } from '../access/roles'
 import { revalidateAllPages, revalidateSite } from '../features/cms/revalidate'
+import { redirectOldSlugs } from './Redirects'
 
 /**
  * Páginas simples do site Brasil: política de privacidade, termos de uso,
@@ -42,7 +43,7 @@ export const Pages: CollectionConfig = {
     update: ({ req }) => hasRole(req, 'admin', 'editor'),
     delete: ({ req }) => hasRole(req, 'admin'),
   },
-  hooks: { afterChange: [revalidate], afterDelete: [revalidateOnDelete] },
+  hooks: { afterChange: [revalidate, redirectOldSlugs('pages', '')], afterDelete: [revalidateOnDelete] },
   fields: [
     { name: 'titulo', label: 'Título', type: 'text', required: true, localized: true },
     {

@@ -72,6 +72,7 @@ export interface Config {
     products: Product;
     cultures: Culture;
     pages: Page;
+    redirects: Redirect;
     media: Media;
     users: User;
     'payload-kv': PayloadKv;
@@ -86,6 +87,7 @@ export interface Config {
     products: ProductsSelect<false> | ProductsSelect<true>;
     cultures: CulturesSelect<false> | CulturesSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -628,6 +630,37 @@ export interface Page {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Quem abrir o endereço antigo vai direto para o novo. Use para links do site antigo, materiais impressos e páginas que mudaram de nome. Vale em até 1 minuto.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redirects".
+ */
+export interface Redirect {
+  id: number;
+  /**
+   * Ex.: /produtos/aminosan-antigo ou o link completo do site antigo.
+   */
+  de: string;
+  /**
+   * Ex.: /pt-BR/produtos/aminosan. Pode ser um link de outro site (https://…).
+   */
+  para: string;
+  /**
+   * Ligado: o Google troca o link antigo pelo novo (use quase sempre). Desligado: desvio temporário.
+   */
+  permanente?: boolean | null;
+  /**
+   * Desligue para pausar sem apagar.
+   */
+  ativo?: boolean | null;
+  /**
+   * Por que existe (opcional).
+   */
+  observacao?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -670,6 +703,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'pages';
         value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'redirects';
+        value: number | Redirect;
       } | null)
     | ({
         relationTo: 'media';
@@ -973,6 +1010,19 @@ export interface PagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redirects_select".
+ */
+export interface RedirectsSelect<T extends boolean = true> {
+  de?: T;
+  para?: T;
+  permanente?: T;
+  ativo?: T;
+  observacao?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

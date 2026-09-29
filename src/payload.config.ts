@@ -14,6 +14,7 @@ import { Cultures } from './collections/Cultures'
 import { Articles } from './collections/Articles'
 import { Leads } from './collections/Leads'
 import { Pages } from './collections/Pages'
+import { Redirects } from './collections/Redirects'
 import { Settings } from './globals/Settings'
 
 const filename = fileURLToPath(import.meta.url)
@@ -55,7 +56,7 @@ export default buildConfig({
     },
   },
   // A ordem aqui é a ordem dos grupos na sidebar: Operação, Conteúdo, Site, Biblioteca, Administração.
-  collections: [Leads, Articles, Products, Cultures, Pages, Media, Users],
+  collections: [Leads, Articles, Products, Cultures, Pages, Redirects, Media, Users],
   globals: [Settings],
   localization: {
     locales: [

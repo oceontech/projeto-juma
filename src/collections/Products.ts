@@ -8,6 +8,7 @@ import type {
 
 import { hasRole } from '../access/roles'
 import { revalidateSite } from '../features/cms/revalidate'
+import { redirectOldSlugs } from './Redirects'
 import {
   PRODUCT_CATEGORIES,
   PRODUCT_FILTER_CROPS,
@@ -329,7 +330,7 @@ export const Products: CollectionConfig = {
     update: ({ req }) => hasRole(req, 'admin', 'editor'),
     delete: ({ req }) => hasRole(req, 'admin', 'editor'),
   },
-  hooks: { afterChange: [revalidate], afterDelete: [revalidateOnDelete] },
+  hooks: { afterChange: [revalidate, redirectOldSlugs('products', '/produtos')], afterDelete: [revalidateOnDelete] },
   fields: [
     // --- barra lateral
     {
