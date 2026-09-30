@@ -16,7 +16,7 @@ export type BlogCard = {
   title: string
   image: string | null
   meta: string[]
-  status: 'published' | 'draft'
+  status: 'published' | 'draft' | 'scheduled'
   date: string
   updatedAt: string
 }
@@ -134,7 +134,7 @@ export function BlogViewClient(p: Props) {
                   ) : (
                     <span className="jc-card__placeholder">Sem imagem</span>
                   )}
-                  <span className={`jc-status jc-status--${c.status}`}>{c.status === 'published' ? 'Publicado' : 'Rascunho'}</span>
+                  <span className={`jc-status jc-status--${c.status}`}>{c.status === 'published' ? 'Publicado' : c.status === 'scheduled' ? 'Agendado' : 'Rascunho'}</span>
                   <span className="jb-site" title={c.site === 'br' ? 'Site Brasil' : 'Site EUA'}>
                     <Flag site={c.site} size={20} />
                   </span>

@@ -59,6 +59,7 @@ export const Articles: CollectionConfig = {
     pagination: { defaultLimit: 24 },
     components: {
       views: { list: { Component: '/components/admin/blog/BlogRedirect#BlogRedirect' } },
+      edit: { PublishButton: { path: '/components/admin/blog/PublishButton#PublishButton', clientProps: { dateField: 'data' } } },
     },
   },
   defaultSort: '-data',
@@ -119,28 +120,23 @@ export const Articles: CollectionConfig = {
               admin: { rows: 2, description: 'Uma frase que complementa o título. Também é a descrição no Google.' },
             },
             {
-              type: 'row',
-              fields: [
-                {
-                  name: 'tema',
-                  label: 'Categoria',
-                  type: 'relationship',
-                  relationTo: 'categorias',
-                  required: true,
-                  filterOptions: { site: { equals: 'br' } },
-                  admin: {
-                    width: '50%',
-                    description: 'O assunto principal: vira etiqueta e filtro na página de matérias. Nenhuma serve? Crie uma no +.',
-                  },
-                },
-                {
-                  name: 'assinatura',
-                  label: 'Autor',
-                  type: 'text',
-                  localized: true,
-                  admin: { width: '50%', description: 'Como aparece na matéria. Ex.: Eng. Agrônomo Marcos Silva' },
-                },
-              ],
+              name: 'tema',
+              label: 'Categoria',
+              type: 'relationship',
+              relationTo: 'categorias',
+              required: true,
+              filterOptions: { site: { equals: 'br' } },
+              admin: {
+                description: 'O assunto principal: vira etiqueta e filtro na página de matérias.',
+                components: { Field: { path: '/components/admin/blog/CategoryField#CategoryField', clientProps: { site: 'br' } } },
+              },
+            },
+            {
+              name: 'assinatura',
+              label: 'Autor',
+              type: 'text',
+              localized: true,
+              admin: { description: 'Como aparece na matéria. Ex.: Eng. Agrônomo Marcos Silva' },
             },
             step('passo1', { next: 'Texto' }),
           ],
@@ -217,22 +213,22 @@ export const Articles: CollectionConfig = {
                   : 'Use só letras minúsculas, números e hífen (ex.: nutricao-fase-certa).',
             },
             {
-              type: 'row',
-              fields: [
-                {
-                  name: 'data',
-                  type: 'date',
-                  required: true,
-                  defaultValue: () => new Date().toISOString(),
-                  admin: { width: '50%', components: { Field: '/components/admin/fields/DateField#DateField' } },
-                },
-                {
-                  name: 'destaque',
-                  label: 'Destaque na página de matérias',
-                  type: 'checkbox',
-                  admin: { width: '50%', description: 'A mais recente marcada aparece no bloco grande do topo. A home mostra sempre as 3 mais recentes.' },
-                },
-              ],
+              // Data de publicação: agora (ao publicar) ou agendada. O site só mostra a partir dela.
+              name: 'data',
+              label: 'Quando publicar',
+              type: 'date',
+              required: true,
+              defaultValue: () => new Date().toISOString(),
+              admin: { components: { Field: '/components/admin/blog/PublishWhen#PublishWhen' } },
+            },
+            {
+              name: 'destaque',
+              label: 'Destaque na página de matérias',
+              type: 'checkbox',
+              admin: {
+                description: 'A mais recente marcada aparece no bloco grande do topo. A home mostra sempre as 3 mais recentes.',
+                components: { Field: '/components/admin/fields/SwitchCard#SwitchCard' },
+              },
             },
             {
               // Só a IA preenche (revisão final); sem ela, o hook conta pelas palavras.

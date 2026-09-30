@@ -2,7 +2,7 @@
 
 import { toast } from '@payloadcms/ui'
 import type { UIFieldClientComponent } from 'payload'
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 
 import { askAi, usePostForm } from './usePostForm'
 
@@ -175,13 +175,87 @@ function AssuntoAssist({ site }: { site: Site }) {
 
 // ─── Etapa 4: Publicação ───────────────────────────────────────────────
 
-type Review = { tempoLeitura: number; resumo: string; problemas: { tipo: string; trecho: string; sugestao: string }[]; parecer: string; palavras: number }
+type Issue = { tipo: string; onde: string; trecho: string; correcao: string; sugestao: string }
+type Review = { tempoLeitura: number; resumo: string; problemas: Issue[]; parecer: string; palavras: number }
+type Change = { path: string; value: unknown; remount?: boolean }
+type Fix = { path: string; before: unknown; after: unknown; remount?: boolean; local?: boolean; resolved?: boolean }
 const reviewed = new Map<string, Review>()
 
+const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+/** Acha o trecho mesmo com espaços, aspas ou quebras de linha diferentes. */
+const finder = (trecho: string) =>
+  new RegExp(
+    escape(trecho.trim())
+      .replace(/\s+/g, '\\s+')
+      .replace(/["“”]/g, '["“”]')
+      .replace(/['‘’]/g, "['‘’]"),
+  )
+
+type LexNode = { type?: string; text?: string; children?: LexNode[] }
+
+/** Troca o trecho dentro de um nó de texto do editor (post EUA). */
+function replaceInLexical(value: unknown, re: RegExp, to: string) {
+  const copy = structuredClone(value) as { root?: LexNode }
+  let done = false
+  const walk = (n: LexNode) => {
+    if (done) return
+    if (n.type === 'text' && n.text && re.test(n.text)) {
+      n.text = n.text.replace(re, to)
+      done = true
+      return
+    }
+    n.children?.forEach(walk)
+  }
+  if (copy?.root) walk(copy.root)
+  return done ? copy : null
+}
+
+const getPath = (data: Record<string, any>, path: string) => path.split('.').reduce<any>((o, k) => (o == null ? o : o[k]), data)
+
+/** Comparação frouxa: sem acento, maiúscula nem espaço extra. */
+const loose = (s: string) =>
+  s
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/["“”'‘’]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase()
+
+/** Todo o texto do post no formulário, numa string (para saber se um trecho ainda existe). */
+function allText(data: Record<string, any>): string {
+  const walk = (v: unknown): string =>
+    typeof v === 'string' ? v : Array.isArray(v) ? v.map(walk).join(' ') : v && typeof v === 'object' ? Object.values(v).map(walk).join(' ') : ''
+  return [data.titulo, data.subtitulo, data.introducao, data.secoes, data.citacao, data.title, data.excerpt, data.body].map(walk).join(' ')
+}
+
+/** Correção sem IA: acha o trecho apontado no formulário e troca pela correção. */
+function localFix(issue: Issue, data: Record<string, any>, site: Site): Change | null {
+  if (!issue.trecho || !issue.correcao) return null
+  const re = finder(issue.trecho)
+  const sections: unknown[] = Array.isArray(data.secoes) ? data.secoes : []
+  const paths =
+    site === 'us'
+      ? ['title', 'excerpt']
+      : ['titulo', 'subtitulo', 'introducao', ...sections.flatMap((_, i) => [`secoes.${i}.titulo`, `secoes.${i}.paragrafos`]), 'citacao']
+  for (const path of paths) {
+    const text = getPath(data, path)
+    if (typeof text === 'string' && re.test(text)) return { path, value: text.replace(re, issue.correcao) }
+  }
+  if (site === 'us' && data.body) {
+    const body = replaceInLexical(data.body, re, issue.correcao)
+    if (body) return { path: 'body', value: body, remount: true }
+  }
+  return null
+}
+
 function PublicacaoAssist({ site }: { site: Site }) {
-  const { payload, set, values, id, modified } = usePayload(site)
+  const { payload, set, read, values, id, modified } = usePayload(site)
   const [busy, setBusy] = useState(false)
   const [translating, setTranslating] = useState(false)
+  const [fixing, setFixing] = useState<number | 'all' | null>(null)
+  const [fixed, setFixed] = useState<Record<number, Fix>>({})
+  const justFixed = useRef(false)
   const readField = site === 'us' ? 'readMinutes' : 'tempoLeitura'
   const summaryField = site === 'us' ? 'excerpt' : 'subtitulo'
   // Assinatura do conteúdo: a revisão só roda de novo quando o texto muda.
@@ -194,6 +268,7 @@ function PublicacaoAssist({ site }: { site: Site }) {
       const out = await askAi<Review>('revisar', payload)
       reviewed.set(signature, out)
       setReview(out)
+      setFixed({})
       // Só grava se mudou: gravar o mesmo valor marcaria o post como alterado.
       if (Number(values[readField]) !== out.tempoLeitura) set(readField, out.tempoLeitura)
     } catch (e) {
@@ -204,8 +279,14 @@ function PublicacaoAssist({ site }: { site: Site }) {
   }
 
   // Ao abrir esta etapa, revisa sozinho (uma vez por versão do texto), se já houver texto.
+  // Depois de um "Corrigir" o texto muda, mas a revisão continua a mesma.
   const textWords = JSON.stringify([payload.introducao, payload.secoes, payload.body]).split(/\s+/).length
   useEffect(() => {
+    if (justFixed.current) {
+      justFixed.current = false
+      if (review) reviewed.set(signature, review)
+      return
+    }
     if (textWords < 40) return
     if (reviewed.has(signature)) {
       const r = reviewed.get(signature)!
@@ -216,6 +297,90 @@ function PublicacaoAssist({ site }: { site: Site }) {
     void run()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signature])
+
+  /** Corrige um ponto: troca direta quando acha o trecho; senão a IA reescreve a parte. */
+  const fixOne = async (i: number) => {
+    const issue = review!.problemas[i]
+    const data = read()
+    const local = localFix(issue, data, site)
+    let change = local
+    if (!change) {
+      // Uma correção anterior (ou o autor) já tirou esse trecho do texto: nada a fazer.
+      if (issue.trecho && !loose(allText(data)).includes(loose(issue.trecho))) {
+        setFixed((f) => ({ ...f, [i]: { path: '', before: null, after: null, resolved: true } }))
+        return
+      }
+      const out = await askAi<{ campo: string; texto?: string; body?: unknown }>('corrigir', {
+        ...data,
+        site,
+        secoes: Array.isArray(data.secoes) ? data.secoes : [],
+        problema: issue,
+      })
+      change = out.campo === 'body' ? { path: 'body', value: out.body, remount: true } : { path: out.campo, value: out.texto }
+    }
+    const before = getPath(read(), change.path)
+    justFixed.current = true
+    set(change.path, change.value, { remount: change.remount })
+    const done: Fix = { path: change.path, before, after: change.value, remount: change.remount, local: Boolean(local) }
+    setFixed((f) => ({ ...f, [i]: done }))
+  }
+
+  const fix = async (i: number) => {
+    setFixing(i)
+    try {
+      await fixOne(i)
+      toast.success('Corrigido')
+    } catch (e) {
+      toast.error((e as Error).message)
+    } finally {
+      setFixing(null)
+    }
+  }
+
+  const fixAll = async () => {
+    setFixing('all')
+    let ok = 0
+    let failed = 0
+    for (let i = 0; i < (review?.problemas.length ?? 0); i++) {
+      if (fixed[i]) continue
+      try {
+        await fixOne(i)
+        ok++
+        // Espera o formulário atualizar antes do próximo (podem estar no mesmo parágrafo).
+        await new Promise((r) => setTimeout(r, 150))
+      } catch {
+        failed++
+      }
+    }
+    setFixing(null)
+    if (failed) toast.error(`${ok} corrigidos; ${failed} não deu. Tente esses pelo botão Corrigir.`)
+    else toast.success(ok ? `${ok} ${ok === 1 ? 'ponto corrigido' : 'pontos corrigidos'}` : 'Nada para corrigir')
+  }
+
+  /** Desfaz só aquela correção: volta o trecho corrigido ao original, sem mexer nas outras. */
+  const undo = (i: number) => {
+    const done = fixed[i]
+    if (!done) return
+    const issue = review!.problemas[i]
+    if (!done.resolved) {
+      const current = getPath(read(), done.path)
+      let restored: unknown = null
+      if (done.local && issue.correcao) {
+        const re = finder(issue.correcao)
+        if (typeof current === 'string' && re.test(current)) restored = current.replace(re, issue.trecho)
+        else if (done.path === 'body') restored = replaceInLexical(current, re, issue.trecho)
+      }
+      if (restored === null && JSON.stringify(current) === JSON.stringify(done.after)) restored = done.before
+      if (restored === null) return void toast.error('Esse trecho mudou depois da correção. Ajuste direto no texto.')
+      justFixed.current = true
+      set(done.path, restored, { remount: done.remount })
+    }
+    setFixed((f) => {
+      const next = { ...f }
+      delete next[i]
+      return next
+    })
+  }
 
   const translate = async () => {
     setTranslating(true)
@@ -228,6 +393,8 @@ function PublicacaoAssist({ site }: { site: Site }) {
       setTranslating(false)
     }
   }
+
+  const pending = review ? review.problemas.filter((_, i) => !fixed[i]).length : 0
 
   return (
     <Card title="Revisão final com IA" hint="Roda sozinha ao abrir esta etapa: tempo de leitura, pontos a corrigir e o resumo para o Google.">
@@ -244,22 +411,50 @@ function PublicacaoAssist({ site }: { site: Site }) {
               <b>{review.tempoLeitura} min</b>
               <small>de leitura · {review.palavras} palavras</small>
             </span>
-            <span className={review.problemas.length ? 'is-warn' : 'is-ok'}>
-              <b>{review.problemas.length || 'Nenhum'}</b>
-              <small>{review.problemas.length === 1 ? 'ponto a corrigir' : review.problemas.length ? 'pontos a corrigir' : 'problema encontrado'}</small>
+            <span className={pending ? 'is-warn' : 'is-ok'}>
+              <b>{pending || (review.problemas.length ? '✓' : 'Nenhum')}</b>
+              <small>
+                {pending === 1 ? 'ponto a corrigir' : pending ? 'pontos a corrigir' : review.problemas.length ? 'tudo corrigido' : 'problema encontrado'}
+              </small>
             </span>
           </div>
           {review.parecer && <p className="jai__verdict">{review.parecer}</p>}
           {review.problemas.length > 0 && (
-            <ul className="jai__issues">
-              {review.problemas.map((p, i) => (
-                <li key={i}>
-                  <em>{p.tipo}</em>
-                  {p.trecho && <q>{p.trecho.replace(/^["“”'\s]+|["“”'\s]+$/g, '')}</q>}
-                  {p.sugestao && <span>{p.sugestao}</span>}
-                </li>
-              ))}
-            </ul>
+            <>
+              {pending > 1 && (
+                <div className="jai__fixall">
+                  <span>A IA troca cada trecho pela versão corrigida. Dá para desfazer um por um.</span>
+                  <Button busy={fixing === 'all'} disabled={fixing !== null} onClick={fixAll}>
+                    {fixing === 'all' ? 'Corrigindo…' : `Corrigir todos (${pending})`}
+                  </Button>
+                </div>
+              )}
+              <ul className="jai__issues">
+                {review.problemas.map((p, i) => (
+                  <li key={i} className={fixed[i] ? 'is-fixed' : undefined}>
+                    <div className="jai__issue-head">
+                      <em>{fixed[i]?.resolved ? '✓ já resolvido' : fixed[i] ? '✓ corrigido' : p.tipo}</em>
+                      {fixed[i]?.resolved ? null : fixed[i] ? (
+                        <button type="button" className="jait__undo" onClick={() => undo(i)}>
+                          ↺ Desfazer
+                        </button>
+                      ) : (
+                        <Button busy={fixing === i} disabled={fixing !== null} onClick={() => fix(i)}>
+                          {fixing === i ? 'Corrigindo…' : 'Corrigir'}
+                        </Button>
+                      )}
+                    </div>
+                    {p.sugestao && <span className="jai__why">{p.sugestao}</span>}
+                    {p.trecho && (
+                      <span className="jai__diff">
+                        <del>{p.trecho}</del>
+                        {p.correcao && <ins>{p.correcao}</ins>}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
           {review.resumo && review.resumo !== values[summaryField] && (
             <>

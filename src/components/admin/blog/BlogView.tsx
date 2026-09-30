@@ -18,6 +18,10 @@ const categoryName = (tema: unknown) => (typeof tema === 'object' && tema && 'no
 const fmtDate = (iso?: string | null) =>
   iso ? new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '') : null
 
+/** Publicado com data no futuro = agendado (o site só mostra a partir dela). */
+const statusOf = (status?: string | null, date?: string | null): BlogCard['status'] =>
+  status !== 'published' ? 'draft' : date && new Date(date).getTime() > Date.now() ? 'scheduled' : 'published'
+
 export async function BlogView({ initPageResult, params, searchParams }: AdminViewServerProps) {
   const req = initPageResult.req
   const user = req.user as { papel?: string; sites?: Site[] | null } | null
@@ -69,7 +73,7 @@ export async function BlogView({ initPageResult, params, searchParams }: AdminVi
       title: d.titulo || 'Sem título',
       image: image(d.capa),
       meta: [categoryName(d.tema), fmtDate(d.data)].filter(Boolean) as string[],
-      status: (d._status === 'published' ? 'published' : 'draft') as BlogCard['status'],
+      status: statusOf(d._status, d.data),
       date: d.data ?? d.createdAt,
       updatedAt: d.updatedAt,
     })),
@@ -80,7 +84,7 @@ export async function BlogView({ initPageResult, params, searchParams }: AdminVi
       title: d.title || 'Untitled',
       image: image(d.cover),
       meta: [categoryName(d.tema), fmtDate(d.date)].filter(Boolean) as string[],
-      status: (d._status === 'published' ? 'published' : 'draft') as BlogCard['status'],
+      status: statusOf(d._status, d.date),
       date: d.date ?? d.createdAt,
       updatedAt: d.updatedAt,
     })),

@@ -204,6 +204,22 @@ Responda em JSON: {"texto": ""${alvo === 'secao' ? ', "titulo": ""' : ''}}`,
   return { texto: result, titulo: alvo === 'secao' ? asText(out.titulo) : undefined }
 }
 
+/** Post com cada parte marcada, para a IA dizer onde está cada problema. */
+function labeled(c: Content) {
+  if (c.site === 'us') return [`[titulo] ${c.title}`, `[resumo] ${c.summary}`, `[texto]\n${blocksToPlain(c.blocks)}`].join('\n\n')
+  return [
+    `[titulo] ${c.title}`,
+    `[subtitulo] ${c.summary}`,
+    `[introducao]\n${c.intro}`,
+    ...c.sections.map((s, i) => `[secao ${i + 1}] ${s.titulo ? `Intertítulo: ${s.titulo}` : '(sem intertítulo)'}\n${s.paragrafos ?? ''}`),
+    c.quote ? `[citacao] ${c.quote}` : '',
+  ]
+    .filter(Boolean)
+    .join('\n\n')
+}
+
+type Issue = { tipo: string; onde: string; trecho: string; correcao: string; sugestao: string }
+
 async function revisar(c: Content) {
   const text = plain(c)
   const n = words(text)
@@ -211,23 +227,28 @@ async function revisar(c: Content) {
   const out = await chatJSON<{
     tempoLeitura?: number
     resumo?: string
-    problemas?: { tipo?: string; trecho?: string; sugestao?: string }[]
+    problemas?: Partial<Issue>[]
     parecer?: string
   }>(
     rulesFor(c.site),
     `Faça a revisão final do post abaixo antes de publicar. Responda em português do Brasil (o post pode estar em ${lang(c.site)}).
 1. Estime o tempo de leitura em minutos inteiros para um leitor do agro, considerando a densidade técnica (o texto tem ${n} palavras).
 2. Aponte até 8 problemas concretos: violações das regras de escrita${c.site === 'us' ? ' e de FIFRA' : ''}, números ou resultados sem fonte, erros de gramática ou digitação, trechos confusos.
-   Um número TEM fonte quando o próprio trecho ou a frase ao lado cita quem mediu (instituição, ensaio, órgão ou ano). Recomendações técnicas gerais (estádio V4, faixa de pH) não precisam de fonte. Não aponte o que já está certo. Para cada um, cite o trecho exato e sugira a correção. Se estiver tudo certo, lista vazia.
+   Um número TEM fonte quando o próprio trecho ou a frase ao lado cita quem mediu (instituição, ensaio, órgão ou ano). Recomendações técnicas gerais (estádio V4, faixa de pH) não precisam de fonte. Não aponte o que já está certo. Se estiver tudo certo, lista vazia.
+   Para cada problema:
+   - "onde": a marca da parte em que ele está (titulo, subtitulo, resumo, introducao, "secao 2", citacao ou texto);
+   - "trecho": cópia EXATA, letra por letra, de um pedaço curto do post (uma frase ou menos) que contém o problema;
+   - "correcao": esse mesmo trecho já corrigido, no idioma do post, pronto para substituir o trecho. Mude o mínimo. Nunca invente fonte, número ou ensaio: se falta fonte, reescreva sem o número ou sem afirmar o resultado;
+   - "sugestao": em português, uma frase curta explicando o que estava errado.
 3. Escreva ${c.site === 'us' ? 'um resumo (em inglês)' : 'um subtítulo'} de até 160 caracteres para o Google.
 4. Dê um parecer de uma frase sobre se está pronto para publicar.
 
 ${header(c)}
 
-Post:
-${text.slice(0, 16000) || '(sem texto)'}
+Post (cada parte começa com a marca entre colchetes, que não faz parte do texto):
+${labeled(c).slice(0, 16000)}
 
-Responda em JSON: {"tempoLeitura": número, "resumo": "", "problemas": [{"tipo": "regra|número sem fonte|gramática|clareza${c.site === 'us' ? '|FIFRA' : ''}", "trecho": "", "sugestao": ""}], "parecer": ""}`,
+Responda em JSON: {"tempoLeitura": número, "resumo": "", "problemas": [{"tipo": "regra|número sem fonte|gramática|clareza${c.site === 'us' ? '|FIFRA' : ''}", "onde": "", "trecho": "", "correcao": "", "sugestao": ""}], "parecer": ""}`,
     { effort: 'medium' },
   )
   // Sanidade: entre ~120 e ~300 palavras por minuto.
@@ -240,10 +261,71 @@ Responda em JSON: {"tempoLeitura": número, "resumo": "", "problemas": [{"tipo":
     problemas: (out.problemas ?? [])
       .filter((p) => p?.trecho || p?.sugestao)
       .slice(0, 8)
-      .map((p) => ({ tipo: String(p.tipo ?? 'clareza'), trecho: String(p.trecho ?? ''), sugestao: String(p.sugestao ?? '') })),
+      .map((p) => ({
+        tipo: String(p.tipo ?? 'clareza'),
+        onde: String(p.onde ?? '').toLowerCase(),
+        trecho: String(p.trecho ?? '').replace(/^["“”'\s]+|["“”'\s]+$/g, ''),
+        correcao: asText(p.correcao),
+        sugestao: String(p.sugestao ?? ''),
+      })),
     parecer: String(out.parecer ?? ''),
     palavras: n,
   }
+}
+
+/**
+ * "Corrigir" de um ponto da revisão, quando o trecho não foi achado igual no
+ * formulário: a IA reescreve a parte inteira em que está o problema.
+ */
+async function corrigir(c: Content, body: Record<string, any>) {
+  const p = (body.problema ?? {}) as Partial<Issue>
+  const onde = String(p.onde ?? '').toLowerCase()
+  const task = `Corrija só este problema, mudando o mínimo possível e mantendo o resto igual (mesmos parágrafos, mesmo idioma). Nunca invente fonte, número ou ensaio.
+Problema (${p.tipo ?? 'clareza'}): ${cut(p.sugestao, 600)}
+${p.trecho ? `Trecho apontado: "${cut(p.trecho, 600)}"` : ''}
+${p.correcao ? `Correção sugerida para o trecho: "${cut(p.correcao, 600)}"` : ''}`
+
+  if (c.site === 'us' && !['titulo', 'resumo'].includes(onde)) {
+    const out = await chatJSON<{ blocos?: unknown }>(
+      rulesFor('us'),
+      `${task}
+
+Post:
+${blocksToPlain(c.blocks)}
+
+Answer in JSON with the whole post text: {"blocos": [{"type": "p"|"h2"|"h3"|"quote", "text": ""} | {"type": "ul", "items": [""]}]}`,
+      { effort: 'low' },
+    )
+    const blocks = cleanBlocks(out.blocos)
+    if (!blocks.length) throw new AiError('A IA não devolveu o texto. Tente de novo.', 502)
+    return { campo: 'body', body: blocksToLexical(blocks) }
+  }
+
+  const n = Number(onde.match(/secao\s*(\d+)/)?.[1] ?? 0)
+  const target =
+    onde === 'titulo'
+      ? { campo: c.site === 'us' ? 'title' : 'titulo', texto: c.title }
+      : onde === 'subtitulo' || onde === 'resumo'
+        ? { campo: c.site === 'us' ? 'excerpt' : 'subtitulo', texto: c.summary }
+        : onde === 'citacao'
+          ? { campo: 'citacao', texto: c.quote }
+          : n && c.sections[n - 1]
+            ? { campo: `secoes.${n - 1}.paragrafos`, texto: c.sections[n - 1].paragrafos ?? '' }
+            : { campo: 'introducao', texto: c.intro }
+  if (!target.texto.trim()) throw new AiError('Não encontrei essa parte do post. Revise de novo.', 400)
+  const out = await chatJSON<{ texto?: unknown }>(
+    rulesFor(c.site),
+    `${task}
+
+Texto a corrigir (devolva ele inteiro, corrigido; parágrafos separados por uma linha em branco):
+${target.texto}
+
+Responda em JSON: {"texto": ""}`,
+    { effort: 'low' },
+  )
+  const texto = asText(out.texto)
+  if (!texto) throw new AiError('A IA não devolveu o texto. Tente de novo.', 502)
+  return { campo: target.campo, texto }
 }
 
 const STYLE = (site: Site) =>
@@ -395,6 +477,7 @@ export const aiHandler: PayloadHandler = async (req) => {
     if (action === 'assunto') result = await assunto(req, c)
     else if (action === 'campo') result = await campo(c, body)
     else if (action === 'revisar') result = await revisar(c)
+    else if (action === 'corrigir') result = await corrigir(c, body)
     else if (action === 'capa') result = await capa(req, c, body)
     else if (action === 'traduzir') result = await traduzir(req, Number(body.id))
     else return Response.json({ error: 'Ação desconhecida.' }, { status: 404 })

@@ -45,7 +45,10 @@ export const PostsUs: CollectionConfig = {
       'Posts do blog do site americano, em inglês. Descreva o que o produto entrega, nunca o efeito na planta ou no inseto (FIFRA), e todo número com fonte.',
     hideAPIURL: true,
     pagination: { defaultLimit: 24 },
-    components: { views: { list: { Component: '/components/admin/blog/BlogRedirect#BlogRedirect' } } },
+    components: {
+      views: { list: { Component: '/components/admin/blog/BlogRedirect#BlogRedirect' } },
+      edit: { PublishButton: { path: '/components/admin/blog/PublishButton#PublishButton', clientProps: { dateField: 'date' } } },
+    },
   },
   defaultSort: '-date',
   versions: { drafts: true, maxPerDoc: 30 },
@@ -112,22 +115,17 @@ export const PostsUs: CollectionConfig = {
               admin: { rows: 2, description: 'Uma ou duas frases. Aparece na lista do blog, no Google e ao compartilhar o link.' },
             },
             {
-              type: 'row',
-              fields: [
-                {
-                  name: 'tema',
-                  label: 'Categoria',
-                  type: 'relationship',
-                  relationTo: 'categorias',
-                  filterOptions: { site: { equals: 'us' } },
-                  admin: {
-                    width: '50%',
-                    description: 'O assunto do post: vira etiqueta no blog. Nenhuma serve? Crie uma no +.',
-                  },
-                },
-                { name: 'author', label: 'Autor', type: 'text', admin: { width: '50%', description: 'Ex.: Juma-Agro agronomy' } },
-              ],
+              name: 'tema',
+              label: 'Categoria',
+              type: 'relationship',
+              relationTo: 'categorias',
+              filterOptions: { site: { equals: 'us' } },
+              admin: {
+                description: 'O assunto do post: vira etiqueta no blog.',
+                components: { Field: { path: '/components/admin/blog/CategoryField#CategoryField', clientProps: { site: 'us' } } },
+              },
             },
+            { name: 'author', label: 'Autor', type: 'text', admin: { description: 'Ex.: Juma-Agro agronomy' } },
             step('passo1', { next: 'Texto' }),
           ],
         },
@@ -195,12 +193,13 @@ export const PostsUs: CollectionConfig = {
                 /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(String(value ?? '')) || 'Use só letras minúsculas, números e hífen.',
             },
             {
+              // Data de publicação: agora (ao publicar) ou agendada. O site só mostra a partir dela.
               name: 'date',
-              label: 'Data',
+              label: 'Quando publicar',
               type: 'date',
               required: true,
               defaultValue: () => new Date().toISOString(),
-              admin: { components: { Field: '/components/admin/fields/DateField#DateField' } },
+              admin: { components: { Field: '/components/admin/blog/PublishWhen#PublishWhen' } },
             },
             {
               // Só a IA preenche (revisão final); sem ela, o hook conta pelas palavras.

@@ -31,7 +31,7 @@ export const StepFooter: UIFieldClientComponent = (props) => {
       )}
       {last && (
         <p className="jstep__done">
-          Tudo pronto? Use <b>Publicar</b> no topo. Para salvar sem publicar, <b>Salvar rascunho</b>.
+          Tudo pronto? Use <b>Publicar agora</b> no topo (ou <b>Agendar publicação</b>, se ligou o agendamento). Para guardar sem publicar, <b>Salvar rascunho</b>.
         </p>
       )}
     </div>

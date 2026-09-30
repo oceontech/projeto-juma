@@ -8,6 +8,9 @@ import { getHomeArticles } from '@/features/articles/queries'
 import { getCultureCards } from '@/features/cultures/queries'
 import { getHomeShowcase } from '@/features/home/queries'
 
+// Publicação agendada: regera a cada 15 min para a matéria aparecer no horário marcado.
+export const revalidate = 900
+
 // Seções abaixo da dobra do "filme contínuo": code-split em chunks separados
 // (continuam com SSR normal — só tiram peso do bundle inicial de hidratação).
 const OurStory            = dynamic(() => import('@/features/home/components/OurStory').then(m => m.OurStory))

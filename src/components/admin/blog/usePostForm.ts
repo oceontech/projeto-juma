@@ -51,7 +51,10 @@ export function usePostForm() {
     [fields.secoes, form],
   )
 
-  return { values, sections, set, setSections, id, modified }
+  /** Valores atuais do formulário (sem esperar o próximo render). */
+  const read = useCallback(() => form.getData() as Record<string, any>, [form])
+
+  return { values, sections, set, setSections, read, id, modified }
 }
 
 /** Chama o assistente (POST /api/ai/:action) e devolve o JSON ou lança o erro em português. */

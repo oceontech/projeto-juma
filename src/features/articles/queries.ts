@@ -34,7 +34,7 @@ const COVER_COLOR = 'from-green-700 to-emerald-950'
 type Locale = 'pt-BR' | 'en' | 'es'
 
 function formatDate(iso: string, locale: Locale) {
-  const parts = new Intl.DateTimeFormat(locale, { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' })
+  const parts = new Intl.DateTimeFormat(locale, { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'America/Sao_Paulo' })
     .formatToParts(new Date(iso))
   const get = (type: string) => parts.find((p) => p.type === type)?.value ?? ''
   return `${get('day')} ${get('month').replace('.', '').toUpperCase()} ${get('year')}`
@@ -71,14 +71,18 @@ function toView(doc: ArticleDoc, locale: Locale): ArticleView {
   }
 }
 
-/** Todas as matérias publicadas, da mais recente para a mais antiga. */
+/**
+ * Todas as matérias publicadas, da mais recente para a mais antiga.
+ * Publicação agendada: a matéria só aparece quando a data dela chega (as
+ * páginas do blog se regeneram a cada 15 minutos para pegar essas).
+ */
 export const getArticles = cache(async (locale: string): Promise<ArticleView[]> => {
   const payload = await getPayload({ config })
   const { docs } = await payload.find({
     collection: 'articles',
     locale: locale as Locale,
     fallbackLocale: 'pt-BR',
-    where: { _status: { equals: 'published' } },
+    where: { _status: { equals: 'published' }, data: { less_than_equal: new Date().toISOString() } },
     sort: '-data',
     limit: 200,
     depth: 1,

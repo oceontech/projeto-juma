@@ -4,6 +4,9 @@ import { ArticlePage } from '@/features/articles/components/ArticlePage'
 import { getArticle, getArticles } from '@/features/articles/queries'
 import { routing } from '@/i18n/routing'
 
+// Publicação agendada: regera a cada 15 min para a matéria aparecer no horário marcado.
+export const revalidate = 900
+
 export async function generateStaticParams() {
   // A lista de slugs é a mesma nos 3 idiomas; matérias novas renderizam na primeira visita.
   const articles = await getArticles(routing.defaultLocale)
