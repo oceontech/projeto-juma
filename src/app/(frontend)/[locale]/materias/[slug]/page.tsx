@@ -27,8 +27,8 @@ export async function generateMetadata(props: {
 
   return {
     title: `${article.title} · Juma-Agro`,
-    // Descrição do Google: o subtítulo; sem ele, o começo da introdução.
-    description: article.subtitle || snippet(article.introduction),
+    // Descrição do Google: o subtítulo; sem ele, o começo do primeiro parágrafo.
+    description: article.subtitle || snippet(article.blocks.flatMap((b) => (b.type === 'p' ? [b.text] : []))[0] ?? ''),
   }
 }
 

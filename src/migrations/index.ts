@@ -18,6 +18,7 @@ import * as migration_20260929_202609_redes_separadas from './20260929_202609_re
 import * as migration_20260929_231659_categorias_etapa1 from './20260929_231659_categorias_etapa1';
 import * as migration_20260929_231851_categorias_etapa2 from './20260929_231851_categorias_etapa2';
 import * as migration_20260930_120000_seed_blog_us from './20260930_120000_seed_blog_us';
+import * as migration_20260930_140530_conteudo_blocos from './20260930_140530_conteudo_blocos';
 
 export const migrations = [
   {
@@ -113,11 +114,16 @@ export const migrations = [
   {
     up: migration_20260929_231851_categorias_etapa2.up,
     down: migration_20260929_231851_categorias_etapa2.down,
-    name: '20260929_231851_categorias_etapa2'
+    name: '20260929_231851_categorias_etapa2',
   },
   {
     up: migration_20260930_120000_seed_blog_us.up,
     down: migration_20260930_120000_seed_blog_us.down,
     name: '20260930_120000_seed_blog_us',
+  },
+  {
+    up: migration_20260930_140530_conteudo_blocos.up,
+    down: migration_20260930_140530_conteudo_blocos.down,
+    name: '20260930_140530_conteudo_blocos'
   },
 ];

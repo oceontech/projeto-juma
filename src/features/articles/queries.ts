@@ -5,6 +5,14 @@ import { cache } from 'react'
 
 import type { Article as ArticleDoc, Categoria, Media } from '@/payload-types'
 
+import { legacyToBlocks, readBlocks, type Block } from './blocks'
+
+/** Texto em blocos; matéria que ainda não foi convertida usa o formato antigo. */
+function articleBlocks(doc: ArticleDoc): Block[] {
+  const blocks = readBlocks((doc as { conteudo?: unknown }).conteudo)
+  return blocks.length ? blocks : legacyToBlocks(doc as Parameters<typeof legacyToBlocks>[0])
+}
+
 /** Matéria pronta para as páginas, já no idioma pedido. */
 export type ArticleView = {
   id: string
@@ -22,9 +30,8 @@ export type ArticleView = {
   title: string
   subtitle: string
   author: string
-  introduction: string
-  sections: { title?: string; content: string[] }[]
-  quote?: string
+  /** Texto em blocos (parágrafo, intertítulo, lista, citação), igual ao blog EUA. */
+  blocks: Block[]
   featured: boolean
 }
 
@@ -60,15 +67,7 @@ function toView(doc: ArticleDoc, locale: Locale): ArticleView {
     title: doc.titulo,
     subtitle: doc.subtitulo ?? '',
     author: doc.assinatura ?? '',
-    introduction: doc.introducao ?? '',
-    sections: (doc.secoes ?? []).map((s) => ({
-      title: s.titulo ?? undefined,
-      content: s.paragrafos
-        .split(/\n\s*\n/)
-        .map((p) => p.trim())
-        .filter(Boolean),
-    })),
-    quote: doc.citacao ?? undefined,
+    blocks: articleBlocks(doc),
     featured: Boolean(doc.destaque),
   }
 }

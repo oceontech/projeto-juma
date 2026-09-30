@@ -12,6 +12,7 @@ import { DUR, EASE, STAGGER } from '@/features/animation/motion'
 import { useReducedMotion } from '@/features/animation/useReducedMotion'
 import type { ArticleView } from '../queries'
 import { WhatsAppLink } from '@/features/leads/components/WhatsAppLink'
+import { ArticleBody, ReadingProgress, ShareButtons } from './ArticleBody'
 
 interface ArticlePageProps {
   article: ArticleView
@@ -309,52 +310,39 @@ export function ArticlePage({ article, related, preview = false }: ArticlePagePr
             {translation.subtitle}
           </p>
 
-          {/* Author */}
-          <div data-author className="flex items-center gap-3 border-t border-foreground/10 pt-6">
+          {/* Autor e compartilhar */}
+          <div data-author className="flex flex-wrap items-center gap-x-3 gap-y-4 border-t border-foreground/10 pt-6">
             <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-[#006838] flex items-center justify-center text-white font-bold text-sm shadow-md">
               {translation.author.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
             </div>
-            <div>
+            <div className="mr-auto">
               <span className="block text-xs text-foreground/50 uppercase tracking-widest font-semibold">{t('author')}</span>
               <span className="block text-sm font-bold text-foreground">{translation.author}</span>
             </div>
+            <ShareButtons title={translation.title} />
           </div>
         </div>
       </Container>
 
-      {/* ─── Conteúdo da Matéria ─── */}
+      {/* ─── Conteúdo da Matéria (blocos: o mesmo formato do blog EUA) ─── */}
+      <ReadingProgress target={contentRef} />
       <Container className="mb-24">
         <div ref={contentRef} className="max-w-[48rem] mx-auto">
-          {/* Introdução */}
-          <div data-content-block className="prose max-w-none text-foreground/80 leading-relaxed text-lg mb-10">
-            <p>{translation.introduction}</p>
-          </div>
-
-          {/* Seções */}
-          {translation.sections.map((section, idx) => (
-            <div key={idx} data-content-block className="mb-12">
-              {section.title && (
-                <h3 className="font-montserrat text-xl md:text-2xl font-black uppercase text-primary tracking-tight mb-4">
-                  {section.title}
-                </h3>
-              )}
-              <div className="space-y-6 text-foreground/80 leading-relaxed text-base">
-                {section.content.map((p, pIdx) => (
-                  <p key={pIdx}>{p}</p>
-                ))}
-              </div>
-            </div>
-          ))}
-
-          {/* Citação / Destaque */}
-          {translation.quote && (
-            <div data-content-block className="my-14 p-8 md:p-10 rounded-3xl bg-[#F2F6F2] border-l-8 border-primary relative overflow-hidden">
-              <div className="absolute -top-6 -left-2 text-primary/5 text-9xl font-black select-none pointer-events-none">“</div>
-              <p className="relative z-10 font-medium italic text-lg md:text-xl text-primary leading-relaxed">
-                "{translation.quote}"
-              </p>
-            </div>
+          {translation.blocks.length ? (
+            <ArticleBody blocks={translation.blocks} />
+          ) : (
+            preview && <p className="text-foreground/40 text-lg">O texto da matéria aparece aqui.</p>
           )}
+
+          <div data-content-block className="mt-14 pt-8 border-t border-foreground/10 flex flex-wrap items-center justify-between gap-4">
+            <Link
+              href="/materias"
+              className="inline-flex items-center gap-2 text-primary font-bold uppercase tracking-wider text-xs transition-transform hover:-translate-x-1"
+            >
+              <ArrowLeftIcon className="h-4 w-4" /> {t('backButton')}
+            </Link>
+            <ShareButtons title={translation.title} withLabel />
+          </div>
         </div>
       </Container>
 

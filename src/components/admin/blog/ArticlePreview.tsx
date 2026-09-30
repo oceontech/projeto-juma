@@ -4,8 +4,9 @@ import { useLocale } from '@payloadcms/ui'
 import type { UIFieldClientComponent } from 'payload'
 import { useEffect, useState } from 'react'
 
-import { PostPreview, paragraphs } from './PostPreview'
-import { usePostForm } from './usePostForm'
+import { blocksWords } from '../../../features/articles/blocks'
+import { PostPreview } from './PostPreview'
+import { blocksOf, usePostForm } from './usePostForm'
 
 /** URL de uma mídia do painel pelo id do campo de upload. */
 export function useMediaUrl(ref: unknown) {
@@ -54,11 +55,12 @@ function siteDate(iso: string | undefined, locale: string) {
 
 /** Prévia da matéria do site Brasil, no idioma que está sendo editado. */
 export const ArticlePreview: UIFieldClientComponent = () => {
-  const { values: v, sections } = usePostForm()
+  const { values: v } = usePostForm()
   const locale = useLocale()?.code ?? 'pt-BR'
   const cover = useMediaUrl(v.capa)
   const category = useCategory(v.tema, locale)
-  const minutes = Number(v.tempoLeitura) || Math.max(1, Math.round(JSON.stringify([v.introducao, sections]).split(/\s+/).length / 200))
+  const blocks = blocksOf('br', v)
+  const minutes = Number(v.tempoLeitura) || Math.max(1, Math.round(blocksWords(blocks) / 200))
   const date = siteDate(v.data, locale)
 
   // O mesmo formato que a página /materias/<endereço> recebe (ArticleView).
@@ -75,11 +77,7 @@ export const ArticlePreview: UIFieldClientComponent = () => {
     title: v.titulo || 'O título aparece aqui',
     subtitle: v.subtitulo || '',
     author: v.assinatura || '',
-    introduction: v.introducao || '',
-    sections: sections
-      .filter((s) => s.titulo || s.paragrafos)
-      .map((s) => ({ title: s.titulo || undefined, content: paragraphs(s.paragrafos) })),
-    quote: v.citacao || undefined,
+    blocks,
     featured: Boolean(v.destaque),
   }
 

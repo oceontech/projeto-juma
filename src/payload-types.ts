@@ -555,47 +555,38 @@ export interface Article {
    */
   subtitulo?: string | null;
   /**
-   * O assunto principal: vira etiqueta e filtro na página de matérias. Nenhuma serve? Crie uma no +.
+   * O assunto principal: vira etiqueta e filtro na página de matérias.
    */
   tema: number | Categoria;
   /**
    * Como aparece na matéria. Ex.: Eng. Agrônomo Marcos Silva
    */
   assinatura?: string | null;
-  /**
-   * Foto na horizontal, de preferência com 1600 px de largura ou mais. Ou gere uma com a IA acima.
-   */
-  capa: number | Media;
-  /**
-   * O primeiro parágrafo, em destaque. Deixe uma linha em branco entre parágrafos.
-   */
+  conteudo?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   introducao?: string | null;
-  /**
-   * Cada seção tem um intertítulo e o texto. Arraste para mudar a ordem.
-   */
   secoes?:
     | {
         titulo?: string | null;
-        /**
-         * Deixe uma linha em branco entre os parágrafos.
-         */
-        paragrafos: string;
+        paragrafos?: string | null;
         id?: string | null;
       }[]
     | null;
-  /**
-   * Opcional. Uma frase forte do texto, que aparece em destaque.
-   */
   citacao?: string | null;
+  capa: number | Media;
   slug: string;
   data: string;
   /**
    * A mais recente marcada aparece no bloco grande do topo. A home mostra sempre as 3 mais recentes.
    */
   destaque?: boolean | null;
-  /**
-   * Estimado pela IA na revisão final. Vazio: calculado pelo texto ao salvar.
-   */
   tempoLeitura?: number | null;
   updatedAt: string;
   createdAt: string;
@@ -639,17 +630,13 @@ export interface PostsUs {
    */
   excerpt?: string | null;
   /**
-   * O assunto do post: vira etiqueta no blog. Nenhuma serve? Crie uma no +.
+   * O assunto do post: vira etiqueta no blog.
    */
   tema?: (number | null) | Categoria;
   /**
    * Ex.: Juma-Agro agronomy
    */
   author?: string | null;
-  /**
-   * Foto na horizontal, de preferência com 1600 px de largura ou mais.
-   */
-  cover?: (number | null) | Media;
   body?: {
     root: {
       type: string;
@@ -666,11 +653,9 @@ export interface PostsUs {
     [k: string]: unknown;
   } | null;
   bodyHtml?: string | null;
+  cover?: (number | null) | Media;
   slug: string;
   date: string;
-  /**
-   * Estimado pela IA na revisão final. Vazio: calculado pelo texto ao salvar.
-   */
   readMinutes?: number | null;
   updatedAt: string;
   createdAt: string;
@@ -993,7 +978,7 @@ export interface ArticlesSelect<T extends boolean = true> {
   subtitulo?: T;
   tema?: T;
   assinatura?: T;
-  capa?: T;
+  conteudo?: T;
   introducao?: T;
   secoes?:
     | T
@@ -1003,6 +988,7 @@ export interface ArticlesSelect<T extends boolean = true> {
         id?: T;
       };
   citacao?: T;
+  capa?: T;
   slug?: T;
   data?: T;
   destaque?: T;
@@ -1020,9 +1006,9 @@ export interface PostsUsSelect<T extends boolean = true> {
   excerpt?: T;
   tema?: T;
   author?: T;
-  cover?: T;
   body?: T;
   bodyHtml?: T;
+  cover?: T;
   slug?: T;
   date?: T;
   readMinutes?: T;

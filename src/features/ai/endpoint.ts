@@ -1,31 +1,27 @@
 import { addDataAndFileToRequest, type PayloadHandler, type PayloadRequest } from 'payload'
 
 import { hasRole } from '../../access/roles'
+import { readBlocks } from '../articles/blocks'
 import { AiError, chatJSON, editImage, generateImage } from './openai'
-import { blocksToLexical, blocksToPlain, cleanBlocks, lexicalToBlocks, type Block } from './lexical'
+import { blocksToPlain, cleanBlocks, lexicalToBlocks, type Block } from './lexical'
 import { rulesFor } from './rules'
 
 /**
- * POST /api/ai/:action — assistente de posts do blog (Matéria BR e Post EUA):
- * assunto (títulos, subtítulo, categoria), campo (etiqueta ✨ IA das caixas de
- * texto), revisar (revisão final), capa (3 modos) e traduzir (EN/ES).
- * Só admin e editor. O formulário manda o que está preenchido; a resposta
- * volta pronta para aplicar nos campos (o usuário decide o que usar).
+ * POST /api/ai/:action — assistente de posts do blog (Matéria BR e Post EUA),
+ * com o texto em blocos (parágrafo, intertítulo, lista, citação) nos dois sites:
+ * assunto (títulos, subtítulo, categoria), bloco (✨ IA de um bloco), texto
+ * (texto todo ou texto colado), revisar, corrigir, capa (3 modos) e traduzir.
+ * Só admin e editor. A resposta volta pronta para aplicar no formulário.
  */
 
 type Site = 'br' | 'us'
-type Section = { titulo?: string; paragrafos?: string }
 type Content = {
   site: Site
   title: string
   summary: string
   author: string
   category: string
-  intro: string
-  sections: Section[]
-  quote: string
   blocks: Block[]
-  raw: string
 }
 
 const MAX = 24_000
@@ -33,40 +29,31 @@ const cut = (s: unknown, n = MAX) => String(s ?? '').slice(0, n)
 /** A IA às vezes devolve os parágrafos como lista: vira texto com linha em branco entre eles. */
 const asText = (v: unknown) =>
   Array.isArray(v) ? v.map((x) => String(x ?? '').trim()).filter(Boolean).join('\n\n') : String(v ?? '').trim()
-const asSections = (list: unknown): { titulo: string; paragrafos: string }[] =>
-  (Array.isArray(list) ? list : [])
-    .map((s) => ({ titulo: asText((s as Section)?.titulo), paragrafos: asText((s as Section)?.paragrafos) }))
-    .filter((s) => s.paragrafos)
+const unquote = (s: string) => s.replace(/^["“”'\s]+|["“”'\s]+$/g, '')
 
 function readContent(body: Record<string, any>): Content {
   const site: Site = body.site === 'us' ? 'us' : 'br'
-  const sections: Section[] = Array.isArray(body.secoes)
-    ? body.secoes.filter(Boolean).map((s: Section) => ({ titulo: cut(s.titulo, 300), paragrafos: cut(s.paragrafos, 8000) }))
-    : []
   return {
     site,
     title: cut(site === 'us' ? body.title : body.titulo, 300),
     summary: cut(site === 'us' ? body.excerpt : body.subtitulo, 600),
     author: cut(site === 'us' ? body.author : body.assinatura, 200),
     category: cut(body.categoriaNome, 120),
-    intro: cut(body.introducao, 6000),
-    sections,
-    quote: cut(body.citacao, 600),
-    blocks: site === 'us' ? lexicalToBlocks(body.body) : [],
-    raw: cut(body.bruto),
+    // O editor manda os blocos prontos; a revisão manda os valores do formulário.
+    blocks: Array.isArray(body.blocos) ? cleanBlocks(body.blocos) : site === 'us' ? lexicalToBlocks(body.body) : readBlocks(body.conteudo),
   }
 }
 
 /** Texto corrido do post, para a IA ler. */
-function plain(c: Content) {
-  if (c.site === 'us') return blocksToPlain(c.blocks)
-  return [c.intro, ...c.sections.map((s) => [s.titulo ? `## ${s.titulo}` : '', s.paragrafos].filter(Boolean).join('\n\n')), c.quote ? `> ${c.quote}` : '']
-    .filter(Boolean)
-    .join('\n\n')
-}
+const plain = (c: Content) => blocksToPlain(c.blocks).slice(0, 16000)
 
 const words = (text: string) => text.split(/\s+/).filter(Boolean).length
 const lang = (site: Site) => (site === 'us' ? 'inglês americano' : 'português do Brasil')
+
+const KIND: Record<Block['type'], string> = { p: 'parágrafo', h2: 'intertítulo', h3: 'intertítulo', ul: 'lista', quote: 'citação' }
+const blockText = (b: Block) => (b.type === 'ul' ? b.items.map((i) => `- ${i}`).join('\n') : b.text)
+
+const BLOCKS_JSON = '{"blocos": [{"type": "p" | "h2" | "quote", "text": ""} | {"type": "ul", "items": [""]}]}'
 
 function header(c: Content) {
   return [
@@ -119,144 +106,129 @@ Responda em JSON: {"titulos": ["", "", ""], "resumo": "", "categoriaId": número
 }
 
 type Mode = 'ortografia' | 'organizar' | 'aprimorar' | 'aumentar'
+const MODES: Mode[] = ['ortografia', 'organizar', 'aprimorar', 'aumentar']
+const modeOf = (v: unknown): Mode => (MODES.includes(v as Mode) ? (v as Mode) : 'aprimorar')
 
-const MODE_BR: Record<Mode, string> = {
+const TASK: Record<Mode, string> = {
   ortografia: 'Corrija só ortografia, acentuação, concordância e pontuação. Não mude palavras nem a ordem das ideias.',
   organizar:
-    'Corrija e organize: ordem lógica das ideias, parágrafos curtos (separados por uma linha em branco), frases claras. Mantenha o conteúdo, sem acrescentar nem tirar informação.',
+    'Corrija e organize: ordem lógica das ideias, parágrafos curtos, frases claras, lista quando houver passos ou itens. Mantenha o conteúdo, sem acrescentar nem tirar informação.',
   aprimorar: 'Aprimore a redação: mais clara, direta e fluida para o produtor rural, com o mesmo tamanho aproximado e as mesmas informações.',
   aumentar:
     'Aprimore e desenvolva o texto em cerca de 1,5 a 2 vezes o tamanho, explicando melhor o que já está dito (como fazer, por que importa, cuidados práticos). Não invente números, ensaios, doses nem resultados.',
 }
 
-const MODE_US: Record<Mode, string> = {
-  ortografia: 'Fix only spelling, grammar and punctuation. Do not change wording or the order of ideas.',
-  organizar: 'Fix and organize: logical order, short paragraphs, clear sentences, h2 headings where the topic changes. Keep the content; do not add or remove information.',
-  aprimorar: 'Improve the writing: clearer, direct and fluent for growers, about the same length and the same information.',
-  aumentar:
-    'Improve and develop the text to about 1.5 to 2 times the length, explaining better what is already said (how, why it matters, practical care). Do not invent numbers, trials, rates or results.',
+function blocksOut(v: unknown) {
+  const blocks = cleanBlocks(v).map((b): Block => (b.type === 'h3' ? { type: 'h2', text: b.text } : b))
+  if (!blocks.length) throw new AiError('A IA não devolveu o texto. Tente de novo.', 502)
+  return blocks
 }
 
-/**
- * IA por caixa de texto: a etiqueta "✨ IA" da introdução, de cada seção e do
- * texto do post EUA. "Organizar" na introdução também separa seções quando o
- * texto colado trata de mais de um assunto.
- */
-async function campo(c: Content, body: Record<string, any>) {
-  const mode: Mode = ['ortografia', 'organizar', 'aprimorar', 'aumentar'].includes(body.modo) ? body.modo : 'aprimorar'
-  const alvo = body.alvo === 'secao' ? 'secao' : body.alvo === 'corpo' ? 'corpo' : 'intro'
+/** ✨ IA de um bloco do editor: devolve o(s) bloco(s) que entram no lugar dele. */
+async function bloco(c: Content, body: Record<string, any>) {
+  const mode = modeOf(body.modo)
+  const all: unknown[] = Array.isArray(body.blocos) ? body.blocos : []
+  const index = Number(body.indice)
+  const target = cleanBlocks([all[index]])[0]
+  if (!target || words(blockText(target)) < 2) throw new AiError('Escreva algo neste bloco antes de usar a IA.', 400)
 
-  if (alvo === 'corpo') {
-    const text = blocksToPlain(c.blocks)
-    if (words(text) < 5) throw new AiError('Escreva o texto antes de usar a IA.', 400)
-    const out = await chatJSON<{ blocos?: unknown }>(
-      rulesFor('us'),
-      `${MODE_US[mode]}
+  const shape =
+    target.type === 'h2' || target.type === 'h3'
+      ? 'É um intertítulo: devolva UM bloco h2, curto (até 60 caracteres) e claro, que anuncie o que vem a seguir.'
+      : target.type === 'quote'
+        ? 'É a citação em destaque: devolva UM bloco quote com uma frase forte do próprio texto.'
+        : target.type === 'ul'
+          ? 'É uma lista: devolva UM bloco ul, com itens curtos e escritos do mesmo jeito.'
+          : mode === 'organizar' || mode === 'aumentar'
+            ? 'É um parágrafo: devolva um ou mais blocos (parágrafos curtos; uma lista ul se houver passos ou itens; h2 só se o assunto mudar).'
+            : 'É um parágrafo: devolva um ou mais parágrafos (p).'
+  const rest = cleanBlocks(all.filter((_, i) => i !== index))
+  const context = rest.length ? `\nResto da matéria, só para contexto (não reescreva nem repita o que já está aqui; mantenha a coerência):\n${blocksToPlain(rest).slice(0, 6000)}\n` : ''
+
+  const out = await chatJSON<{ blocos?: unknown }>(
+    rulesFor(c.site),
+    `${TASK[mode]}
+Você vai reescrever só UM bloco da matéria (${KIND[target.type]}). ${shape}
+Escreva em ${lang(c.site)}.
 ${header(c)}
+${context}
+Bloco a reescrever:
+${blockText(target)}
 
-Post:
-${text}
-
-Answer in JSON: {"blocos": [{"type": "p"|"h2"|"h3"|"quote", "text": ""} | {"type": "ul", "items": [""]}]}`,
-      { effort: mode === 'ortografia' ? 'low' : 'medium' },
-    )
-    const blocks = cleanBlocks(out.blocos)
-    if (!blocks.length) throw new AiError('A IA não devolveu o texto. Tente de novo.', 502)
-    return { body: blocksToLexical(blocks) }
-  }
-
-  const texto = asText(body.texto)
-  if (words(texto) < 3) throw new AiError('Escreva algo nesta caixa antes de usar a IA.', 400)
-  const rules = rulesFor(c.site)
-  const task = c.site === 'us' ? MODE_US[mode] : MODE_BR[mode]
-  // O resto do post (sem a caixa em edição), só como contexto.
-  const indice = alvo === 'secao' ? Number(body.indice) : -1
-  const resto = [
-    alvo === 'intro' ? '' : c.intro ? `Introdução: ${c.intro}` : '',
-    ...c.sections.map((s, i) => (i === indice ? '' : `Seção ${i + 1}${s.titulo ? ` (${s.titulo})` : ''}: ${s.paragrafos ?? ''}`)),
-  ]
-    .filter(Boolean)
-    .join('\n\n')
-    .slice(0, 5000)
-  const contexto = resto
-    ? `\nResto da matéria, só para contexto (não reescreva nem repita o que já está aqui; mantenha a coerência com ele):\n${resto}\n`
-    : ''
-
-  if (alvo === 'intro' && mode === 'organizar' && words(texto) > 120) {
-    const out = await chatJSON<{ introducao?: unknown; secoes?: unknown }>(
-      rules,
-      `O texto abaixo foi colado na caixa de introdução da matéria. ${task}
-Se ele tratar de mais de um assunto, deixe na introdução só a abertura (1 ou 2 parágrafos) e separe o resto em seções com intertítulo curto. Se for um texto curto de abertura, devolva seções vazias.
-${header(c)}
-${contexto}
-Texto:
-${texto}
-
-Responda em JSON: {"introducao": "", "secoes": [{"titulo": "", "paragrafos": ""}]}`,
-      { effort: 'medium' },
-    )
-    return { texto: asText(out.introducao) || texto, secoes: asSections(out.secoes) }
-  }
-
-  const out = await chatJSON<{ texto?: unknown; titulo?: unknown }>(
-    rules,
-    `${task}
-${alvo === 'secao' ? `Este é o texto de uma seção da matéria${body.titulo ? ` com o intertítulo "${cut(body.titulo, 200)}"` : ''}. Sugira também um intertítulo curto e claro (até 60 caracteres).` : 'Este é o texto de abertura (introdução) da matéria.'}
-Separe parágrafos com uma linha em branco.
-${header(c)}
-${contexto}
-Texto:
-${texto}
-
-Responda em JSON: {"texto": ""${alvo === 'secao' ? ', "titulo": ""' : ''}}`,
+Responda em JSON: ${BLOCKS_JSON}`,
     { effort: mode === 'ortografia' ? 'low' : 'medium' },
   )
-  const result = asText(out.texto)
-  if (!result) throw new AiError('A IA não devolveu o texto. Tente de novo.', 502)
-  return { texto: result, titulo: alvo === 'secao' ? asText(out.titulo) : undefined }
+  return { blocos: blocksOut(out.blocos) }
+}
+
+/** ✨ IA no texto todo, ou texto colado (`bruto`) que vira blocos. */
+async function texto(c: Content, body: Record<string, any>) {
+  const raw = cut(body.bruto, 30000).trim()
+  const mode = raw ? 'organizar' : modeOf(body.modo)
+  const source = raw || plain(c)
+  if (words(source) < 5) throw new AiError('Escreva ou cole o texto antes de usar a IA.', 400)
+  const out = await chatJSON<{ blocos?: unknown }>(
+    rulesFor(c.site),
+    `${TASK[mode]}
+${
+  raw
+    ? 'O texto abaixo foi colado de outro lugar (e-mail, Word, WhatsApp). Monte a matéria em blocos: parágrafos curtos (p), intertítulo (h2) quando o assunto muda, lista (ul) para passos ou itens e no máximo uma citação (quote) se houver uma frase forte no próprio texto. A matéria sempre abre com um parágrafo (nunca com intertítulo nem lista), e intertítulo não repete a frase que vem logo depois. Corrija a ortografia. Não acrescente informação. Tire assinaturas de e-mail, saudações e linhas soltas que não fazem parte da matéria.'
+    : 'Devolva a matéria inteira em blocos, na mesma ordem, aplicando a tarefa acima. Mantenha os intertítulos, listas e a citação que já existem, ajustando só o necessário.'
+}
+Escreva em ${lang(c.site)}.
+${header(c)}
+
+Texto:
+${source}
+
+Responda em JSON: ${BLOCKS_JSON}`,
+    { effort: 'medium' },
+  )
+  return { blocos: blocksOut(out.blocos) }
 }
 
 /** Post com cada parte marcada, para a IA dizer onde está cada problema. */
 function labeled(c: Content) {
-  if (c.site === 'us') return [`[titulo] ${c.title}`, `[resumo] ${c.summary}`, `[texto]\n${blocksToPlain(c.blocks)}`].join('\n\n')
   return [
     `[titulo] ${c.title}`,
-    `[subtitulo] ${c.summary}`,
-    `[introducao]\n${c.intro}`,
-    ...c.sections.map((s, i) => `[secao ${i + 1}] ${s.titulo ? `Intertítulo: ${s.titulo}` : '(sem intertítulo)'}\n${s.paragrafos ?? ''}`),
-    c.quote ? `[citacao] ${c.quote}` : '',
-  ]
-    .filter(Boolean)
-    .join('\n\n')
+    `[${c.site === 'us' ? 'resumo' : 'subtitulo'}] ${c.summary}`,
+    ...c.blocks.map((b, i) => `[bloco ${i + 1} · ${KIND[b.type]}]\n${blockText(b)}`),
+  ].join('\n\n')
 }
 
 type Issue = { tipo: string; onde: string; trecho: string; correcao: string; sugestao: string }
 
-/** O que falta preencher e a IA pode sugerir na revisão (com botão "Inserir"). */
-type Suggestion = { campo: string; rotulo: string; texto: string; motivo: string }
+/**
+ * O que falta e a IA pode sugerir na revisão (botão "Inserir"): a citação e
+ * intertítulos. `ancora` é o texto do bloco de referência (depois dele entra a
+ * citação; antes dele entra o intertítulo), para achar o lugar mesmo se o
+ * texto mudou de posição.
+ */
+type Suggestion = { tipo: 'citacao' | 'intertitulo'; rotulo: string; texto: string; motivo: string; ancora: string }
 
 async function revisar(c: Content) {
   const text = plain(c)
   const n = words(text)
   if (n < 30) throw new AiError('Escreva o texto antes da revisão final.', 400)
-  // Partes vazias que valem sugestão: citação em destaque (só BR) e intertítulos de seção.
-  const semCitacao = c.site === 'br' && !c.quote.trim()
-  const semTitulo = c.site === 'br' ? c.sections.map((s, i) => (s.paragrafos?.trim() && !s.titulo?.trim() ? i + 1 : 0)).filter(Boolean) : []
+  const paragraphs = c.blocks.filter((b) => b.type === 'p').length
+  const semCitacao = !c.blocks.some((b) => b.type === 'quote')
+  const semIntertitulo = paragraphs >= 5 && !c.blocks.some((b) => b.type === 'h2' || b.type === 'h3')
   const extras = [
     semCitacao
-      ? `Em "citacao", sugira a citação em destaque da matéria: UMA frase curta e forte (até 160 caracteres) tirada do próprio texto, com no máximo um ajuste leve de palavras. Sem número que não esteja no texto com fonte.`
+      ? `Em "citacao", sugira a citação em destaque: UMA frase curta e forte (até 160 caracteres) tirada do próprio texto, com no máximo um ajuste leve, e em "depois_do_bloco" o número do parágrafo depois do qual ela fica melhor (no meio da matéria). Sem número que não esteja no texto com fonte.`
       : '',
-    semTitulo.length
-      ? `Em "intertitulos", sugira um intertítulo curto e claro (até 60 caracteres) para cada seção sem intertítulo: ${semTitulo.map((i) => `secao ${i}`).join(', ')}.`
+    semIntertitulo
+      ? `Em "intertitulos", sugira até 3 intertítulos curtos (até 60 caracteres) para dividir a matéria nos pontos em que o assunto muda, cada um com "antes_do_bloco": o número do parágrafo que ele abre (nunca o bloco 1).`
       : '',
   ].filter(Boolean)
+
   const out = await chatJSON<{
     tempoLeitura?: number
     descricaoGoogle?: string
     problemas?: Partial<Issue>[]
     parecer?: string
-    citacao?: string
-    intertitulos?: { secao?: number | string; titulo?: string }[]
+    citacao?: { texto?: string; depois_do_bloco?: number | string } | string
+    intertitulos?: { antes_do_bloco?: number | string; titulo?: string }[]
   }>(
     rulesFor(c.site),
     `Faça a revisão final do post abaixo antes de publicar. Responda em português do Brasil (o post pode estar em ${lang(c.site)}).
@@ -264,25 +236,51 @@ async function revisar(c: Content) {
 2. Aponte até 8 problemas concretos: violações das regras de escrita${c.site === 'us' ? ' e de FIFRA' : ''}, números ou resultados sem fonte, erros de gramática ou digitação, trechos confusos.
    Um número TEM fonte quando o próprio trecho ou a frase ao lado cita quem mediu (instituição, ensaio, órgão ou ano). Recomendações técnicas gerais (estádio V4, faixa de pH) não precisam de fonte. Não aponte o que já está certo. Se estiver tudo certo, lista vazia.
    Para cada problema:
-   - "onde": a marca da parte em que ele está (titulo, subtitulo, resumo, introducao, "secao 2", citacao ou texto);
+   - "onde": a marca da parte em que ele está (titulo, ${c.site === 'us' ? 'resumo' : 'subtitulo'} ou "bloco 3");
    - "trecho": cópia EXATA, letra por letra, de um pedaço curto do post (uma frase ou menos) que contém o problema;
    - "correcao": esse mesmo trecho já corrigido, no idioma do post, pronto para substituir o trecho. Mude o mínimo. Nunca invente fonte, número ou ensaio: se falta fonte, reescreva sem o número ou sem afirmar o resultado;
    - "sugestao": em português, uma frase curta explicando o que estava errado.
 3. Em "descricaoGoogle", escreva a descrição do post para aparecer no Google: ${c.site === 'us' ? 'em inglês, ' : ''}uma ou duas frases, até 160 caracteres, dizendo do que o post trata e o que o leitor aprende. Nada sobre a revisão ou sobre a qualidade do texto.
-4. Dê um parecer de uma frase sobre se está pronto para publicar (sem falar das partes vazias do item 5).
+4. Dê um parecer de uma frase sobre se está pronto para publicar (sem falar das partes do item 5).
 ${extras.length ? `5. ${extras.join('\n   ')}\n` : ''}
 ${header(c)}
 
 Post (cada parte começa com a marca entre colchetes, que não faz parte do texto):
-${labeled(c).slice(0, 16000)}
+${labeled(c).slice(0, 18000)}
 
-Responda em JSON: {"tempoLeitura": número, "descricaoGoogle": "", "problemas": [{"tipo": "regra|número sem fonte|gramática|clareza${c.site === 'us' ? '|FIFRA' : ''}", "onde": "", "trecho": "", "correcao": "", "sugestao": ""}], "parecer": ""${semCitacao ? ', "citacao": ""' : ''}${semTitulo.length ? ', "intertitulos": [{"secao": número, "titulo": ""}]' : ''}}`,
+Responda em JSON: {"tempoLeitura": número, "descricaoGoogle": "", "problemas": [{"tipo": "regra|número sem fonte|gramática|clareza${c.site === 'us' ? '|FIFRA' : ''}", "onde": "", "trecho": "", "correcao": "", "sugestao": ""}], "parecer": ""${semCitacao ? ', "citacao": {"texto": "", "depois_do_bloco": número}' : ''}${semIntertitulo ? ', "intertitulos": [{"antes_do_bloco": número, "titulo": ""}]' : ''}}`,
     { effort: 'medium' },
   )
   // Sanidade: entre ~120 e ~300 palavras por minuto.
   const min = Math.max(1, Math.round(n / 300))
   const max = Math.max(1, Math.ceil(n / 120))
   const tempo = Math.min(max, Math.max(min, Math.round(Number(out.tempoLeitura) || n / 200)))
+  const num = (v: unknown) => Number(String(v ?? '').replace(/\D/g, '')) || 0
+  const anchor = (n1: number) => (c.blocks[n1 - 1] ? blockText(c.blocks[n1 - 1]) : '')
+
+  const sugestoes: Suggestion[] = []
+  if (semCitacao && out.citacao) {
+    const q = typeof out.citacao === 'string' ? { texto: out.citacao } : out.citacao
+    const texto = unquote(asText(q.texto))
+    const after = num((q as { depois_do_bloco?: unknown }).depois_do_bloco) || Math.ceil(c.blocks.length / 2)
+    if (texto)
+      sugestoes.push({
+        tipo: 'citacao',
+        rotulo: 'Citação em destaque',
+        texto,
+        motivo: 'A matéria está sem citação. Esta frase do próprio texto fica em destaque, com letra grande.',
+        ancora: anchor(Math.min(after, c.blocks.length)),
+      })
+  }
+  if (semIntertitulo) {
+    for (const t of (out.intertitulos ?? []).slice(0, 3)) {
+      const before = num(t?.antes_do_bloco)
+      const titulo = unquote(asText(t?.titulo))
+      if (before > 1 && before <= c.blocks.length && titulo)
+        sugestoes.push({ tipo: 'intertitulo', rotulo: 'Intertítulo', texto: titulo, motivo: `Divide a matéria antes do bloco ${before}; ajuda a leitura e o Google.`, ancora: anchor(before) })
+    }
+  }
+
   return {
     tempoLeitura: tempo,
     resumo: String(out.descricaoGoogle ?? '').trim(),
@@ -292,77 +290,52 @@ Responda em JSON: {"tempoLeitura": número, "descricaoGoogle": "", "problemas": 
       .map((p) => ({
         tipo: String(p.tipo ?? 'clareza'),
         onde: String(p.onde ?? '').toLowerCase(),
-        trecho: String(p.trecho ?? '').replace(/^["“”'\s]+|["“”'\s]+$/g, ''),
+        trecho: unquote(String(p.trecho ?? '')),
         correcao: asText(p.correcao),
         sugestao: String(p.sugestao ?? ''),
       })),
     parecer: String(out.parecer ?? ''),
     palavras: n,
-    sugestoes: [
-      ...(semCitacao && asText(out.citacao)
-        ? [{ campo: 'citacao', rotulo: 'Citação em destaque', texto: asText(out.citacao).replace(/^["“”'\s]+|["“”'\s]+$/g, ''), motivo: 'A matéria está sem citação. Esta frase do próprio texto fica em destaque na página.' }]
-        : []),
-      ...(out.intertitulos ?? [])
-        .map((t) => ({ n: Number(String(t?.secao ?? '').replace(/\D/g, '')), titulo: asText(t?.titulo) }))
-        .filter((t) => semTitulo.includes(t.n) && t.titulo)
-        .map((t) => ({ campo: `secoes.${t.n - 1}.titulo`, rotulo: `Intertítulo da seção ${t.n}`, texto: t.titulo, motivo: 'A seção está sem intertítulo; ele ajuda a leitura e o Google.' })),
-    ] satisfies Suggestion[],
+    sugestoes,
   }
 }
 
 /**
  * "Corrigir" de um ponto da revisão, quando o trecho não foi achado igual no
- * formulário: a IA reescreve a parte inteira em que está o problema.
+ * formulário: a IA reescreve o título, o subtítulo ou o bloco inteiro.
  */
 async function corrigir(c: Content, body: Record<string, any>) {
   const p = (body.problema ?? {}) as Partial<Issue>
   const onde = String(p.onde ?? '').toLowerCase()
-  const task = `Corrija só este problema, mudando o mínimo possível e mantendo o resto igual (mesmos parágrafos, mesmo idioma). Nunca invente fonte, número ou ensaio.
+  const task = `Corrija só este problema, mudando o mínimo possível e mantendo o resto igual (mesmo idioma). Nunca invente fonte, número ou ensaio.
 Problema (${p.tipo ?? 'clareza'}): ${cut(p.sugestao, 600)}
 ${p.trecho ? `Trecho apontado: "${cut(p.trecho, 600)}"` : ''}
 ${p.correcao ? `Correção sugerida para o trecho: "${cut(p.correcao, 600)}"` : ''}`
 
-  if (c.site === 'us' && !['titulo', 'resumo'].includes(onde)) {
-    const out = await chatJSON<{ blocos?: unknown }>(
-      rulesFor('us'),
-      `${task}
-
-Post:
-${blocksToPlain(c.blocks)}
-
-Answer in JSON with the whole post text: {"blocos": [{"type": "p"|"h2"|"h3"|"quote", "text": ""} | {"type": "ul", "items": [""]}]}`,
-      { effort: 'low' },
-    )
-    const blocks = cleanBlocks(out.blocos)
-    if (!blocks.length) throw new AiError('A IA não devolveu o texto. Tente de novo.', 502)
-    return { campo: 'body', body: blocksToLexical(blocks) }
+  if (onde === 'titulo' || onde === 'subtitulo' || onde === 'resumo') {
+    const field = onde === 'titulo' ? (c.site === 'us' ? 'title' : 'titulo') : c.site === 'us' ? 'excerpt' : 'subtitulo'
+    const current = onde === 'titulo' ? c.title : c.summary
+    if (!current.trim()) throw new AiError('Não encontrei essa parte do post. Revise de novo.', 400)
+    const out = await chatJSON<{ texto?: unknown }>(rulesFor(c.site), `${task}\n\nTexto a corrigir (devolva ele inteiro, corrigido):\n${current}\n\nResponda em JSON: {"texto": ""}`, { effort: 'low' })
+    const texto = asText(out.texto)
+    if (!texto) throw new AiError('A IA não devolveu o texto. Tente de novo.', 502)
+    return { campo: field, texto }
   }
 
-  const n = Number(onde.match(/secao\s*(\d+)/)?.[1] ?? 0)
-  const target =
-    onde === 'titulo'
-      ? { campo: c.site === 'us' ? 'title' : 'titulo', texto: c.title }
-      : onde === 'subtitulo' || onde === 'resumo'
-        ? { campo: c.site === 'us' ? 'excerpt' : 'subtitulo', texto: c.summary }
-        : onde === 'citacao'
-          ? { campo: 'citacao', texto: c.quote }
-          : n && c.sections[n - 1]
-            ? { campo: `secoes.${n - 1}.paragrafos`, texto: c.sections[n - 1].paragrafos ?? '' }
-            : { campo: 'introducao', texto: c.intro }
-  if (!target.texto.trim()) throw new AiError('Não encontrei essa parte do post. Revise de novo.', 400)
-  const out = await chatJSON<{ texto?: unknown }>(
+  const n = Number(onde.match(/bloco\s*(\d+)/)?.[1] ?? 0)
+  const target = c.blocks[n - 1]
+  if (!target) throw new AiError('Não encontrei esse trecho no texto. Revise de novo.', 400)
+  const out = await chatJSON<{ blocos?: unknown }>(
     rulesFor(c.site),
     `${task}
 
-Texto a corrigir (devolva ele inteiro, corrigido; parágrafos separados por uma linha em branco):
-${target.texto}
+Bloco a corrigir (${KIND[target.type]}; devolva o bloco inteiro, corrigido, com o mesmo tipo):
+${blockText(target)}
 
-Responda em JSON: {"texto": ""}`,
+Responda em JSON: ${BLOCKS_JSON}`,
     { effort: 'low' },
   )
-  const texto = asText(out.texto)
-  if (!texto) throw new AiError('A IA não devolveu o texto. Tente de novo.', 502)
-  return { campo: target.campo, texto }
+  return { bloco: n - 1, blocos: blocksOut(out.blocos) }
 }
 
 /**
@@ -452,19 +425,18 @@ Answer in JSON: {"prompt": "the scene", "alt": ""}`,
 
 async function traduzir(req: PayloadRequest, id: number) {
   const doc = await req.payload.findByID({ collection: 'articles', id, locale: 'pt-BR', fallbackLocale: false, depth: 1, draft: true, overrideAccess: true })
+  const blocks = readBlocks(doc.conteudo)
   const source = {
     titulo: doc.titulo ?? '',
     subtitulo: doc.subtitulo ?? '',
     assinatura: doc.assinatura ?? '',
-    introducao: doc.introducao ?? '',
-    secoes: (doc.secoes ?? []).map((s) => ({ titulo: s.titulo ?? '', paragrafos: s.paragrafos ?? '' })),
-    citacao: doc.citacao ?? '',
+    blocos: blocks,
   }
-  if (!source.titulo) throw new AiError('Salve a matéria em português antes de traduzir.', 400)
-  type T = typeof source
+  if (!source.titulo || !blocks.length) throw new AiError('Salve a matéria em português, com o texto, antes de traduzir.', 400)
+  type T = { titulo?: string; subtitulo?: string; assinatura?: string; blocos?: unknown }
   const out = await chatJSON<{ en?: T; es?: T }>(
-    'You are a professional agronomy translator. Translate faithfully from Brazilian Portuguese, keeping every number, unit, product name (Aminosan, Acorda Ultra, KMEP Ultra…) and paragraph break. Natural, fluent style for farmers. No em dashes.',
-    `Translate this blog post into English (en) and Latin American Spanish (es). Keep the same JSON structure and the same number of sections. Keep "assinatura" (author) names as they are, translating only job titles.
+    'You are a professional agronomy translator. Translate faithfully from Brazilian Portuguese, keeping every number, unit, product name (Aminosan, Acorda Ultra, KMEP Ultra…) and the block structure. Natural, fluent style for farmers. No em dashes.',
+    `Translate this blog post into English (en) and Latin American Spanish (es). Keep the same JSON structure: the same number of blocks, in the same order, with the same "type" (p, h2, ul, quote); translate only the text. Keep "assinatura" (author) names as they are, translating only job titles.
 
 ${JSON.stringify(source)}
 
@@ -474,7 +446,8 @@ Answer in JSON: {"en": {same fields}, "es": {same fields}}`,
   const done: string[] = []
   for (const locale of ['en', 'es'] as const) {
     const t = out[locale]
-    if (!t?.titulo) continue
+    const translated = cleanBlocks(t?.blocos)
+    if (!t?.titulo || !translated.length) continue
     await req.payload.update({
       collection: 'articles',
       id,
@@ -484,9 +457,7 @@ Answer in JSON: {"en": {same fields}, "es": {same fields}}`,
         titulo: asText(t.titulo),
         subtitulo: asText(t.subtitulo),
         assinatura: asText(t.assinatura),
-        introducao: asText(t.introducao),
-        secoes: asSections(t.secoes),
-        citacao: asText(t.citacao),
+        conteudo: translated,
       },
       req,
       overrideAccess: true,
@@ -525,7 +496,8 @@ export const aiHandler: PayloadHandler = async (req) => {
   try {
     let result: unknown
     if (action === 'assunto') result = await assunto(req, c)
-    else if (action === 'campo') result = await campo(c, body)
+    else if (action === 'bloco') result = await bloco(c, body)
+    else if (action === 'texto') result = await texto(c, body)
     else if (action === 'revisar') result = await revisar(c)
     else if (action === 'corrigir') result = await corrigir(c, body)
     else if (action === 'capa') result = await capa(req, c, body)

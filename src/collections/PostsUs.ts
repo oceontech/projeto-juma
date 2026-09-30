@@ -47,7 +47,11 @@ export const PostsUs: CollectionConfig = {
     pagination: { defaultLimit: 24 },
     components: {
       views: { list: { Component: '/components/admin/blog/BlogRedirect#BlogRedirect' } },
-      edit: { PublishButton: { path: '/components/admin/blog/PublishButton#PublishButton', clientProps: { dateField: 'date' } } },
+      edit: {
+        PublishButton: { path: '/components/admin/blog/PublishButton#PublishButton', clientProps: { dateField: 'date' } },
+        // Progresso e etapas do post na mesma linha de "Salvar rascunho" e "Publicar".
+        beforeDocumentControls: [{ path: '/components/admin/blog/PostProgress#PostProgress', clientProps: { site: 'us' } }],
+      },
     },
   },
   defaultSort: '-date',
@@ -88,12 +92,6 @@ export const PostsUs: CollectionConfig = {
       },
     },
     {
-      // Progresso e etapas do post (as abas do Payload ficam escondidas).
-      name: 'passos',
-      type: 'ui',
-      admin: { components: { Field: { path: '/components/admin/blog/PostStepper#PostStepper', clientProps: { site: 'us' } } } },
-    },
-    {
       // Etapas do post: cada aba é uma etapa da barra de progresso.
       type: 'tabs',
       tabs: [
@@ -131,14 +129,16 @@ export const PostsUs: CollectionConfig = {
         },
         {
           label: 'Texto',
-          description: 'Descreva o que o produto entrega, nunca o efeito na planta ou no inseto (FIFRA). Todo número com fonte.',
+          description:
+            'Escreva como num documento ou cole um texto pronto, em inglês. Descreva o que o produto entrega, nunca o efeito na planta ou no inseto (FIFRA). Todo número com fonte.',
           fields: [
             {
-              name: 'iaTexto',
-              type: 'ui',
-              admin: { components: { Field: '/components/admin/blog/BodyAiBar#BodyAiBar' } },
+              // Mesmo editor em blocos do blog BR; grava no texto rico (convertido em HTML para o site).
+              name: 'body',
+              label: 'Texto (em inglês)',
+              type: 'richText',
+              admin: { components: { Field: { path: '/components/admin/blog/BlockEditor#BlockEditor', clientProps: { site: 'us' } } } },
             },
-            { name: 'body', label: 'Texto (em inglês)', type: 'richText' },
             {
               // HTML pronto para o site EUA, que não tem o editor do Payload instalado.
               name: 'bodyHtml',

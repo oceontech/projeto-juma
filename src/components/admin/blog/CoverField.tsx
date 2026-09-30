@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { GeneratingCanvas } from './GeneratingCanvas'
 import { MediaLibrary, type MediaItem } from './MediaLibrary'
-import { askAi, usePostForm } from './usePostForm'
+import { askAi, blocksOf, usePostForm } from './usePostForm'
 
 /**
  * Capa do post: área de mídia (arrastar ou "Enviar mídia" › do computador ou
@@ -99,7 +99,7 @@ export const CoverField: UploadFieldClientComponent = (props) => {
   const { value, setValue, showError, errorMessage } = useField<number | null>({ path: path ?? field.name })
   const id = typeof value === 'object' && value ? (value as { id: number }).id : value
   const media = useMedia(id)
-  const { values, sections } = usePostForm()
+  const { values } = usePostForm()
   const title = String((site === 'us' ? values.title : values.titulo) ?? '')
 
   const fileInput = useRef<HTMLInputElement>(null)
@@ -144,7 +144,6 @@ export const CoverField: UploadFieldClientComponent = (props) => {
       const out = await askAi<Media>('capa', {
         ...values,
         site,
-        secoes: sections,
         modo: mode,
         pedido: request,
         imagem: mode === 'aprimorar' ? id : undefined,
@@ -158,7 +157,7 @@ export const CoverField: UploadFieldClientComponent = (props) => {
     }
   }
 
-  const hasText = Boolean(title) || Boolean(values.introducao) || sections.length > 0 || Boolean(values.body)
+  const hasText = Boolean(title) || blocksOf(site, values).length > 0
 
   return (
     <div className={`jcov${showError ? ' has-error' : ''}`}>

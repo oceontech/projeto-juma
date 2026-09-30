@@ -4,13 +4,16 @@ import { toast } from '@payloadcms/ui'
 import type { UIFieldClientComponent } from 'payload'
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 
-import { askAi, usePostForm } from './usePostForm'
+import type { Block } from '../../../features/ai/lexical'
+import { blockText, blocksWords } from '../../../features/articles/blocks'
+import { askAi, blocksOf, usePostForm } from './usePostForm'
 
 /**
  * Assistente de IA da etapa Publicação do post (Matéria BR e Post EUA).
- * Tudo é sugestão: nada muda no post sem o usuário clicar em "Usar"/"Corrigir",
- * exceto o tempo de leitura e a descrição para o Google (só quando o
+ * Tudo é sugestão: nada muda no post sem o usuário clicar em "Usar"/"Corrigir"/
+ * "Inserir", exceto o tempo de leitura e a descrição para o Google (só quando o
  * subtítulo/resumo está vazio), que a revisão final preenche sozinha.
+ * O texto é o mesmo nos dois sites: blocos (parágrafo, intertítulo, lista, citação).
  */
 
 type Site = 'br' | 'us'
@@ -69,10 +72,7 @@ function useCategoryName(id: unknown) {
 function usePayload(site: Site) {
   const form = usePostForm()
   const categoriaNome = useCategoryName(form.values.tema)
-  const payload = useMemo<Record<string, any>>(
-    () => ({ ...form.values, site, categoriaNome, secoes: form.sections }),
-    [form.values, form.sections, site, categoriaNome],
-  )
+  const payload = useMemo<Record<string, any>>(() => ({ ...form.values, site, categoriaNome }), [form.values, site, categoriaNome])
   return { ...form, payload }
 }
 
@@ -177,10 +177,12 @@ function AssuntoAssist({ site }: { site: Site }) {
 // ─── Etapa 4: Publicação ───────────────────────────────────────────────
 
 type Issue = { tipo: string; onde: string; trecho: string; correcao: string; sugestao: string }
-type Suggestion = { campo: string; rotulo: string; texto: string; motivo: string }
+type Suggestion = { tipo: 'citacao' | 'intertitulo'; rotulo: string; texto: string; motivo: string; ancora: string }
 type Review = { tempoLeitura: number; resumo: string; problemas: Issue[]; parecer: string; palavras: number; sugestoes?: Suggestion[] }
-type Change = { path: string; value: unknown; remount?: boolean }
-type Fix = { path: string; before: unknown; after: unknown; remount?: boolean; local?: boolean; resolved?: boolean }
+/** `path` do campo (título, subtítulo) ou BLOCKS, para o texto em blocos. */
+type Change = { path: string; value: unknown }
+type Fix = { path: string; before: unknown; after: unknown; local?: boolean; resolved?: boolean }
+const BLOCKS = '__blocos'
 const reviewed = new Map<string, Review>()
 /** O que já foi corrigido/inserido em cada revisão: sobrevive à troca de etapa (o cartão desmonta). */
 const doneByReview = new WeakMap<Review, { fixed: Record<number, Fix>; added: Record<number, Fix> }>()
@@ -195,27 +197,6 @@ const finder = (trecho: string) =>
       .replace(/['‘’]/g, "['‘’]"),
   )
 
-type LexNode = { type?: string; text?: string; children?: LexNode[] }
-
-/** Troca o trecho dentro de um nó de texto do editor (post EUA). */
-function replaceInLexical(value: unknown, re: RegExp, to: string) {
-  const copy = structuredClone(value) as { root?: LexNode }
-  let done = false
-  const walk = (n: LexNode) => {
-    if (done) return
-    if (n.type === 'text' && n.text && re.test(n.text)) {
-      n.text = n.text.replace(re, to)
-      done = true
-      return
-    }
-    n.children?.forEach(walk)
-  }
-  if (copy?.root) walk(copy.root)
-  return done ? copy : null
-}
-
-const getPath = (data: Record<string, any>, path: string) => path.split('.').reduce<any>((o, k) => (o == null ? o : o[k]), data)
-
 /** Comparação frouxa: sem acento, maiúscula nem espaço extra. */
 const loose = (s: string) =>
   s
@@ -226,49 +207,46 @@ const loose = (s: string) =>
     .trim()
     .toLowerCase()
 
-/** Todo o texto do post no formulário, numa string (para saber se um trecho ainda existe). */
-function allText(data: Record<string, any>): string {
-  const walk = (v: unknown): string =>
-    typeof v === 'string' ? v : Array.isArray(v) ? v.map(walk).join(' ') : v && typeof v === 'object' ? Object.values(v).map(walk).join(' ') : ''
-  return [data.titulo, data.subtitulo, data.introducao, data.secoes, data.citacao, data.title, data.excerpt, data.body].map(walk).join(' ')
-}
-
-/** Correção sem IA: acha o trecho apontado no formulário e troca pela correção. */
-function localFix(issue: Issue, data: Record<string, any>, site: Site): Change | null {
-  if (!issue.trecho || !issue.correcao) return null
-  const re = finder(issue.trecho)
-  const sections: unknown[] = Array.isArray(data.secoes) ? data.secoes : []
-  const paths =
-    site === 'us'
-      ? ['title', 'excerpt']
-      : ['titulo', 'subtitulo', 'introducao', ...sections.flatMap((_, i) => [`secoes.${i}.titulo`, `secoes.${i}.paragrafos`]), 'citacao']
-  for (const path of paths) {
-    const text = getPath(data, path)
-    if (typeof text === 'string' && re.test(text)) return { path, value: text.replace(re, issue.correcao) }
-  }
-  if (site === 'us' && data.body) {
-    const body = replaceInLexical(data.body, re, issue.correcao)
-    if (body) return { path: 'body', value: body, remount: true }
+/** Troca o trecho no primeiro bloco em que ele aparece (texto ou item de lista). */
+function replaceInBlocks(blocks: Block[], re: RegExp, to: string): Block[] | null {
+  for (let i = 0; i < blocks.length; i++) {
+    const b = blocks[i]
+    if (b.type === 'ul') {
+      const k = b.items.findIndex((item) => re.test(item))
+      if (k >= 0) return blocks.map((x, j) => (j === i ? { type: 'ul', items: b.items.map((item, m) => (m === k ? item.replace(re, to) : item)) } : x))
+    } else if (re.test(b.text)) {
+      return blocks.map((x, j) => (j === i ? { ...b, text: b.text.replace(re, to) } : x))
+    }
   }
   return null
 }
 
 function PublicacaoAssist({ site }: { site: Site }) {
-  const { payload, set, read, values, id, modified } = usePayload(site)
+  const { payload, set, setBlocks, read, values, id, modified } = usePayload(site)
   const [busy, setBusy] = useState(false)
   const [translating, setTranslating] = useState(false)
   const [fixing, setFixing] = useState<number | 'all' | null>(null)
   const justFixed = useRef(false)
   const readField = site === 'us' ? 'readMinutes' : 'tempoLeitura'
+  const titleField = site === 'us' ? 'title' : 'titulo'
   const summaryField = site === 'us' ? 'excerpt' : 'subtitulo'
+  const blocks = useMemo(() => blocksOf(site, values), [site, values])
   // Assinatura do conteúdo: a revisão só roda de novo quando o texto muda.
-  const signature = JSON.stringify([payload.titulo ?? payload.title, payload.introducao, payload.secoes, payload.citacao, payload.body])
+  const signature = JSON.stringify([values[titleField], blocks])
   const [review, setReview] = useState<Review | null>(reviewed.get(signature) ?? null)
   const [fixed, setFixed] = useState<Record<number, Fix>>(() => (review && doneByReview.get(review)?.fixed) || {})
   const [added, setAdded] = useState<Record<number, Fix>>(() => (review && doneByReview.get(review)?.added) || {})
   useEffect(() => {
     if (review) doneByReview.set(review, { fixed, added })
   }, [review, fixed, added])
+
+  // Leitura e escrita do que a revisão corrige: um campo ou o texto em blocos.
+  const current = (path: string) => (path === BLOCKS ? blocksOf(site, read()) : read()[path])
+  const apply = (c: Change) => {
+    justFixed.current = true
+    if (c.path === BLOCKS) setBlocks(site, c.value as Block[])
+    else set(c.path, c.value)
+  }
 
   const run = async () => {
     setBusy(true)
@@ -291,7 +269,7 @@ function PublicacaoAssist({ site }: { site: Site }) {
 
   // Ao abrir esta etapa, revisa sozinho (uma vez por versão do texto), se já houver texto.
   // Depois de um "Corrigir" o texto muda, mas a revisão continua a mesma.
-  const textWords = JSON.stringify([payload.introducao, payload.secoes, payload.body]).split(/\s+/).length
+  const textWords = blocksWords(blocks)
   useEffect(() => {
     if (justFixed.current) {
       justFixed.current = false
@@ -311,31 +289,43 @@ function PublicacaoAssist({ site }: { site: Site }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signature])
 
+  /** Correção sem IA: acha o trecho apontado (título, subtítulo ou texto) e troca pela correção. */
+  const localFix = (issue: Issue): Change | null => {
+    if (!issue.trecho || !issue.correcao) return null
+    const re = finder(issue.trecho)
+    for (const path of [titleField, summaryField]) {
+      const text = current(path)
+      if (typeof text === 'string' && re.test(text)) return { path, value: text.replace(re, issue.correcao) }
+    }
+    const next = replaceInBlocks(current(BLOCKS), re, issue.correcao)
+    return next ? { path: BLOCKS, value: next } : null
+  }
+
   /** Corrige um ponto: troca direta quando acha o trecho; senão a IA reescreve a parte. */
   const fixOne = async (i: number) => {
     const issue = review!.problemas[i]
-    const data = read()
-    const local = localFix(issue, data, site)
+    const local = localFix(issue)
     let change = local
     if (!change) {
       // Uma correção anterior (ou o autor) já tirou esse trecho do texto: nada a fazer.
-      if (issue.trecho && !loose(allText(data)).includes(loose(issue.trecho))) {
+      const all = [current(titleField), current(summaryField), ...(current(BLOCKS) as Block[]).map(blockText)].join(' ')
+      if (issue.trecho && !loose(all).includes(loose(issue.trecho))) {
         setFixed((f) => ({ ...f, [i]: { path: '', before: null, after: null, resolved: true } }))
         return
       }
-      const out = await askAi<{ campo: string; texto?: string; body?: unknown }>('corrigir', {
-        ...data,
-        site,
-        secoes: Array.isArray(data.secoes) ? data.secoes : [],
-        problema: issue,
-      })
-      change = out.campo === 'body' ? { path: 'body', value: out.body, remount: true } : { path: out.campo, value: out.texto }
+      const out = await askAi<{ campo?: string; texto?: string; bloco?: number; blocos?: Block[] }>('corrigir', { ...read(), site, problema: issue })
+      if (typeof out.bloco === 'number' && out.blocos) {
+        const now = current(BLOCKS) as Block[]
+        change = { path: BLOCKS, value: [...now.slice(0, out.bloco), ...out.blocos, ...now.slice(out.bloco + 1)] }
+      } else if (out.campo) {
+        change = { path: out.campo, value: out.texto }
+      } else {
+        throw new Error('A IA não devolveu a correção. Tente de novo.')
+      }
     }
-    const before = getPath(read(), change.path)
-    justFixed.current = true
-    set(change.path, change.value, { remount: change.remount })
-    const done: Fix = { path: change.path, before, after: change.value, remount: change.remount, local: Boolean(local) }
-    setFixed((f) => ({ ...f, [i]: done }))
+    const before = current(change.path)
+    apply(change)
+    setFixed((f) => ({ ...f, [i]: { path: change.path, before, after: change.value, local: Boolean(local) } }))
   }
 
   const fix = async (i: number) => {
@@ -376,17 +366,16 @@ function PublicacaoAssist({ site }: { site: Site }) {
     if (!done) return
     const issue = review!.problemas[i]
     if (!done.resolved) {
-      const current = getPath(read(), done.path)
+      const now = current(done.path)
       let restored: unknown = null
       if (done.local && issue.correcao) {
         const re = finder(issue.correcao)
-        if (typeof current === 'string' && re.test(current)) restored = current.replace(re, issue.trecho)
-        else if (done.path === 'body') restored = replaceInLexical(current, re, issue.trecho)
+        if (typeof now === 'string' && re.test(now)) restored = now.replace(re, issue.trecho)
+        else if (done.path === BLOCKS) restored = replaceInBlocks(now as Block[], re, issue.trecho)
       }
-      if (restored === null && JSON.stringify(current) === JSON.stringify(done.after)) restored = done.before
+      if (restored === null && JSON.stringify(now) === JSON.stringify(done.after)) restored = done.before
       if (restored === null) return void toast.error('Esse trecho mudou depois da correção. Ajuste direto no texto.')
-      justFixed.current = true
-      set(done.path, restored, { remount: done.remount })
+      apply({ path: done.path, value: restored })
     }
     setFixed((f) => {
       const next = { ...f }
@@ -395,22 +384,28 @@ function PublicacaoAssist({ site }: { site: Site }) {
     })
   }
 
-  /** "Inserir": põe a sugestão (citação, intertítulo) no campo vazio. */
+  /** "Inserir": põe a citação depois do bloco de referência, ou o intertítulo antes dele. */
   const insert = (i: number) => {
     const sug = review!.sugestoes![i]
-    const before = getPath(read(), sug.campo)
-    justFixed.current = true
-    set(sug.campo, sug.texto)
-    setAdded((a) => ({ ...a, [i]: { path: sug.campo, before, after: sug.texto } }))
+    const now = current(BLOCKS) as Block[]
+    const at = now.findIndex((b) => loose(blockText(b)) === loose(sug.ancora.replace(/^- /gm, '')))
+    const block: Block = sug.tipo === 'citacao' ? { type: 'quote', text: sug.texto } : { type: 'h2', text: sug.texto }
+    let index: number
+    if (sug.tipo === 'citacao') index = at >= 0 ? at + 1 : Math.ceil(now.length / 2)
+    else if (at > 0) index = at
+    else return void toast.error('O parágrafo desse intertítulo mudou. Adicione o intertítulo direto no texto.')
+    const next = [...now.slice(0, index), block, ...now.slice(index)]
+    apply({ path: BLOCKS, value: next })
+    setAdded((a) => ({ ...a, [i]: { path: BLOCKS, before: now, after: next } }))
     toast.success(`Inserido: ${sug.rotulo.toLowerCase()}`)
   }
 
   const removeInsert = (i: number) => {
-    const done = added[i]
-    if (!done) return
-    if (getPath(read(), done.path) !== done.after) return void toast.error('Esse campo mudou depois. Ajuste direto nele.')
-    justFixed.current = true
-    set(done.path, done.before ?? '')
+    const sug = review!.sugestoes![i]
+    const now = current(BLOCKS) as Block[]
+    const k = now.findIndex((b) => b.type !== 'ul' && b.type === (sug.tipo === 'citacao' ? 'quote' : 'h2') && b.text === sug.texto)
+    if (k < 0) return void toast.error('Esse bloco mudou depois. Ajuste direto no texto.')
+    apply({ path: BLOCKS, value: now.filter((_, j) => j !== k) })
     setAdded((a) => {
       const next = { ...a }
       delete next[i]

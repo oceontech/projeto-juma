@@ -2,23 +2,30 @@
 
 import { useDocumentInfo, useForm, useFormFields, useFormModified } from '@payloadcms/ui'
 import { reduceFieldsToValues } from 'payload/shared'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
-export type Section = { titulo?: string; paragrafos?: string }
+import { blocksToLexical, lexicalToBlocks, type Block } from '../../../features/ai/lexical'
+import { readBlocks } from '../../../features/articles/blocks'
+
+type Site = 'br' | 'us'
+
+/** Campo do texto em blocos: `conteudo` (json) no BR, `body` (texto rico) no EUA. */
+export const blocksPath = (site: Site) => (site === 'us' ? 'body' : 'conteudo')
+
+/** Texto do post em blocos, a partir dos valores do formulário. */
+export const blocksOf = (site: Site, values: Record<string, any>): Block[] =>
+  site === 'us' ? lexicalToBlocks(values.body) : readBlocks(values.conteudo)
 
 /**
  * Lê e escreve no formulário do post (Matéria BR ou Post EUA) de fora dos
- * campos: usado pelo assistente de IA, pela linha do tempo e pela prévia.
+ * campos: usado pelo assistente de IA, pelo progresso e pela prévia.
  */
 export function usePostForm() {
   const form = useForm()
   const fields = useFormFields(([f]) => f)
   const modified = useFormModified()
   const { id } = useDocumentInfo()
-  const values = reduceFieldsToValues(fields, true) as Record<string, any>
-
-  // No formulário a lista de seções pode vir como contagem de linhas antes de ter conteúdo.
-  const sections: Section[] = Array.isArray(values.secoes) ? values.secoes.filter(Boolean) : []
+  const values = useMemo(() => reduceFieldsToValues(fields, true) as Record<string, any>, [fields])
 
   const set = useCallback(
     (path: string, value: unknown, { remount = false } = {}) => {
@@ -29,32 +36,16 @@ export function usePostForm() {
     [form],
   )
 
-  const setSections = useCallback(
-    (rows: Section[]) => {
-      const count = fields.secoes?.rows?.length ?? (typeof fields.secoes?.value === 'number' ? fields.secoes.value : 0)
-      for (let i = count - 1; i >= 0; i--) form.removeFieldRow({ path: 'secoes', rowIndex: i })
-      rows.forEach((row, i) => {
-        const titulo = row.titulo ?? ''
-        const paragrafos = row.paragrafos ?? ''
-        form.addFieldRow({
-          path: 'secoes',
-          schemaPath: 'secoes',
-          rowIndex: i,
-          subFieldState: {
-            titulo: { value: titulo, initialValue: titulo, valid: true },
-            paragrafos: { value: paragrafos, initialValue: paragrafos, valid: true },
-          },
-        })
-      })
-      form.setModified(true)
-    },
-    [fields.secoes, form],
+  /** Troca o texto todo (a revisão com IA usa para corrigir e inserir blocos). */
+  const setBlocks = useCallback(
+    (site: Site, blocks: Block[]) => set(blocksPath(site), site === 'us' ? blocksToLexical(blocks) : blocks),
+    [set],
   )
 
   /** Valores atuais do formulário (sem esperar o próximo render). */
   const read = useCallback(() => form.getData() as Record<string, any>, [form])
 
-  return { values, sections, set, setSections, read, id, modified }
+  return { values, set, setBlocks, read, id, modified }
 }
 
 /** Chama o assistente (POST /api/ai/:action) e devolve o JSON ou lança o erro em português. */

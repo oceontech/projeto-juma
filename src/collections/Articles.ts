@@ -6,16 +6,12 @@ import type {
 } from 'payload'
 
 import { hasRole } from '../access/roles'
+import { blocksWords, readBlocks } from '../features/articles/blocks'
 import { revalidateSite } from '../features/cms/revalidate'
 
 /** Minutos de leitura a partir do texto (≈ 200 palavras por minuto). */
 function readingMinutes(data: Record<string, unknown>): number {
-  const secoes = (data.secoes as { titulo?: string; paragrafos?: string }[] | undefined) ?? []
-  const texto = [data.introducao, data.citacao, ...secoes.flatMap((s) => [s.titulo, s.paragrafos])]
-    .filter((v): v is string => typeof v === 'string')
-    .join(' ')
-  const palavras = texto.split(/\s+/).filter(Boolean).length
-  return Math.max(1, Math.round(palavras / 200))
+  return Math.max(1, Math.round(blocksWords(readBlocks(data.conteudo)) / 200))
 }
 
 const revalidate: CollectionAfterChangeHook = ({ doc, previousDoc }) => {
@@ -59,7 +55,11 @@ export const Articles: CollectionConfig = {
     pagination: { defaultLimit: 24 },
     components: {
       views: { list: { Component: '/components/admin/blog/BlogRedirect#BlogRedirect' } },
-      edit: { PublishButton: { path: '/components/admin/blog/PublishButton#PublishButton', clientProps: { dateField: 'data' } } },
+      edit: {
+        PublishButton: { path: '/components/admin/blog/PublishButton#PublishButton', clientProps: { dateField: 'data' } },
+        // Progresso e etapas do post na mesma linha de "Salvar rascunho" e "Publicar".
+        beforeDocumentControls: [{ path: '/components/admin/blog/PostProgress#PostProgress', clientProps: { site: 'br' } }],
+      },
     },
   },
   defaultSort: '-data',
@@ -89,12 +89,6 @@ export const Articles: CollectionConfig = {
       name: 'previa',
       type: 'ui',
       admin: { position: 'sidebar', components: { Field: '/components/admin/blog/ArticlePreview#ArticlePreview' } },
-    },
-    {
-      // Progresso e etapas do post (as abas do Payload ficam escondidas).
-      name: 'passos',
-      type: 'ui',
-      admin: { components: { Field: { path: '/components/admin/blog/PostStepper#PostStepper', clientProps: { site: 'br' } } } },
     },
     {
       // Etapas do post: cada aba é uma etapa da barra de progresso.
@@ -143,34 +137,30 @@ export const Articles: CollectionConfig = {
         },
         {
           label: 'Texto',
-          description: 'Escreva ou cole o texto. Em cada caixa, a etiqueta ✨ IA corrige, organiza, aprimora ou aumenta.',
+          description: 'Escreva como num documento ou cole um texto pronto. Parágrafos, intertítulos, listas e citações, com a ✨ IA em cada bloco.',
           fields: [
             {
-              name: 'introducao',
-              label: 'Introdução',
-              type: 'textarea',
+              // Texto da matéria em blocos, igual ao do site EUA (features/articles/blocks).
+              name: 'conteudo',
+              label: 'Texto',
+              type: 'json',
               localized: true,
-              admin: { components: { Field: '/components/admin/blog/TextFields#IntroField' } },
+              admin: { components: { Field: { path: '/components/admin/blog/BlockEditor#BlockEditor', clientProps: { site: 'br' } } } },
             },
+            // Formato antigo (introdução + seções + citação), só guardado: a migration
+            // 20260930_150000_conteudo_blocos converte para `conteudo`. Sai numa limpeza futura.
+            { name: 'introducao', type: 'textarea', localized: true, admin: { hidden: true } },
             {
               name: 'secoes',
-              label: 'Seções',
               type: 'array',
               localized: true,
-              labels: { singular: 'Seção', plural: 'Seções' },
-              admin: { components: { Field: '/components/admin/blog/TextFields#SectionsField' } },
+              admin: { hidden: true },
               fields: [
-                { name: 'titulo', label: 'Título da seção', type: 'text' },
-                { name: 'paragrafos', label: 'Texto', type: 'textarea', required: true },
+                { name: 'titulo', type: 'text' },
+                { name: 'paragrafos', type: 'textarea' },
               ],
             },
-            {
-              name: 'citacao',
-              label: 'Citação em destaque',
-              type: 'textarea',
-              localized: true,
-              admin: { rows: 2, description: 'Opcional. Uma frase forte do próprio texto, que aparece em destaque na página.' },
-            },
+            { name: 'citacao', type: 'textarea', localized: true, admin: { hidden: true } },
             step('passo2', { prev: 'Assunto', next: 'Capa' }),
           ],
         },
