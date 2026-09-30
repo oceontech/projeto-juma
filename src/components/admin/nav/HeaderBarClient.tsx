@@ -78,6 +78,14 @@ function ContentLocale() {
 }
 
 export function HeaderBarClient({ initial }: { initial: Choice }) {
+  // Quem usa o painel não conta como visita do site Brasil (mesmo domínio): o Umami ignora este navegador.
+  useEffect(() => {
+    try {
+      window.localStorage.setItem('umami.disabled', '1')
+    } catch {
+      // navegador sem armazenamento
+    }
+  }, [])
   const pathname = usePathname().replace(/\/$/, '') || '/admin'
   const siteScreen = SITE_SCREENS.includes(pathname)
   const localized = LOCALIZED.some((r) => r.test(pathname))

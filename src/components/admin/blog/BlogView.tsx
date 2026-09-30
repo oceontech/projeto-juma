@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import type { AdminViewServerProps, Where } from 'payload'
 
 import { SITES, selectedSite, type Site } from '@/access/roles'
+import { loadPostViews } from '@/features/analytics/umami'
 
 import { BlogViewClient, type BlogCard } from './BlogViewClient'
 
@@ -49,7 +50,7 @@ export async function BlogView({ initPageResult, params, searchParams }: AdminVi
   const wantBr = sites.includes('br') && canRead.br
   const wantUs = sites.includes('us') && canRead.us
 
-  const [br, us, counts] = await Promise.all([
+  const [br, us, counts, views] = await Promise.all([
     wantBr
       ? req.payload.find({ collection: 'articles', where: where('titulo'), sort: '-data', limit: 60, depth: 1, locale: 'pt-BR', draft: true, overrideAccess: true })
       : null,
@@ -62,7 +63,11 @@ export async function BlogView({ initPageResult, params, searchParams }: AdminVi
         return a + b
       }),
     ),
+    // Acessos de cada post (Umami, somando os idiomas); null sem analytics.
+    loadPostViews(),
   ])
+  const viewsOf = (site: Site, slug?: string | null, status?: string | null) =>
+    views && slug && status === 'published' ? (views.get(`${site}:${slug}`) ?? 0) : null
 
   const image = (m: unknown) => (typeof m === 'object' && m && 'url' in m ? ((m as { url?: string }).url ?? null) : null)
   const cards: BlogCard[] = [
@@ -76,6 +81,7 @@ export async function BlogView({ initPageResult, params, searchParams }: AdminVi
       status: statusOf(d._status, d.data),
       date: d.data ?? d.createdAt,
       updatedAt: d.updatedAt,
+      views: viewsOf('br', d.slug, d._status),
     })),
     ...((us?.docs ?? []) as Doc[]).map((d) => ({
       key: `us-${d.id}`,
@@ -87,6 +93,7 @@ export async function BlogView({ initPageResult, params, searchParams }: AdminVi
       status: statusOf(d._status, d.date),
       date: d.date ?? d.createdAt,
       updatedAt: d.updatedAt,
+      views: viewsOf('us', d.slug, d._status),
     })),
   ].sort((a, b) => String(b.date).localeCompare(String(a.date)))
 

@@ -19,6 +19,8 @@ export type BlogCard = {
   status: 'published' | 'draft' | 'scheduled'
   date: string
   updatedAt: string
+  /** Acessos da página do post (null = sem analytics ou não publicado). */
+  views?: number | null
 }
 
 type Props = {
@@ -143,6 +145,15 @@ export function BlogViewClient(p: Props) {
                   <b>{c.title}</b>
                   <small>{c.meta.join(' · ')}</small>
                   <span className="jc-card__foot">
+                    {typeof c.views === 'number' && (
+                      <span className="jc-views" title="Acessos à página do post desde a publicação (todos os idiomas)">
+                        <svg viewBox="0 0 24 24" aria-hidden>
+                          <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" />
+                          <circle cx="12" cy="12" r="2.8" />
+                        </svg>
+                        {new Intl.NumberFormat('pt-BR').format(c.views)} {c.views === 1 ? 'acesso' : 'acessos'}
+                      </span>
+                    )}
                     <span className="jc-updated">editado {relativeDate(c.updatedAt)}</span>
                   </span>
                 </span>

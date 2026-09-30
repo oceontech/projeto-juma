@@ -3,23 +3,18 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import type { AdminViewServerProps } from 'payload'
 
-import { analyticsConfigured, UMAMI_URL } from '@/features/analytics/umami'
-
 import { Flag } from '../ui/Flag'
 
 /**
- * Configurações do painel (/admin/configuracoes): equipe, a própria conta e
- * as integrações. Contato e redes de cada site ficam no card do site.
+ * Configurações do painel (/admin/configuracoes): a própria conta e a equipe.
+ * Contato e redes de cada site ficam no card do site. As integrações (Umami,
+ * revalidação, e-mail) são configuração de desenvolvimento, fora do painel.
  */
 
 const ROLES: Record<string, { label: string; tone: string }> = {
   admin: { label: 'Admin', tone: 'dark' },
   editor: { label: 'Editor', tone: 'green' },
   comercial: { label: 'Comercial', tone: 'amber' },
-}
-
-function Status({ ok, on, off }: { ok: boolean; on: string; off: string }) {
-  return <span className={`jps-status${ok ? ' is-ok' : ''}`}>{ok ? on : off}</span>
 }
 
 export async function PanelSettings({ initPageResult, params, searchParams }: AdminViewServerProps) {
@@ -82,40 +77,6 @@ export async function PanelSettings({ initPageResult, params, searchParams }: Ad
             </Link>
           </article>
 
-          <article className="jd-card jps-card">
-            <header className="jps-card__head">
-              <h2>Integrações</h2>
-              <p>Serviços que o painel usa por trás.</p>
-            </header>
-            <ul className="jps-list">
-              <li>
-                <span>
-                  <b>Analytics (Umami)</b>
-                  <small>Visitas, estados, cidades e origem dos dois sites</small>
-                </span>
-                <Status ok={analyticsConfigured()} on="Conectado" off="Não conectado" />
-              </li>
-              <li>
-                <span>
-                  <b>Atualização do site EUA</b>
-                  <small>Blog e contato aparecem na hora ao publicar</small>
-                </span>
-                <Status ok={Boolean(process.env.US_SITE_URL && process.env.US_REVALIDATE_SECRET)} on="Conectado" off="A cada 5 min" />
-              </li>
-              <li>
-                <span>
-                  <b>E-mail (Resend)</b>
-                  <small>“Esqueci minha senha” e aviso de lead novo</small>
-                </span>
-                <Status ok={Boolean(process.env.RESEND_API_KEY)} on="Conectado" off="Ainda não" />
-              </li>
-            </ul>
-            {UMAMI_URL && isAdmin && (
-              <a className="jps-link" href={UMAMI_URL} target="_blank" rel="noreferrer">
-                Abrir o Umami completo ↗
-              </a>
-            )}
-          </article>
         </section>
 
         {team && (

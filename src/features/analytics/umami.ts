@@ -114,3 +114,35 @@ export async function loadTraffic(sites: Site[], start: Date, end: Date): Promis
     return null
   }
 }
+
+/** Desde quando os acessos dos posts são contados (instalação do Umami). */
+const VIEWS_SINCE = Date.UTC(2026, 0, 1)
+
+/**
+ * Acessos de cada post do blog, somando os idiomas: `br:<endereço>` (matérias
+ * em /pt-BR, /en e /es) e `us:<endereço>` (/blog/...). Null sem analytics.
+ */
+export async function loadPostViews(): Promise<Map<string, number> | null> {
+  if (!analyticsConfigured()) return null
+  const end = Math.floor(Date.now() / 300_000) * 300_000
+  const views = new Map<string, number>()
+  const add = (key: string, n: number) => views.set(key, (views.get(key) ?? 0) + n)
+  try {
+    await Promise.all(
+      (['br', 'us'] as const)
+        .filter((s) => WEBSITES[s])
+        .map(async (site) => {
+          const rows = await umamiGet<Metric[]>(`/api/websites/${WEBSITES[site]}/metrics?startAt=${VIEWS_SINCE}&endAt=${end}&type=path&limit=1000`)
+          for (const r of rows) {
+            const path = String(r.x ?? '').split(/[?#]/)[0].replace(/\/$/, '')
+            const m = site === 'br' ? path.match(/^\/(?:pt-BR|en|es)\/materias\/([^/]+)$/) : path.match(/^\/blog\/([^/]+)$/)
+            if (m && m[1] !== 'previa' && m[1] !== 'preview') add(`${site}:${decodeURIComponent(m[1])}`, Number(r.y) || 0)
+          }
+        }),
+    )
+    return views
+  } catch (err) {
+    console.error('[analytics] acessos dos posts indisponíveis:', err instanceof Error ? err.message : err)
+    return null
+  }
+}

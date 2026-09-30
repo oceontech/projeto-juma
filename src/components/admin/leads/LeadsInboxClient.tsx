@@ -10,10 +10,12 @@ import {
   LEAD_STAGES,
   LEAD_TIPOS,
   SITE_META,
+  closeFor,
   intlPhone,
   leadGreeting,
   relativeDate,
   stageOf,
+  statusLabel,
   statusMeta,
   tipoMeta,
   type LeadStage,
@@ -59,6 +61,7 @@ type Props = {
   canExport: boolean
 }
 
+const STATUS_ORDER: LeadStatus[] = ['novo', 'em-contato', 'qualificado', 'convertido', 'descartado']
 const STAGE_TABS = [...LEAD_STAGES.map((s) => ({ value: s.value as LeadStage, label: s.label, dot: s.dot as string | null })), { value: 'todos' as LeadStage, label: 'Todos', dot: null }]
 const TIPO_OPTIONS = [...LEAD_TIPOS.map((t) => ({ value: t.value as string, label: t.long, icon: <span>{t.icon}</span> })), { value: 'sem', label: 'A classificar', icon: <span>❔</span> }]
 const EXPORT_OPTIONS = [
@@ -314,6 +317,7 @@ export function LeadsInboxClient({ leads, stageCounts, tipoCounts, etapa, tipo, 
           {leads.map((lead0) => {
             const lead = { ...lead0, ...local[lead0.id] } as InboxLead
             const st = statusMeta(lead.status)
+            const close = closeFor(lead.tipo)
             const tp = tipoMeta(lead.tipo)
             const phone = intlPhone(lead.site, lead.telefone)
             const isOpen = open === lead.id
@@ -343,6 +347,10 @@ export function LeadsInboxClient({ leads, stageCounts, tipoCounts, etapa, tipo, 
                   </button>
 
                   <div className="jli-row__side">
+                    <button type="button" className={`jli-toggle${isOpen ? ' is-open' : ''}`} onClick={() => setOpen(isOpen ? null : lead.id)} aria-expanded={isOpen}>
+                      {isOpen ? 'Fechar' : 'Detalhes'}
+                      {Icon.chevron}
+                    </button>
                     <Dropdown
                       label={`Tipo de contato de ${lead.nome}`}
                       value={lead.tipo ?? 'sem'}
@@ -438,20 +446,20 @@ export function LeadsInboxClient({ leads, stageCounts, tipoCounts, etapa, tipo, 
                         <h4>Situação</h4>
                         <div className="jli-stage">
                           <span className="jli-status" style={{ background: st.bg, color: st.fg }}>
-                            {st.label}
+                            {statusLabel(lead.status, lead.tipo)}
                           </span>
                           {leadStage === 'responder' && (
-                            <button type="button" className="jli-act" onClick={() => setStatus(lead, 'em-contato', `${first(lead.nome)} foi para "Em conversa"`)}>
+                            <button type="button" className="jli-act jli-act--ok" onClick={() => setStatus(lead, 'em-contato', `${first(lead.nome)} foi para "Em conversa"`)}>
                               Já respondi
                             </button>
                           )}
                           {leadStage === 'conversa' && (
                             <>
-                              <button type="button" className="jli-act jli-act--ok" onClick={() => setStatus(lead, 'convertido', `${first(lead.nome)} virou cliente`)}>
-                                Virou cliente
+                              <button type="button" className="jli-act jli-act--ok" onClick={() => setStatus(lead, 'convertido', `${first(lead.nome)}: ${close.winState.toLowerCase()}`)}>
+                                {close.win}
                               </button>
-                              <button type="button" className="jli-act" onClick={() => setStatus(lead, 'descartado', `${first(lead.nome)} foi arquivado`)}>
-                                Encerrar sem negócio
+                              <button type="button" className="jli-act" onClick={() => setStatus(lead, 'descartado', `${first(lead.nome)}: ${close.loseState.toLowerCase()}`)}>
+                                {close.lose}
                               </button>
                             </>
                           )}
@@ -460,12 +468,25 @@ export function LeadsInboxClient({ leads, stageCounts, tipoCounts, etapa, tipo, 
                               Reabrir conversa
                             </button>
                           )}
-                          {leadStage === 'responder' && (
-                            <button type="button" className="jli-act jli-act--muted" onClick={() => setStatus(lead, 'descartado', `${first(lead.nome)} foi arquivado`)}>
-                              Arquivar sem responder
-                            </button>
-                          )}
                         </div>
+                        {/* Clicou errado? Qualquer situação, inclusive voltar para "Para responder". */}
+                        <Dropdown
+                          className="jli-move"
+                          label={`Mudar a situação de ${lead.nome}`}
+                          value={lead.status}
+                          options={STATUS_ORDER.filter((v) => v !== 'qualificado' || closeFor(lead.tipo).talking !== 'Em conversa' || lead.status === v).map((v) => ({
+                            value: v,
+                            label: statusLabel(v, lead.tipo),
+                            dot: statusMeta(v).dot,
+                          }))}
+                          onChange={(v) => setStatus(lead, v, `${first(lead.nome)}: ${statusLabel(v, lead.tipo)}`)}
+                          trigger={
+                            <span className="jli-move__trigger">
+                              Mudar situação
+                              {Icon.chevron}
+                            </span>
+                          }
+                        />
                       </section>
 
                       <section>
@@ -499,6 +520,9 @@ export function LeadsInboxClient({ leads, stageCounts, tipoCounts, etapa, tipo, 
                         Ficha completa (origem, campanha, responsável) →
                       </Link>
                     </div>
+                    <button type="button" className="jli-collapse" onClick={() => setOpen(null)}>
+                      Fechar detalhes <span aria-hidden>▴</span>
+                    </button>
                   </div>
                 )}
               </li>

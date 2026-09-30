@@ -344,8 +344,9 @@ export async function Dashboard({ initPageResult, searchParams }: AdminViewServe
   const buyers = current.filter(isBuyer)
   const buyersPrev = previous.filter(isBuyer)
   const others = current.length - buyers.length
-  const clients = current.filter((l) => l.status === 'convertido')
-  const clientsPrev = previous.filter((l) => l.status === 'convertido')
+  // Só clientes e revendas: vaga encaminhada ao RH também é "convertido", mas não é venda.
+  const clients = current.filter((l) => l.status === 'convertido' && isBuyer(l))
+  const clientsPrev = previous.filter((l) => l.status === 'convertido' && isBuyer(l))
 
   // Tempo de resposta: da chegada até sair de "Para responder" (leads respondidos no período).
   const responseTimes = leads

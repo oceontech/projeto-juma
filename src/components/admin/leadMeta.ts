@@ -40,6 +40,28 @@ export type LeadTipoValue = (typeof LEAD_TIPOS)[number]['value']
 
 export const tipoMeta = (value: unknown) => LEAD_TIPOS.find((t) => t.value === value) ?? null
 
+/**
+ * Como encerrar cada tipo de contato: cliente vira cliente; vaga vai para o
+ * RH; fornecedor vai para compras. `win` = convertido, `lose` = descartado.
+ */
+const CLOSE: Record<string, { win: string; winState: string; lose: string; loseState: string; talking: string }> = {
+  cliente: { win: 'Virou cliente', winState: 'Virou cliente', lose: 'Encerrar sem negócio', loseState: 'Sem negócio', talking: 'Negociando' },
+  revenda: { win: 'Virou revenda', winState: 'Virou revenda', lose: 'Encerrar sem negócio', loseState: 'Sem negócio', talking: 'Negociando' },
+  emprego: { win: 'Encaminhado ao RH', winState: 'Encaminhado ao RH', lose: 'Encerrar (sem vaga)', loseState: 'Encerrado', talking: 'Em conversa' },
+  fornecedor: { win: 'Encaminhado a compras', winState: 'Encaminhado a compras', lose: 'Sem interesse', loseState: 'Sem interesse', talking: 'Em conversa' },
+  outro: { win: 'Resolvido', winState: 'Resolvido', lose: 'Encerrar', loseState: 'Encerrado', talking: 'Em conversa' },
+}
+export const closeFor = (tipo: unknown) => CLOSE[String(tipo)] ?? CLOSE.cliente
+
+/** Nome da situação conforme o tipo ("Encaminhado ao RH" em vez de "Virou cliente" para vaga). */
+export function statusLabel(status: unknown, tipo: unknown) {
+  const c = closeFor(tipo)
+  if (status === 'convertido') return c.winState
+  if (status === 'descartado') return c.loseState
+  if (status === 'qualificado') return c.talking
+  return statusMeta(status).label
+}
+
 export const LEAD_FORMS: Record<string, string> = {
   whatsapp: 'Botão do WhatsApp',
   contato: 'Página de contato',
