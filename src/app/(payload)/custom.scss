@@ -7764,3 +7764,416 @@ a.jd-kpi-card.jd-card--dark {
     stroke-linejoin: round;
   }
 }
+
+/* ─── Perfil e equipe (foto, cargo, acesso) ───────────────────────────── */
+.ju-avatar,
+.juma-account__avatar,
+.jhead-avatar {
+  flex: none;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.jps-me {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 28px;
+  padding: 22px 24px;
+
+  .jd-btn {
+    margin-left: auto;
+  }
+}
+
+.jps-me__text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    margin: 0;
+    overflow: hidden;
+    color: var(--juma-muted);
+    font-size: 13px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+
+.jps-me__tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.jps-team .jps-card__head {
+  margin-bottom: 14px;
+}
+
+@media (max-width: 700px) {
+  .jps-me {
+    flex-wrap: wrap;
+
+    .jd-btn {
+      width: 100%;
+      margin-left: 0;
+      justify-content: center;
+    }
+  }
+}
+
+/* Tela da conta / de um usuário: cartões de perfil, login e acesso. */
+.jup {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 22px 24px;
+  border-radius: 20px;
+  background: var(--juma-card);
+  box-shadow: var(--juma-shadow);
+}
+
+.jup-head {
+  h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 2px 0 0;
+    color: var(--juma-muted);
+    font-size: 12.5px;
+  }
+}
+
+.jup-profile {
+  flex-direction: row;
+  align-items: center;
+  gap: 28px;
+}
+
+.jup-photo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.jup-photo__btn {
+  position: relative;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  cursor: pointer;
+
+  .ju-avatar {
+    box-shadow: 0 0 0 4px #fff, 0 0 0 5px var(--juma-line);
+  }
+
+  &.is-busy .ju-avatar {
+    opacity: 0.5;
+  }
+
+  &:hover .jup-photo__cam,
+  &:focus-visible .jup-photo__cam {
+    transform: scale(1.08);
+  }
+}
+
+.jup-photo__cam {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: #0c140f;
+  box-shadow: 0 0 0 3px #fff;
+  transition: transform 0.15s ease;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: #fff;
+    stroke-width: 1.8;
+    stroke-linejoin: round;
+  }
+}
+
+.jup-photo__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.jup-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--juma-ink);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &--muted {
+    color: var(--juma-muted);
+    font-weight: 500;
+  }
+}
+
+.jup-fields {
+  display: grid;
+  flex: 1;
+  gap: 14px;
+  min-width: 0;
+}
+
+.jup-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  > span {
+    font-size: 12.5px;
+    font-weight: 600;
+
+    small {
+      color: var(--juma-muted);
+      font-weight: 400;
+    }
+  }
+
+  input {
+    height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--juma-line);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--juma-ink);
+    font: inherit;
+    font-size: 14px;
+    outline: none;
+
+    &:focus {
+      border-color: #0c140f;
+      box-shadow: 0 0 0 3px rgba(12, 20, 15, 0.08);
+    }
+  }
+}
+
+.jup-roles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.jup-role {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 14px 16px 14px 40px;
+  border: 1px solid var(--juma-line);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--juma-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  b {
+    font-size: 14px;
+  }
+
+  small {
+    color: var(--juma-muted);
+    font-size: 12px;
+  }
+
+  &:hover:not(:disabled) {
+    border-color: #a1a1aa;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  &.is-active {
+    border-color: #0c140f;
+    box-shadow: inset 0 0 0 1px #0c140f;
+  }
+}
+
+.jup-role__dot {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid #c4c4c8;
+  border-radius: 999px;
+
+  .is-active & {
+    border: 5px solid #0c140f;
+  }
+}
+
+.jup-sites {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.jup-sites__label {
+  margin-right: 4px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.jup-sites__note {
+  color: var(--juma-muted);
+  font-size: 12px;
+}
+
+.jup-site {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 8px 0 10px;
+  border: 1px solid var(--juma-line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--juma-ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+
+  &.is-on {
+    border-color: #0c140f;
+    box-shadow: inset 0 0 0 1px #0c140f;
+  }
+}
+
+.jup-site__check {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #ecede9;
+  color: var(--juma-muted);
+  font-size: 12px;
+  font-weight: 700;
+
+  .is-on & {
+    background: #0c140f;
+    color: #fff;
+  }
+}
+
+.jup-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+}
+
+@media (max-width: 700px) {
+  .jup-profile {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .jup-roles {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Ordem na conta: perfil, login, acesso. Sem as preferências técnicas do Payload. */
+.collection-edit--users {
+  .document-fields__edit {
+    display: flex;
+    flex-direction: column;
+    max-width: 880px;
+  }
+
+  .document-fields__fields {
+    display: contents;
+  }
+
+  .jup-profile {
+    order: 1;
+  }
+
+  .auth-fields {
+    order: 2;
+    margin: 0 0 16px;
+    padding: 22px 24px;
+    border-radius: 20px;
+    background: var(--juma-card);
+    box-shadow: var(--juma-shadow);
+
+    &::before {
+      content: 'Login';
+      display: block;
+      margin-bottom: 14px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .field-type {
+      margin-bottom: 12px;
+    }
+
+    // Desbloqueio manual não faz sentido na tela: o bloqueio acaba sozinho em 10 min.
+    #force-unlock {
+      display: none;
+    }
+  }
+
+  .jup-access {
+    order: 3;
+  }
+
+  .payload-settings,
+  .doc-controls__meta {
+    display: none;
+  }
+}
+
+.collection-edit--users .doc-controls__content {
+  display: none;
+}

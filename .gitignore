@@ -61,3 +61,6 @@ Thumbs.db
 
 .vercel
 .env*
+
+# Fotos de perfil enviadas no teste local (em produção vão para o Blob)
+/avatars

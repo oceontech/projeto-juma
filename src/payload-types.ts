@@ -74,6 +74,7 @@ export interface Config {
     'posts-us': PostsUs;
     categorias: Categoria;
     media: Media;
+    avatars: Avatar;
     users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -89,6 +90,7 @@ export interface Config {
     'posts-us': PostsUsSelect<false> | PostsUsSelect<true>;
     categorias: CategoriasSelect<false> | CategoriasSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    avatars: AvatarsSelect<false> | AvatarsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -240,14 +242,12 @@ export interface Lead {
  */
 export interface User {
   id: number;
+  foto?: (number | null) | Avatar;
   nome?: string | null;
-  /**
-   * Admin: tudo. Editor: conteúdo do Brasil. Comercial: trabalha os leads.
-   */
+  cargo?: string | null;
+  fotoUrl?: string | null;
+  ultimoAcesso?: string | null;
   papel: 'admin' | 'editor' | 'comercial';
-  /**
-   * Sites cujos leads e conteúdos este usuário enxerga.
-   */
   sites: ('br' | 'us')[];
   updatedAt: string;
   createdAt: string;
@@ -267,6 +267,34 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "avatars".
+ */
+export interface Avatar {
+  id: number;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumb?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * Produtos do site Brasil. Textos em cada idioma pelo seletor "Idioma" no topo.
@@ -719,6 +747,10 @@ export interface PayloadLockedDocument {
         value: number | Media;
       } | null)
     | ({
+        relationTo: 'avatars';
+        value: number | Avatar;
+      } | null)
+    | ({
         relationTo: 'users';
         value: number | User;
       } | null);
@@ -1055,10 +1087,45 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "avatars_select".
+ */
+export interface AvatarsSelect<T extends boolean = true> {
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumb?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  foto?: T;
   nome?: T;
+  cargo?: T;
+  fotoUrl?: T;
+  ultimoAcesso?: T;
   papel?: T;
   sites?: T;
   updatedAt?: T;

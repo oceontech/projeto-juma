@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation'
 import type { AdminViewServerProps } from 'payload'
 
 import { Flag } from '../ui/Flag'
+import { TeamList } from '../users/TeamList'
+import { UserAvatar, displayName, roleMeta } from '../users/userMeta'
 
 /**
  * Configurações do painel (/admin/configuracoes): a própria conta e a equipe.
@@ -11,15 +13,17 @@ import { Flag } from '../ui/Flag'
  * revalidação, e-mail) são configuração de desenvolvimento, fora do painel.
  */
 
-const ROLES: Record<string, { label: string; tone: string }> = {
-  admin: { label: 'Admin', tone: 'dark' },
-  editor: { label: 'Editor', tone: 'green' },
-  comercial: { label: 'Comercial', tone: 'amber' },
-}
-
 export async function PanelSettings({ initPageResult, params, searchParams }: AdminViewServerProps) {
   const req = initPageResult.req
-  const user = req.user as { id: number; nome?: string | null; email: string; papel?: string; sites?: ('br' | 'us')[] } | null
+  const user = req.user as {
+    id: number
+    nome?: string | null
+    cargo?: string | null
+    fotoUrl?: string | null
+    email: string
+    papel?: string
+    sites?: ('br' | 'us')[]
+  } | null
   if (!user) redirect('/admin/login?redirect=%2Fadmin%2Fconfiguracoes')
   const isAdmin = user.papel === 'admin'
 
@@ -27,8 +31,9 @@ export async function PanelSettings({ initPageResult, params, searchParams }: Ad
     ? await req.payload.find({ collection: 'users', limit: 50, depth: 0, sort: 'nome', overrideAccess: true })
     : null
 
-  const name = user.nome || user.email.split('@')[0]
-  const role = ROLES[user.papel ?? ''] ?? { label: 'Sem perfil', tone: 'gray' }
+  const name = displayName(user)
+  const role = roleMeta(user.papel)
+  const mySites = isAdmin ? (['br', 'us'] as const) : (user.sites ?? [])
 
   return (
     <DefaultTemplate
@@ -52,80 +57,43 @@ export async function PanelSettings({ initPageResult, params, searchParams }: Ad
           </div>
         </header>
 
-        <section className="jps-grid">
-          <article className="jd-card jps-card">
-            <header className="jps-card__head">
-              <h2>Sua conta</h2>
-              <p>Nome, e-mail e senha de quem está usando o painel agora.</p>
-            </header>
-            <div className="jps-me">
-              <span className="ju-avatar">
-                {name
-                  .split(/\s+/)
-                  .slice(0, 2)
-                  .map((p) => p[0]?.toUpperCase())
-                  .join('')}
-              </span>
-              <span className="ju-who">
-                <b>{name}</b>
-                <small>{user.email}</small>
-              </span>
+        <article className="jd-card jps-me">
+          <UserAvatar name={name} photo={user.fotoUrl} size={72} />
+          <div className="jps-me__text">
+            <h2>{name}</h2>
+            <p>{[user.cargo, user.email].filter(Boolean).join(' · ')}</p>
+            <div className="jps-me__tags">
               <span className={`ju-pill ju-pill--${role.tone}`}>{role.label}</span>
+              <span className="ju-sites">
+                {mySites.map((s) => (
+                  <span key={s}>
+                    <Flag site={s} size={18} />
+                    {s === 'br' ? 'Brasil' : 'EUA'}
+                  </span>
+                ))}
+              </span>
             </div>
-            <Link className="jd-btn jd-btn--ghost" href="/admin/account">
-              Editar minha conta
-            </Link>
-          </article>
-
-        </section>
+          </div>
+          <Link className="jd-btn jd-btn--ghost" href="/admin/account">
+            {user.fotoUrl ? 'Editar perfil' : 'Adicionar foto e editar perfil'}
+          </Link>
+        </article>
 
         {team && (
-          <article className="jd-card jps-card">
+          <section className="jps-team">
             <header className="jps-card__head jps-card__head--row">
               <div>
                 <h2>Equipe</h2>
-                <p>Quem entra no painel, o que pode fazer e em quais sites.</p>
+                <p>
+                  {team.totalDocs} pessoa{team.totalDocs === 1 ? '' : 's'} com acesso ao painel
+                </p>
               </div>
               <Link className="jd-btn" href="/admin/collections/users/create">
                 + Adicionar pessoa
               </Link>
             </header>
-            <ul className="ju-list">
-              {team.docs.map((u) => {
-                const n = u.nome || u.email.split('@')[0]
-                const r = ROLES[u.papel ?? ''] ?? { label: 'Sem perfil', tone: 'gray' }
-                return (
-                  <li key={u.id}>
-                    <Link href={`/admin/collections/users/${u.id}`} className="ju-card jps-member">
-                      <span className="ju-avatar">
-                        {n
-                          .split(/\s+/)
-                          .slice(0, 2)
-                          .map((p: string) => p[0]?.toUpperCase())
-                          .join('')}
-                      </span>
-                      <span className="ju-who">
-                        <b>
-                          {n}
-                          {u.id === user.id && <em>você</em>}
-                        </b>
-                        <small>{u.email}</small>
-                      </span>
-                      <span className={`ju-pill ju-pill--${r.tone}`}>{r.label}</span>
-                      <span className="ju-sites">
-                        {(u.sites ?? []).map((s) => (
-                          <span key={s}>
-                            <Flag site={s} size={18} />
-                            {s === 'br' ? 'Brasil' : 'EUA'}
-                          </span>
-                        ))}
-                      </span>
-                    </Link>
-                  </li>
-                )
-              })}
-            </ul>
-          </article>
+            <TeamList docs={team.docs} me={user.id} />
+          </section>
         )}
       </div>
     </DefaultTemplate>

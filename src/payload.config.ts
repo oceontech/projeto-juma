@@ -7,6 +7,7 @@ import { buildConfig, type Payload } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
+import { Avatars } from './collections/Avatars'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Products } from './collections/Products'
@@ -63,7 +64,7 @@ export default buildConfig({
     },
   },
   // A ordem aqui é a ordem dos grupos na sidebar: Operação, Conteúdo, Site, Biblioteca, Administração.
-  collections: [Leads, Products, Cultures, Articles, PostsUs, Categories, Media, Users],
+  collections: [Leads, Products, Cultures, Articles, PostsUs, Categories, Media, Avatars, Users],
   globals: [HomeHighlights, Settings, Social, SettingsUs, SocialUs],
   localization: {
     locales: [
@@ -100,7 +101,7 @@ export default buildConfig({
       enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
       // Toda a mídia do site é pública: a URL aponta direto para a CDN do Blob,
       // sem passar pelo servidor do Payload (a opção vale por coleção).
-      collections: { media: { disablePayloadAccessControl: true } },
+      collections: { media: { disablePayloadAccessControl: true }, avatars: { disablePayloadAccessControl: true } },
       token: process.env.BLOB_READ_WRITE_TOKEN,
     }),
   ],

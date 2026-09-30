@@ -2,11 +2,13 @@ import type { CollectionConfig } from 'payload'
 
 import { ROLES, SITES, hasRole, isAdmin, isAdminField } from '../access/roles'
 
+const idOf = (v: unknown) => (typeof v === 'object' && v ? ((v as { id?: number | string }).id ?? null) : ((v as number | string | null | undefined) ?? null))
+
 export const Users: CollectionConfig = {
   slug: 'users',
   labels: { singular: 'Usuário', plural: 'Usuários' },
   admin: {
-    useAsTitle: 'email',
+    useAsTitle: 'nome',
     defaultColumns: ['nome', 'email', 'papel', 'sites'],
     group: 'Biblioteca',
     hideAPIURL: true,
@@ -39,7 +41,39 @@ export const Users: CollectionConfig = {
     admin: ({ req }) => Boolean((req.user as { papel?: string } | null)?.papel),
   },
   hooks: {
+    afterLogin: [
+      // "Entrou há 2 dias" na lista da equipe.
+      async ({ req, user }) => {
+        await req.payload.update({
+          collection: 'users',
+          id: user.id,
+          data: { ultimoAcesso: new Date().toISOString() },
+          overrideAccess: true,
+          req,
+          context: { ultimoAcesso: true },
+        })
+      },
+    ],
+    afterChange: [
+      // Trocou ou tirou a foto: a antiga sai do armazenamento.
+      async ({ req, doc, previousDoc }) => {
+        const before = idOf(previousDoc?.foto)
+        if (before && before !== idOf(doc.foto)) {
+          await req.payload.delete({ collection: 'avatars', id: before, overrideAccess: true, req }).catch(() => null)
+        }
+        return doc
+      },
+    ],
     beforeChange: [
+      // Guarda o endereço da foto no usuário: a sidebar e o cabeçalho leem
+      // o usuário logado sem buscar a foto de novo.
+      async ({ req, data, originalDoc }) => {
+        if (!data || !('foto' in data) || idOf(data.foto) === idOf(originalDoc?.foto)) return data
+        const id = idOf(data.foto)
+        if (!id) return { ...data, fotoUrl: null }
+        const photo = await req.payload.findByID({ collection: 'avatars', id, depth: 0, overrideAccess: true, req }).catch(() => null)
+        return { ...data, fotoUrl: photo ? (photo.sizes?.thumb?.url ?? photo.url ?? null) : null }
+      },
       // O primeiro usuário do sistema nasce admin dos dois sites.
       async ({ req, operation, data }) => {
         if (operation !== 'create') return data
@@ -50,7 +84,18 @@ export const Users: CollectionConfig = {
     ],
   },
   fields: [
-    { name: 'nome', label: 'Nome', type: 'text' },
+    // Foto, nome e cargo são editados juntos no cartão de perfil.
+    {
+      name: 'foto',
+      label: 'Foto',
+      type: 'upload',
+      relationTo: 'avatars',
+      admin: { components: { Field: '/components/admin/users/ProfileCard#ProfileCard' } },
+    },
+    { name: 'nome', label: 'Nome', type: 'text', admin: { hidden: true } },
+    { name: 'cargo', label: 'Cargo ou área', type: 'text', admin: { hidden: true } },
+    { name: 'fotoUrl', type: 'text', admin: { hidden: true, readOnly: true } },
+    { name: 'ultimoAcesso', label: 'Último acesso', type: 'date', admin: { hidden: true, readOnly: true } },
     {
       name: 'papel',
       label: 'Perfil',
@@ -64,9 +109,8 @@ export const Users: CollectionConfig = {
         { label: 'Comercial', value: ROLES[2] },
       ],
       access: { create: isAdminField, update: isAdminField },
-      admin: {
-        description: 'Admin: tudo. Editor: conteúdo do Brasil. Comercial: trabalha os leads.',
-      },
+      // Perfil e sites num cartão só (quem faz o quê e onde).
+      admin: { components: { Field: '/components/admin/users/AccessCard#AccessCard' } },
     },
     {
       name: 'sites',
@@ -81,7 +125,7 @@ export const Users: CollectionConfig = {
         { label: 'Estados Unidos', value: 'us' },
       ],
       access: { create: isAdminField, update: isAdminField },
-      admin: { description: 'Sites cujos leads e conteúdos este usuário enxerga.' },
+      admin: { hidden: true },
     },
   ],
 }

@@ -21,8 +21,9 @@ import * as migration_20260930_120000_seed_blog_us from './20260930_120000_seed_
 import * as migration_20260930_140530_conteudo_blocos from './20260930_140530_conteudo_blocos';
 import * as migration_20260930_145719_leads_tipo from './20260930_145719_leads_tipo';
 import * as migration_20260930_154557_leads_respondido from './20260930_154557_leads_respondido';
-
+import * as migration_20260930_180000_perfil_equipe from './20260930_180000_perfil_equipe';
 import * as migration_20260930_170000_eua_contato_redes from './20260930_170000_eua_contato_redes';
+
 export const migrations = [
   {
     up: migration_20260928_154008_inicial.up,
@@ -137,11 +138,16 @@ export const migrations = [
   {
     up: migration_20260930_154557_leads_respondido.up,
     down: migration_20260930_154557_leads_respondido.down,
-    name: '20260930_154557_leads_respondido'
+    name: '20260930_154557_leads_respondido',
   },
   {
     up: migration_20260930_170000_eua_contato_redes.up,
     down: migration_20260930_170000_eua_contato_redes.down,
-    name: '20260930_170000_eua_contato_redes',
+    name: '20260930_170000_eua_contato_redes'
+  },
+  {
+    up: migration_20260930_180000_perfil_equipe.up,
+    down: migration_20260930_180000_perfil_equipe.down,
+    name: '20260930_180000_perfil_equipe',
   },
 ];

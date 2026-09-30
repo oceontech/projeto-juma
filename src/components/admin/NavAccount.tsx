@@ -11,7 +11,7 @@ const ROLE_LABEL: Record<string, string> = { admin: 'Admin', editor: 'Editor', c
  * por isso fica sempre fixo embaixo, fora da rolagem dos links.
  */
 export function NavAccount() {
-  const { user } = useAuth<{ id: number | string; nome?: string | null; email: string; papel?: string }>()
+  const { user } = useAuth<{ id: number | string; nome?: string | null; email: string; papel?: string; fotoUrl?: string | null }>()
   const { config } = useConfig()
   const logoutHref = `${config.routes.admin}${config.admin.routes.logout}`
 
@@ -25,8 +25,8 @@ export function NavAccount() {
   return (
     <div className="juma-account">
       {user && (
-        <Link href={`/admin/collections/users/${user.id}`} className="juma-account__card" title="Minha conta">
-          <span className="juma-account__avatar">{initials}</span>
+        <Link href="/admin/account" className="juma-account__card" title="Minha conta">
+          <span className="juma-account__avatar">{user.fotoUrl ? <img src={user.fotoUrl} alt="" /> : initials}</span>
           <span className="juma-account__text">
             <b>{name}</b>
             <small>{ROLE_LABEL[user.papel ?? ''] ?? user.email}</small>
