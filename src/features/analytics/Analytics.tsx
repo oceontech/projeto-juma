@@ -1,5 +1,7 @@
 import Script from 'next/script'
 
+import { Engagement } from './Engagement'
+
 /**
  * Umami (instalado pela Oceon em juma-stats.vercel.app): sem cookies, então
  * não precisa de banner de consentimento. Só carrega com as variáveis de
@@ -10,11 +12,14 @@ export function Analytics() {
   const id = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID
   if (!src || !id) return null
   return (
-    <Script
-      src={src}
-      data-website-id={id}
-      data-domains={process.env.NEXT_PUBLIC_UMAMI_DOMAINS || undefined}
-      strategy="afterInteractive"
-    />
+    <>
+      <Script
+        src={src}
+        data-website-id={id}
+        data-domains={process.env.NEXT_PUBLIC_UMAMI_DOMAINS || undefined}
+        strategy="afterInteractive"
+      />
+      <Engagement />
+    </>
   )
 }

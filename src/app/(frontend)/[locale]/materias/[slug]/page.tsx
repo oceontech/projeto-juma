@@ -13,6 +13,11 @@ export async function generateStaticParams() {
   return routing.locales.flatMap((locale) => articles.map((article) => ({ locale, slug: article.id })))
 }
 
+const snippet = (text: string, max = 155) => {
+  const clean = text.replace(/\s+/g, ' ').trim()
+  return clean.length <= max ? clean : `${clean.slice(0, clean.lastIndexOf(' ', max))}…`
+}
+
 export async function generateMetadata(props: {
   params: Promise<{ locale: string; slug: string }>
 }) {
@@ -22,7 +27,8 @@ export async function generateMetadata(props: {
 
   return {
     title: `${article.title} · Juma-Agro`,
-    description: article.subtitle,
+    // Descrição do Google: o subtítulo; sem ele, o começo da introdução.
+    description: article.subtitle || snippet(article.introduction),
   }
 }
 

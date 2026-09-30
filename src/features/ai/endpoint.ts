@@ -226,7 +226,7 @@ async function revisar(c: Content) {
   if (n < 30) throw new AiError('Escreva o texto antes da revisão final.', 400)
   const out = await chatJSON<{
     tempoLeitura?: number
-    resumo?: string
+    descricaoGoogle?: string
     problemas?: Partial<Issue>[]
     parecer?: string
   }>(
@@ -240,7 +240,7 @@ async function revisar(c: Content) {
    - "trecho": cópia EXATA, letra por letra, de um pedaço curto do post (uma frase ou menos) que contém o problema;
    - "correcao": esse mesmo trecho já corrigido, no idioma do post, pronto para substituir o trecho. Mude o mínimo. Nunca invente fonte, número ou ensaio: se falta fonte, reescreva sem o número ou sem afirmar o resultado;
    - "sugestao": em português, uma frase curta explicando o que estava errado.
-3. Escreva ${c.site === 'us' ? 'um resumo (em inglês)' : 'um subtítulo'} de até 160 caracteres para o Google.
+3. Em "descricaoGoogle", escreva a descrição do post para aparecer no Google: ${c.site === 'us' ? 'em inglês, ' : ''}uma ou duas frases, até 160 caracteres, dizendo do que o post trata e o que o leitor aprende. Nada sobre a revisão ou sobre a qualidade do texto.
 4. Dê um parecer de uma frase sobre se está pronto para publicar.
 
 ${header(c)}
@@ -248,7 +248,7 @@ ${header(c)}
 Post (cada parte começa com a marca entre colchetes, que não faz parte do texto):
 ${labeled(c).slice(0, 16000)}
 
-Responda em JSON: {"tempoLeitura": número, "resumo": "", "problemas": [{"tipo": "regra|número sem fonte|gramática|clareza${c.site === 'us' ? '|FIFRA' : ''}", "onde": "", "trecho": "", "correcao": "", "sugestao": ""}], "parecer": ""}`,
+Responda em JSON: {"tempoLeitura": número, "descricaoGoogle": "", "problemas": [{"tipo": "regra|número sem fonte|gramática|clareza${c.site === 'us' ? '|FIFRA' : ''}", "onde": "", "trecho": "", "correcao": "", "sugestao": ""}], "parecer": ""}`,
     { effort: 'medium' },
   )
   // Sanidade: entre ~120 e ~300 palavras por minuto.
@@ -257,7 +257,7 @@ Responda em JSON: {"tempoLeitura": número, "resumo": "", "problemas": [{"tipo":
   const tempo = Math.min(max, Math.max(min, Math.round(Number(out.tempoLeitura) || n / 200)))
   return {
     tempoLeitura: tempo,
-    resumo: String(out.resumo ?? ''),
+    resumo: String(out.descricaoGoogle ?? '').trim(),
     problemas: (out.problemas ?? [])
       .filter((p) => p?.trecho || p?.sugestao)
       .slice(0, 8)

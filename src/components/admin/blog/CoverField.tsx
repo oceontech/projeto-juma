@@ -1,6 +1,6 @@
 'use client'
 
-import { toast, useField } from '@payloadcms/ui'
+import { toast, useDocumentInfo, useField } from '@payloadcms/ui'
 import type { UploadFieldClientComponent } from 'payload'
 import { useEffect, useRef, useState } from 'react'
 
@@ -17,6 +17,9 @@ import { askAi, usePostForm } from './usePostForm'
 type Site = 'br' | 'us'
 type Mode = 'contexto' | 'prompt' | 'aprimorar'
 type Media = { id: number; url: string; alt: string; filename?: string; width?: number; height?: number }
+
+/** Imagem anterior de cada post: sobrevive à troca de etapa (o campo desmonta). */
+const previousByDoc = new Map<string, number>()
 
 function useMedia(id: number | null | undefined) {
   const [media, setMedia] = useState<Media | null>(null)
@@ -105,10 +108,18 @@ export const CoverField: UploadFieldClientComponent = (props) => {
   const [mode, setMode] = useState<Mode>('contexto')
   const [request, setRequest] = useState('')
   const [busy, setBusy] = useState(false)
-  const [previous, setPrevious] = useState<number | null | undefined>(undefined)
+  const { id: docId, collectionSlug } = useDocumentInfo()
+  const key = `${collectionSlug}:${docId ?? 'novo'}:${path ?? field.name}`
+  const [previous, setPreviousState] = useState<number | undefined>(() => (docId || id ? previousByDoc.get(key) : undefined))
+  const setPrevious = (v: number | undefined) => {
+    if (v === undefined) previousByDoc.delete(key)
+    else previousByDoc.set(key, v)
+    setPreviousState(v)
+  }
 
+  // "Voltar à anterior" só quando havia uma imagem antes da troca.
   const apply = (next: number | null) => {
-    setPrevious(id ?? null)
+    if (id) setPrevious(id)
     setValue(next)
   }
 
@@ -184,7 +195,7 @@ export const CoverField: UploadFieldClientComponent = (props) => {
               <button type="button" className="jai__btn jai__btn--ghost" onClick={() => apply(null)}>
                 Remover
               </button>
-              {previous !== undefined && (
+              {previous !== undefined && previous !== id && (
                 <button
                   type="button"
                   className="jait__undo"

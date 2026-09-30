@@ -17,6 +17,7 @@ import {
 import { PERIODS, TIMEZONE, loadReport, type Period, type Report, type Row } from '@/features/analytics/report'
 import { UMAMI_URL } from '@/features/analytics/umami'
 
+import { CountryFlag } from '../ui/CountryFlag'
 import { Flag } from '../ui/Flag'
 
 /**
@@ -45,11 +46,7 @@ function Delta({ now, before, invert }: { now: number; before: number; invert?: 
   )
 }
 
-function SiteFlag({ country, size = 16 }: { country?: string | null; size?: number }) {
-  if (country === 'BR') return <Flag site="br" size={size} />
-  if (country === 'US') return <Flag site="us" size={size} />
-  return <span className="ja-cc">{country || '?'}</span>
-}
+const SiteFlag = CountryFlag
 
 function RankList({
   rows,
@@ -337,7 +334,7 @@ export async function AnalyticsView({ initPageResult, params, searchParams }: Ad
                 <Heatmap weekly={report.weekly} />
               </Card>
               <Card title="Ações no site" hint="Contadas pelo analytics">
-                <RankList rows={m.event} total={t.visitors} label={eventName} empty="Nenhuma ação registrada no período." />
+                <RankList rows={m.event.filter((e) => e.x !== 'tempo')} total={t.visitors} label={eventName} empty="Nenhuma ação registrada no período." />
               </Card>
             </section>
 
@@ -392,7 +389,7 @@ export async function AnalyticsView({ initPageResult, params, searchParams }: Ad
                               {fmt.format(Number(v.views) || 0)}
                               {Number(v.visits) > 1 && <small className="jd-muted"> · {v.visits} visitas</small>}
                             </td>
-                            <td>{secs < 1 ? <span className="jd-muted">só uma página</span> : duration(secs)}</td>
+                            <td>{secs < 1 ? <span className="jd-muted" title="Saiu antes de 10 segundos ou visitou antes da medição de tempo existir">menos de 10 s</span> : duration(secs)}</td>
                             <td>{Number(v.events) > 0 ? <span className="ja-badge">{Number(v.events) > 1 ? `${v.events} ações` : '1 ação'}</span> : <span className="jd-muted">—</span>}</td>
                           </tr>
                         )

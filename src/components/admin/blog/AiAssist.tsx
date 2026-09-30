@@ -8,8 +8,9 @@ import { askAi, usePostForm } from './usePostForm'
 
 /**
  * Assistente de IA da etapa Publicação do post (Matéria BR e Post EUA).
- * Tudo é sugestão: nada muda no post sem o usuário clicar em "Usar"/"Aplicar",
- * exceto o tempo de leitura, que a revisão final preenche sozinha.
+ * Tudo é sugestão: nada muda no post sem o usuário clicar em "Usar"/"Corrigir",
+ * exceto o tempo de leitura e a descrição para o Google (só quando o
+ * subtítulo/resumo está vazio), que a revisão final preenche sozinha.
  */
 
 type Site = 'br' | 'us'
@@ -271,6 +272,8 @@ function PublicacaoAssist({ site }: { site: Site }) {
       setFixed({})
       // Só grava se mudou: gravar o mesmo valor marcaria o post como alterado.
       if (Number(values[readField]) !== out.tempoLeitura) set(readField, out.tempoLeitura)
+      // Descrição para o Google: automática. Só preenche o subtítulo/resumo vazio, nunca troca o do autor.
+      if (out.resumo && !String(values[summaryField] ?? '').trim()) set(summaryField, out.resumo)
     } catch (e) {
       toast.error((e as Error).message)
     } finally {
@@ -397,7 +400,7 @@ function PublicacaoAssist({ site }: { site: Site }) {
   const pending = review ? review.problemas.filter((_, i) => !fixed[i]).length : 0
 
   return (
-    <Card title="Revisão final com IA" hint="Roda sozinha ao abrir esta etapa: tempo de leitura, pontos a corrigir e o resumo para o Google.">
+    <Card title="Revisão final com IA" hint="Roda sozinha ao abrir esta etapa: tempo de leitura e pontos a corrigir. A descrição para o Google é feita sozinha.">
       {!review && !busy && textWords < 40 && <p className="jai__muted">Escreva o texto na etapa Texto: a revisão roda sozinha quando você voltar aqui.</p>}
       {busy && !review && (
         <p className="jai__muted">
@@ -454,17 +457,6 @@ function PublicacaoAssist({ site }: { site: Site }) {
                   </li>
                 ))}
               </ul>
-            </>
-          )}
-          {review.resumo && review.resumo !== values[summaryField] && (
-            <>
-              <p className="jai__label">{site === 'us' ? 'Resumo sugerido para o Google' : 'Subtítulo sugerido para o Google'}</p>
-              <div className="jai__option">
-                <span>{review.resumo}</span>
-                <Button ghost onClick={() => (set(summaryField, review.resumo), toast.success('Aplicado'))}>
-                  Usar
-                </Button>
-              </div>
             </>
           )}
         </div>

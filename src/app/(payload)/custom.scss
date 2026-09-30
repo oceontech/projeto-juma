@@ -2608,6 +2608,21 @@ textarea {
   font-weight: 700;
 }
 
+.ja-flag {
+  display: inline-block;
+  flex: none;
+  overflow: hidden;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+  vertical-align: middle;
+
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
 .ja-chart {
   display: flex;
   align-items: flex-end;
@@ -4993,20 +5008,24 @@ textarea {
     transform: translateX(-50%);
   }
 
+  // No cartão da imagem, abre para cima (sobre a foto), sem ser cortado.
   .jcov__current & .jcov__options {
+    z-index: 30;
+    top: auto;
+    bottom: calc(100% + 6px);
     left: 0;
     transform: none;
   }
 }
 
 .jcov__current {
-  overflow: hidden;
   border-radius: 18px;
   background: #fff;
   box-shadow: var(--juma-shadow);
 
   > img {
     display: block;
+    border-radius: 18px 18px 0 0;
     width: 100%;
     aspect-ratio: 16 / 9;
     object-fit: cover;
