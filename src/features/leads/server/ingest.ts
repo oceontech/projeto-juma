@@ -1,5 +1,7 @@
 import type { Payload, Where } from 'payload'
 
+import { guessTipo, isLeadTipo } from '../tipo'
+
 /**
  * Entrada única de leads no painel (docs/01-prd/painel-central.md, 4.2).
  *
@@ -31,6 +33,8 @@ export type LeadInput = {
   telefone?: string
   empresa?: string
   mensagem?: string
+  /** Assunto escolhido no formulário (página de contato); sem ele, a regra adivinha. */
+  tipo?: string
   locale?: string
   pagina?: string
   contexto?: { produto?: string; cultura?: string; detalhe?: string }
@@ -167,6 +171,7 @@ export async function ingestLead(
       data: {
         site,
         status: 'novo',
+        tipo: isLeadTipo(input.tipo) ? input.tipo : guessTipo(input),
         formulario: input.formulario,
         nome: clip(input.nome, 120)!,
         email,

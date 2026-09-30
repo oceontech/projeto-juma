@@ -34,9 +34,9 @@ export const Leads: CollectionConfig = {
   admin: {
     useAsTitle: 'nome',
     defaultColumns: ['nome', 'site', 'status', 'formulario', 'contexto.produto', 'createdAt'],
-    listSearchableFields: ['nome', 'email', 'telefone', 'empresa'],
+    listSearchableFields: ['nome', 'email', 'telefone', 'empresa', 'mensagem'],
     group: 'Operação',
-    description: 'Contatos que chegaram pelos sites. Mude o status conforme o atendimento avança.',
+    description: 'Quem entrou em contato pelos sites: responda pelo WhatsApp, telefone ou e-mail direto da lista.',
     hideAPIURL: true,
     pagination: { defaultLimit: 20 },
     components: { views: { list: { Component: '/components/admin/leads/LeadsInbox#LeadsInbox' } } },
@@ -78,16 +78,30 @@ export const Leads: CollectionConfig = {
       required: true,
       defaultValue: 'novo',
       options: [
-        { label: 'Novo', value: 'novo' },
-        { label: 'Em contato', value: 'em-contato' },
-        { label: 'Qualificado', value: 'qualificado' },
-        { label: 'Convertido', value: 'convertido' },
-        { label: 'Descartado', value: 'descartado' },
+        { label: 'Para responder', value: 'novo' },
+        { label: 'Em conversa', value: 'em-contato' },
+        { label: 'Negociando', value: 'qualificado' },
+        { label: 'Virou cliente', value: 'convertido' },
+        { label: 'Arquivado', value: 'descartado' },
       ],
       admin: {
         position: 'sidebar',
         components: { Field: '/components/admin/fields/LeadFields#LeadStatusField' },
       },
+    },
+    {
+      // Quem é e o que quer (cliente, revenda, vaga, fornecedor). Vazio = a classificar.
+      name: 'tipo',
+      label: 'Tipo de contato',
+      type: 'select',
+      options: [
+        { label: 'Cliente / produtor', value: 'cliente' },
+        { label: 'Revenda / distribuidor', value: 'revenda' },
+        { label: 'Vaga de emprego', value: 'emprego' },
+        { label: 'Fornecedor / serviço', value: 'fornecedor' },
+        { label: 'Outro assunto', value: 'outro' },
+      ],
+      admin: { position: 'sidebar' },
     },
     {
       name: 'responsavel',

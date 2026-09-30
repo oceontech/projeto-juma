@@ -1,23 +1,20 @@
 import type { PayloadRequest, Where } from 'payload'
 
 import { hasRole } from '../../../access/roles'
+import { LEAD_STATUS, LEAD_TIPOS } from '../../../components/admin/leadMeta'
+import { inboxWhere } from './inboxWhere'
 
 /**
  * `GET /api/leads/export`: planilha dos leads com os mesmos filtros da caixa
- * de entrada (status, busca, período) e o controle de acesso do usuário,
+ * de entrada (situação, tipo, busca, período) e o controle de acesso do usuário,
  * inclusive o site escolhido no seletor do painel.
  *
  * Separador `;` e BOM UTF-8: é o que o Excel em português abre direto, com
  * acentos e colunas certas.
  */
 
-const STATUS: Record<string, string> = {
-  novo: 'Novo',
-  'em-contato': 'Em contato',
-  qualificado: 'Qualificado',
-  convertido: 'Convertido',
-  descartado: 'Descartado',
-}
+const STATUS: Record<string, string> = Object.fromEntries(LEAD_STATUS.map((s) => [s.value, s.label]))
+const TIPO: Record<string, string> = Object.fromEntries(LEAD_TIPOS.map((t) => [t.value, t.long]))
 const FORMS: Record<string, string> = {
   whatsapp: 'Pop-up WhatsApp',
   contato: 'Página de contato',
@@ -30,7 +27,8 @@ type Lead = Record<string, any>
 const COLUMNS: [string, (l: Lead, users: Map<unknown, string>) => unknown][] = [
   ['Recebido em', (l) => new Date(l.createdAt).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })],
   ['Site', (l) => (l.site === 'us' ? 'EUA' : 'Brasil')],
-  ['Status', (l) => STATUS[l.status] ?? l.status],
+  ['Situação', (l) => STATUS[l.status] ?? l.status],
+  ['Tipo de contato', (l) => (l.tipo ? (TIPO[l.tipo] ?? l.tipo) : 'A classificar')],
   ['Responsável', (l, users) => (l.responsavel ? users.get(typeof l.responsavel === 'object' ? l.responsavel.id : l.responsavel) : '')],
   ['Nome', (l) => l.nome],
   ['Empresa / fazenda', (l) => l.empresa],
@@ -77,13 +75,9 @@ export async function exportLeadsCsv(req: PayloadRequest) {
   if (!hasRole(req, 'admin', 'comercial')) return Response.json({ error: 'forbidden' }, { status: 403 })
 
   const url = new URL(req.url ?? '', 'http://x')
-  const status = url.searchParams.get('status')
-  const search = url.searchParams.get('search')?.trim()
   const days = Number(url.searchParams.get('dias')) || 0
 
-  const and: Where[] = []
-  if (status && STATUS[status]) and.push({ status: { equals: status } })
-  if (search) and.push({ or: ['nome', 'email', 'telefone', 'empresa'].map((f) => ({ [f]: { like: search } })) })
+  const and: Where[] = inboxWhere({ etapa: url.searchParams.get('etapa'), tipo: url.searchParams.get('tipo'), search: url.searchParams.get('search') })
   if (days > 0) and.push({ createdAt: { greater_than_equal: new Date(Date.now() - days * 86_400_000).toISOString() } })
 
   const [{ docs }, users] = await Promise.all([

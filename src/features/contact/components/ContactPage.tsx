@@ -68,9 +68,15 @@ function PinIcon(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
+/** Assuntos do formulário: viram o "tipo de contato" do lead no painel. */
+const SUBJECTS = ['cliente', 'revenda', 'emprego', 'fornecedor', 'outro'] as const
+
 export function ContactPage() {
   const t = useTranslations('contactPage')
   const [cultura, setCultura] = useState('Soja')
+  // Assunto: separa produtor e revenda de quem procura vaga ou oferece serviço (vai para o painel).
+  const [assunto, setAssunto] = useState<(typeof SUBJECTS)[number]>('cliente')
+  const agro = assunto === 'cliente' || assunto === 'revenda'
   const [produto, setProduto] = useState(t('productDefault'))
   const [wpp, setWpp] = useState('')
   const tLead = useTranslations('leadPopup')
@@ -188,7 +194,7 @@ export function ContactPage() {
     const form = e.currentTarget
     const data = new FormData(form)
     const text = (name: string) => String(data.get(name) ?? '').trim()
-    const produtoEscolhido = produto !== t('productDefault') ? produto : undefined
+    const produtoEscolhido = agro && produto !== t('productDefault') ? produto : undefined
     const message = lead
       ? lead.messageFor(produtoEscolhido ? { produto: produtoEscolhido } : undefined)
       : tLead('messages.default')
@@ -202,10 +208,13 @@ export function ContactPage() {
       email: text('email'),
       telefone: wpp,
       mensagem: text('mensagem'),
+      tipo: assunto,
       locale,
       pagina: window.location.pathname,
-      contexto: { produto: produtoEscolhido, cultura },
-      dados: { regiao: text('regiao'), cultura, produto: produtoEscolhido },
+      contexto: agro ? { produto: produtoEscolhido, cultura } : undefined,
+      dados: agro
+        ? { assunto: t(`subject.${assunto}`), regiao: text('regiao'), cultura, produto: produtoEscolhido }
+        : { assunto: t(`subject.${assunto}`) },
       consentimento: t('privacyNote'),
       website: text('website'),
       tempoMs: formShownAt.current ? Date.now() - formShownAt.current : undefined,
@@ -256,6 +265,33 @@ export function ContactPage() {
               {t('formTitleStart')} <em className="text-highlight text-primary">{t('formTitleHighlight')}</em>
             </h2>
 
+            <fieldset className="mb-8">
+              <legend className="text-sm font-bold text-foreground/80 mb-3">{t('labelSubject')}</legend>
+              <div className="flex flex-wrap gap-2" role="radiogroup">
+                {SUBJECTS.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    role="radio"
+                    aria-checked={assunto === s}
+                    onClick={() => setAssunto(s)}
+                    className={`rounded-full px-4 py-2 text-sm font-semibold transition-all border ${
+                      assunto === s
+                        ? 'bg-primary text-white border-primary'
+                        : 'bg-foreground/5 text-foreground/75 border-transparent hover:border-primary/40'
+                    }`}
+                  >
+                    {t(`subject.${s}`)}
+                  </button>
+                ))}
+              </div>
+              {assunto === 'emprego' && settings.emailHr && (
+                <p className="mt-3 text-sm text-foreground/70">
+                  {t('jobHint', { email: settings.emailHr })}
+                </p>
+              )}
+            </fieldset>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div className="md:col-span-2 space-y-2">
                 <label htmlFor="nome" className="text-sm font-bold text-foreground/80">{t('labelName')}</label>
@@ -272,6 +308,9 @@ export function ContactPage() {
                 <input id="email" name="email" type="email" required placeholder="seu@email.com" className="w-full bg-foreground/5 border-transparent rounded-xl px-4 py-3 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" />
               </div>
 
+              {/* Cultura, região e produto só para quem fala de lavoura (cliente ou revenda). */}
+              {agro && (
+              <>
               <div className="space-y-2">
                 <label htmlFor="cultura" className="text-sm font-bold text-foreground/80">{t('labelCulture')}</label>
                 <DropdownMenu
@@ -316,10 +355,12 @@ export function ContactPage() {
                   <span className="text-foreground">{produto}</span>
                 </DropdownMenu>
               </div>
+              </>
+              )}
 
               <div className="md:col-span-2 space-y-2">
                 <label htmlFor="mensagem" className="text-sm font-bold text-foreground/80">{t('labelMessage')}</label>
-                <textarea id="mensagem" name="mensagem" placeholder={t('placeholderMessage')} rows={4} className="w-full bg-foreground/5 border-transparent rounded-xl px-4 py-3 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"></textarea>
+                <textarea id="mensagem" name="mensagem" placeholder={agro ? t('placeholderMessage') : t('placeholderMessageOther')} rows={4} className="w-full bg-foreground/5 border-transparent rounded-xl px-4 py-3 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"></textarea>
               </div>
             </div>
 

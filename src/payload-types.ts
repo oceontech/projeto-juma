@@ -150,6 +150,7 @@ export interface UserAuthOperations {
 export interface Lead {
   id: number;
   status: 'novo' | 'em-contato' | 'qualificado' | 'convertido' | 'descartado';
+  tipo?: ('cliente' | 'revenda' | 'emprego' | 'fornecedor' | 'outro') | null;
   responsavel?: (number | null) | User;
   site: 'br' | 'us';
   formulario?: ('whatsapp' | 'contato' | 'trial' | 'trial-compact') | null;
@@ -765,6 +766,7 @@ export interface PayloadMigration {
  */
 export interface LeadsSelect<T extends boolean = true> {
   status?: T;
+  tipo?: T;
   responsavel?: T;
   site?: T;
   formulario?: T;

@@ -19,6 +19,7 @@ import * as migration_20260929_231659_categorias_etapa1 from './20260929_231659_
 import * as migration_20260929_231851_categorias_etapa2 from './20260929_231851_categorias_etapa2';
 import * as migration_20260930_120000_seed_blog_us from './20260930_120000_seed_blog_us';
 import * as migration_20260930_140530_conteudo_blocos from './20260930_140530_conteudo_blocos';
+import * as migration_20260930_145719_leads_tipo from './20260930_145719_leads_tipo';
 
 export const migrations = [
   {
@@ -124,6 +125,11 @@ export const migrations = [
   {
     up: migration_20260930_140530_conteudo_blocos.up,
     down: migration_20260930_140530_conteudo_blocos.down,
-    name: '20260930_140530_conteudo_blocos'
+    name: '20260930_140530_conteudo_blocos',
+  },
+  {
+    up: migration_20260930_145719_leads_tipo.up,
+    down: migration_20260930_145719_leads_tipo.down,
+    name: '20260930_145719_leads_tipo'
   },
 ];

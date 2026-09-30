@@ -532,7 +532,17 @@
     "ctaTitleHighlight": "Hable",
     "ctaTitleLine2": "directo conmigo.",
     "ctaBody": "Nuestro equipo responde en WhatsApp en hasta 1 hora hábil, de lunes a viernes.",
-    "ctaButton": "Abrir WhatsApp"
+    "ctaButton": "Abrir WhatsApp",
+    "labelSubject": "¿Sobre qué quiere hablar?",
+    "subject": {
+      "cliente": "Productos para mi cultivo",
+      "revenda": "Quiero revender",
+      "emprego": "Trabaje con nosotros",
+      "fornecedor": "Soy proveedor",
+      "outro": "Otro asunto"
+    },
+    "jobHint": "Envíe también su currículum a {email}.",
+    "placeholderMessageOther": "Cuéntenos brevemente lo que necesita"
   },
   "homeProductShowcase": {
     "products": {

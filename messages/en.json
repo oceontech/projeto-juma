@@ -532,7 +532,17 @@
     "ctaTitleHighlight": "Talk",
     "ctaTitleLine2": "to me directly.",
     "ctaBody": "Our team responds on WhatsApp within 1 business hour, Monday to Friday.",
-    "ctaButton": "Open WhatsApp"
+    "ctaButton": "Open WhatsApp",
+    "labelSubject": "What would you like to talk about?",
+    "subject": {
+      "cliente": "Products for my farm",
+      "revenda": "I want to resell",
+      "emprego": "Work with us",
+      "fornecedor": "I am a supplier",
+      "outro": "Something else"
+    },
+    "jobHint": "Please also send your résumé to {email}.",
+    "placeholderMessageOther": "Tell us briefly what you need"
   },
   "homeProductShowcase": {
     "products": {

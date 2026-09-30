@@ -1,42 +1,62 @@
 import { headers } from 'next/headers'
 import type { ListViewServerProps, Where } from 'payload'
 
-import { LEAD_STATUS } from '../leadMeta'
+import { inboxWhere } from '../../../features/leads/server/inboxWhere'
+import { LEAD_STAGES, LEAD_TIPOS, type LeadStage } from '../leadMeta'
 import { LeadsInboxClient, type InboxLead } from './LeadsInboxClient'
 
 /**
- * Lista de leads como caixa de entrada (substitui a lista padrão do Payload).
- * Os leads vêm de `data`, que o Payload já consultou a partir da URL (status,
- * busca, página) com o controle de acesso aplicado. As contagens das abas usam
- * o mesmo filtro de acesso, incluindo o site escolhido na sidebar.
+ * Leads como caixa de entrada (substitui a lista padrão do Payload): quem
+ * escreveu, o que quer e como responder. Filtros próprios na URL (`etapa`,
+ * `tipo`, `busca`, `pagina`), com o mesmo controle de acesso do painel,
+ * incluindo o site escolhido no seletor.
  */
+const PER_PAGE = 25
+
 export async function LeadsInbox(props: ListViewServerProps) {
-  const { data, payload, user, searchParams, hasCreatePermission } = props
-  const req = { headers: await headers(), user: user ?? null }
+  const { payload, user, searchParams, hasCreatePermission } = props
+  const req = { headers: await headers(), user: user ?? null } as never
 
-  const params = (searchParams ?? {}) as Record<string, unknown>
-  const where = params.where as { status?: { equals?: string } } | undefined
-  const currentStatus = where?.status?.equals ?? 'todos'
-  const search = typeof params.search === 'string' ? params.search : ''
+  const params = (searchParams ?? {}) as Record<string, string | undefined>
+  const search = typeof params.busca === 'string' ? params.busca : ''
+  const tipo = typeof params.tipo === 'string' ? params.tipo : 'todos'
+  const page = Math.max(1, Number(params.pagina) || 1)
 
-  const searchWhere: Where | undefined = search
-    ? { or: ['nome', 'email', 'telefone', 'empresa'].map((f) => ({ [f]: { like: search } })) }
-    : undefined
-  const count = async (status?: string) =>
-    (
-      await payload.count({
-        collection: 'leads',
-        where: { and: [...(status ? [{ status: { equals: status } }] : []), ...(searchWhere ? [searchWhere] : [])] },
-        req: req as never,
-        overrideAccess: false,
-      })
-    ).totalDocs
-  const counts = Object.fromEntries(
-    await Promise.all([['todos', await count()] as const, ...LEAD_STATUS.map(async (s) => [s.value, await count(s.value)] as const)]),
+  const count = async (and: Where[]) =>
+    (await payload.count({ collection: 'leads', where: and.length ? { and } : undefined, req, overrideAccess: false })).totalDocs
+
+  // Contagem por situação (com a busca e o tipo escolhidos) e por tipo (na situação escolhida).
+  const stageCounts = Object.fromEntries(
+    await Promise.all(
+      [...LEAD_STAGES.map((s) => s.value), 'todos'].map(async (v) => [v, await count(inboxWhere({ etapa: v, tipo, search }))] as const),
+    ),
   ) as Record<string, number>
+  // Sem escolha, abre em "Para responder" (se houver alguém esperando); senão, em "Todos".
+  const etapa = (typeof params.etapa === 'string' ? params.etapa : stageCounts.responder > 0 ? 'responder' : 'todos') as LeadStage
+  const tipoCounts = Object.fromEntries(
+    await Promise.all(
+      [...LEAD_TIPOS.map((t) => t.value), 'sem', 'todos'].map(async (v) => [v, await count(inboxWhere({ etapa, tipo: v, search }))] as const),
+    ),
+  ) as Record<string, number>
+
+  const and = inboxWhere({ etapa, tipo, search })
+  const data = await payload.find({
+    collection: 'leads',
+    where: and.length ? { and } : undefined,
+    sort: '-createdAt',
+    limit: PER_PAGE,
+    page,
+    depth: 0,
+    req,
+    overrideAccess: false,
+  })
 
   const users = await payload.find({ collection: 'users', limit: 100, depth: 0, pagination: false, overrideAccess: true })
   const userName = new Map(users.docs.map((u) => [u.id, u.nome || u.email.split('@')[0]]))
+  const nameOf = (ref: unknown) => {
+    const id = typeof ref === 'object' && ref ? (ref as { id: number }).id : ref
+    return id ? (userName.get(id as number) ?? null) : null
+  }
 
   const leads: InboxLead[] = (data.docs as Record<string, any>[]).map((d) => ({
     id: d.id,
@@ -44,12 +64,19 @@ export async function LeadsInbox(props: ListViewServerProps) {
     empresa: d.empresa ?? null,
     email: d.email ?? null,
     telefone: d.telefone ?? null,
+    mensagem: d.mensagem ?? null,
     site: d.site,
     status: d.status,
+    tipo: d.tipo ?? null,
     formulario: d.formulario ?? null,
-    interesse: d.contexto?.produto || d.contexto?.cultura || null,
-    regiao: d.geo?.regiao ?? null,
-    responsavel: d.responsavel ? (userName.get(typeof d.responsavel === 'object' ? d.responsavel.id : d.responsavel) ?? null) : null,
+    produto: d.contexto?.produto ?? null,
+    cultura: d.contexto?.cultura ?? null,
+    detalhe: d.contexto?.detalhe ?? null,
+    pagina: d.pagina ?? null,
+    local: [d.geo?.cidade, d.geo?.regiao].filter(Boolean).join(', ') || null,
+    dados: d.dados && typeof d.dados === 'object' ? (d.dados as Record<string, unknown>) : null,
+    notas: (d.notas ?? []).map((n: Record<string, any>) => ({ id: n.id, texto: n.texto, data: n.data ?? null, autor: nameOf(n.autor) })),
+    responsavel: nameOf(d.responsavel),
     duplicado: Boolean(d.duplicadoDe),
     createdAt: d.createdAt,
   }))
@@ -57,8 +84,10 @@ export async function LeadsInbox(props: ListViewServerProps) {
   return (
     <LeadsInboxClient
       leads={leads}
-      counts={counts}
-      currentStatus={currentStatus}
+      stageCounts={stageCounts}
+      tipoCounts={tipoCounts}
+      etapa={etapa}
+      tipo={tipo}
       search={search}
       page={data.page ?? 1}
       totalPages={data.totalPages ?? 1}

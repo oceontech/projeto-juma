@@ -532,7 +532,17 @@
     "ctaTitleHighlight": "Fala",
     "ctaTitleLine2": "direto comigo.",
     "ctaBody": "Nossa equipe responde no WhatsApp em até 1 hora útil, de segunda a sexta.",
-    "ctaButton": "Abrir WhatsApp"
+    "ctaButton": "Abrir WhatsApp",
+    "labelSubject": "Sobre o que você quer falar?",
+    "subject": {
+      "cliente": "Produtos para a minha lavoura",
+      "revenda": "Quero revender",
+      "emprego": "Trabalhe conosco",
+      "fornecedor": "Sou fornecedor",
+      "outro": "Outro assunto"
+    },
+    "jobHint": "Envie também o seu currículo para {email}.",
+    "placeholderMessageOther": "Conte em poucas palavras o que você precisa"
   },
   "homeProductShowcase": {
     "products": {
