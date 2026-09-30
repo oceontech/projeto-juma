@@ -62,6 +62,7 @@ export type SiteTraffic = {
   avgVisitSeconds: number
   topPages: { path: string; views: number }[]
   leadEvents: number
+  whatsappEvents: number
 }
 
 export type Traffic = { sites: Partial<Record<Site, SiteTraffic>>; visitors: number; visitorsPrev: number }
@@ -88,10 +89,11 @@ async function siteTraffic(id: string, startAt: number, endAt: number): Promise<
     avgVisitSeconds: visits ? n(stats.totaltime) / visits : 0,
     topPages: pages.map((p) => ({ path: p.x, views: n(p.y) })),
     leadEvents: events.filter((e) => e.x === 'lead').reduce((sum, e) => sum + n(e.y), 0),
+    whatsappEvents: events.filter((e) => e.x === 'whatsapp').reduce((sum, e) => sum + n(e.y), 0),
   }
 }
 
-/** Tráfego dos últimos 30 dias (e dos 30 anteriores) dos sites pedidos. */
+/** Tráfego do período pedido (e do período anterior, do mesmo tamanho) dos sites. */
 export async function loadTraffic(sites: Site[], start: Date, end: Date): Promise<Traffic | null> {
   if (!analyticsConfigured()) return null
   try {

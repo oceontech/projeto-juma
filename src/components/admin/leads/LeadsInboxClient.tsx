@@ -10,6 +10,8 @@ import {
   LEAD_STAGES,
   LEAD_TIPOS,
   SITE_META,
+  intlPhone,
+  leadGreeting,
   relativeDate,
   stageOf,
   statusMeta,
@@ -87,23 +89,6 @@ const initials = (name: string) =>
     .join('')
 
 const first = (name: string) => name.trim().split(/\s+/)[0] ?? name
-
-/** Número com código do país, para o link do WhatsApp e o telefone. */
-function intlPhone(site: 'br' | 'us', digits: string | null) {
-  if (!digits) return null
-  const d = digits.replace(/\D/g, '')
-  if (site === 'br' && (d.length === 10 || d.length === 11)) return `55${d}`
-  if (site === 'us' && d.length === 10) return `1${d}`
-  return d
-}
-
-function greeting(lead: InboxLead) {
-  const name = first(lead.nome)
-  if (lead.site === 'us') return `Hi ${name}, this is Juma-Agro. Thanks for reaching out through our website${lead.produto ? ` about ${lead.produto}` : ''}.`
-  if (lead.tipo === 'emprego') return `Olá, ${name}! Aqui é da Juma Agro. Recebemos seu contato pelo site sobre vagas.`
-  if (lead.tipo === 'fornecedor' || lead.tipo === 'outro') return `Olá, ${name}! Aqui é da Juma Agro. Recebemos sua mensagem pelo site.`
-  return `Olá, ${name}! Aqui é da Juma Agro. Recebemos seu contato pelo site${lead.produto ? ` sobre o ${lead.produto}` : ''}. Como podemos ajudar?`
-}
 
 /** De onde veio, numa frase: "Botão do WhatsApp em Aminosan®". */
 function origin(lead: InboxLead) {
@@ -375,7 +360,7 @@ export function LeadsInboxClient({ leads, stageCounts, tipoCounts, etapa, tipo, 
                       {phone && (
                         <a
                           className="jli-btn jli-btn--wa"
-                          href={`https://wa.me/${phone}?text=${encodeURIComponent(greeting(lead))}`}
+                          href={`https://wa.me/${phone}?text=${encodeURIComponent(leadGreeting(lead))}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={() => contacted(lead)}
@@ -392,7 +377,7 @@ export function LeadsInboxClient({ leads, stageCounts, tipoCounts, etapa, tipo, 
                       {lead.email && (
                         <a
                           className="jli-btn"
-                          href={`mailto:${lead.email}?subject=${encodeURIComponent(lead.site === 'us' ? 'Juma-Agro: your message' : 'Juma Agro: seu contato pelo site')}&body=${encodeURIComponent(`${greeting(lead)}\n\n`)}`}
+                          href={`mailto:${lead.email}?subject=${encodeURIComponent(lead.site === 'us' ? 'Juma-Agro: your message' : 'Juma Agro: seu contato pelo site')}&body=${encodeURIComponent(`${leadGreeting(lead)}\n\n`)}`}
                           onClick={() => contacted(lead)}
                           title={`E-mail: ${lead.email}`}
                           aria-label="E-mail"

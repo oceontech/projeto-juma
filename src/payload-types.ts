@@ -142,7 +142,7 @@ export interface UserAuthOperations {
   };
 }
 /**
- * Contatos que chegaram pelos sites. Mude o status conforme o atendimento avança.
+ * Quem entrou em contato pelos sites: responda pelo WhatsApp, telefone ou e-mail direto da lista.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "leads".
@@ -151,6 +151,10 @@ export interface Lead {
   id: number;
   status: 'novo' | 'em-contato' | 'qualificado' | 'convertido' | 'descartado';
   tipo?: ('cliente' | 'revenda' | 'emprego' | 'fornecedor' | 'outro') | null;
+  /**
+   * Preenchido sozinho quando o lead sai de "Para responder".
+   */
+  respondidoEm?: string | null;
   responsavel?: (number | null) | User;
   site: 'br' | 'us';
   formulario?: ('whatsapp' | 'contato' | 'trial' | 'trial-compact') | null;
@@ -767,6 +771,7 @@ export interface PayloadMigration {
 export interface LeadsSelect<T extends boolean = true> {
   status?: T;
   tipo?: T;
+  respondidoEm?: T;
   responsavel?: T;
   site?: T;
   formulario?: T;

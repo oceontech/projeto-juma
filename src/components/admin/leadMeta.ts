@@ -52,6 +52,34 @@ export const SITE_META = {
   us: { label: 'Estados Unidos', short: 'US', gradient: 'linear-gradient(145deg,#60a5fa,#1d4ed8)' },
 } as const
 
+const firstName = (name: string) => name.trim().split(/\s+/)[0] ?? name
+
+/** Número com código do país, para o link do WhatsApp e o telefone. */
+export function intlPhone(site: 'br' | 'us', digits: string | null | undefined) {
+  if (!digits) return null
+  const d = digits.replace(/\D/g, '')
+  if (site === 'br' && (d.length === 10 || d.length === 11)) return `55${d}`
+  if (site === 'us' && d.length === 10) return `1${d}`
+  return d || null
+}
+
+/** Primeira mensagem pronta para responder o lead. */
+export function leadGreeting(lead: { nome: string; site: 'br' | 'us'; tipo?: string | null; produto?: string | null }) {
+  const name = firstName(lead.nome)
+  if (lead.site === 'us') return `Hi ${name}, this is Juma-Agro. Thanks for reaching out through our website${lead.produto ? ` about ${lead.produto}` : ''}.`
+  if (lead.tipo === 'emprego') return `Olá, ${name}! Aqui é da Juma Agro. Recebemos seu contato pelo site sobre vagas.`
+  if (lead.tipo === 'fornecedor' || lead.tipo === 'outro') return `Olá, ${name}! Aqui é da Juma Agro. Recebemos sua mensagem pelo site.`
+  return `Olá, ${name}! Aqui é da Juma Agro. Recebemos seu contato pelo site${lead.produto ? ` sobre o ${lead.produto}` : ''}. Como podemos ajudar?`
+}
+
+/** "3 h", "2 dias": há quanto tempo (para quem espera resposta). */
+export function waitingFor(iso: string, now = Date.now()) {
+  const h = (now - new Date(iso).getTime()) / 3_600_000
+  if (h < 1) return `${Math.max(1, Math.round(h * 60))} min`
+  if (h < 48) return `${Math.round(h)} h`
+  return `${Math.round(h / 24)} dias`
+}
+
 /** "há 5 min", "ontem", "12 set" */
 export function relativeDate(iso: string, now = Date.now()) {
   const diff = now - new Date(iso).getTime()

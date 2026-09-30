@@ -17,6 +17,7 @@ import {
 import { PERIODS, TIMEZONE, loadReport, type Period, type Report, type Row } from '@/features/analytics/report'
 import { UMAMI_URL } from '@/features/analytics/umami'
 
+import { ExcludeMe } from './ExcludeMe'
 import { CountryFlag } from '../ui/CountryFlag'
 import { Flag } from '../ui/Flag'
 
@@ -184,10 +185,32 @@ export async function AnalyticsView({ initPageResult, params, searchParams }: Ad
   const period: Period = raw in PERIODS ? (raw as Period) : '30d'
   const report = await loadReport(sites, period)
 
+  // Páginas que geram contatos: pelos leads gravados no painel (a fonte mais precisa).
+  const leadPages = new Map<string, number>()
+  let leadTotal = 0
+  if (report && user.papel) {
+    const { docs } = await req.payload.find({
+      collection: 'leads',
+      where: { createdAt: { greater_than_equal: new Date(report.start).toISOString() } },
+      limit: 5000,
+      pagination: false,
+      depth: 0,
+      req,
+      overrideAccess: false,
+    })
+    for (const l of docs as { pagina?: string | null; formulario?: string | null }[]) {
+      leadTotal++
+      const key = l.pagina || (l.formulario?.startsWith('trial') ? '/ (formulário de teste)' : 'Sem página registrada')
+      leadPages.set(key, (leadPages.get(key) ?? 0) + 1)
+    }
+  }
+  const leadPageRows: Row[] = [...leadPages.entries()].map(([x, y]) => ({ x, y })).sort((a, b) => b.y - a.y).slice(0, 10)
+
   const m = report?.metrics
   const t = report?.totals
   const prev = report?.previous
   const leads = m?.event.find((e) => e.x === 'lead')?.y ?? 0
+  const whatsapp = m?.event.find((e) => e.x === 'whatsapp')?.y ?? 0
   const siteName = sites.length === 1 ? (sites[0] === 'br' ? 'site Brasil' : 'site EUA') : 'dois sites'
 
   return (
@@ -211,6 +234,7 @@ export async function AnalyticsView({ initPageResult, params, searchParams }: Ad
             <h1>Visitas</h1>
           </div>
           <div className="ja-head__actions">
+            <ExcludeMe usSite={sites.includes('us') ? process.env.US_SITE_URL || 'https://juma-agro-eua.vercel.app' : null} />
             {report && (
               <span className="ja-live" title="Pessoas com o site aberto nos últimos 5 minutos">
                 <i /> {fmt.format(report.active)} {report.active === 1 ? 'pessoa' : 'pessoas'} agora
@@ -260,11 +284,21 @@ export async function AnalyticsView({ initPageResult, params, searchParams }: Ad
                   delta: <Delta now={t.visits ? t.bounces / t.visits : 0} before={prev.visits ? prev.bounces / prev.visits : 0} invert />,
                 },
                 {
-                  label: 'Viraram lead',
+                  label: 'Deixaram contato',
                   value: t.visitors ? pctText(pct(leads, t.visitors)) : '—',
                   hint: `${fmt.format(leads)} formulário${leads === 1 ? '' : 's'} enviado${leads === 1 ? '' : 's'}`,
                   delta: null,
                 },
+                ...(sites.includes('br')
+                  ? [
+                      {
+                        label: 'Cliques no WhatsApp',
+                        value: fmt.format(whatsapp),
+                        hint: t.visitors ? `${pctText(pct(whatsapp, t.visitors))} dos visitantes do site Brasil` : 'botão do site Brasil',
+                        delta: null,
+                      },
+                    ]
+                  : []),
               ].map((k) => (
                 <article key={k.label} className="jd-card ja-kpi">
                   <p className="jd-label">{k.label}</p>
@@ -319,6 +353,22 @@ export async function AnalyticsView({ initPageResult, params, searchParams }: Ad
                 <RankList rows={m.exit} total={t.visits} label={pagePath} />
               </Card>
             </section>
+
+            {leadTotal > 0 && (
+              <section className="ja-grid ja-grid--2-1">
+                <Card title="Páginas que geram contatos" hint="Onde a pessoa estava quando deixou o contato (leads do painel)">
+                  <RankList rows={leadPageRows} total={leadTotal} label={pagePath} />
+                </Card>
+                <Card title="Contatos no período" hint="Leads gravados no painel">
+                  <p className="ja-bignum">
+                    {fmt.format(leadTotal)}
+                    <small>
+                      <Link href="/admin/collections/leads?etapa=todos">ver em Leads →</Link>
+                    </small>
+                  </p>
+                </Card>
+              </section>
+            )}
 
             <section className="ja-grid ja-grid--3">
               <Card title="Sites que mandam visitas">

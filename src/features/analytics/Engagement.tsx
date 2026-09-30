@@ -17,6 +17,19 @@ const BEAT_MS = 60_000
 const MAX_MS = 30 * 60_000
 
 export function Engagement() {
+  // Link do painel ("Não contar minhas visitas"): marca este navegador para o Umami ignorar.
+  useEffect(() => {
+    const url = new URL(window.location.href)
+    if (!url.searchParams.has('nao-contar')) return
+    try {
+      window.localStorage.setItem('umami.disabled', '1')
+    } catch {
+      /* sem armazenamento: nada a fazer */
+    }
+    url.searchParams.delete('nao-contar')
+    window.history.replaceState(null, '', url.toString())
+  }, [])
+
   useEffect(() => {
     let visible = 0
     let since = document.visibilityState === 'visible' ? Date.now() : 0

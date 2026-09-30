@@ -42,6 +42,17 @@ export const Leads: CollectionConfig = {
     components: { views: { list: { Component: '/components/admin/leads/LeadsInbox#LeadsInbox' } } },
   },
   defaultSort: '-createdAt',
+  hooks: {
+    beforeChange: [
+      // Primeira resposta: quando o lead sai de "Para responder" (mede o tempo de resposta).
+      ({ data, originalDoc }) => {
+        if (data && originalDoc?.status === 'novo' && data.status && data.status !== 'novo' && !originalDoc.respondidoEm) {
+          data.respondidoEm = new Date().toISOString()
+        }
+        return data
+      },
+    ],
+  },
   access: {
     // O site grava pela Local API (server action) e o EUA pelo endpoint com chave.
     // Pelo painel, admin e comercial podem registrar um contato feito por telefone.
@@ -102,6 +113,17 @@ export const Leads: CollectionConfig = {
         { label: 'Outro assunto', value: 'outro' },
       ],
       admin: { position: 'sidebar' },
+    },
+    {
+      name: 'respondidoEm',
+      label: 'Respondido em',
+      type: 'date',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Preenchido sozinho quando o lead sai de "Para responder".',
+        components: { Field: '/components/admin/fields/DateField#DateField' },
+      },
     },
     {
       name: 'responsavel',

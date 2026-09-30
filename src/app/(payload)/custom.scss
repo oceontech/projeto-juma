@@ -2464,7 +2464,7 @@ textarea {
 
 .ja-kpis {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 16px;
   margin-bottom: 16px;
 }
@@ -7305,4 +7305,338 @@ button.jpw__row,
     grid-template-columns: 1fr;
     padding-left: 18px;
   }
+}
+
+/* ─── Visão geral: o que precisa de atenção (Dashboard) ─────────────── */
+.jd-kpis--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  .jd-trend + .jd-trend {
+    margin-top: 2px;
+  }
+}
+
+a.jd-kpi-card {
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &.is-alert {
+    box-shadow: inset 0 0 0 2px #22c55e, var(--juma-shadow);
+  }
+}
+
+.jd-waiting {
+  margin-bottom: 16px;
+
+  ul {
+    display: grid;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    color: inherit;
+    text-decoration: none;
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: #f5f7f3;
+    }
+  }
+}
+
+.jd-waiting__who {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+
+  b {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  small {
+    overflow: hidden;
+    color: var(--juma-muted);
+    font-size: 12.5px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+
+.jd-waiting__tipo {
+  flex: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.jd-waiting__age {
+  flex: none;
+  min-width: 70px;
+  color: var(--juma-muted);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+
+  &.is-late {
+    color: #b91c1c;
+    font-weight: 600;
+  }
+}
+
+.jd-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--juma-muted);
+  font-size: 12px;
+
+  i {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+
+    &.is-buyers {
+      background: #16a34a;
+    }
+
+    &.is-others {
+      margin-left: 8px;
+      background: #d4d4d8;
+    }
+  }
+}
+
+.jd-bar.jd-bar--stack {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+  background: none;
+
+  > span {
+    display: block;
+    width: 100%;
+  }
+
+  .is-buyers {
+    border-radius: 3px 3px 1px 1px;
+    background: linear-gradient(180deg, #34d86a, #16a34a);
+  }
+
+  .is-others {
+    border-radius: 3px 3px 0 0;
+    background: #d4d4d8;
+  }
+}
+
+.jd-rank {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    font-size: 13.5px;
+  }
+
+  b {
+    margin-left: auto;
+    font-variant-numeric: tabular-nums;
+  }
+
+  small {
+    min-width: 36px;
+    color: var(--juma-muted);
+    font-size: 12px;
+    text-align: right;
+  }
+}
+
+.jd-rank__bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: 0;
+  border-radius: 8px;
+  background: #ecfdf5;
+}
+
+.jd-rank__label,
+.jd-rank b,
+.jd-rank small {
+  position: relative;
+  z-index: 1;
+}
+
+.jd-rank__label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.jd-label--gap {
+  margin-top: 18px;
+}
+
+.jd-blog__last {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 4px 0 12px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+
+  small {
+    overflow: hidden;
+    color: var(--juma-muted);
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: 0;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+
+.jd-blog__nudge {
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #fffbeb;
+  color: #92400e;
+  font-size: 12.5px;
+}
+
+@media (max-width: 1180px) {
+  .jd-kpis--4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .jd-kpis--4 {
+    grid-template-columns: 1fr;
+  }
+
+  .jd-waiting__tipo {
+    display: none;
+  }
+}
+
+/* Analytics: não contar minhas visitas e número grande. */
+.ja-exclude {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: inset 0 0 0 1px var(--juma-line-strong);
+    color: var(--juma-ink);
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #a1a1aa;
+  }
+
+  &.is-off {
+    button {
+      background: #ecfdf5;
+      box-shadow: inset 0 0 0 1px #86efac;
+      color: #166534;
+    }
+
+    i {
+      background: #22c55e;
+    }
+  }
+
+  a {
+    color: var(--juma-muted);
+    font-size: 12px;
+  }
+}
+
+.ja-bignum {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0 0;
+  font-size: 44px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+
+  small {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0;
+
+    a {
+      color: var(--juma-green);
+    }
+  }
+}
+
+a.jd-kpi-card.jd-card--dark {
+  .jd-label,
+  .jd-trend {
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  .jd-kpi {
+    color: #fff;
+  }
+}
+
+// Celular: textos do painel quebram linha e o selo do período fica inteiro.
+.jd-traffic--empty > div {
+  min-width: 0;
+
+  p {
+    white-space: normal;
+  }
+}
+
+.jd-chip {
+  flex: none;
+  white-space: nowrap;
+}
+
+.jd-card__head {
+  gap: 10px;
 }
