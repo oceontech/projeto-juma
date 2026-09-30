@@ -2,18 +2,17 @@
 
 import { toast } from '@payloadcms/ui'
 import type { UIFieldClientComponent } from 'payload'
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 
-import { askAi, usePostForm, type Section } from './usePostForm'
+import { askAi, usePostForm } from './usePostForm'
 
 /**
- * Assistente de IA dentro de cada etapa do post (Matéria BR e Post EUA).
+ * Assistente de IA da etapa Publicação do post (Matéria BR e Post EUA).
  * Tudo é sugestão: nada muda no post sem o usuário clicar em "Usar"/"Aplicar",
  * exceto o tempo de leitura, que a revisão final preenche sozinha.
  */
 
 type Site = 'br' | 'us'
-type Step = 'assunto' | 'capa' | 'texto' | 'publicacao'
 
 function Spark() {
   return (
@@ -119,12 +118,12 @@ function AssuntoAssist({ site }: { site: Site }) {
 
   return (
     <Card
-      title="Assistente de IA"
-      hint={`Sugere títulos, ${site === 'us' ? 'o resumo' : 'o subtítulo'} e a categoria. Funciona melhor depois do texto escrito; dá para voltar aqui no fim.`}
+      title={`Título, ${site === 'us' ? 'resumo' : 'subtítulo'} e categoria melhores`}
+      hint="A IA lê o texto pronto e sugere opções. Clique em Usar na que preferir."
     >
       <div className="jai__row">
         <Button busy={busy} onClick={run}>
-          {res ? 'Sugerir de novo' : `Sugerir título, ${site === 'us' ? 'resumo' : 'subtítulo'} e categoria`}
+          {res ? 'Sugerir de novo' : 'Ver sugestões'}
         </Button>
       </div>
       {res && (
@@ -168,162 +167,6 @@ function AssuntoAssist({ site }: { site: Site }) {
               </div>
             </>
           )}
-        </div>
-      )}
-    </Card>
-  )
-}
-
-// ─── Etapa 2: Capa ─────────────────────────────────────────────────────
-
-function CapaAssist({ site }: { site: Site }) {
-  const { payload, set } = usePayload(site)
-  const [busy, setBusy] = useState(false)
-  const [detail, setDetail] = useState('')
-  const [image, setImage] = useState<{ id: number; url: string; alt: string } | null>(null)
-  const coverField = site === 'us' ? 'cover' : 'capa'
-  const hasTitle = Boolean(site === 'us' ? payload.title : payload.titulo)
-
-  const run = async () => {
-    setBusy(true)
-    try {
-      setImage(await askAi('capa', { ...payload, detalhe: detail }))
-    } catch (e) {
-      toast.error((e as Error).message)
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  return (
-    <Card title="Gerar capa com IA" hint="Cria uma foto no estilo editorial a partir do título e do texto, sem letreiros nem embalagens. O texto alternativo vem junto.">
-      <label className="jai__field">
-        <span>Algum detalhe para a imagem? (opcional)</span>
-        <input value={detail} onChange={(e) => setDetail(e.target.value)} placeholder={site === 'us' ? 'Ex.: citrus grove at sunrise in Florida' : 'Ex.: lavoura de soja ao amanhecer, visão de drone'} />
-      </label>
-      <div className="jai__row">
-        <Button busy={busy} onClick={run} disabled={!hasTitle}>
-          {busy ? 'Gerando a imagem… (uns 30 segundos)' : image ? 'Gerar outra' : 'Gerar capa'}
-        </Button>
-        {!hasTitle && <small className="jai__muted">Preencha o título na etapa Assunto primeiro.</small>}
-      </div>
-      {image && (
-        <figure className="jai__image">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={image.url} alt={image.alt} />
-          <figcaption>
-            <span>{image.alt}</span>
-            <Button onClick={() => (set(coverField, image.id), toast.success('Capa aplicada'))}>Usar como capa</Button>
-          </figcaption>
-        </figure>
-      )}
-    </Card>
-  )
-}
-
-// ─── Etapa 3: Texto ────────────────────────────────────────────────────
-
-function TextoAssist({ site }: { site: Site }) {
-  const { payload, set, setSections, values, sections } = usePayload(site)
-  const [raw, setRaw] = useState('')
-  const [open, setOpen] = useState(false)
-  const [busy, setBusy] = useState<'organizar' | 'melhorar' | null>(null)
-  const [changes, setChanges] = useState<string[] | null>(null)
-  const undo = useRef<(() => void) | null>(null)
-
-  const snapshot = () => {
-    if (site === 'us') {
-      const body = values.body
-      return () => set('body', body, { remount: true })
-    }
-    const prev = { introducao: values.introducao ?? '', citacao: values.citacao ?? '', secoes: sections.map((s: Section) => ({ ...s })) }
-    return () => {
-      set('introducao', prev.introducao)
-      set('citacao', prev.citacao)
-      setSections(prev.secoes)
-    }
-  }
-
-  const apply = (out: Record<string, any>) => {
-    if (site === 'us') {
-      set('body', out.body, { remount: true })
-      if (out.resumo && !values.excerpt) set('excerpt', out.resumo)
-      return
-    }
-    set('introducao', out.introducao ?? '')
-    set('citacao', out.citacao ?? '')
-    setSections(out.secoes ?? [])
-  }
-
-  const run = async (action: 'organizar' | 'melhorar') => {
-    setBusy(action)
-    try {
-      const out = await askAi<Record<string, any>>(action, action === 'organizar' ? { ...payload, bruto: raw } : payload)
-      undo.current = snapshot()
-      apply(out)
-      setChanges(action === 'melhorar' ? (out.mudancas ?? []) : ['Texto organizado em introdução, seções e citação.'])
-      if (action === 'organizar') {
-        setRaw('')
-        setOpen(false)
-      }
-      toast.success(action === 'organizar' ? 'Texto organizado' : 'Texto revisado')
-    } catch (e) {
-      toast.error((e as Error).message)
-    } finally {
-      setBusy(null)
-    }
-  }
-
-  return (
-    <Card title="Assistente de IA" hint="Cole um texto solto para ele organizar, ou peça para melhorar o que já está escrito. Fatos e números do autor não mudam.">
-      <div className="jai__row">
-        <Button ghost onClick={() => setOpen((o) => !o)}>
-          {open ? 'Fechar' : 'Colar texto e organizar'}
-        </Button>
-        <Button busy={busy === 'melhorar'} onClick={() => run('melhorar')}>
-          Melhorar o texto
-        </Button>
-      </div>
-      {open && (
-        <div className="jai__paste">
-          <textarea
-            value={raw}
-            onChange={(e) => setRaw(e.target.value)}
-            rows={8}
-            placeholder="Cole aqui o texto do Word, do e-mail ou do WhatsApp. A IA separa introdução, seções com intertítulo e uma citação."
-          />
-          <div className="jai__row">
-            <Button busy={busy === 'organizar'} onClick={() => run('organizar')} disabled={raw.trim().length < 40}>
-              Organizar no post
-            </Button>
-            <small className="jai__muted">Substitui o texto desta etapa. Dá para desfazer.</small>
-          </div>
-        </div>
-      )}
-      {changes && (
-        <div className="jai__results">
-          <p className="jai__label">O que mudou</p>
-          <ul className="jai__list">
-            {(changes.length ? changes : ['Ajustes pequenos de clareza e gramática.']).map((c) => (
-              <li key={c}>{c}</li>
-            ))}
-          </ul>
-          <div className="jai__row">
-            <Button
-              ghost
-              onClick={() => {
-                undo.current?.()
-                undo.current = null
-                setChanges(null)
-                toast.success('Desfeito')
-              }}
-            >
-              Desfazer
-            </Button>
-            <Button ghost onClick={() => setChanges(null)}>
-              Manter
-            </Button>
-          </div>
         </div>
       )}
     </Card>
@@ -448,10 +291,17 @@ function PublicacaoAssist({ site }: { site: Site }) {
   )
 }
 
+/**
+ * Revisão final (etapa Publicação): o que corrigir, tempo de leitura e
+ * resumo para o Google; logo abaixo, sugestões de título, subtítulo e
+ * categoria, feitas a partir do texto já escrito.
+ */
 export const AiAssist: UIFieldClientComponent = (props) => {
-  const { site, step } = props as unknown as { site: Site; step: Step }
-  if (step === 'assunto') return <AssuntoAssist site={site} />
-  if (step === 'capa') return <CapaAssist site={site} />
-  if (step === 'texto') return <TextoAssist site={site} />
-  return <PublicacaoAssist site={site} />
+  const { site } = props as unknown as { site: Site }
+  return (
+    <>
+      <PublicacaoAssist site={site} />
+      <AssuntoAssist site={site} />
+    </>
+  )
 }

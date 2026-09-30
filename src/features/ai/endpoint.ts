@@ -1,12 +1,14 @@
 import { addDataAndFileToRequest, type PayloadHandler, type PayloadRequest } from 'payload'
 
 import { hasRole } from '../../access/roles'
-import { AiError, chatJSON, generateImage } from './openai'
+import { AiError, chatJSON, editImage, generateImage } from './openai'
 import { blocksToLexical, blocksToPlain, cleanBlocks, lexicalToBlocks, type Block } from './lexical'
 import { rulesFor } from './rules'
 
 /**
- * POST /api/ai/:action — assistente de posts do blog (Matéria BR e Post EUA).
+ * POST /api/ai/:action — assistente de posts do blog (Matéria BR e Post EUA):
+ * assunto (títulos, subtítulo, categoria), campo (etiqueta ✨ IA das caixas de
+ * texto), revisar (revisão final), capa (3 modos) e traduzir (EN/ES).
  * Só admin e editor. O formulário manda o que está preenchido; a resposta
  * volta pronta para aplicar nos campos (o usuário decide o que usar).
  */
@@ -116,86 +118,90 @@ Responda em JSON: {"titulos": ["", "", ""], "resumo": "", "categoriaId": número
   }
 }
 
-async function organizar(c: Content) {
-  if (!c.raw.trim()) throw new AiError('Cole o texto que você quer organizar.', 400)
-  if (c.site === 'us') {
-    const out = await chatJSON<{ blocos?: unknown; resumo?: string }>(
-      rulesFor('us'),
-      `Organize the raw text below into a blog post in American English. Keep the author's facts and numbers exactly; do not add information.
-Structure: short opening paragraphs, then sections with h2 headings, paragraphs, bullet lists where natural, and at most one quote (only if it is a sentence from the text).
-${header(c)}
+type Mode = 'ortografia' | 'organizar' | 'aprimorar' | 'aumentar'
 
-Raw text:
-${c.raw}
-
-Answer in JSON: {"blocos": [{"type": "p"|"h2"|"h3"|"quote", "text": ""} | {"type": "ul", "items": [""]}], "resumo": "one-sentence summary"}`,
-      { effort: 'medium' },
-    )
-    const blocks = cleanBlocks(out.blocos)
-    if (!blocks.length) throw new AiError('A IA não conseguiu organizar esse texto. Tente com mais conteúdo.', 422)
-    return { body: blocksToLexical(blocks), resumo: String(out.resumo ?? '') }
-  }
-  const out = await chatJSON<{ introducao?: string; secoes?: Section[]; citacao?: string }>(
-    rulesFor('br'),
-    `Organize o texto bruto abaixo numa matéria do blog, em português do Brasil. Mantenha os fatos, números e fontes do autor exatamente; não acrescente informação.
-Estrutura: uma introdução curta (1 ou 2 parágrafos), de 2 a 6 seções com intertítulo e parágrafos, e uma citação em destaque só se houver uma frase forte do próprio texto (senão, vazio).
-Separe parágrafos com uma linha em branco.
-${header(c)}
-
-Texto bruto:
-${c.raw}
-
-Responda em JSON: {"introducao": "", "secoes": [{"titulo": "", "paragrafos": ""}], "citacao": ""}`,
-    { effort: 'medium' },
-  )
-  const secoes = asSections(out.secoes)
-  if (!secoes.length && !asText(out.introducao)) throw new AiError('A IA não conseguiu organizar esse texto. Tente com mais conteúdo.', 422)
-  return { introducao: asText(out.introducao), secoes, citacao: asText(out.citacao) }
+const MODE_BR: Record<Mode, string> = {
+  ortografia: 'Corrija só ortografia, acentuação, concordância e pontuação. Não mude palavras nem a ordem das ideias.',
+  organizar:
+    'Corrija e organize: ordem lógica das ideias, parágrafos curtos (separados por uma linha em branco), frases claras. Mantenha o conteúdo, sem acrescentar nem tirar informação.',
+  aprimorar: 'Aprimore a redação: mais clara, direta e fluida para o produtor rural, com o mesmo tamanho aproximado e as mesmas informações.',
+  aumentar:
+    'Aprimore e desenvolva o texto em cerca de 1,5 a 2 vezes o tamanho, explicando melhor o que já está dito (como fazer, por que importa, cuidados práticos). Não invente números, ensaios, doses nem resultados.',
 }
 
-async function melhorar(c: Content) {
-  const text = plain(c)
-  if (words(text) < 20) throw new AiError('Escreva um pouco mais de texto antes de pedir melhorias.', 400)
-  if (c.site === 'us') {
-    const out = await chatJSON<{ blocos?: unknown; mudancas?: string[] }>(
+const MODE_US: Record<Mode, string> = {
+  ortografia: 'Fix only spelling, grammar and punctuation. Do not change wording or the order of ideas.',
+  organizar: 'Fix and organize: logical order, short paragraphs, clear sentences, h2 headings where the topic changes. Keep the content; do not add or remove information.',
+  aprimorar: 'Improve the writing: clearer, direct and fluent for growers, about the same length and the same information.',
+  aumentar:
+    'Improve and develop the text to about 1.5 to 2 times the length, explaining better what is already said (how, why it matters, practical care). Do not invent numbers, trials, rates or results.',
+}
+
+/**
+ * IA por caixa de texto: a etiqueta "✨ IA" da introdução, de cada seção e do
+ * texto do post EUA. "Organizar" na introdução também separa seções quando o
+ * texto colado trata de mais de um assunto.
+ */
+async function campo(c: Content, body: Record<string, any>) {
+  const mode: Mode = ['ortografia', 'organizar', 'aprimorar', 'aumentar'].includes(body.modo) ? body.modo : 'aprimorar'
+  const alvo = body.alvo === 'secao' ? 'secao' : body.alvo === 'corpo' ? 'corpo' : 'intro'
+
+  if (alvo === 'corpo') {
+    const text = blocksToPlain(c.blocks)
+    if (words(text) < 5) throw new AiError('Escreva o texto antes de usar a IA.', 400)
+    const out = await chatJSON<{ blocos?: unknown }>(
       rulesFor('us'),
-      `Edit the blog post below for clarity, flow, grammar and compliance with the rules. Keep the structure, meaning, facts and every number exactly. Do not add new claims.
+      `${MODE_US[mode]}
 ${header(c)}
 
 Post:
 ${text}
 
-Answer in JSON: {"blocos": [{"type": "p"|"h2"|"h3"|"quote", "text": ""} | {"type": "ul", "items": [""]}], "mudancas": ["what you changed, in Portuguese, one short line each"]}`,
-      { effort: 'medium' },
+Answer in JSON: {"blocos": [{"type": "p"|"h2"|"h3"|"quote", "text": ""} | {"type": "ul", "items": [""]}]}`,
+      { effort: mode === 'ortografia' ? 'low' : 'medium' },
     )
     const blocks = cleanBlocks(out.blocos)
     if (!blocks.length) throw new AiError('A IA não devolveu o texto. Tente de novo.', 502)
-    return { body: blocksToLexical(blocks), mudancas: (out.mudancas ?? []).map(String).slice(0, 8) }
+    return { body: blocksToLexical(blocks) }
   }
-  const out = await chatJSON<{ introducao?: string; secoes?: Section[]; citacao?: string; mudancas?: string[] }>(
-    rulesFor('br'),
-    `Revise a matéria abaixo: clareza, ritmo, gramática e as regras de escrita. Mantenha a estrutura (mesmas seções), o sentido, os fatos e todos os números. Não acrescente afirmações novas.
+
+  const texto = asText(body.texto)
+  if (words(texto) < 3) throw new AiError('Escreva algo nesta caixa antes de usar a IA.', 400)
+  const rules = rulesFor(c.site)
+  const task = c.site === 'us' ? MODE_US[mode] : MODE_BR[mode]
+
+  if (alvo === 'intro' && mode === 'organizar' && words(texto) > 120) {
+    const out = await chatJSON<{ introducao?: unknown; secoes?: unknown }>(
+      rules,
+      `O texto abaixo foi colado na caixa de introdução da matéria. ${task}
+Se ele tratar de mais de um assunto, deixe na introdução só a abertura (1 ou 2 parágrafos) e separe o resto em seções com intertítulo curto. Se for um texto curto de abertura, devolva seções vazias.
+${header(c)}
+
+Texto:
+${texto}
+
+Responda em JSON: {"introducao": "", "secoes": [{"titulo": "", "paragrafos": ""}]}`,
+      { effort: 'medium' },
+    )
+    return { texto: asText(out.introducao) || texto, secoes: asSections(out.secoes) }
+  }
+
+  const out = await chatJSON<{ texto?: unknown; titulo?: unknown }>(
+    rules,
+    `${task}
+${alvo === 'secao' ? `Este é o texto de uma seção da matéria${body.titulo ? ` com o intertítulo "${cut(body.titulo, 200)}"` : ''}. Sugira também um intertítulo curto e claro (até 60 caracteres).` : 'Este é o texto de abertura (introdução) da matéria.'}
 Separe parágrafos com uma linha em branco.
 ${header(c)}
 
-Introdução:
-${c.intro}
+Texto:
+${texto}
 
-Seções:
-${c.sections.map((s, i) => `[${i + 1}] ${s.titulo ?? ''}\n${s.paragrafos ?? ''}`).join('\n\n')}
-
-Citação: ${c.quote || '(vazia)'}
-
-Responda em JSON: {"introducao": "", "secoes": [{"titulo": "", "paragrafos": ""}], "citacao": "", "mudancas": ["o que mudou, uma linha curta cada"]}`,
-    { effort: 'medium' },
+Responda em JSON: {"texto": ""${alvo === 'secao' ? ', "titulo": ""' : ''}}`,
+    { effort: mode === 'ortografia' ? 'low' : 'medium' },
   )
-  const secoes = asSections(out.secoes)
-  return {
-    introducao: asText(out.introducao) || c.intro,
-    secoes: secoes.length ? secoes : c.sections.map((s) => ({ titulo: s.titulo ?? '', paragrafos: s.paragrafos ?? '' })),
-    citacao: out.citacao === undefined ? c.quote : asText(out.citacao),
-    mudancas: (out.mudancas ?? []).map(String).slice(0, 8),
-  }
+  const result = asText(out.texto)
+  if (!result) throw new AiError('A IA não devolveu o texto. Tente de novo.', 502)
+  return { texto: result, titulo: alvo === 'secao' ? asText(out.titulo) : undefined }
 }
 
 async function revisar(c: Content) {
@@ -240,33 +246,71 @@ Responda em JSON: {"tempoLeitura": número, "resumo": "", "problemas": [{"tipo":
   }
 }
 
-async function capa(req: PayloadRequest, c: Content, detalhe: string) {
-  if (!c.title) throw new AiError('Preencha o título antes de gerar a capa.', 400)
+const STYLE = (site: Site) =>
+  `photorealistic editorial photography, natural light, wide 3:2 composition with calm space, rich but natural greens, ${site === 'us' ? 'American farmland (Florida citrus, row crops or vegetables)' : 'Brazilian farmland (soy, corn, coffee, sugarcane, pasture)'}`
+const SAFE = 'No text, letters, logos, labels or watermarks; no product bottles or packaging; no identifiable faces in close-up.'
+
+/** Lê os bytes de uma imagem da Mídia (Blob público ou arquivo local do painel). */
+async function mediaBytes(req: PayloadRequest, id: number) {
+  const media = await req.payload.findByID({ collection: 'media', id, depth: 0, overrideAccess: true })
+  if (!media?.url || !String(media.mimeType ?? '').startsWith('image/')) throw new AiError('Escolha uma imagem para aprimorar.', 400)
+  const url = new URL(media.url, req.url ?? 'http://localhost')
+  const res = await fetch(url, { signal: AbortSignal.timeout(30_000) })
+  if (!res.ok) throw new AiError('Não foi possível abrir a imagem escolhida.', 502)
+  const type = String(media.mimeType)
+  return { data: Buffer.from(await res.arrayBuffer()), type: ['image/png', 'image/jpeg', 'image/webp'].includes(type) ? type : 'image/png' }
+}
+
+/**
+ * Capa com IA, em três modos:
+ * - contexto: a partir do título e do texto já escritos;
+ * - prompt: do zero, com o pedido do autor;
+ * - aprimorar: parte de uma imagem enviada ou da biblioteca.
+ */
+async function capa(req: PayloadRequest, c: Content, body: Record<string, any>) {
+  const modo = body.modo === 'prompt' ? 'prompt' : body.modo === 'aprimorar' ? 'aprimorar' : 'contexto'
+  const pedido = cut(body.pedido, 600).trim()
+  if (modo === 'contexto' && !c.title && words(plain(c)) < 20) throw new AiError('Escreva o título e o texto antes: a capa nasce deles.', 400)
+  if (modo !== 'contexto' && !pedido) throw new AiError(modo === 'prompt' ? 'Descreva a imagem que você quer.' : 'Diga o que melhorar na imagem.', 400)
+  if (modo === 'aprimorar' && !body.imagem) throw new AiError('Escolha a imagem que você quer aprimorar.', 400)
+
   const brief = await chatJSON<{ prompt?: string; alt?: string }>(
-    'You write prompts for an image model that creates editorial cover photos for an agriculture blog.',
-    `Create one image prompt (in English, up to 90 words) for the cover of this post.
-Style: photorealistic editorial photography, natural light, wide 3:2 composition with calm space, rich but natural greens, ${c.site === 'us' ? 'American farmland (Florida citrus, row crops or vegetables)' : 'Brazilian farmland (soy, corn, coffee, sugarcane, pasture)'} matching the topic.
-Rules: no text, letters, logos, labels or watermarks; no product bottles or packaging; no identifiable faces in close-up; no chemicals being sprayed on people.
+    'You write prompts for an image model that creates and edits editorial cover photos for an agriculture blog.',
+    modo === 'aprimorar'
+      ? `Write an edit instruction (English, up to 70 words) for the image model, based on the author's request (in Portuguese or English): "${pedido}". Keep the photo realistic and the same subject unless asked. ${SAFE}
+Also write a short alt text describing the resulting image, in ${c.site === 'us' ? 'English' : 'Portuguese (Brazil)'}.
+Post title: ${c.title || '(none)'}
+Answer in JSON: {"prompt": "", "alt": ""}`
+      : `Create one image prompt (English, up to 90 words) for the cover of this post.
+Style: ${STYLE(c.site)}. ${SAFE}
+${modo === 'prompt' ? `The author asked for (use it as the main subject): "${pedido}"` : ''}
 Also write a short alt text describing the image, in ${c.site === 'us' ? 'English' : 'Portuguese (Brazil)'}.
 
 ${header(c)}
-${detalhe ? `Pedido do autor: ${detalhe}` : ''}
-Trecho: ${plain(c).slice(0, 1200)}
+${modo === 'contexto' ? `Excerpt: ${plain(c).slice(0, 1500)}` : ''}
 
 Answer in JSON: {"prompt": "", "alt": ""}`,
   )
   if (!brief.prompt) throw new AiError('A IA não conseguiu descrever a imagem. Tente de novo.', 502)
-  const image = await generateImage(brief.prompt)
-  const slug = c.title
+
+  const image =
+    modo === 'aprimorar'
+      ? await (async () => {
+          const src = await mediaBytes(req, Number(body.imagem))
+          return editImage(src.data, src.type, brief.prompt!)
+        })()
+      : await generateImage(brief.prompt)
+
+  const slug = (c.title || pedido)
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 50)
   const media = await req.payload.create({
     collection: 'media',
-    data: { alt: brief.alt || c.title },
+    data: { alt: brief.alt || c.title || pedido },
     file: { data: image, mimetype: 'image/webp', name: `capa-ia-${slug || 'post'}-${Date.now()}.webp`, size: image.length },
     req,
     overrideAccess: true,
@@ -349,10 +393,9 @@ export const aiHandler: PayloadHandler = async (req) => {
   try {
     let result: unknown
     if (action === 'assunto') result = await assunto(req, c)
-    else if (action === 'organizar') result = await organizar(c)
-    else if (action === 'melhorar') result = await melhorar(c)
+    else if (action === 'campo') result = await campo(c, body)
     else if (action === 'revisar') result = await revisar(c)
-    else if (action === 'capa') result = await capa(req, c, cut(body.detalhe, 300))
+    else if (action === 'capa') result = await capa(req, c, body)
     else if (action === 'traduzir') result = await traduzir(req, Number(body.id))
     else return Response.json({ error: 'Ação desconhecida.' }, { status: 404 })
     return Response.json(result)

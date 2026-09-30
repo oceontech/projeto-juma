@@ -27,6 +27,29 @@ export function ArticlePreviewFrame() {
     return () => window.removeEventListener('message', onMessage)
   }, [])
 
+  // Prévia travada: dá para rolar e ver a página, mas não sair dela nem abrir nada.
+  useEffect(() => {
+    const block = (e: Event) => {
+      const t = e.target as HTMLElement | null
+      if (t?.closest('a, button, form, input, select, textarea, label, [role="button"]')) {
+        e.preventDefault()
+        e.stopPropagation()
+      }
+    }
+    const style = document.createElement('style')
+    // Os links e botões nem recebem o clique (a transição de página do site escuta a janela antes de tudo).
+    style.textContent =
+      'a, button, input, select, textarea, label, [role="button"] { pointer-events: none !important; cursor: default !important; }'
+    document.head.appendChild(style)
+    document.addEventListener('click', block, true)
+    document.addEventListener('submit', block, true)
+    return () => {
+      document.removeEventListener('click', block, true)
+      document.removeEventListener('submit', block, true)
+      style.remove()
+    }
+  }, [])
+
   if (!article) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center pt-[120px] text-foreground/50">

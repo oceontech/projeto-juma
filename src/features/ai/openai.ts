@@ -84,3 +84,34 @@ export async function generateImage(prompt: string): Promise<Buffer> {
   if (!b64) throw new AiError('A IA não devolveu a imagem. Tente de novo.', 502)
   return Buffer.from(b64, 'base64')
 }
+
+/**
+ * Aprimora uma imagem existente seguindo o pedido (mesmo modelo de imagem).
+ * Devolve os bytes em WebP, no formato horizontal da capa.
+ */
+export async function editImage(source: Buffer, mimetype: string, prompt: string): Promise<Buffer> {
+  const form = new FormData()
+  form.append('model', IMAGE_MODEL)
+  form.append('prompt', prompt)
+  form.append('size', '1536x1024')
+  form.append('quality', 'medium')
+  form.append('output_format', 'webp')
+  form.append('output_compression', '82')
+  form.append('image[]', new Blob([new Uint8Array(source)], { type: mimetype }), `origem.${mimetype.split('/')[1] || 'png'}`)
+  const res = await fetch(`${API}/images/edits`, {
+    method: 'POST',
+    headers: { authorization: `Bearer ${key()}` },
+    body: form,
+    signal: AbortSignal.timeout(180_000),
+  }).catch((err) => {
+    throw new AiError(err?.name === 'TimeoutError' ? 'A IA demorou demais. Tente de novo.' : 'Sem conexão com a IA.', 504)
+  })
+  const data = (await res.json().catch(() => ({}))) as { data?: { b64_json?: string }[]; error?: { message?: string } }
+  if (!res.ok) {
+    if (res.status === 429) throw new AiError('Limite de uso da IA atingido. Aguarde um pouco e tente de novo.', 429)
+    throw new AiError(`A IA respondeu com erro: ${data.error?.message ?? res.status}`, 502)
+  }
+  const b64 = data.data?.[0]?.b64_json
+  if (!b64) throw new AiError('A IA não devolveu a imagem. Tente de novo.', 502)
+  return Buffer.from(b64, 'base64')
+}

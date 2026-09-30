@@ -14,7 +14,7 @@ import { usePostForm } from './usePostForm'
 
 type Site = 'br' | 'us'
 type Check = { label: string; ok: boolean }
-const STEPS = ['Assunto', 'Capa', 'Texto', 'Publicação'] as const
+const STEPS = ['Assunto', 'Texto', 'Capa', 'Publicação'] as const
 
 const hasText = (v: unknown) => typeof v === 'string' && v.trim().length > 0
 const richTextHasContent = (v: unknown) =>
@@ -30,8 +30,8 @@ function checksFor(site: Site, v: Record<string, any>, sections: { paragrafos?: 
         { label: 'resumo', ok: hasText(v.excerpt) },
         { label: 'categoria', ok: Boolean(v.tema) },
       ],
-      [{ label: 'foto de capa', ok: Boolean(v.cover) }],
       [{ label: 'texto', ok: richTextHasContent(v.body) }],
+      [{ label: 'foto de capa', ok: Boolean(v.cover) }],
       [
         { label: 'endereço', ok: hasText(v.slug) },
         { label: 'data', ok: Boolean(v.date) },
@@ -44,8 +44,8 @@ function checksFor(site: Site, v: Record<string, any>, sections: { paragrafos?: 
       { label: 'subtítulo', ok: hasText(v.subtitulo) },
       { label: 'categoria', ok: Boolean(v.tema) },
     ],
-    [{ label: 'foto de capa', ok: Boolean(v.capa) }],
     [{ label: 'texto', ok: hasText(v.introducao) || sections.some((s) => hasText(s.paragrafos)) }],
+    [{ label: 'foto de capa', ok: Boolean(v.capa) }],
     [
       { label: 'endereço', ok: hasText(v.slug) },
       { label: 'data', ok: Boolean(v.data) },

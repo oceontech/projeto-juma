@@ -19,11 +19,11 @@ const revalidateOnDelete: CollectionAfterDeleteHook = async ({ doc }) => {
   return doc
 }
 
-/** Assistente de IA no começo de cada etapa (components/admin/blog/AiAssist). */
-const ai = (name: string, step: 'assunto' | 'capa' | 'texto' | 'publicacao'): Field => ({
+/** Revisão final com IA na etapa Publicação (components/admin/blog/AiAssist). */
+const ai = (name: string): Field => ({
   name,
   type: 'ui',
-  admin: { components: { Field: { path: '/components/admin/blog/AiAssist#AiAssist', clientProps: { site: 'us', step } } } },
+  admin: { components: { Field: { path: '/components/admin/blog/AiAssist#AiAssist', clientProps: { site: 'us' } } } },
 })
 
 /** Rodapé de cada etapa do post ("← anterior · próxima →"). */
@@ -55,7 +55,20 @@ export const PostsUs: CollectionConfig = {
     update: ({ req }) => hasRole(req, 'admin', 'editor'),
     delete: ({ req }) => hasRole(req, 'admin', 'editor'),
   },
-  hooks: { afterChange: [revalidate], afterDelete: [revalidateOnDelete] },
+  hooks: {
+    beforeChange: [
+      // A IA estima na revisão final; sem ela, conta pelas palavras do texto.
+      ({ data }) => {
+        if (data && !data.readMinutes) {
+          const words = (JSON.stringify(data.body ?? '').match(/"text":"([^"]*)"/g) ?? []).join(' ').split(/\s+/).length
+          data.readMinutes = Math.max(1, Math.round(words / 200))
+        }
+        return data
+      },
+    ],
+    afterChange: [revalidate],
+    afterDelete: [revalidateOnDelete],
+  },
   fields: [
     // Prévia ao lado do formulário: página, Google e o que falta.
     {
@@ -83,9 +96,8 @@ export const PostsUs: CollectionConfig = {
       tabs: [
         {
           label: 'Assunto',
-          description: 'Tudo em inglês americano: é o que o site dos EUA mostra.',
+          description: 'Tudo em inglês americano: é o que o site dos EUA mostra. A IA sugere opções melhores na última etapa.',
           fields: [
-            ai('iaAssunto', 'assunto'),
             {
               name: 'title',
               label: 'Título (em inglês)',
@@ -116,29 +128,18 @@ export const PostsUs: CollectionConfig = {
                 { name: 'author', label: 'Autor', type: 'text', admin: { width: '50%', description: 'Ex.: Juma-Agro agronomy' } },
               ],
             },
-            step('passo1', { next: 'Capa' }),
-          ],
-        },
-        {
-          label: 'Capa',
-          description: 'A foto que abre o post e aparece no card da lista do blog.',
-          fields: [
-            ai('iaCapa', 'capa'),
-            {
-              name: 'cover',
-              label: 'Foto de capa',
-              type: 'upload',
-              relationTo: 'media',
-              admin: { description: 'Foto na horizontal, de preferência com 1600 px de largura ou mais.' },
-            },
-            step('passo2', { prev: 'Assunto', next: 'Texto' }),
+            step('passo1', { next: 'Texto' }),
           ],
         },
         {
           label: 'Texto',
           description: 'Descreva o que o produto entrega, nunca o efeito na planta ou no inseto (FIFRA). Todo número com fonte.',
           fields: [
-            ai('iaTexto', 'texto'),
+            {
+              name: 'iaTexto',
+              type: 'ui',
+              admin: { components: { Field: '/components/admin/blog/BodyAiBar#BodyAiBar' } },
+            },
             { name: 'body', label: 'Texto (em inglês)', type: 'richText' },
             {
               // HTML pronto para o site EUA, que não tem o editor do Payload instalado.
@@ -153,14 +154,28 @@ export const PostsUs: CollectionConfig = {
                 ],
               },
             },
-            step('passo3', { prev: 'Capa', next: 'Publicação' }),
+            step('passo2', { prev: 'Assunto', next: 'Capa' }),
+          ],
+        },
+        {
+          label: 'Capa',
+          description: 'A foto que abre o post e aparece no card da lista do blog. Envie, escolha da biblioteca ou crie com IA.',
+          fields: [
+            {
+              name: 'cover',
+              label: 'Foto de capa',
+              type: 'upload',
+              relationTo: 'media',
+              admin: { components: { Field: { path: '/components/admin/blog/CoverField#CoverField', clientProps: { site: 'us' } } } },
+            },
+            step('passo3', { prev: 'Texto', next: 'Publicação' }),
           ],
         },
         {
           label: 'Publicação',
-          description: 'Endereço e data do post.',
+          description: 'Revisão final com IA, endereço e data.',
           fields: [
-            ai('iaPublicacao', 'publicacao'),
+            ai('iaPublicacao'),
             {
               name: 'slug',
               label: 'Endereço',
@@ -188,13 +203,14 @@ export const PostsUs: CollectionConfig = {
               admin: { components: { Field: '/components/admin/fields/DateField#DateField' } },
             },
             {
+              // Só a IA preenche (revisão final); sem ela, o hook conta pelas palavras.
               name: 'readMinutes',
               label: 'Tempo de leitura (min)',
               type: 'number',
               min: 1,
-              admin: { description: 'Estimado pela IA na revisão final. Vazio: calculado pelo texto ao salvar.' },
+              admin: { hidden: true },
             },
-            step('passo4', { prev: 'Texto', last: true }),
+            step('passo4', { prev: 'Capa', last: true }),
           ],
         },
       ],

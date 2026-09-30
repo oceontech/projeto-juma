@@ -32,11 +32,11 @@ const revalidateOnDelete: CollectionAfterDeleteHook = ({ doc }) => {
   return doc
 }
 
-/** Assistente de IA no começo de cada etapa (components/admin/blog/AiAssist). */
-const ai = (name: string, step: 'assunto' | 'capa' | 'texto' | 'publicacao'): Field => ({
+/** Revisão final com IA na etapa Publicação (components/admin/blog/AiAssist). */
+const ai = (name: string): Field => ({
   name,
   type: 'ui',
-  admin: { components: { Field: { path: '/components/admin/blog/AiAssist#AiAssist', clientProps: { site: 'br', step } } } },
+  admin: { components: { Field: { path: '/components/admin/blog/AiAssist#AiAssist', clientProps: { site: 'br' } } } },
 })
 
 /** Rodapé de cada etapa do post ("← anterior · próxima →"). */
@@ -101,9 +101,8 @@ export const Articles: CollectionConfig = {
       tabs: [
         {
           label: 'Assunto',
-          description: 'Sobre o que é a matéria e quem assina.',
+          description: 'Sobre o que é a matéria e quem assina. A IA sugere opções melhores na última etapa.',
           fields: [
-            ai('iaAssunto', 'assunto'),
             {
               name: 'titulo',
               label: 'Título',
@@ -143,35 +142,19 @@ export const Articles: CollectionConfig = {
                 },
               ],
             },
-            step('passo1', { next: 'Capa' }),
-          ],
-        },
-        {
-          label: 'Capa',
-          description: 'A foto que abre a matéria e aparece nos cards do site.',
-          fields: [
-            ai('iaCapa', 'capa'),
-            {
-              name: 'capa',
-              type: 'upload',
-              relationTo: 'media',
-              required: true,
-              admin: { description: 'Foto na horizontal, de preferência com 1600 px de largura ou mais. Ou gere uma com a IA acima.' },
-            },
-            step('passo2', { prev: 'Assunto', next: 'Texto' }),
+            step('passo1', { next: 'Texto' }),
           ],
         },
         {
           label: 'Texto',
-          description: 'Introdução, seções com intertítulo e uma citação em destaque.',
+          description: 'Escreva ou cole o texto. Em cada caixa, a etiqueta ✨ IA corrige, organiza, aprimora ou aumenta.',
           fields: [
-            ai('iaTexto', 'texto'),
             {
               name: 'introducao',
               label: 'Introdução',
               type: 'textarea',
               localized: true,
-              admin: { rows: 4, description: 'O primeiro parágrafo, em destaque. Deixe uma linha em branco entre parágrafos.' },
+              admin: { components: { Field: '/components/admin/blog/TextFields#IntroField' } },
             },
             {
               name: 'secoes',
@@ -179,25 +162,10 @@ export const Articles: CollectionConfig = {
               type: 'array',
               localized: true,
               labels: { singular: 'Seção', plural: 'Seções' },
-              admin: {
-                initCollapsed: true,
-                description: 'Cada seção tem um intertítulo e o texto. Arraste para mudar a ordem.',
-                components: {
-                  RowLabel: {
-                    path: '/components/admin/fields/RowLabel#RowLabel',
-                    clientProps: { fields: ['titulo'], fallback: 'Seção' },
-                  },
-                },
-              },
+              admin: { components: { Field: '/components/admin/blog/TextFields#SectionsField' } },
               fields: [
                 { name: 'titulo', label: 'Título da seção', type: 'text' },
-                {
-                  name: 'paragrafos',
-                  label: 'Texto',
-                  type: 'textarea',
-                  required: true,
-                  admin: { description: 'Deixe uma linha em branco entre os parágrafos.', rows: 8 },
-                },
+                { name: 'paragrafos', label: 'Texto', type: 'textarea', required: true },
               ],
             },
             {
@@ -205,16 +173,30 @@ export const Articles: CollectionConfig = {
               label: 'Citação em destaque',
               type: 'textarea',
               localized: true,
-              admin: { rows: 2, description: 'Opcional. Uma frase forte do texto, que aparece em destaque.' },
+              admin: { rows: 2, description: 'Opcional. Uma frase forte do próprio texto, que aparece em destaque na página.' },
             },
-            step('passo3', { prev: 'Capa', next: 'Publicação' }),
+            step('passo2', { prev: 'Assunto', next: 'Capa' }),
+          ],
+        },
+        {
+          label: 'Capa',
+          description: 'A foto que abre a matéria e aparece nos cards do site. Envie, escolha da biblioteca ou crie com IA a partir do texto.',
+          fields: [
+            {
+              name: 'capa',
+              type: 'upload',
+              relationTo: 'media',
+              required: true,
+              admin: { components: { Field: { path: '/components/admin/blog/CoverField#CoverField', clientProps: { site: 'br' } } } },
+            },
+            step('passo3', { prev: 'Texto', next: 'Publicação' }),
           ],
         },
         {
           label: 'Publicação',
-          description: 'Endereço, data e onde a matéria aparece no site.',
+          description: 'Revisão final com IA, endereço e data.',
           fields: [
-            ai('iaPublicacao', 'publicacao'),
+            ai('iaPublicacao'),
             {
               name: 'slug',
               type: 'text',
@@ -235,31 +217,32 @@ export const Articles: CollectionConfig = {
                   : 'Use só letras minúsculas, números e hífen (ex.: nutricao-fase-certa).',
             },
             {
-              name: 'data',
-              type: 'date',
-              required: true,
-              defaultValue: () => new Date().toISOString(),
-              admin: { components: { Field: '/components/admin/fields/DateField#DateField' } },
-            },
-            {
               type: 'row',
               fields: [
+                {
+                  name: 'data',
+                  type: 'date',
+                  required: true,
+                  defaultValue: () => new Date().toISOString(),
+                  admin: { width: '50%', components: { Field: '/components/admin/fields/DateField#DateField' } },
+                },
                 {
                   name: 'destaque',
                   label: 'Destaque na página de matérias',
                   type: 'checkbox',
                   admin: { width: '50%', description: 'A mais recente marcada aparece no bloco grande do topo. A home mostra sempre as 3 mais recentes.' },
                 },
-                {
-                  name: 'tempoLeitura',
-                  label: 'Tempo de leitura (min)',
-                  type: 'number',
-                  min: 1,
-                  admin: { width: '50%', description: 'Estimado pela IA na revisão final. Vazio: calculado pelo texto ao salvar.' },
-                },
               ],
             },
-            step('passo4', { prev: 'Texto', last: true }),
+            {
+              // Só a IA preenche (revisão final); sem ela, o hook conta pelas palavras.
+              name: 'tempoLeitura',
+              label: 'Tempo de leitura (min)',
+              type: 'number',
+              min: 1,
+              admin: { hidden: true },
+            },
+            step('passo4', { prev: 'Capa', last: true }),
           ],
         },
       ],
