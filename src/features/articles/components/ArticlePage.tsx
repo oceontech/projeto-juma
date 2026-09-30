@@ -17,6 +17,8 @@ interface ArticlePageProps {
   article: ArticleView
   /** Até 3 outras matérias para o "Leia também". */
   related: ArticleView[]
+  /** Prévia do painel: sem capa, mostra o espaço reservado da imagem. */
+  preview?: boolean
 }
 
 function ArrowLeftIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -55,7 +57,7 @@ function ClockIcon(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-export function ArticlePage({ article, related }: ArticlePageProps) {
+export function ArticlePage({ article, related, preview = false }: ArticlePageProps) {
   const t = useTranslations('articleDetailPage')
   const reduced = useReducedMotion()
 
@@ -216,6 +218,18 @@ export function ArticlePage({ article, related }: ArticlePageProps) {
       <div ref={heroRef} className={`relative w-full h-[60vh] min-h-[400px] max-h-[620px] overflow-hidden select-none ${article.image ? 'bg-black' : 'bg-[#F8FAF8]'}`}>
         {/* Imagem com Parallax (sem capa: só o fundo do site) */}
         <div ref={imageRef} className="absolute inset-0 w-full h-[120%] -top-[10%]">
+          {!article.image && preview && (
+            <div className="absolute inset-x-0 top-[8.33%] bottom-[8.33%] bg-[#E6EAE5] flex items-center justify-center">
+              <div className="absolute inset-x-6 md:inset-x-10 top-24 md:top-28 bottom-44 rounded-3xl border-2 border-dashed border-[#9AA89C] flex flex-col items-center justify-center gap-3 text-[#6B7A6D]">
+                <svg viewBox="0 0 24 24" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <rect x="3" y="4" width="18" height="16" rx="3" />
+                  <circle cx="9" cy="10" r="2" />
+                  <path d="m21 16-5-5-9 9" />
+                </svg>
+                <span className="text-base font-semibold uppercase tracking-widest">Imagem de capa aqui</span>
+              </div>
+            </div>
+          )}
           {article.image && (
             <>
               <Image
@@ -345,27 +359,29 @@ export function ArticlePage({ article, related }: ArticlePageProps) {
       </Container>
 
       {/* ─── Seção Leia Também ─── */}
-      <div ref={relatedRef} className="border-t border-foreground/10 bg-[#F2F6F2] py-24">
+      {/* Mesmo fundo da página e mesma largura do texto da matéria. */}
+      <div ref={relatedRef} className={`pb-8 ${relatedArticles.length ? '' : 'hidden'}`}>
         <Container>
-          <div className="flex flex-col md:flex-row justify-between items-baseline gap-4 mb-12">
+          <div className="max-w-[48rem] mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-baseline gap-4 mb-10 pt-12 border-t border-foreground/10">
             <div>
               <span data-related-kicker className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary mb-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                 {t('relatedEyebrow')}
               </span>
-              <h2 data-related-title className="font-montserrat text-3xl md:text-4xl font-black uppercase text-foreground tracking-tight leading-[0.95]">
+              <h2 data-related-title className="font-montserrat text-2xl md:text-3xl font-black uppercase text-foreground tracking-tight leading-[0.95]">
                 {t('relatedTitleStart')} <em className="text-highlight text-primary">{t('relatedTitleHighlight')}</em>
               </h2>
             </div>
             <Link
               href="/materias"
-              className="inline-flex items-center gap-2 text-primary font-bold uppercase tracking-wider text-xs transition-transform hover:translate-x-1"
+              className="inline-flex shrink-0 whitespace-nowrap items-center gap-2 text-primary font-bold uppercase tracking-wider text-xs transition-transform hover:translate-x-1"
             >
               {t('backButton')} <ArrowTopRightIcon className="h-4 w-4" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             {relatedArticles.map((rel) => {
               const relTrans = rel
               return (
@@ -375,7 +391,7 @@ export function ArticlePage({ article, related }: ArticlePageProps) {
                   data-related-card
                   className="group flex flex-col h-full rounded-2xl overflow-hidden border border-foreground/10 bg-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                 >
-                  <div className={`relative h-44 bg-gradient-to-br ${rel.color} overflow-hidden`}>
+                  <div className={`relative h-36 bg-gradient-to-br ${rel.color} overflow-hidden`}>
                     {rel.image && (
                       <Image
                         src={rel.image}
@@ -391,7 +407,7 @@ export function ArticlePage({ article, related }: ArticlePageProps) {
                     </span>
                   </div>
 
-                  <div className="p-6 flex flex-col flex-1">
+                  <div className="p-5 flex flex-col flex-1">
                     <span className="text-[10px] font-bold tracking-widest uppercase text-foreground/50 mb-3">
                       {rel.date} · {rel.readTime}
                     </span>
@@ -406,25 +422,26 @@ export function ArticlePage({ article, related }: ArticlePageProps) {
               )
             })}
           </div>
+          </div>
         </Container>
       </div>
 
-      {/* ─── CTA WhatsApp ─── */}
-      <Container className="py-16">
-        <div 
-          ref={ctaRef} 
-          className="rounded-3xl bg-[#004C26] text-white p-10 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden"
+      {/* ─── CTA WhatsApp (mesma largura do texto da matéria) ─── */}
+      <Container className="pt-8 pb-20">
+        <div
+          ref={ctaRef}
+          className="max-w-[48rem] mx-auto rounded-3xl bg-[#004C26] text-white p-8 md:p-10 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-          <div className="relative z-10 max-w-[640px]">
+          <div className="relative z-10 max-w-[420px]">
             <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-white mb-4">
               <span className="h-1.5 w-1.5 rounded-full bg-white" />
               {t('author')}
             </span>
-            <h2 data-cta-title className="font-montserrat text-3xl md:text-4xl font-black uppercase tracking-tight mb-4 leading-[0.95] text-white">
+            <h2 data-cta-title className="font-montserrat text-2xl md:text-3xl font-black uppercase tracking-tight mb-4 leading-[0.95] text-white">
               {t('ctaTitleStart')} <em className="text-highlight text-[#F0E27A]">{t('ctaTitleHighlight')}</em>
             </h2>
-            <p className="text-white/80 text-base md:text-lg">
+            <p className="text-white/80 text-base">
               {t('ctaBody')}
             </p>
           </div>

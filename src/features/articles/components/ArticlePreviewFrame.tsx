@@ -60,6 +60,6 @@ export function ArticlePreviewFrame() {
 
   // A chave remonta a página a cada mudança: as animações de texto do título
   // quebram o título em letras e não acompanhariam a edição ao vivo.
-  return <ArticlePage key={version} article={article} related={[]} />
+  return <ArticlePage key={version} article={article} related={[]} preview />
 
 }
