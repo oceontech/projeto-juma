@@ -232,15 +232,31 @@ function labeled(c: Content) {
 
 type Issue = { tipo: string; onde: string; trecho: string; correcao: string; sugestao: string }
 
+/** O que falta preencher e a IA pode sugerir na revisão (com botão "Inserir"). */
+type Suggestion = { campo: string; rotulo: string; texto: string; motivo: string }
+
 async function revisar(c: Content) {
   const text = plain(c)
   const n = words(text)
   if (n < 30) throw new AiError('Escreva o texto antes da revisão final.', 400)
+  // Partes vazias que valem sugestão: citação em destaque (só BR) e intertítulos de seção.
+  const semCitacao = c.site === 'br' && !c.quote.trim()
+  const semTitulo = c.site === 'br' ? c.sections.map((s, i) => (s.paragrafos?.trim() && !s.titulo?.trim() ? i + 1 : 0)).filter(Boolean) : []
+  const extras = [
+    semCitacao
+      ? `Em "citacao", sugira a citação em destaque da matéria: UMA frase curta e forte (até 160 caracteres) tirada do próprio texto, com no máximo um ajuste leve de palavras. Sem número que não esteja no texto com fonte.`
+      : '',
+    semTitulo.length
+      ? `Em "intertitulos", sugira um intertítulo curto e claro (até 60 caracteres) para cada seção sem intertítulo: ${semTitulo.map((i) => `secao ${i}`).join(', ')}.`
+      : '',
+  ].filter(Boolean)
   const out = await chatJSON<{
     tempoLeitura?: number
     descricaoGoogle?: string
     problemas?: Partial<Issue>[]
     parecer?: string
+    citacao?: string
+    intertitulos?: { secao?: number | string; titulo?: string }[]
   }>(
     rulesFor(c.site),
     `Faça a revisão final do post abaixo antes de publicar. Responda em português do Brasil (o post pode estar em ${lang(c.site)}).
@@ -253,14 +269,14 @@ async function revisar(c: Content) {
    - "correcao": esse mesmo trecho já corrigido, no idioma do post, pronto para substituir o trecho. Mude o mínimo. Nunca invente fonte, número ou ensaio: se falta fonte, reescreva sem o número ou sem afirmar o resultado;
    - "sugestao": em português, uma frase curta explicando o que estava errado.
 3. Em "descricaoGoogle", escreva a descrição do post para aparecer no Google: ${c.site === 'us' ? 'em inglês, ' : ''}uma ou duas frases, até 160 caracteres, dizendo do que o post trata e o que o leitor aprende. Nada sobre a revisão ou sobre a qualidade do texto.
-4. Dê um parecer de uma frase sobre se está pronto para publicar.
-
+4. Dê um parecer de uma frase sobre se está pronto para publicar (sem falar das partes vazias do item 5).
+${extras.length ? `5. ${extras.join('\n   ')}\n` : ''}
 ${header(c)}
 
 Post (cada parte começa com a marca entre colchetes, que não faz parte do texto):
 ${labeled(c).slice(0, 16000)}
 
-Responda em JSON: {"tempoLeitura": número, "descricaoGoogle": "", "problemas": [{"tipo": "regra|número sem fonte|gramática|clareza${c.site === 'us' ? '|FIFRA' : ''}", "onde": "", "trecho": "", "correcao": "", "sugestao": ""}], "parecer": ""}`,
+Responda em JSON: {"tempoLeitura": número, "descricaoGoogle": "", "problemas": [{"tipo": "regra|número sem fonte|gramática|clareza${c.site === 'us' ? '|FIFRA' : ''}", "onde": "", "trecho": "", "correcao": "", "sugestao": ""}], "parecer": ""${semCitacao ? ', "citacao": ""' : ''}${semTitulo.length ? ', "intertitulos": [{"secao": número, "titulo": ""}]' : ''}}`,
     { effort: 'medium' },
   )
   // Sanidade: entre ~120 e ~300 palavras por minuto.
@@ -282,6 +298,15 @@ Responda em JSON: {"tempoLeitura": número, "descricaoGoogle": "", "problemas": 
       })),
     parecer: String(out.parecer ?? ''),
     palavras: n,
+    sugestoes: [
+      ...(semCitacao && asText(out.citacao)
+        ? [{ campo: 'citacao', rotulo: 'Citação em destaque', texto: asText(out.citacao).replace(/^["“”'\s]+|["“”'\s]+$/g, ''), motivo: 'A matéria está sem citação. Esta frase do próprio texto fica em destaque na página.' }]
+        : []),
+      ...(out.intertitulos ?? [])
+        .map((t) => ({ n: Number(String(t?.secao ?? '').replace(/\D/g, '')), titulo: asText(t?.titulo) }))
+        .filter((t) => semTitulo.includes(t.n) && t.titulo)
+        .map((t) => ({ campo: `secoes.${t.n - 1}.titulo`, rotulo: `Intertítulo da seção ${t.n}`, texto: t.titulo, motivo: 'A seção está sem intertítulo; ele ajuda a leitura e o Google.' })),
+    ] satisfies Suggestion[],
   }
 }
 

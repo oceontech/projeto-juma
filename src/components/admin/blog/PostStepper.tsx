@@ -76,6 +76,23 @@ export const PostStepper: UIFieldClientComponent = (props) => {
     return () => obs.disconnect()
   }, [])
 
+  // A barra de etapas gruda logo abaixo da faixa dos botões; a altura dela muda no celular.
+  useEffect(() => {
+    const controls = document.querySelector<HTMLElement>('.doc-controls')
+    const edit = document.querySelector<HTMLElement>('.collection-edit')
+    if (!controls || !edit) return
+    // Conta só a parte que fica visível grudada (no celular a faixa gruda deslocada para cima).
+    const sync = () => {
+      const cs = getComputedStyle(controls)
+      const visible = cs.position === 'sticky' ? controls.offsetHeight + (parseFloat(cs.top) || 0) : 0
+      edit.style.setProperty('--jdoc-controls-h', `${Math.max(0, visible)}px`)
+    }
+    sync()
+    const ro = new ResizeObserver(sync)
+    ro.observe(controls)
+    return () => ro.disconnect()
+  }, [])
+
   const steps = checksFor(site, values, sections)
   const all = steps.flat()
   const done = all.filter((c) => c.ok).length

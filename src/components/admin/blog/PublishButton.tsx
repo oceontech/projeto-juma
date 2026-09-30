@@ -44,8 +44,21 @@ export function PublishButton(props: { dateField?: string }) {
   const label = hasPublishedDoc ? (scheduled ? 'Salvar agendamento' : 'Publicar alterações') : scheduled ? 'Agendar publicação' : 'Publicar agora'
 
   return (
-    <FormSubmit buttonId="action-save" disabled={!canPublish} onClick={publish} size="medium" type="button">
-      {label}
+    <FormSubmit buttonId="action-save" className="jpub" disabled={!canPublish} onClick={publish} size="medium" type="button">
+      <span className="jpub__in">
+        {scheduled ? (
+          <svg viewBox="0 0 24 24" aria-hidden>
+            <rect x="3" y="5" width="18" height="16" rx="3" />
+            <path d="M3 10h18M8 3v4M16 3v4" />
+          </svg>
+        ) : (
+          <svg viewBox="0 0 24 24" aria-hidden>
+            <path d="M4 12 20 4l-6 16-3-7z" />
+            <path d="m11 13 3-3" />
+          </svg>
+        )}
+        {label}
+      </span>
     </FormSubmit>
   )
 }

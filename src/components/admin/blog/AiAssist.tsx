@@ -177,10 +177,13 @@ function AssuntoAssist({ site }: { site: Site }) {
 // ─── Etapa 4: Publicação ───────────────────────────────────────────────
 
 type Issue = { tipo: string; onde: string; trecho: string; correcao: string; sugestao: string }
-type Review = { tempoLeitura: number; resumo: string; problemas: Issue[]; parecer: string; palavras: number }
+type Suggestion = { campo: string; rotulo: string; texto: string; motivo: string }
+type Review = { tempoLeitura: number; resumo: string; problemas: Issue[]; parecer: string; palavras: number; sugestoes?: Suggestion[] }
 type Change = { path: string; value: unknown; remount?: boolean }
 type Fix = { path: string; before: unknown; after: unknown; remount?: boolean; local?: boolean; resolved?: boolean }
 const reviewed = new Map<string, Review>()
+/** O que já foi corrigido/inserido em cada revisão: sobrevive à troca de etapa (o cartão desmonta). */
+const doneByReview = new WeakMap<Review, { fixed: Record<number, Fix>; added: Record<number, Fix> }>()
 
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 /** Acha o trecho mesmo com espaços, aspas ou quebras de linha diferentes. */
@@ -255,13 +258,17 @@ function PublicacaoAssist({ site }: { site: Site }) {
   const [busy, setBusy] = useState(false)
   const [translating, setTranslating] = useState(false)
   const [fixing, setFixing] = useState<number | 'all' | null>(null)
-  const [fixed, setFixed] = useState<Record<number, Fix>>({})
   const justFixed = useRef(false)
   const readField = site === 'us' ? 'readMinutes' : 'tempoLeitura'
   const summaryField = site === 'us' ? 'excerpt' : 'subtitulo'
   // Assinatura do conteúdo: a revisão só roda de novo quando o texto muda.
   const signature = JSON.stringify([payload.titulo ?? payload.title, payload.introducao, payload.secoes, payload.citacao, payload.body])
   const [review, setReview] = useState<Review | null>(reviewed.get(signature) ?? null)
+  const [fixed, setFixed] = useState<Record<number, Fix>>(() => (review && doneByReview.get(review)?.fixed) || {})
+  const [added, setAdded] = useState<Record<number, Fix>>(() => (review && doneByReview.get(review)?.added) || {})
+  useEffect(() => {
+    if (review) doneByReview.set(review, { fixed, added })
+  }, [review, fixed, added])
 
   const run = async () => {
     setBusy(true)
@@ -270,6 +277,7 @@ function PublicacaoAssist({ site }: { site: Site }) {
       reviewed.set(signature, out)
       setReview(out)
       setFixed({})
+      setAdded({})
       // Só grava se mudou: gravar o mesmo valor marcaria o post como alterado.
       if (Number(values[readField]) !== out.tempoLeitura) set(readField, out.tempoLeitura)
       // Descrição para o Google: automática. Só preenche o subtítulo/resumo vazio, nunca troca o do autor.
@@ -294,6 +302,8 @@ function PublicacaoAssist({ site }: { site: Site }) {
     if (reviewed.has(signature)) {
       const r = reviewed.get(signature)!
       setReview(r)
+      setFixed(doneByReview.get(r)?.fixed ?? {})
+      setAdded(doneByReview.get(r)?.added ?? {})
       if (values[readField] !== r.tempoLeitura) set(readField, r.tempoLeitura)
       return
     }
@@ -385,6 +395,29 @@ function PublicacaoAssist({ site }: { site: Site }) {
     })
   }
 
+  /** "Inserir": põe a sugestão (citação, intertítulo) no campo vazio. */
+  const insert = (i: number) => {
+    const sug = review!.sugestoes![i]
+    const before = getPath(read(), sug.campo)
+    justFixed.current = true
+    set(sug.campo, sug.texto)
+    setAdded((a) => ({ ...a, [i]: { path: sug.campo, before, after: sug.texto } }))
+    toast.success(`Inserido: ${sug.rotulo.toLowerCase()}`)
+  }
+
+  const removeInsert = (i: number) => {
+    const done = added[i]
+    if (!done) return
+    if (getPath(read(), done.path) !== done.after) return void toast.error('Esse campo mudou depois. Ajuste direto nele.')
+    justFixed.current = true
+    set(done.path, done.before ?? '')
+    setAdded((a) => {
+      const next = { ...a }
+      delete next[i]
+      return next
+    })
+  }
+
   const translate = async () => {
     setTranslating(true)
     try {
@@ -458,6 +491,29 @@ function PublicacaoAssist({ site }: { site: Site }) {
                 ))}
               </ul>
             </>
+          )}
+          {Boolean(review.sugestoes?.length) && (
+            <div className="jai__adds">
+              <p className="jai__label">Sugestões para completar</p>
+              {review.sugestoes!.map((sug, i) => (
+                <div key={i} className={`jai__add${added[i] ? ' is-done' : ''}`}>
+                  <div className="jai__issue-head">
+                    <em>{added[i] ? `✓ ${sug.rotulo}` : sug.rotulo}</em>
+                    {added[i] ? (
+                      <button type="button" className="jait__undo" onClick={() => removeInsert(i)}>
+                        ↺ Tirar
+                      </button>
+                    ) : (
+                      <button type="button" className="jai__btn jai__btn--add" onClick={() => insert(i)}>
+                        + Inserir
+                      </button>
+                    )}
+                  </div>
+                  <q className="jai__add-text">{sug.texto}</q>
+                  {!added[i] && <span className="jai__why">{sug.motivo}</span>}
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}

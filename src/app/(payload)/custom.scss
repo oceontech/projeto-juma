@@ -5820,6 +5820,8 @@ button.jpw__row,
 /* ─── Capa: IA criando a imagem (animação sobre a área de mídia e o cartão da IA) ─── */
 .jcov__stage {
   position: relative;
+  // Camada própria: a animação fica por baixo do cabeçalho e da barra de etapas ao rolar.
+  isolation: isolate;
   display: flow-root;
   margin-bottom: 22px;
 
@@ -5948,5 +5950,162 @@ button.jpw__row,
   .jgen__bar i,
   .jcov__img {
     animation: none;
+  }
+}
+
+/* ─── Post do blog: cabeçalho compacto e botão de publicar em destaque ─── */
+// O título grande do Payload sai: o nome do post aparece na barra de cima (HeaderBarClient).
+.template-default__wrap:has(.collection-edit--articles),
+.template-default__wrap:has(.collection-edit--posts-us) {
+  > .doc-header {
+    display: none;
+  }
+}
+
+.collection-edit--articles,
+.collection-edit--posts-us {
+  .doc-controls__content {
+    padding: 8px 0;
+  }
+
+  .doc-controls__meta {
+    font-size: 12px;
+    color: var(--juma-muted);
+  }
+}
+
+.jhead__title {
+  overflow: hidden;
+  max-width: min(420px, 40vw);
+  margin-left: 14px;
+  padding-left: 14px;
+  border-left: 1px solid var(--juma-line-strong);
+  color: var(--juma-ink);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.btn.jpub {
+  height: 40px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #22c55e, #15803d 55%, #0f6b33);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(22, 163, 74, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+
+  &:hover:not(.btn--disabled):not(:disabled),
+  &:focus-visible:not(.btn--disabled) {
+    background: linear-gradient(135deg, #22c55e, #15803d 55%, #0f6b33);
+    color: #fff;
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(22, 163, 74, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+
+  &.btn--disabled,
+  &:disabled {
+    background: #cfd8d0;
+    box-shadow: none;
+    color: #fff;
+  }
+}
+
+.jpub__in {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}
+
+@media (max-width: 768px) {
+  .jhead__title {
+    max-width: 34vw;
+    margin-left: 8px;
+    padding-left: 8px;
+    font-size: 13.5px;
+  }
+}
+
+/* ─── Revisão: sugestões para completar (citação, intertítulos) ──────── */
+.jai__adds {
+  display: grid;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.jai__add {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f0f9ff;
+  box-shadow: inset 0 0 0 1px #bae6fd;
+  font-size: 13px;
+
+  em {
+    width: max-content;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: #e0f2fe;
+    color: #075985;
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  &.is-done {
+    background: #f0fdf4;
+    box-shadow: inset 0 0 0 1px #bbf7d0;
+
+    em {
+      background: #dcfce7;
+      color: #166534;
+    }
+  }
+}
+
+.jai__add-text {
+  color: var(--juma-ink);
+  font-size: 13.5px;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.jai__btn.jai__btn--add {
+  height: 30px;
+  padding: 0 12px;
+  background: #0284c7;
+  font-size: 12.5px;
+
+  &:hover:not(:disabled) {
+    background: #0369a1;
+  }
+}
+
+// A barra de etapas gruda logo abaixo da faixa dos botões (também grudada), sem ficar por baixo dela.
+.collection-edit--articles,
+.collection-edit--posts-us {
+  --jdoc-controls-h: 50px;
+
+  .jps2 {
+    top: calc(var(--jdoc-controls-h) + 8px);
   }
 }

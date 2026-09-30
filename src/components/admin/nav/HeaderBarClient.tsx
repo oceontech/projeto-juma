@@ -2,7 +2,7 @@
 
 import { useLocale } from '@payloadcms/ui'
 import { usePathname, useRouter } from 'next/navigation'
-import { useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 
 import { SitePicker, type Choice } from '../ui/SitePicker'
 import { BackButton } from './BackButton'
@@ -15,6 +15,27 @@ const LOCALIZED = [
   /^\/admin\/collections\/(products|cultures|articles)\/[^/]+/,
   /^\/admin\/globals\/(destaques|settings)(\/|$)/,
 ]
+
+// Posts do blog: o título grande do Payload sai (cabeçalho compacto) e o nome vem para esta barra.
+const POST = /^\/admin\/collections\/(articles|posts-us)\/[^/]+/
+
+/** Nome do post, lido do título do Payload (que fica escondido nas telas de post). */
+function DocTitle() {
+  const [title, setTitle] = useState('')
+  useEffect(() => {
+    const read = () => setTitle(document.querySelector('.doc-header__title')?.textContent?.trim() ?? '')
+    read()
+    const mo = new MutationObserver(read)
+    mo.observe(document.body, { subtree: true, childList: true, characterData: true })
+    return () => mo.disconnect()
+  }, [])
+  if (!title) return null
+  return (
+    <span className="jhead__title" title={title}>
+      {title}
+    </span>
+  )
+}
 
 const LOCALES = [
   { code: 'pt-BR', short: 'PT', label: 'Português' },
@@ -63,7 +84,10 @@ export function HeaderBarClient({ initial }: { initial: Choice }) {
 
   return (
     <div className="jhead">
-      <div className="jhead__left">{siteScreen ? <SitePicker value={initial} /> : <BackButton />}</div>
+      <div className="jhead__left">
+        {siteScreen ? <SitePicker value={initial} /> : <BackButton />}
+        {POST.test(pathname) && <DocTitle />}
+      </div>
       {localized && <ContentLocale />}
     </div>
   )
