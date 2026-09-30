@@ -5119,6 +5119,12 @@ textarea {
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
 }
 
+.jlib__head,
+.jlib__search,
+.jlib__foot {
+  flex-shrink: 0;
+}
+
 .jlib__head {
   display: flex;
   align-items: center;
@@ -5151,22 +5157,42 @@ textarea {
   margin: 0 22px 12px;
 }
 
+.jlib__scroll {
+  position: relative;
+  min-height: 0;
+  flex: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  transition: height 0.2s ease;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  // Esfumado embaixo enquanto houver mais imagens para ver.
+  &.has-more {
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 72px), transparent);
+  }
+}
+
 .jlib__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
   gap: 12px;
   padding: 4px 22px 16px;
-  overflow: auto;
 }
 
 .jlib__item {
-  display: flex;
-  flex-direction: column;
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
   overflow: hidden;
   padding: 0;
   border: 0;
   border-radius: 14px;
-  background: #fff;
+  background: #e9ebe6;
   box-shadow: inset 0 0 0 1px var(--juma-line);
   font: inherit;
   text-align: left;
@@ -5174,26 +5200,55 @@ textarea {
   transition: box-shadow 0.15s ease, transform 0.15s ease;
 
   img {
+    position: absolute;
+    inset: 0;
     width: 100%;
-    aspect-ratio: 4 / 3;
+    height: 100%;
     object-fit: cover;
   }
 
   span {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
     overflow: hidden;
-    padding: 7px 9px;
+    padding: 18px 9px 7px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+    color: #fff;
     font-size: 11.5px;
-    color: var(--juma-muted);
     white-space: nowrap;
     text-overflow: ellipsis;
+    opacity: 0;
+    transition: opacity 0.15s ease;
   }
 
   &:hover {
     transform: translateY(-2px);
+
+    span {
+      opacity: 1;
+    }
   }
 
   &.is-selected {
     box-shadow: 0 0 0 3px #22c55e;
+
+    &::after {
+      content: '✓';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      display: grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #22c55e;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+    }
   }
 }
 
@@ -5201,18 +5256,6 @@ textarea {
   grid-column: 1 / -1;
   color: var(--juma-muted);
   text-align: center;
-}
-
-.jlib__more {
-  margin: 0 22px 12px;
-  height: 38px;
-  border: 0;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: inset 0 0 0 1px var(--juma-line);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
 }
 
 .jlib__foot {

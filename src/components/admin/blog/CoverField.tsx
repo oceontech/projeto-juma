@@ -250,7 +250,7 @@ export const CoverField: UploadFieldClientComponent = (props) => {
           </svg>
           <div>
             <b>Criar capa com IA</b>
-            <p>Foto no estilo editorial, sem letreiros nem embalagens. Leva uns 20 segundos.</p>
+            <p>Foto no estilo editorial, sem letreiros nem embalagens. Leva cerca de 40 segundos.</p>
           </div>
         </header>
         <div className="jsp" role="radiogroup" aria-label="Como criar">

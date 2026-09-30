@@ -7,7 +7,10 @@ export type MediaItem = { id: number; url: string; alt: string; filename: string
 
 /**
  * Biblioteca de imagens do painel em pop-up: busca pelo nome, miniaturas
- * grandes e "Usar esta imagem". Substitui a gaveta padrão do Payload.
+ * quadradas e "Usar esta imagem". Substitui a gaveta padrão do Payload.
+ * A rolagem é interna e sem barra; a altura corta a última fileira ao meio
+ * (como a Netflix) para mostrar que tem mais embaixo, e as próximas imagens
+ * carregam sozinhas ao chegar no fim.
  */
 export function MediaLibrary({ onPick, onClose }: { onPick: (m: MediaItem) => void; onClose: () => void }) {
   const [items, setItems] = useState<MediaItem[]>([])
@@ -17,6 +20,56 @@ export function MediaLibrary({ onPick, onClose }: { onPick: (m: MediaItem) => vo
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<MediaItem | null>(null)
   const searchRef = useRef<HTMLInputElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [height, setHeight] = useState<number | undefined>(undefined)
+  const [atEnd, setAtEnd] = useState(false)
+
+  // Altura da área: fileiras inteiras + 45% da próxima, dentro do espaço da tela.
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const measure = () => {
+      const grid = el.firstElementChild as HTMLElement | null
+      const tile = grid?.querySelector<HTMLElement>('.jlib__item')
+      if (!grid || !tile) return setHeight(undefined)
+      const gap = parseFloat(getComputedStyle(grid).rowGap) || 12
+      const row = tile.offsetWidth + gap
+      // Espaço livre: altura máxima do pop-up menos cabeçalho, busca e rodapé.
+      const panel = el.closest('.jlib__panel') as HTMLElement | null
+      const chrome = panel
+        ? [...panel.children]
+            .filter((c) => c !== el)
+            .reduce((sum, c) => {
+              const st = getComputedStyle(c)
+              return sum + (c as HTMLElement).offsetHeight + parseFloat(st.marginTop) + parseFloat(st.marginBottom)
+            }, 0)
+        : 230
+      const room = Math.min(window.innerHeight * 0.86, 900) - chrome
+      const rows = Math.max(1, Math.floor(room / row - 0.45))
+      setHeight(Math.round((rows + 0.45) * row + 4))
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    window.addEventListener('resize', measure)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', measure)
+    }
+  }, [items.length > 0])
+
+  const onScroll = () => {
+    const el = scrollRef.current
+    if (!el) return
+    const left = el.scrollHeight - el.scrollTop - el.clientHeight
+    setAtEnd(left < 4)
+    if (left < 240 && hasMore && !loading) setPage((p) => p + 1)
+  }
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (el) setAtEnd(el.scrollHeight - el.scrollTop - el.clientHeight < 4)
+  }, [items, height])
 
   useEffect(() => {
     const t = window.setTimeout(async () => {
@@ -84,28 +137,31 @@ export function MediaLibrary({ onPick, onClose }: { onPick: (m: MediaItem) => vo
             placeholder="Buscar pelo nome do arquivo"
           />
         </label>
-        <div className="jlib__grid">
-          {items.map((m) => (
-            <button
-              key={m.id}
-              type="button"
-              className={`jlib__item${selected?.id === m.id ? ' is-selected' : ''}`}
-              onClick={() => setSelected(m)}
-              onDoubleClick={() => onPick(m)}
-              title={m.alt || m.filename}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={m.url} alt="" loading="lazy" />
-              <span>{m.filename}</span>
-            </button>
-          ))}
-          {!loading && items.length === 0 && <p className="jlib__empty">Nenhuma imagem encontrada.</p>}
+        <div
+          ref={scrollRef}
+          className={`jlib__scroll${atEnd && !hasMore ? '' : ' has-more'}`}
+          style={{ height: items.length ? height : undefined }}
+          onScroll={onScroll}
+        >
+          <div className="jlib__grid">
+            {items.map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                className={`jlib__item${selected?.id === m.id ? ' is-selected' : ''}`}
+                onClick={() => setSelected(m)}
+                onDoubleClick={() => onPick(m)}
+                title={m.alt || m.filename}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={m.url} alt="" loading="lazy" />
+                <span>{m.alt || m.filename}</span>
+              </button>
+            ))}
+            {!loading && items.length === 0 && <p className="jlib__empty">Nenhuma imagem encontrada.</p>}
+            {loading && <p className="jlib__empty">Carregando…</p>}
+          </div>
         </div>
-        {hasMore && (
-          <button type="button" className="jlib__more" onClick={() => setPage((p) => p + 1)} disabled={loading}>
-            {loading ? 'Carregando…' : 'Carregar mais'}
-          </button>
-        )}
         <footer className="jlib__foot">
           <span>{selected ? selected.alt || selected.filename : 'Clique numa imagem para selecionar'}</span>
           <button type="button" className="jd-btn" disabled={!selected} onClick={() => selected && onPick(selected)}>

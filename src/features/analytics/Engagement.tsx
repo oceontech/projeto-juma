@@ -9,10 +9,10 @@ import { track } from './track'
  * primeiro e do último sinal da visita; quem vê uma página só não manda um
  * segundo sinal e fica com tempo zero. Aqui vai o evento "tempo" quando a
  * pessoa sai ou troca de aba, e a cada minuto enquanto a página está aberta
- * (até 30 min). Só conta tempo com a aba visível e a partir de 10 s: quem sai
- * antes disso continua contando como rejeição.
+ * (até 30 min). Só conta tempo com a aba visível. O Umami da Oceon
+ * (../umami-juma) ignora esse evento na rejeição e o usa no tempo médio.
  */
-const MIN_MS = 10_000
+const MIN_MS = 1_000
 const BEAT_MS = 60_000
 const MAX_MS = 30 * 60_000
 

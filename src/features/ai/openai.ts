@@ -2,12 +2,13 @@
  * Cliente mínimo da OpenAI para o assistente de posts do painel.
  * Modelos baratos e bons para o caso (trocáveis por variável de ambiente):
  * - texto: gpt-5.4-mini (escrita e revisão em PT/EN, JSON estruturado)
- * - imagem: gpt-image-1-mini (capas fotográficas, 1536×1024, WebP)
+ * - imagem: gpt-image-2 (capas com cara de foto real, 1536×1024, WebP; qualidade
+ *   média: ~35 s por imagem; a alta leva ~2 min sem ganho visível na capa)
  */
 
 const API = 'https://api.openai.com/v1'
 const TEXT_MODEL = process.env.OPENAI_TEXT_MODEL || 'gpt-5.4-mini'
-const IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1-mini'
+const IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-2'
 
 export class AiError extends Error {
   constructor(

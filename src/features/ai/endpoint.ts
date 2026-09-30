@@ -328,9 +328,21 @@ Responda em JSON: {"texto": ""}`,
   return { campo: target.campo, texto }
 }
 
-const STYLE = (site: Site) =>
-  `photorealistic editorial photography, natural light, wide 3:2 composition with calm space, rich but natural greens, ${site === 'us' ? 'American farmland (Florida citrus, row crops or vegetables)' : 'Brazilian farmland (soy, corn, coffee, sugarcane, pasture)'}`
-const SAFE = 'No text, letters, logos, labels or watermarks; no product bottles or packaging; no identifiable faces in close-up.'
+/**
+ * Linguagem de fotografia documental: é o que faz o modelo entregar algo com
+ * cara de foto real (e não de render 3D ou banco de imagem saturado).
+ */
+const PLACE = (site: Site) =>
+  site === 'us'
+    ? 'a real American farm (Florida citrus grove, vegetable field or row crops in the Southeast)'
+    : 'a real Brazilian farm (soy, corn, coffee, sugarcane, citrus or pasture; red or brown tropical soil)'
+
+const photo = (scene: string) => `Candid documentary photograph for an agriculture magazine, taken on a full-frame camera with a 35mm lens at f/5.6, eye level, handheld. ${scene}
+Real-world look: soft diffused daylight, true-to-life muted colors, natural skin texture, real dust and soil clumps, slightly uneven crop rows, some weeds and straw, worn clothes and equipment, subtle film grain, gentle depth of field.
+Avoid: CGI or 3D render look, illustration, HDR, oversaturated greens, glowing golden-hour haze, dramatic sky, lens flare, perfect symmetry, plastic skin, posed model, stock-photo smile. No text, letters, logos, labels or watermarks; no product bottles or packaging.`
+
+const KEEP_REAL =
+  'Keep it looking like an unedited real photograph taken on a camera: natural light and colors, real textures, no CGI, illustration, HDR or oversaturation. No text, logos or watermarks.'
 
 /** Lê os bytes de uma imagem da Mídia (Blob público ou arquivo local do painel). */
 async function mediaBytes(req: PayloadRequest, id: number) {
@@ -356,22 +368,23 @@ async function capa(req: PayloadRequest, c: Content, body: Record<string, any>) 
   if (modo !== 'contexto' && !pedido) throw new AiError(modo === 'prompt' ? 'Descreva a imagem que você quer.' : 'Diga o que melhorar na imagem.', 400)
   if (modo === 'aprimorar' && !body.imagem) throw new AiError('Escolha a imagem que você quer aprimorar.', 400)
 
+  const alt = `in ${c.site === 'us' ? 'English' : 'Portuguese (Brazil)'}`
   const brief = await chatJSON<{ prompt?: string; alt?: string }>(
-    'You write prompts for an image model that creates and edits editorial cover photos for an agriculture blog.',
+    'You are a photo editor for an agriculture magazine. You describe real, plausible farm scenes that a photojournalist could actually shoot.',
     modo === 'aprimorar'
-      ? `Write an edit instruction (English, up to 70 words) for the image model, based on the author's request (in Portuguese or English): "${pedido}". Keep the photo realistic and the same subject unless asked. ${SAFE}
-Also write a short alt text describing the resulting image, in ${c.site === 'us' ? 'English' : 'Portuguese (Brazil)'}.
+      ? `Write an edit instruction (English, up to 60 words) for an image model, based on the author's request (in Portuguese or English): "${pedido}". Keep the same subject and framing unless the request says otherwise.
+Also write a short alt text describing the resulting image, ${alt}.
 Post title: ${c.title || '(none)'}
 Answer in JSON: {"prompt": "", "alt": ""}`
-      : `Create one image prompt (English, up to 90 words) for the cover of this post.
-Style: ${STYLE(c.site)}. ${SAFE}
-${modo === 'prompt' ? `The author asked for (use it as the main subject): "${pedido}"` : ''}
-Also write a short alt text describing the image, in ${c.site === 'us' ? 'English' : 'Portuguese (Brazil)'}.
+      : `Describe ONE concrete scene (English, 40 to 70 words) for the cover photo of this post, on ${PLACE(c.site)}.
+Say exactly what is in the frame: the crop and its growth stage, what the person (if any) is doing with their hands, tools or machines, the soil, where and at what time of day. Prefer an everyday moment of real field work that matches the post. Only what a camera could capture: no concepts, symbols, split screens or text.
+${modo === 'prompt' ? `The author asked for (this is the main subject): "${pedido}"` : ''}
+Also write a short alt text describing the photo, ${alt}.
 
 ${header(c)}
 ${modo === 'contexto' ? `Excerpt: ${plain(c).slice(0, 1500)}` : ''}
 
-Answer in JSON: {"prompt": "", "alt": ""}`,
+Answer in JSON: {"prompt": "the scene", "alt": ""}`,
   )
   if (!brief.prompt) throw new AiError('A IA não conseguiu descrever a imagem. Tente de novo.', 502)
 
@@ -379,9 +392,9 @@ Answer in JSON: {"prompt": "", "alt": ""}`,
     modo === 'aprimorar'
       ? await (async () => {
           const src = await mediaBytes(req, Number(body.imagem))
-          return editImage(src.data, src.type, brief.prompt!)
+          return editImage(src.data, src.type, `${brief.prompt} ${KEEP_REAL}`)
         })()
-      : await generateImage(brief.prompt)
+      : await generateImage(photo(brief.prompt))
 
   const slug = (c.title || pedido)
     .normalize('NFD')

@@ -48,6 +48,9 @@ function Delta({ now, before, invert }: { now: number; before: number; invert?: 
 
 const SiteFlag = CountryFlag
 
+/** A partir daqui o site manda o evento "tempo": antes, visita de uma página só não tinha duração. */
+const TIME_TRACKED_SINCE = '2026-09-30T03:10:00.000Z'
+
 function RankList({
   rows,
   total,
@@ -389,7 +392,15 @@ export async function AnalyticsView({ initPageResult, params, searchParams }: Ad
                               {fmt.format(Number(v.views) || 0)}
                               {Number(v.visits) > 1 && <small className="jd-muted"> · {v.visits} visitas</small>}
                             </td>
-                            <td>{secs < 1 ? <span className="jd-muted" title="Saiu antes de 10 segundos ou visitou antes da medição de tempo existir">menos de 10 s</span> : duration(secs)}</td>
+                            <td>
+                              {secs >= 1 ? (
+                                duration(secs)
+                              ) : v.lastAt < TIME_TRACKED_SINCE ? (
+                                <span className="jd-muted" title="Visita de antes da medição do tempo de permanência (30/09/2026)">não medido</span>
+                              ) : (
+                                <span className="jd-muted" title="Fechou a página em poucos segundos">saiu logo</span>
+                              )}
+                            </td>
                             <td>{Number(v.events) > 0 ? <span className="ja-badge">{Number(v.events) > 1 ? `${v.events} ações` : '1 ação'}</span> : <span className="jd-muted">—</span>}</td>
                           </tr>
                         )
