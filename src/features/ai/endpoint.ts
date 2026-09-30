@@ -169,6 +169,18 @@ Answer in JSON: {"blocos": [{"type": "p"|"h2"|"h3"|"quote", "text": ""} | {"type
   if (words(texto) < 3) throw new AiError('Escreva algo nesta caixa antes de usar a IA.', 400)
   const rules = rulesFor(c.site)
   const task = c.site === 'us' ? MODE_US[mode] : MODE_BR[mode]
+  // O resto do post (sem a caixa em edição), só como contexto.
+  const indice = alvo === 'secao' ? Number(body.indice) : -1
+  const resto = [
+    alvo === 'intro' ? '' : c.intro ? `Introdução: ${c.intro}` : '',
+    ...c.sections.map((s, i) => (i === indice ? '' : `Seção ${i + 1}${s.titulo ? ` (${s.titulo})` : ''}: ${s.paragrafos ?? ''}`)),
+  ]
+    .filter(Boolean)
+    .join('\n\n')
+    .slice(0, 5000)
+  const contexto = resto
+    ? `\nResto da matéria, só para contexto (não reescreva nem repita o que já está aqui; mantenha a coerência com ele):\n${resto}\n`
+    : ''
 
   if (alvo === 'intro' && mode === 'organizar' && words(texto) > 120) {
     const out = await chatJSON<{ introducao?: unknown; secoes?: unknown }>(
@@ -176,7 +188,7 @@ Answer in JSON: {"blocos": [{"type": "p"|"h2"|"h3"|"quote", "text": ""} | {"type
       `O texto abaixo foi colado na caixa de introdução da matéria. ${task}
 Se ele tratar de mais de um assunto, deixe na introdução só a abertura (1 ou 2 parágrafos) e separe o resto em seções com intertítulo curto. Se for um texto curto de abertura, devolva seções vazias.
 ${header(c)}
-
+${contexto}
 Texto:
 ${texto}
 
@@ -192,7 +204,7 @@ Responda em JSON: {"introducao": "", "secoes": [{"titulo": "", "paragrafos": ""}
 ${alvo === 'secao' ? `Este é o texto de uma seção da matéria${body.titulo ? ` com o intertítulo "${cut(body.titulo, 200)}"` : ''}. Sugira também um intertítulo curto e claro (até 60 caracteres).` : 'Este é o texto de abertura (introdução) da matéria.'}
 Separe parágrafos com uma linha em branco.
 ${header(c)}
-
+${contexto}
 Texto:
 ${texto}
 
@@ -339,7 +351,7 @@ const PLACE = (site: Site) =>
 
 const photo = (scene: string) => `Candid documentary photograph for an agriculture magazine, taken on a full-frame camera with a 35mm lens at f/5.6, eye level, handheld. ${scene}
 Real-world look: soft diffused daylight, true-to-life muted colors, natural skin texture, real dust and soil clumps, slightly uneven crop rows, some weeds and straw, worn clothes and equipment, subtle film grain, gentle depth of field.
-Avoid: CGI or 3D render look, illustration, HDR, oversaturated greens, glowing golden-hour haze, dramatic sky, lens flare, perfect symmetry, plastic skin, posed model, stock-photo smile. No text, letters, logos, labels or watermarks; no product bottles or packaging.`
+Avoid: CGI or 3D render look, illustration, HDR, oversaturated greens, glowing golden-hour haze, dramatic sky, lens flare, perfect symmetry, plastic skin, posed model, stock-photo smile, before/after or side-by-side comparisons of plants. No text, letters, logos, labels or watermarks; no product bottles or packaging.`
 
 const KEEP_REAL =
   'Keep it looking like an unedited real photograph taken on a camera: natural light and colors, real textures, no CGI, illustration, HDR or oversaturation. No text, logos or watermarks.'
@@ -377,7 +389,7 @@ Also write a short alt text describing the resulting image, ${alt}.
 Post title: ${c.title || '(none)'}
 Answer in JSON: {"prompt": "", "alt": ""}`
       : `Describe ONE concrete scene (English, 40 to 70 words) for the cover photo of this post, on ${PLACE(c.site)}.
-Say exactly what is in the frame: the crop and its growth stage, what the person (if any) is doing with their hands, tools or machines, the soil, where and at what time of day. Prefer an everyday moment of real field work that matches the post. Only what a camera could capture: no concepts, symbols, split screens or text.
+Say exactly what is in the frame: the crop and its growth stage, what the person (if any) is doing with their hands, tools or machines, the soil, where and at what time of day. Prefer an everyday moment of real field work that matches the post. Only what a camera could capture: no concepts, symbols, split screens or text. Never show a product effect (sick versus healthy plants, before and after); show the work, the crop and the place.
 ${modo === 'prompt' ? `The author asked for (this is the main subject): "${pedido}"` : ''}
 Also write a short alt text describing the photo, ${alt}.
 

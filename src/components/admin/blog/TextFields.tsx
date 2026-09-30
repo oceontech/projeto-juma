@@ -12,7 +12,16 @@ import { askAi, type Section } from './usePostForm'
 function useContext() {
   const fields = useFormFields(([f]) => f)
   const v = reduceFieldsToValues(fields, true) as Record<string, any>
-  return { site: 'br', titulo: v.titulo, subtitulo: v.subtitulo, assinatura: v.assinatura }
+  // O resto do post vai junto: a IA mantém a coerência e não repete o que já está em outra parte.
+  return {
+    site: 'br',
+    titulo: v.titulo,
+    subtitulo: v.subtitulo,
+    assinatura: v.assinatura,
+    introducao: v.introducao,
+    secoes: Array.isArray(v.secoes) ? v.secoes : [],
+    citacao: v.citacao,
+  }
 }
 
 /** Adiciona seções no fim da lista (usado quando "Organizar" separa assuntos da introdução). */
@@ -98,6 +107,7 @@ function SectionCard({ index, total }: { index: number; total: number }) {
             ...context,
             modo: mode,
             alvo: 'secao',
+            indice: index,
             texto: text,
             titulo: titulo?.value,
           })

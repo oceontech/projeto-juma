@@ -213,8 +213,8 @@ export function ArticlesPage({ articles }: { articles: ArticleView[] }) {
             href={`/materias/${featuredArticle.id}`}
             className="group flex flex-col md:flex-row rounded-3xl overflow-hidden border border-foreground/10 bg-white shadow-sm hover:shadow-xl transition-all duration-300"
           >
-            <div className="md:w-1/2 relative min-h-[300px] md:min-h-[400px] bg-gradient-to-br from-[#004C26] to-green-900 overflow-hidden">
-              <Image src={featuredArticle.image} alt={featuredArticle.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+            <div className={`md:w-1/2 relative min-h-[300px] md:min-h-[400px] bg-gradient-to-br ${featuredArticle.image ? 'from-[#004C26] to-green-900' : featuredArticle.color} overflow-hidden`}>
+              {featuredArticle.image && <Image src={featuredArticle.image} alt={featuredArticle.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />}
               <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500" />
               <span className="absolute top-6 left-6 z-10 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full bg-white/90 backdrop-blur text-foreground shadow-sm">
                 {t('featuredBadge')}
@@ -268,7 +268,7 @@ export function ArticlesPage({ articles }: { articles: ArticleView[] }) {
                 className="group flex flex-col h-full rounded-2xl overflow-hidden border border-foreground/10 bg-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
               >
                 <div className={`relative h-48 bg-gradient-to-br ${article.color} overflow-hidden`}>
-                  <Image src={article.image} alt={article.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                  {article.image && <Image src={article.image} alt={article.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />}
                   <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500" />
                   <span className="absolute top-4 left-4 z-10 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-white/90 backdrop-blur text-foreground shadow-sm">
                     {article.categoryLabel}

@@ -28,8 +28,9 @@ export type ArticleView = {
   featured: boolean
 }
 
-/** Fundo verde Juma mostrado enquanto a capa carrega. */
+/** Fundo verde Juma mostrado enquanto a capa carrega; sem capa, o fundo claro do site (nada no lugar da foto). */
 const COVER_COLOR = 'from-green-700 to-emerald-950'
+export const NO_COVER_COLOR = 'from-[#F2F6F2] to-[#F2F6F2]'
 
 type Locale = 'pt-BR' | 'en' | 'es'
 
@@ -43,6 +44,7 @@ function formatDate(iso: string, locale: Locale) {
 function toView(doc: ArticleDoc, locale: Locale): ArticleView {
   const capa = doc.capa as Media | number | null | undefined
   const minutes = doc.tempoLeitura ?? 1
+  const image = (typeof capa === 'object' && capa?.url) || ''
   const tema = doc.tema as Categoria | number | null | undefined
   const cat = typeof tema === 'object' && tema ? tema : null
   return {
@@ -53,8 +55,8 @@ function toView(doc: ArticleDoc, locale: Locale): ArticleView {
     date: formatDate(doc.data, locale),
     readTime: `${minutes} MIN`,
     readMinutes: minutes,
-    image: (typeof capa === 'object' && capa?.url) || '/brand/logo-juma-agro.png',
-    color: COVER_COLOR,
+    image,
+    color: image ? COVER_COLOR : NO_COVER_COLOR,
     title: doc.titulo,
     subtitle: doc.subtitulo ?? '',
     author: doc.assinatura ?? '',

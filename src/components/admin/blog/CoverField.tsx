@@ -4,6 +4,7 @@ import { toast, useDocumentInfo, useField } from '@payloadcms/ui'
 import type { UploadFieldClientComponent } from 'payload'
 import { useEffect, useRef, useState } from 'react'
 
+import { GeneratingCanvas } from './GeneratingCanvas'
 import { MediaLibrary, type MediaItem } from './MediaLibrary'
 import { askAi, usePostForm } from './usePostForm'
 
@@ -176,135 +177,139 @@ export const CoverField: UploadFieldClientComponent = (props) => {
         }}
       />
 
-      {media ? (
-        <div className="jcov__current">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={media.url} alt={media.alt} />
-          <div className="jcov__meta">
-            <span>
-              <b>{media.alt || media.filename}</b>
-              {media.width && media.height ? (
-                <small>
-                  {media.width}×{media.height}
-                  {media.width < 1200 ? ' · pequena para capa' : ''}
-                </small>
-              ) : null}
-            </span>
-            <div className="jcov__actions">
-              <SendMenu ghost label="Trocar" onLocal={() => fileInput.current?.click()} onLibrary={() => setLibrary(true)} />
-              <button type="button" className="jai__btn jai__btn--ghost" onClick={() => apply(null)}>
-                Remover
-              </button>
-              {previous !== undefined && previous !== id && (
-                <button
-                  type="button"
-                  className="jait__undo"
-                  onClick={() => {
-                    setValue(previous)
-                    setPrevious(undefined)
-                  }}
-                >
-                  ↺ Voltar à anterior
+      {/* Área de mídia + cartão da IA; enquanto a IA cria, a animação cobre os dois. */}
+      <div className={`jcov__stage${busy ? ' is-busy' : ''}`}>
+        {media ? (
+          <div className="jcov__current">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img key={media.id} src={media.url} alt={media.alt} className="jcov__img" />
+            <div className="jcov__meta">
+              <span>
+                <b>{media.alt || media.filename}</b>
+                {media.width && media.height ? (
+                  <small>
+                    {media.width}×{media.height}
+                    {media.width < 1200 ? ' · pequena para capa' : ''}
+                  </small>
+                ) : null}
+              </span>
+              <div className="jcov__actions">
+                <SendMenu ghost label="Trocar" onLocal={() => fileInput.current?.click()} onLibrary={() => setLibrary(true)} />
+                <button type="button" className="jai__btn jai__btn--ghost" onClick={() => apply(null)}>
+                  Remover
                 </button>
-              )}
+                {previous !== undefined && previous !== id && (
+                  <button
+                    type="button"
+                    className="jait__undo"
+                    onClick={() => {
+                      setValue(previous)
+                      setPrevious(undefined)
+                    }}
+                  >
+                    ↺ Voltar à anterior
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      ) : (
-        <div
-          className={`jcov__drop${drag ? ' is-drag' : ''}`}
-          onDragOver={(e) => {
-            e.preventDefault()
-            setDrag(true)
-          }}
-          onDragLeave={() => setDrag(false)}
-          onDrop={(e) => {
-            e.preventDefault()
-            setDrag(false)
-            void upload(e.dataTransfer.files?.[0])
-          }}
-        >
-          <Clip />
-          {uploading ? (
-            <p>
-              <span className="jai__spinner" aria-hidden /> Enviando…
-            </p>
-          ) : (
-            <>
-              <p>
-                <b>Arraste uma imagem aqui</b>
-                <span>ou</span>
-              </p>
-              <SendMenu onLocal={() => fileInput.current?.click()} onLibrary={() => setLibrary(true)} />
-              <small>JPG, PNG ou WebP, na horizontal, de preferência com 1600 px de largura ou mais.</small>
-            </>
-          )}
-        </div>
-      )}
-      {showError && errorMessage && <p className="jf-error">{errorMessage}</p>}
-
-      <section className="jai jcov__ai">
-        <header className="jai__head">
-          <svg viewBox="0 0 24 24" aria-hidden className="jai__spark">
-            <path d="M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4z" />
-          </svg>
-          <div>
-            <b>Criar capa com IA</b>
-            <p>Foto no estilo editorial, sem letreiros nem embalagens. Leva cerca de 40 segundos.</p>
-          </div>
-        </header>
-        <div className="jsp" role="radiogroup" aria-label="Como criar">
-          {(
-            [
-              ['contexto', 'A partir do texto'],
-              ['prompt', 'Com meu pedido'],
-              ['aprimorar', 'Aprimorar imagem'],
-            ] as const
-          ).map(([m, label]) => (
-            <button key={m} type="button" role="radio" aria-checked={mode === m} className={`jsp__opt${mode === m ? ' is-active' : ''}`} onClick={() => setMode(m)}>
-              {label}
-            </button>
-          ))}
-        </div>
-
-        {mode === 'contexto' && (
-          <p className="jai__muted jcov__hint">
-            {hasText ? 'A IA lê o título e o texto que você escreveu e cria uma foto que combina com o assunto.' : 'Escreva o título e o texto antes: a capa nasce deles.'}
-          </p>
-        )}
-        {mode !== 'contexto' && (
-          <label className="jai__field jcov__hint">
-            <span>{mode === 'prompt' ? 'Descreva a imagem' : 'O que melhorar na imagem'}</span>
-            <textarea
-              rows={2}
-              value={request}
-              onChange={(e) => setRequest(e.target.value)}
-              placeholder={
-                mode === 'prompt'
-                  ? site === 'us'
-                    ? 'Ex.: citrus grove at sunrise in Florida, drone view'
-                    : 'Ex.: lavoura de soja ao amanhecer, visão de drone'
-                  : 'Ex.: deixar a luz mais quente, tirar o trator do fundo, céu mais limpo'
-              }
-            />
-          </label>
-        )}
-        {mode === 'aprimorar' && !media && (
-          <p className="jai__muted">Escolha antes a imagem: envie uma ou pegue da biblioteca, acima.</p>
-        )}
-
-        <div className="jai__row">
-          <button
-            type="button"
-            className="jai__btn"
-            disabled={busy || (mode === 'contexto' ? !hasText : !request.trim()) || (mode === 'aprimorar' && !media)}
-            onClick={generate}
+        ) : (
+          <div
+            className={`jcov__drop${drag ? ' is-drag' : ''}`}
+            onDragOver={(e) => {
+              e.preventDefault()
+              setDrag(true)
+            }}
+            onDragLeave={() => setDrag(false)}
+            onDrop={(e) => {
+              e.preventDefault()
+              setDrag(false)
+              void upload(e.dataTransfer.files?.[0])
+            }}
           >
-            {busy && <span className="jai__spinner" aria-hidden />}
-            {busy ? 'Criando a imagem…' : mode === 'aprimorar' ? 'Aprimorar esta imagem' : media ? 'Criar e trocar a capa' : 'Criar capa'}
-          </button>
-        </div>
-      </section>
+            <Clip />
+            {uploading ? (
+              <p>
+                <span className="jai__spinner" aria-hidden /> Enviando…
+              </p>
+            ) : (
+              <>
+                <p>
+                  <b>Arraste uma imagem aqui</b>
+                  <span>ou</span>
+                </p>
+                <SendMenu onLocal={() => fileInput.current?.click()} onLibrary={() => setLibrary(true)} />
+                <small>JPG, PNG ou WebP, na horizontal, de preferência com 1600 px de largura ou mais.</small>
+              </>
+            )}
+          </div>
+        )}
+        {showError && errorMessage && <p className="jf-error">{errorMessage}</p>}
+
+        <section className="jai jcov__ai">
+          <header className="jai__head">
+            <svg viewBox="0 0 24 24" aria-hidden className="jai__spark">
+              <path d="M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4z" />
+            </svg>
+            <div>
+              <b>Criar capa com IA</b>
+              <p>Foto no estilo editorial, sem letreiros nem embalagens. Leva cerca de 40 segundos.</p>
+            </div>
+          </header>
+          <div className="jsp" role="radiogroup" aria-label="Como criar">
+            {(
+              [
+                ['contexto', 'A partir do texto'],
+                ['prompt', 'Com meu pedido'],
+                ['aprimorar', 'Aprimorar imagem'],
+              ] as const
+            ).map(([m, label]) => (
+              <button key={m} type="button" role="radio" aria-checked={mode === m} className={`jsp__opt${mode === m ? ' is-active' : ''}`} onClick={() => setMode(m)}>
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {mode === 'contexto' && (
+            <p className="jai__muted jcov__hint">
+              {hasText ? 'A IA lê o título e o texto que você escreveu e cria uma foto que combina com o assunto.' : 'Escreva o título e o texto antes: a capa nasce deles.'}
+            </p>
+          )}
+          {mode !== 'contexto' && (
+            <label className="jai__field jcov__hint">
+              <span>{mode === 'prompt' ? 'Descreva a imagem' : 'O que melhorar na imagem'}</span>
+              <textarea
+                rows={2}
+                value={request}
+                onChange={(e) => setRequest(e.target.value)}
+                placeholder={
+                  mode === 'prompt'
+                    ? site === 'us'
+                      ? 'Ex.: citrus grove at sunrise in Florida, drone view'
+                      : 'Ex.: lavoura de soja ao amanhecer, visão de drone'
+                    : 'Ex.: deixar a luz mais quente, tirar o trator do fundo, céu mais limpo'
+                }
+              />
+            </label>
+          )}
+          {mode === 'aprimorar' && !media && (
+            <p className="jai__muted">Escolha antes a imagem: envie uma ou pegue da biblioteca, acima.</p>
+          )}
+
+          <div className="jai__row">
+            <button
+              type="button"
+              className="jai__btn"
+              disabled={busy || (mode === 'contexto' ? !hasText : !request.trim()) || (mode === 'aprimorar' && !media)}
+              onClick={generate}
+            >
+              {busy && <span className="jai__spinner" aria-hidden />}
+              {busy ? 'Criando a imagem…' : mode === 'aprimorar' ? 'Aprimorar esta imagem' : media ? 'Criar e trocar a capa' : 'Criar capa'}
+            </button>
+          </div>
+        </section>
+        {busy && <GeneratingCanvas mode={mode} />}
+      </div>
 
       {library && (
         <MediaLibrary

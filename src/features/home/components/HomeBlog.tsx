@@ -118,13 +118,15 @@ export function HomeBlog({ articles }: { articles: ArticleView[] }) {
               {/* Capa: gradiente por baixo enquanto a foto carrega */}
               <div className="relative h-[200px] overflow-hidden">
                 <div className={`w-full h-full bg-gradient-to-br ${a.color}`} />
-                <Image
-                  src={a.image}
-                  alt={a.title}
-                  fill
-                  sizes="(min-width: 768px) 33vw, 100vw"
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
-                />
+                {a.image && (
+                  <Image
+                    src={a.image}
+                    alt={a.title}
+                    fill
+                    sizes="(min-width: 768px) 33vw, 100vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                )}
                 <span
                   className="absolute top-4 left-4 text-[11px] font-bold tracking-[0.10em] uppercase rounded-full px-3 py-1.5"
                   style={{ backgroundColor: 'rgba(0,0,0,.5)', color: '#fff', backdropFilter: 'blur(8px)' }}

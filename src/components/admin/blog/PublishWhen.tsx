@@ -2,7 +2,7 @@
 
 import { useDocumentInfo, useField } from '@payloadcms/ui'
 import type { DateFieldClientComponent } from 'payload'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 /**
  * "Quando publicar" (etapa Publicação): por padrão o post vai ao ar na hora em
@@ -34,8 +34,66 @@ function tomorrowAt9() {
   return d
 }
 
+/** Horário em lista própria (o select nativo não segue o visual do painel). */
+function TimePicker({ value, onPick, disabled }: { value: string; onPick: (t: string) => void; disabled?: boolean }) {
+  const [open, setOpen] = useState(false)
+  const root = useRef<HTMLDivElement>(null)
+  const list = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    list.current?.querySelector<HTMLElement>('.is-selected')?.scrollIntoView({ block: 'center' })
+    const close = (e: MouseEvent) => !root.current?.contains(e.target as Node) && setOpen(false)
+    const esc = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
+    document.addEventListener('mousedown', close)
+    document.addEventListener('keydown', esc)
+    return () => {
+      document.removeEventListener('mousedown', close)
+      document.removeEventListener('keydown', esc)
+    }
+  }, [open])
+
+  return (
+    <div className="jpw__tp" ref={root}>
+      <button type="button" className="jf-date__trigger jpw__tp-trigger" disabled={disabled} aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+        <svg viewBox="0 0 24 24" aria-hidden>
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 7v5l3 2" />
+        </svg>
+        <span>{value}</span>
+        <svg viewBox="0 0 24 24" aria-hidden className="jpw__tp-caret">
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </button>
+      {open && (
+        <div className="jpw__tp-pop" role="listbox" aria-label="Horário" ref={list}>
+          {TIMES.map((t) => (
+            <button
+              key={t}
+              type="button"
+              role="option"
+              aria-selected={t === value}
+              className={`jpw__tp-opt${t === value ? ' is-selected' : ''}`}
+              onClick={() => {
+                onPick(t)
+                setOpen(false)
+              }}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function Calendar({ value, onPick, minToday }: { value: Date; onPick: (y: number, m: number, d: number) => void; minToday?: boolean }) {
   const [view, setView] = useState({ y: value.getFullYear(), m: value.getMonth() })
+  // Acompanha a data escolhida (ex.: ligar o agendamento para amanhã, no mês seguinte).
+  const vy = value.getFullYear()
+  const vm = value.getMonth()
+  useEffect(() => setView({ y: vy, m: vm }), [vy, vm])
   const today = new Date()
   const start = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()
   const days = useMemo(() => {
@@ -169,16 +227,10 @@ export const PublishWhen: DateFieldClientComponent = ({ path, field, readOnly })
         <div className="jpw__body">
           <Calendar value={current} onPick={pickDay} minToday />
           <div className="jpw__side">
-            <label className="jpw__time">
+            <div className="jpw__time">
               <span>Horário</span>
-              <select value={time} onChange={(e) => pickTime(e.target.value)} disabled={readOnly}>
-                {TIMES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </label>
+              <TimePicker value={time} onPick={pickTime} disabled={readOnly} />
+            </div>
             <p className={`jpw__summary${past ? ' is-warn' : ''}`}>
               {past ? (
                 <>Esse horário já passou. Escolha um dia e hora no futuro.</>

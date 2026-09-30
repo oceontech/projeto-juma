@@ -5476,28 +5476,74 @@ button.jpw__row,
   flex-direction: column;
   gap: 6px;
 
-  span {
+  > span {
     font-size: 13px;
     font-weight: 500;
   }
+}
 
-  select {
-    height: 42px;
-    max-width: 160px;
-    padding: 0 12px;
-    border: 0;
-    border-radius: var(--style-radius-m);
-    background: #fff;
-    box-shadow: inset 0 0 0 1px var(--juma-line-strong);
-    font: inherit;
-    font-size: 14px;
-    font-variant-numeric: tabular-nums;
-    cursor: pointer;
+.jpw__tp {
+  position: relative;
+  width: 150px;
+}
 
-    &:focus {
-      outline: none;
-      box-shadow: inset 0 0 0 1px var(--juma-lime), var(--juma-focus);
-    }
+.jpw__tp-trigger {
+  width: 100%;
+  font-variant-numeric: tabular-nums;
+
+  span {
+    flex: 1;
+  }
+
+  .jpw__tp-caret {
+    width: 15px;
+    height: 15px;
+    transition: transform 0.15s ease;
+  }
+
+  &[aria-expanded='true'] .jpw__tp-caret {
+    transform: rotate(180deg);
+  }
+}
+
+.jpw__tp-pop {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 6px);
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px;
+  width: 190px;
+  max-height: 264px;
+  overflow-y: auto;
+  padding: 8px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: var(--juma-pop);
+  scrollbar-width: thin;
+  scrollbar-color: #d6d8d2 transparent;
+  animation: jdd-in 0.14s ease-out;
+}
+
+.jpw__tp-opt {
+  height: 34px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  font: inherit;
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+
+  &:hover {
+    background: #f1f3ef;
+  }
+
+  &.is-selected {
+    background: var(--juma-green);
+    color: #fff;
+    font-weight: 600;
   }
 }
 
@@ -5768,5 +5814,139 @@ button.jpw__row,
   .jai__fixall {
     flex-direction: column;
     align-items: stretch;
+  }
+}
+
+/* ─── Capa: IA criando a imagem (animação sobre a área de mídia e o cartão da IA) ─── */
+.jcov__stage {
+  position: relative;
+  display: flow-root;
+  margin-bottom: 22px;
+
+  .jcov__ai {
+    margin-bottom: 0;
+  }
+
+  &.is-busy > :not(.jgen) {
+    visibility: hidden;
+  }
+}
+
+.jcov__img {
+  animation: jgen-reveal 0.7s ease-out;
+}
+
+@keyframes jgen-reveal {
+  from {
+    opacity: 0;
+    filter: blur(14px) saturate(0.6);
+  }
+  to {
+    opacity: 1;
+    filter: none;
+  }
+}
+
+.jgen {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  min-height: 320px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 22px;
+  background: radial-gradient(120% 90% at 50% 40%, #ffffff 0%, #f6f8f5 60%, #eef2ec 100%);
+  box-shadow: inset 0 0 0 1px var(--juma-line), 0 10px 40px rgba(12, 20, 15, 0.08);
+  animation: jgen-in 0.35s ease-out;
+}
+
+@keyframes jgen-in {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+}
+
+.jgen__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.jgen__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 260px;
+  padding: 18px 26px 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(14px) saturate(1.4);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 12px 36px rgba(12, 20, 15, 0.12);
+  text-align: center;
+
+  b {
+    font-size: 15.5px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--juma-ink);
+  }
+
+  small {
+    color: var(--juma-muted);
+    font-size: 11.5px;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.jgen__step {
+  color: #15803d;
+  font-size: 13px;
+  font-weight: 500;
+  animation: jgen-step 0.4s ease-out;
+}
+
+@keyframes jgen-step {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+.jgen__bar {
+  position: relative;
+  width: 180px;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e7ebe4;
+
+  i {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #004c26, #22c55e, #38bdf8, #a78bfa);
+    background-size: 200% 100%;
+    transition: width 0.25s linear;
+    animation: jgen-flow 2.4s linear infinite;
+  }
+}
+
+@keyframes jgen-flow {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jgen,
+  .jgen__step,
+  .jgen__bar i,
+  .jcov__img {
+    animation: none;
   }
 }

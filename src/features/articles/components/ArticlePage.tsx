@@ -213,26 +213,32 @@ export function ArticlePage({ article, related }: ArticlePageProps) {
   return (
     <div ref={containerRef} className="bg-[#F8FAF8] text-foreground min-h-screen">
       {/* ─── Hero Banner Full-bleed ─── */}
-      <div ref={heroRef} className="relative w-full h-[60vh] min-h-[400px] max-h-[620px] bg-black overflow-hidden select-none">
-        {/* Imagem com Parallax */}
+      <div ref={heroRef} className={`relative w-full h-[60vh] min-h-[400px] max-h-[620px] overflow-hidden select-none ${article.image ? 'bg-black' : 'bg-[#F8FAF8]'}`}>
+        {/* Imagem com Parallax (sem capa: só o fundo do site) */}
         <div ref={imageRef} className="absolute inset-0 w-full h-[120%] -top-[10%]">
-          <Image
-            src={article.image}
-            alt={translation.title}
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover hero-image"
-          />
-          {/* Overlay escuro para contraste */}
-          <div className="absolute inset-0 bg-black/40" />
+          {article.image && (
+            <>
+              <Image
+                src={article.image}
+                alt={translation.title}
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover hero-image"
+              />
+              {/* Overlay escuro para contraste */}
+              <div className="absolute inset-0 bg-black/40" />
+            </>
+          )}
         </div>
 
-        {/* Máscara gradiente inferior para suavizar transição com o fundo */}
-        <div 
-          className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none"
+        {/* Máscara gradiente inferior para suavizar transição com o fundo.
+            Passa 2px da borda: sem isso sobra uma linha escura do fundo preto
+            quando a página é exibida em escala (prévia do painel, zoom). */}
+        <div
+          className="absolute -bottom-[2px] left-0 right-0 h-[calc(10rem+2px)] pointer-events-none"
           style={{
-            background: 'linear-gradient(to bottom, transparent, #F8FAF8)'
+            background: 'linear-gradient(to bottom, transparent, #F8FAF8 92%)'
           }}
         />
 
@@ -243,7 +249,7 @@ export function ArticlePage({ article, related }: ArticlePageProps) {
               <Link
                 href="/materias"
                 data-back-btn
-                className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 bg-black/20 text-white btn-type backdrop-blur-md transition-all hover:bg-white/10 hover:border-white/40"
+                className={`hidden md:inline-flex items-center gap-2 px-5 py-2.5 rounded-full btn-type backdrop-blur-md transition-all ${article.image ? 'border border-white/20 bg-black/20 text-white hover:bg-white/10 hover:border-white/40' : 'border border-foreground/15 bg-white text-foreground hover:border-foreground/30'}`}
               >
                 <ArrowLeftIcon className="h-4 w-4" /> {t('backButton')}
               </Link>
@@ -370,13 +376,15 @@ export function ArticlePage({ article, related }: ArticlePageProps) {
                   className="group flex flex-col h-full rounded-2xl overflow-hidden border border-foreground/10 bg-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                 >
                   <div className={`relative h-44 bg-gradient-to-br ${rel.color} overflow-hidden`}>
-                    <Image
-                      src={rel.image}
-                      alt={relTrans.title}
-                      fill
-                      sizes="(min-width: 768px) 33vw, 100vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
+                    {rel.image && (
+                      <Image
+                        src={rel.image}
+                        alt={relTrans.title}
+                        fill
+                        sizes="(min-width: 768px) 33vw, 100vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-700"
+                      />
+                    )}
                     <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500" />
                     <span className="absolute top-4 left-4 z-10 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-white/90 backdrop-blur text-foreground shadow-sm">
                       {rel.categoryLabel}
