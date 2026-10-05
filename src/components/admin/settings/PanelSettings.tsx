@@ -88,7 +88,7 @@ export async function PanelSettings({ initPageResult, params, searchParams }: Ad
                   {team.totalDocs} pessoa{team.totalDocs === 1 ? '' : 's'} com acesso ao painel
                 </p>
               </div>
-              <Link className="jd-btn" href="/admin/collections/users/create">
+              <Link className="jd-btn" href="/admin/collections/users?convidar=1">
                 + Adicionar pessoa
               </Link>
             </header>

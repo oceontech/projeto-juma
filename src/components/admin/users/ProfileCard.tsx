@@ -1,7 +1,8 @@
 'use client'
 
-import { toast, useConfig, useField, useFormFields } from '@payloadcms/ui'
-import { useRef, useState } from 'react'
+import { toast, useAuth, useConfig, useDocumentInfo, useField, useFormFields } from '@payloadcms/ui'
+import { useRouter } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
 
 import { UserAvatar, displayName } from './userMeta'
 
@@ -20,6 +21,16 @@ export function ProfileCard() {
   const input = useRef<HTMLInputElement>(null)
   const [sending, setSending] = useState(false)
   const [preview, setPreview] = useState<string | null>(null)
+  const router = useRouter()
+  const { id } = useDocumentInfo()
+  const { user } = useAuth()
+
+  // Cadastro padrão aberto por navegação interna (o middleware só pega a URL
+  // carregada direto): quem já está logado cadastra gente nova pelo convite,
+  // para a pessoa criar a própria senha. O primeiro usuário (sem login) segue normal.
+  useEffect(() => {
+    if (!id && user) router.replace('/admin/collections/users?convidar=1')
+  }, [id, user, router])
 
   const photo = foto.value ? (preview ?? fotoUrl.value ?? null) : null
   const name = displayName({ nome: nome.value, email })
