@@ -48,6 +48,8 @@ export default buildConfig({
       ],
       actions: ['/components/admin/nav/HeaderBar#HeaderBar'],
       logout: { Button: '/components/admin/NavAccount#NavAccount' },
+      // Olho para mostrar a senha em todos os campos de senha do painel.
+      providers: ['/components/admin/PasswordReveal#PasswordReveal'],
       views: {
         dashboard: { Component: '/components/admin/Dashboard#Dashboard' },
         analytics: { Component: '/components/admin/analytics/AnalyticsView#AnalyticsView', path: '/analytics' },
@@ -61,7 +63,10 @@ export default buildConfig({
     supportedLanguages: { pt },
     fallbackLanguage: 'pt',
     translations: {
-      pt: { general: { locale: 'Idioma', locales: 'Idiomas', allLocales: 'Todos os idiomas' } },
+      pt: {
+        general: { locale: 'Idioma', locales: 'Idiomas', allLocales: 'Todos os idiomas' },
+        authentication: { forgotPasswordQuestion: 'Esqueci minha senha', resetPassword: 'Criar nova senha' },
+      },
     },
   },
   // A ordem aqui é a ordem dos grupos na sidebar: Operação, Conteúdo, Site, Biblioteca, Administração.

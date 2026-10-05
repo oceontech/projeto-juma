@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 
 import { Flag } from '../ui/Flag'
@@ -14,12 +14,21 @@ type Errors = Partial<Record<'email' | 'papel' | 'sites' | 'form', string>>
 
 export function InviteButton() {
   const router = useRouter()
+  const pathname = usePathname()
+  const params = useSearchParams()
   const dialog = useRef<HTMLDialogElement>(null)
   const [papel, setPapel] = useState<string>('editor')
   const [sites, setSites] = useState<string[]>(['br'])
   const [sending, setSending] = useState(false)
   const [errors, setErrors] = useState<Errors>({})
   const [done, setDone] = useState<{ email: string; resent: boolean; warning?: string } | null>(null)
+
+  // Veio do cadastro padrão (redirecionado pelo middleware): abre o convite direto.
+  useEffect(() => {
+    if (params.get('convidar') !== '1') return
+    dialog.current?.showModal()
+    router.replace(pathname)
+  }, [params, pathname, router])
 
   useEffect(() => {
     const el = dialog.current

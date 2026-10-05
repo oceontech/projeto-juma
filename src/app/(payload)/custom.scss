@@ -8332,3 +8332,60 @@ a.jd-kpi-card.jd-card--dark {
     }
   }
 }
+
+/* Olho de mostrar senha (src/components/admin/PasswordReveal.tsx) */
+.juma-reveal {
+  position: relative;
+
+  input {
+    padding-right: 44px !important;
+  }
+}
+
+.juma-reveal__btn {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--juma-muted);
+  cursor: pointer;
+  transform: translateY(-50%);
+
+  &:hover {
+    color: var(--juma-ink);
+    background: rgba(12, 20, 15, 0.06);
+  }
+
+  &:focus-visible {
+    outline: 0;
+    box-shadow: var(--juma-focus);
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}
+
+/* "Esqueci minha senha" bem visível no login */
+.login__form .forgot-password,
+.login__form a[href*='/forgot'] {
+  display: inline-block;
+  margin-top: 4px;
+  color: var(--juma-green) !important;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
