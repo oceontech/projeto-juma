@@ -1,6 +1,6 @@
-import Link from 'next/link'
 import type { ListViewServerProps } from 'payload'
 
+import { InviteButton } from './InviteButton'
 import { TeamList } from './TeamList'
 
 /** Equipe do painel em cartões: quem é, o que pode fazer e em quais sites. */
@@ -19,11 +19,7 @@ export function UsersList({ data, hasCreatePermission, user }: ListViewServerPro
             {data.totalDocs} pessoa{data.totalDocs === 1 ? '' : 's'} com acesso ao painel
           </p>
         </div>
-        {hasCreatePermission && (
-          <Link className="jd-btn" href="/admin/collections/users/create">
-            + Adicionar pessoa
-          </Link>
-        )}
+        {hasCreatePermission && <InviteButton />}
       </header>
 
       <TeamList docs={docs} me={me} />

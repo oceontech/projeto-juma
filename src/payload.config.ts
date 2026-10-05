@@ -21,6 +21,7 @@ import { Settings } from './globals/Settings'
 import { SettingsUs } from './globals/SettingsUs'
 import { Social, SocialUs } from './globals/Social'
 import { aiHandler } from './features/ai/endpoint'
+import { emailAdapter } from './features/email/config'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -79,6 +80,8 @@ export default buildConfig({
   endpoints: [{ path: '/ai/:action', method: 'post', handler: aiHandler }],
   // Sem GraphQL (ADR-003): o site e o painel usam REST + Local API.
   graphQL: { disable: true },
+  // Resend: troca de senha, convite de usuário e aviso de lead novo (src/features/email).
+  email: emailAdapter(),
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

@@ -8177,3 +8177,158 @@ a.jd-kpi-card.jd-card--dark {
 .collection-edit--users .doc-controls__content {
   display: none;
 }
+
+/* Convite de pessoa nova (Usuários → + Convidar pessoa) */
+.jinv {
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  padding: 28px;
+  border: 0;
+  border-radius: 20px;
+  background: var(--juma-card);
+  color: var(--juma-ink);
+  box-shadow: var(--juma-pop);
+
+  &::backdrop {
+    background: rgba(12, 20, 15, 0.4);
+  }
+
+  h2 {
+    margin: 0 0 6px;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  form,
+  .jinv__done {
+    display: grid;
+    gap: 16px;
+  }
+
+  .jinv__done p {
+    margin: 0;
+    line-height: 1.55;
+  }
+}
+
+.jinv__field {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+
+  legend {
+    margin-bottom: 6px;
+    padding: 0;
+  }
+
+  input[type='text'],
+  input[type='email'] {
+    height: 42px;
+    padding: 0 14px;
+    border: 1px solid var(--juma-line-strong);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--juma-ink);
+    font: inherit;
+    font-size: 14px;
+
+    &:focus {
+      outline: 0;
+      border-color: var(--juma-lime);
+      box-shadow: var(--juma-focus);
+    }
+
+    &[aria-invalid='true'] {
+      border-color: #dc2626;
+    }
+  }
+}
+
+.jinv__roles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.jinv__role,
+.jinv__site {
+  position: relative;
+  cursor: pointer;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 1px var(--juma-line);
+  transition: box-shadow 0.15s, background 0.15s;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &:hover {
+    background: #f7f8f6;
+  }
+
+  &.is-active {
+    background: var(--juma-lime-soft);
+    box-shadow: inset 0 0 0 1.5px var(--juma-green);
+  }
+
+  &:has(input:focus-visible) {
+    box-shadow: inset 0 0 0 1.5px var(--juma-green), var(--juma-focus);
+  }
+}
+
+.jinv__role {
+  display: grid;
+  gap: 2px;
+  padding: 12px;
+
+  b {
+    font-size: 14px;
+  }
+
+  small {
+    color: var(--juma-muted);
+    font-size: 12px;
+    line-height: 1.35;
+  }
+}
+
+.jinv__sites {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.jinv__site {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 14px;
+  font-size: 14px;
+}
+
+.jinv__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+
+  .jd-btn {
+    border: 0;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+  }
+}

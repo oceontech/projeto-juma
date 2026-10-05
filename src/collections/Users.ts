@@ -1,6 +1,8 @@
 import type { CollectionConfig } from 'payload'
 
 import { ROLES, SITES, hasRole, isAdmin, isAdminField } from '../access/roles'
+import { forgotPasswordContent, sendInvite } from '../features/email/send'
+import { inviteHandler } from '../features/email/inviteEndpoint'
 
 const idOf = (v: unknown) => (typeof v === 'object' && v ? ((v as { id?: number | string }).id ?? null) : ((v as number | string | null | undefined) ?? null))
 
@@ -20,7 +22,15 @@ export const Users: CollectionConfig = {
     lockTime: 10 * 60 * 1000,
     // Sessão de 7 dias; o painel renova enquanto estiver em uso.
     tokenExpiration: 60 * 60 * 24 * 7,
+    // "Esqueci a senha" pelo Resend. O link vale 1 hora (padrão do Payload);
+    // não fixar `expiration` aqui, senão o convite (7 dias) herda esse prazo.
+    forgotPassword: {
+      generateEmailSubject: (args) => forgotPasswordContent(args ?? {}).subject,
+      generateEmailHTML: (args) => forgotPasswordContent(args ?? {}).html,
+    },
   },
+  // Convite pelo painel: cria a pessoa sem senha e manda o link para ela criar a dela.
+  endpoints: [{ path: '/invite', method: 'post', handler: inviteHandler }],
   access: {
     // O primeiro usuário se cria pela tela inicial do Payload; depois, só admin.
     create: async ({ req }) => {
@@ -55,6 +65,15 @@ export const Users: CollectionConfig = {
       },
     ],
     afterChange: [
+      // Admin cadastrou alguém pelo formulário padrão: a pessoa recebe o convite
+      // para criar a própria senha. O endpoint /invite manda o dele (context.invite).
+      async ({ req, doc, operation }) => {
+        if (operation !== 'create' || req.context?.invite === false || !hasRole(req, 'admin')) return doc
+        await sendInvite({ payload: req.payload, req, user: doc, invitedBy: req.user }).catch((err) =>
+          req.payload.logger.error({ err, msg: `Falha ao enviar convite para ${doc.email}` }),
+        )
+        return doc
+      },
       // Trocou ou tirou a foto: a antiga sai do armazenamento.
       async ({ req, doc, previousDoc }) => {
         const before = idOf(previousDoc?.foto)

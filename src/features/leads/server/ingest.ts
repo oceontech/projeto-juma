@@ -1,5 +1,6 @@
 import type { Payload, Where } from 'payload'
 
+import { notifyNewLead } from '../../email/send'
 import { guessTipo, isLeadTipo } from '../tipo'
 
 /**
@@ -211,6 +212,9 @@ export async function ingestLead(
         duplicadoDe: original ? original.id : undefined,
       },
     })
+
+    // Aviso por e-mail só do primeiro contato: quem volta cai no lead original.
+    if (!original) await notifyNewLead(payload, { ...doc, site, nome: doc.nome })
 
     return { ok: true, id: doc.id, duplicado: Boolean(original) }
   } catch (err) {
