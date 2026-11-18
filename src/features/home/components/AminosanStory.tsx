@@ -325,6 +325,26 @@ function MobileVersion({ t }: { t: TFn }) {
 
       let pinTrigger: ScrollTrigger | null = null
 
+      /* ── Trava de toque no nível do navegador ───────────────────────────
+         Só o `preventDefault` do `touchmove` não basta no Safari do iOS: se o
+         PRIMEIRO `touchmove` de um gesto não for cancelado (o polegar dá uma
+         tremida de 5px para trás antes de subir, e na fase 1988 o gesto para
+         trás era liberado para sair da seção), o navegador assume o gesto
+         inteiro e passa a ignorar os `preventDefault` seguintes. A página
+         rolava junto com o dedo nos dois sentidos, a barra do Safari abria e
+         fechava, e o snap de 80ms puxava de volta: o "trava, vai e volta" no
+         frasco antigo (gravado num iPhone 16 com iOS 26).
+         `touch-action: none` decide no toque, antes de qualquer movimento, que
+         não existe rolagem nativa naquele gesto. Os eventos de toque continuam
+         chegando, então os atos seguem pelo `onTouchMove`. A saída para trás
+         na fase 1988 virou rolagem feita por nós (ver `escapeDir`). */
+      let touchLocked = false
+      const setTouchLock = (on: boolean) => {
+        if (on === touchLocked) return
+        touchLocked = on
+        stageTrigger.style.touchAction = on ? 'none' : ''
+      }
+
       const phaseY = (i: number) => {
         if (!pinTrigger) return window.scrollY
         return Math.round(pinTrigger.start + ((pinTrigger.end - pinTrigger.start) * i) / LAST)
@@ -390,6 +410,7 @@ function MobileVersion({ t }: { t: TFn }) {
       const releaseForward = () => {
         releasing = true
         lockScroll(false)
+        setTouchLock(false)
         const fallback = pinTrigger ? pinTrigger.end + window.innerHeight : window.scrollY
         const next = document.getElementById('sec-produtos')
         const measured = next ? Math.round(next.getBoundingClientRect().top + window.scrollY) : null
@@ -747,8 +768,10 @@ function MobileVersion({ t }: { t: TFn }) {
         pin: stageTrigger,
         pinSpacing: true,
         anticipatePin: 1,
-        onEnter: () => { killMomentumScroll(); if (!playing) snapToPhase() },
-        onEnterBack: () => { killMomentumScroll(); if (!playing) snapToPhase() },
+        onEnter: () => { killMomentumScroll(); setTouchLock(true); if (!playing) snapToPhase() },
+        onEnterBack: () => { killMomentumScroll(); setTouchLock(true); if (!playing) snapToPhase() },
+        onLeave: () => setTouchLock(false),
+        onLeaveBack: () => setTouchLock(false),
       })
 
       const canStep = () => !playing && !releasing && performance.now() >= cooldownRef.current
@@ -860,18 +883,98 @@ function MobileVersion({ t }: { t: TFn }) {
          que os 30px de antes. */
       const STEP_PX = 34
       const FLICK_PX = 18
+      /* Distância mínima para um gesto contar como SAÍDA da seção (para trás
+         na fase 1988). Maior que os 4px de antes: a tremida do polegar no
+         começo de um arrasto para frente não pode virar saída. */
+      const ESCAPE_PX = 12
 
       let touchY = 0
       let steppedInGesture = false
+
+      /* Saída da seção feita por nós: com `touch-action: none` o navegador
+         não rola sozinho, então o scroll acompanha o dedo 1:1 e, ao soltar,
+         segue com inércia. Na saída para cima o scroll nunca passa do início
+         do pin: se o dedo inverte e volta, o gesto devolve o controle aos atos
+         em vez de rolar a página por baixo do palco. */
+      let escapeDir: 'up' | 'down' | null = null
+      let lastMoveY = 0
+      let lastMoveAt = 0
+      let velocity = 0 // px de scroll por ms; positivo = para baixo na página
+      let glideRaf = 0
+      const stopGlide = () => {
+        if (glideRaf) cancelAnimationFrame(glideRaf)
+        glideRaf = 0
+      }
+      const clampEscape = (y: number, dir: 'up' | 'down') =>
+        dir === 'up' && pinTrigger ? Math.min(y, pinTrigger.start) : y
+      const glide = (dir: 'up' | 'down', v0: number) => {
+        stopGlide()
+        let v = Math.max(-4, Math.min(4, v0))
+        // Fim da inércia (ou nenhuma): o `onScroll` não mexe na trava enquanto
+        // ela corre, então é aqui que ela volta a seguir a posição. Sem isto a
+        // trava ficava ligada fora da seção e o pedaço visível do palco não
+        // rolava a página.
+        const settle = () => { glideRaf = 0; setTouchLock(active()) }
+        if (Math.abs(v) < 0.05) { settle(); return }
+        let last = performance.now()
+        const frame = (now: number) => {
+          const dt = Math.min(now - last, 32)
+          last = now
+          const target = clampEscape(window.scrollY + v * dt, dir)
+          window.scrollTo(0, Math.max(0, target))
+          v *= Math.pow(0.95, dt / 16.67)
+          if (Math.abs(v) < 0.02 || (dir === 'up' && pinTrigger && target >= pinTrigger.start)) {
+            settle()
+            return
+          }
+          glideRaf = requestAnimationFrame(frame)
+        }
+        glideRaf = requestAnimationFrame(frame)
+      }
+
       const onTouchStart = (e: TouchEvent) => {
+        stopGlide()
         touchY = e.touches[0]?.clientY ?? 0
+        lastMoveY = touchY
+        lastMoveAt = performance.now()
+        velocity = 0
+        escapeDir = null
         steppedInGesture = false
       }
       const onTouchMove = (e: TouchEvent) => {
-        if (!active()) return
         const y = e.touches[0]?.clientY ?? touchY
+        const now = performance.now()
+
+        if (escapeDir) {
+          if (e.cancelable) e.preventDefault()
+          const delta = lastMoveY - y
+          const dt = Math.max(now - lastMoveAt, 1)
+          velocity = velocity * 0.2 + (delta / dt) * 0.8
+          lastMoveY = y
+          lastMoveAt = now
+          const target = clampEscape(window.scrollY + delta, escapeDir)
+          window.scrollTo(0, Math.max(0, target))
+          if (escapeDir === 'up' && pinTrigger && target >= pinTrigger.start) {
+            // O dedo voltou até o início do pin: o resto do gesto é dos atos.
+            escapeDir = null
+            touchY = y
+            setTouchLock(true)
+          }
+          return
+        }
+
+        if (!active()) return
         const dy = touchY - y
-        if (Math.abs(dy) > 4 && escapes(dy > 0)) return
+        if (escapes(dy > 0)) {
+          if (e.cancelable) e.preventDefault()
+          if (Math.abs(dy) < ESCAPE_PX) return
+          escapeDir = dy > 0 ? 'down' : 'up'
+          lastMoveY = y
+          lastMoveAt = now
+          velocity = 0
+          window.scrollTo(0, Math.max(0, clampEscape(window.scrollY + dy, escapeDir)))
+          return
+        }
         if (e.cancelable) e.preventDefault()
         if (Math.abs(dy) < STEP_PX) return
         touchY = y // reposiciona a origem: o arrasto longo encadeia atos
@@ -879,7 +982,19 @@ function MobileVersion({ t }: { t: TFn }) {
         if (dy > 0) stepForward()
         else stepBackward()
       }
+      const onTouchCancel = () => {
+        if (!escapeDir) return
+        escapeDir = null
+        setTouchLock(active())
+      }
       const onTouchEnd = (e: TouchEvent) => {
+        if (escapeDir) {
+          // Dedo parado antes de soltar não ganha inércia.
+          const v = performance.now() - lastMoveAt > 80 ? 0 : velocity
+          glide(escapeDir, v)
+          escapeDir = null
+          return
+        }
         if (!active()) return
         if (steppedInGesture) return // o arrasto já resolveu
         const endY = e.changedTouches[0]?.clientY ?? touchY
@@ -894,6 +1009,9 @@ function MobileVersion({ t }: { t: TFn }) {
       // bastante pra não disputar posição com o próximo gesto do usuário.
       let idleTimer: ReturnType<typeof setTimeout> | undefined
       const onScroll = () => {
+        // A trava acompanha a posição: dentro do pin o próximo toque já nasce
+        // sem rolagem nativa; fora dele, a página rola normal.
+        if (!escapeDir && !glideRaf) setTouchLock(active())
         clearTimeout(idleTimer)
         idleTimer = setTimeout(() => {
           if (!active() || playing) return
@@ -907,6 +1025,7 @@ function MobileVersion({ t }: { t: TFn }) {
       window.addEventListener('touchstart', onTouchStart, { passive: true })
       window.addEventListener('touchmove', onTouchMove, { passive: false, capture: true })
       window.addEventListener('touchend', onTouchEnd, { passive: true })
+      window.addEventListener('touchcancel', onTouchCancel, { passive: true })
       window.addEventListener('scroll', onScroll, { passive: true })
       video.addEventListener('timeupdate', checkForwardLimit)
 
@@ -1045,7 +1164,9 @@ function MobileVersion({ t }: { t: TFn }) {
         pinTrigger = null
         if (animFrame) cancelAnimationFrame(animFrame)
         clearTimeout(idleTimer)
+        stopGlide()
         lockScroll(false)
+        setTouchLock(false)
 
         window.dispatchEvent(new CustomEvent('aminosan:video-handoff-end'))
         clearHandoffBack()
@@ -1056,6 +1177,7 @@ function MobileVersion({ t }: { t: TFn }) {
         window.removeEventListener('touchstart', onTouchStart)
         window.removeEventListener('touchmove', onTouchMove, { capture: true })
         window.removeEventListener('touchend', onTouchEnd)
+        window.removeEventListener('touchcancel', onTouchCancel)
         window.removeEventListener('scroll', onScroll)
         video.removeEventListener('timeupdate', checkForwardLimit)
       }
