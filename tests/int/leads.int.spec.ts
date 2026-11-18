@@ -153,20 +153,22 @@ describe.skipIf(!isLocalDb)('leads', () => {
     const comercial = { ...(await payload.findByID({ collection: 'users', id: users.comercialUs.id, overrideAccess: true })), collection: 'users' as const }
 
     await expect(
-      payload.update({ collection: 'leads', id: brLead.id, data: { status: 'em-contato' }, user: editor, overrideAccess: false }),
+      payload.update({ collection: 'leads', id: brLead.id, data: { status: 'enviado' }, user: editor, overrideAccess: false }),
     ).rejects.toThrow()
     await expect(
-      payload.update({ collection: 'leads', id: brLead.id, data: { status: 'em-contato' }, user: comercial, overrideAccess: false }),
+      payload.update({ collection: 'leads', id: brLead.id, data: { status: 'enviado' }, user: comercial, overrideAccess: false }),
     ).rejects.toThrow()
 
     const updated = await payload.update({
       collection: 'leads',
       id: usLead.id,
-      data: { status: 'qualificado', notas: [{ texto: 'Ligou pedindo amostra.' }] },
+      data: { status: 'enviado', notas: [{ texto: 'Passado para o comercial dos EUA.' }] },
       user: comercial,
       overrideAccess: false,
     })
-    expect(updated.status).toBe('qualificado')
+    expect(updated.status).toBe('enviado')
+    // Saiu de "Aguardando envio" para "Enviado": guarda a data do envio.
+    expect(updated.respondidoEm).toBeTruthy()
     const nota = updated.notas?.[0]
     expect(nota?.data).toBeTruthy()
     expect(typeof nota?.autor === 'object' ? nota?.autor?.id : nota?.autor).toBe(users.comercialUs.id)

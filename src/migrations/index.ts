@@ -21,8 +21,9 @@ import * as migration_20260930_120000_seed_blog_us from './20260930_120000_seed_
 import * as migration_20260930_140530_conteudo_blocos from './20260930_140530_conteudo_blocos';
 import * as migration_20260930_145719_leads_tipo from './20260930_145719_leads_tipo';
 import * as migration_20260930_154557_leads_respondido from './20260930_154557_leads_respondido';
-import * as migration_20260930_180000_perfil_equipe from './20260930_180000_perfil_equipe';
 import * as migration_20260930_170000_eua_contato_redes from './20260930_170000_eua_contato_redes';
+import * as migration_20260930_180000_perfil_equipe from './20260930_180000_perfil_equipe';
+import * as migration_20261118_033054_leads_etapas_envio from './20261118_033054_leads_etapas_envio';
 
 export const migrations = [
   {
@@ -143,11 +144,16 @@ export const migrations = [
   {
     up: migration_20260930_170000_eua_contato_redes.up,
     down: migration_20260930_170000_eua_contato_redes.down,
-    name: '20260930_170000_eua_contato_redes'
+    name: '20260930_170000_eua_contato_redes',
   },
   {
     up: migration_20260930_180000_perfil_equipe.up,
     down: migration_20260930_180000_perfil_equipe.down,
     name: '20260930_180000_perfil_equipe',
+  },
+  {
+    up: migration_20261118_033054_leads_etapas_envio.up,
+    down: migration_20261118_033054_leads_etapas_envio.down,
+    name: '20261118_033054_leads_etapas_envio'
   },
 ];

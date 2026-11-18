@@ -1,31 +1,38 @@
 /** Rótulos e cores dos leads, compartilhados por todas as telas do painel. */
 
+/**
+ * Quem usa o painel não acompanha a venda: recebe o contato e passa para o
+ * comercial (ou RH, ou compras). Por isso a situação só diz se o lead já foi
+ * passado adiante e se alguém confirmou que ele foi atendido.
+ */
 export const LEAD_STATUS = [
-  { value: 'novo', label: 'Para responder', bg: '#dcfce7', fg: '#166534', dot: '#22c55e' },
-  { value: 'em-contato', label: 'Em conversa', bg: '#fef3c7', fg: '#92400e', dot: '#f59e0b' },
-  { value: 'qualificado', label: 'Negociando', bg: '#dbeafe', fg: '#1e40af', dot: '#3b82f6' },
-  { value: 'convertido', label: 'Virou cliente', bg: '#004c26', fg: '#ffffff', dot: '#004c26' },
-  { value: 'descartado', label: 'Arquivado', bg: '#f4f4f5', fg: '#71717a', dot: '#a1a1aa' },
+  { value: 'novo', label: 'Aguardando envio', bg: '#dcfce7', fg: '#166534', dot: '#22c55e' },
+  { value: 'enviado', label: 'Enviado ao comercial', bg: '#dbeafe', fg: '#1e40af', dot: '#3b82f6' },
+  { value: 'resolvido', label: 'Resolvido', bg: '#004c26', fg: '#ffffff', dot: '#004c26' },
+  { value: 'descartado', label: 'Descartado', bg: '#f4f4f5', fg: '#71717a', dot: '#a1a1aa' },
 ] as const
 
 export type LeadStatus = (typeof LEAD_STATUS)[number]['value']
 
 export const statusMeta = (value: unknown) => LEAD_STATUS.find((s) => s.value === value) ?? LEAD_STATUS[0]
 
+/** Já passou para a equipe certa (conta no tempo de envio). */
+export const FORWARDED: readonly LeadStatus[] = ['enviado', 'resolvido']
+
 /**
- * As 3 situações da caixa de entrada: responder quem chegou, acompanhar quem
- * está em conversa e guardar o que acabou (virou cliente ou foi arquivado).
+ * As 3 situações da caixa de entrada: passar adiante quem chegou, ver o que
+ * já foi enviado e guardar o que acabou (resolvido ou descartado).
  */
 export const LEAD_STAGES = [
-  { value: 'responder', label: 'Para responder', statuses: ['novo'], dot: '#22c55e', empty: 'Ninguém esperando resposta. Tudo em dia.' },
-  { value: 'conversa', label: 'Em conversa', statuses: ['em-contato', 'qualificado'], dot: '#f59e0b', empty: 'Nenhuma conversa em andamento.' },
-  { value: 'encerrados', label: 'Encerrados', statuses: ['convertido', 'descartado'], dot: '#a1a1aa', empty: 'Nada encerrado ainda.' },
+  { value: 'aguardando', label: 'Aguardando envio', statuses: ['novo'], dot: '#22c55e', empty: 'Nenhum contato esperando envio. Tudo em dia.' },
+  { value: 'enviados', label: 'Enviados', statuses: ['enviado'], dot: '#3b82f6', empty: 'Nenhum contato enviado esperando confirmação.' },
+  { value: 'encerrados', label: 'Encerrados', statuses: ['resolvido', 'descartado'], dot: '#a1a1aa', empty: 'Nada encerrado ainda.' },
 ] as const
 
 export type LeadStage = (typeof LEAD_STAGES)[number]['value'] | 'todos'
 
 export const stageOf = (status: unknown): Exclude<LeadStage, 'todos'> =>
-  LEAD_STAGES.find((s) => (s.statuses as readonly string[]).includes(String(status)))?.value ?? 'responder'
+  LEAD_STAGES.find((s) => (s.statuses as readonly string[]).includes(String(status)))?.value ?? 'aguardando'
 
 /** Quem é e o que quer. `sem` = ainda sem tipo (a classificar). */
 export const LEAD_TIPOS = [
@@ -41,24 +48,18 @@ export type LeadTipoValue = (typeof LEAD_TIPOS)[number]['value']
 export const tipoMeta = (value: unknown) => LEAD_TIPOS.find((t) => t.value === value) ?? null
 
 /**
- * Como encerrar cada tipo de contato: cliente vira cliente; vaga vai para o
- * RH; fornecedor vai para compras. `win` = convertido, `lose` = descartado.
+ * Para quem vai cada tipo de contato: vaga vai para o RH, fornecedor para
+ * compras, o resto para o comercial. `team` completa "Enviado ao/a…".
  */
-const CLOSE: Record<string, { win: string; winState: string; lose: string; loseState: string; talking: string }> = {
-  cliente: { win: 'Virou cliente', winState: 'Virou cliente', lose: 'Encerrar sem negócio', loseState: 'Sem negócio', talking: 'Negociando' },
-  revenda: { win: 'Virou revenda', winState: 'Virou revenda', lose: 'Encerrar sem negócio', loseState: 'Sem negócio', talking: 'Negociando' },
-  emprego: { win: 'Encaminhado ao RH', winState: 'Encaminhado ao RH', lose: 'Encerrar (sem vaga)', loseState: 'Encerrado', talking: 'Em conversa' },
-  fornecedor: { win: 'Encaminhado a compras', winState: 'Encaminhado a compras', lose: 'Sem interesse', loseState: 'Sem interesse', talking: 'Em conversa' },
-  outro: { win: 'Resolvido', winState: 'Resolvido', lose: 'Encerrar', loseState: 'Encerrado', talking: 'Em conversa' },
+const SEND_TO: Record<string, { team: string; sent: string }> = {
+  emprego: { team: 'RH', sent: 'Enviado ao RH' },
+  fornecedor: { team: 'compras', sent: 'Enviado a compras' },
 }
-export const closeFor = (tipo: unknown) => CLOSE[String(tipo)] ?? CLOSE.cliente
+export const sendTo = (tipo: unknown) => SEND_TO[String(tipo)] ?? { team: 'comercial', sent: 'Enviado ao comercial' }
 
-/** Nome da situação conforme o tipo ("Encaminhado ao RH" em vez de "Virou cliente" para vaga). */
+/** Nome da situação conforme o tipo ("Enviado ao RH" em vez de "Enviado ao comercial" para vaga). */
 export function statusLabel(status: unknown, tipo: unknown) {
-  const c = closeFor(tipo)
-  if (status === 'convertido') return c.winState
-  if (status === 'descartado') return c.loseState
-  if (status === 'qualificado') return c.talking
+  if (status === 'enviado') return sendTo(tipo).sent
   return statusMeta(status).label
 }
 
@@ -92,6 +93,39 @@ export function leadGreeting(lead: { nome: string; site: 'br' | 'us'; tipo?: str
   if (lead.tipo === 'emprego') return `Olá, ${name}! Aqui é da Juma Agro. Recebemos seu contato pelo site sobre vagas.`
   if (lead.tipo === 'fornecedor' || lead.tipo === 'outro') return `Olá, ${name}! Aqui é da Juma Agro. Recebemos sua mensagem pelo site.`
   return `Olá, ${name}! Aqui é da Juma Agro. Recebemos seu contato pelo site${lead.produto ? ` sobre o ${lead.produto}` : ''}. Como podemos ajudar?`
+}
+
+/** Texto pronto para colar no WhatsApp ou e-mail de quem vai atender o lead. */
+export function leadSummary(lead: {
+  nome: string
+  site: 'br' | 'us'
+  empresa?: string | null
+  telefone?: string | null
+  email?: string | null
+  tipo?: string | null
+  produto?: string | null
+  cultura?: string | null
+  mensagem?: string | null
+  local?: string | null
+  createdAt: string
+}) {
+  const phone = intlPhone(lead.site, lead.telefone)
+  const lines: [string, string | null | undefined][] = [
+    ['Nome', lead.nome],
+    ['Empresa', lead.empresa],
+    ['Telefone', phone ? `+${phone}` : null],
+    ['E-mail', lead.email],
+    ['Assunto', tipoMeta(lead.tipo)?.long],
+    ['Produto', lead.produto],
+    ['Cultura', lead.cultura],
+    ['Local', lead.local],
+    ['Mensagem', lead.mensagem],
+  ]
+  const when = new Date(lead.createdAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short', timeZone: 'America/Sao_Paulo' })
+  return [
+    `Contato pelo site ${lead.site === 'us' ? 'dos EUA' : 'do Brasil'} (${when})`,
+    ...lines.filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`),
+  ].join('\n')
 }
 
 /** "3 h", "2 dias": há quanto tempo (para quem espera resposta). */

@@ -31,8 +31,9 @@ export async function LeadsInbox(props: ListViewServerProps) {
       [...LEAD_STAGES.map((s) => s.value), 'todos'].map(async (v) => [v, await count(inboxWhere({ etapa: v, tipo, search }))] as const),
     ),
   ) as Record<string, number>
-  // Sem escolha, abre em "Para responder" (se houver alguém esperando); senão, em "Todos".
-  const etapa = (typeof params.etapa === 'string' ? params.etapa : stageCounts.responder > 0 ? 'responder' : 'todos') as LeadStage
+  // Sem escolha (ou com um link antigo), abre em "Aguardando envio" se houver alguém; senão, em "Todos".
+  const asked = typeof params.etapa === 'string' && [...LEAD_STAGES.map((s) => s.value as string), 'todos'].includes(params.etapa) ? params.etapa : null
+  const etapa = (asked ?? (stageCounts.aguardando > 0 ? 'aguardando' : 'todos')) as LeadStage
   const tipoCounts = Object.fromEntries(
     await Promise.all(
       [...LEAD_TIPOS.map((t) => t.value), 'sem', 'todos'].map(async (v) => [v, await count(inboxWhere({ etapa, tipo: v, search }))] as const),

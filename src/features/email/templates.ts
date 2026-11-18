@@ -111,7 +111,7 @@ export function newLeadEmail({ lead, url }: { lead: LeadNotice; url: string }) {
       preheader: [lead.empresa, lead.contexto?.produto, lead.mensagem].filter(Boolean).join(' · ').slice(0, 140) || `Chegou pelo site ${site}.`,
       title: `${lead.nome} entrou em contato`,
       body:
-        paragraph(`Chegou um contato novo pelo site ${site === 'Brasil' ? 'do Brasil' : 'dos Estados Unidos'}. Ele já está no painel, em Para responder.`) +
+        paragraph(`Chegou um contato novo pelo site ${site === 'Brasil' ? 'do Brasil' : 'dos Estados Unidos'}. Ele já está no painel, em Aguardando envio.`) +
         details([
           ['Nome', lead.nome],
           ['E-mail', lead.email],

@@ -44,9 +44,11 @@ export const Leads: CollectionConfig = {
   defaultSort: '-createdAt',
   hooks: {
     beforeChange: [
-      // Primeira resposta: quando o lead sai de "Para responder" (mede o tempo de resposta).
+      // Primeiro envio: quando o lead é passado para a equipe (mede o tempo de envio).
+      // Descartar (spam, teste, repetido) não conta como envio.
       ({ data, originalDoc }) => {
-        if (data && originalDoc?.status === 'novo' && data.status && data.status !== 'novo' && !originalDoc.respondidoEm) {
+        const forwarded = data?.status === 'enviado' || data?.status === 'resolvido'
+        if (data && forwarded && originalDoc?.status === 'novo' && !originalDoc.respondidoEm) {
           data.respondidoEm = new Date().toISOString()
         }
         return data
@@ -89,11 +91,10 @@ export const Leads: CollectionConfig = {
       required: true,
       defaultValue: 'novo',
       options: [
-        { label: 'Para responder', value: 'novo' },
-        { label: 'Em conversa', value: 'em-contato' },
-        { label: 'Negociando', value: 'qualificado' },
-        { label: 'Virou cliente', value: 'convertido' },
-        { label: 'Arquivado', value: 'descartado' },
+        { label: 'Aguardando envio', value: 'novo' },
+        { label: 'Enviado ao comercial', value: 'enviado' },
+        { label: 'Resolvido', value: 'resolvido' },
+        { label: 'Descartado', value: 'descartado' },
       ],
       admin: {
         position: 'sidebar',
@@ -116,12 +117,12 @@ export const Leads: CollectionConfig = {
     },
     {
       name: 'respondidoEm',
-      label: 'Respondido em',
+      label: 'Enviado em',
       type: 'date',
       admin: {
         position: 'sidebar',
         readOnly: true,
-        description: 'Preenchido sozinho quando o lead sai de "Para responder".',
+        description: 'Preenchido sozinho quando o lead é marcado como enviado.',
         components: { Field: '/components/admin/fields/DateField#DateField' },
       },
     },

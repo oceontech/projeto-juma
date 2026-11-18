@@ -6976,8 +6976,8 @@ button.jpw__row,
   box-shadow: var(--juma-shadow);
   transition: box-shadow 0.2s ease;
 
-  // Faixa colorida à esquerda: verde = esperando resposta.
-  &.is-responder {
+  // Faixa colorida à esquerda: verde = aguardando envio ao comercial.
+  &.is-aguardando {
     box-shadow: inset 4px 0 0 #22c55e, var(--juma-shadow);
   }
 
@@ -7169,6 +7169,13 @@ button.jpw__row,
 
 .jli-dl__pair {
   display: contents;
+}
+
+.jli-hint {
+  margin: 8px 0 0;
+  color: var(--juma-muted, #71717a);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .jli-stage {

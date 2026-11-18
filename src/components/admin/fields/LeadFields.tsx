@@ -12,8 +12,8 @@ export const LeadStatusField: SelectFieldClientComponent = ({ path, readOnly }) 
   const current = value ?? 'novo'
   return (
     <div className="jf">
-      <span className="jf-label">Status do atendimento</span>
-      <div className="jf-chips" role="radiogroup" aria-label="Status do atendimento">
+      <span className="jf-label">Situação do envio</span>
+      <div className="jf-chips" role="radiogroup" aria-label="Situação do envio">
         {LEAD_STATUS.map((s) => {
           const active = s.value === current
           return (

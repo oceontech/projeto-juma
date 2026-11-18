@@ -10,10 +10,11 @@ import {
   LEAD_STAGES,
   LEAD_TIPOS,
   SITE_META,
-  closeFor,
   intlPhone,
   leadGreeting,
+  leadSummary,
   relativeDate,
+  sendTo,
   stageOf,
   statusLabel,
   statusMeta,
@@ -61,7 +62,7 @@ type Props = {
   canExport: boolean
 }
 
-const STATUS_ORDER: LeadStatus[] = ['novo', 'em-contato', 'qualificado', 'convertido', 'descartado']
+const STATUS_ORDER: LeadStatus[] = ['novo', 'enviado', 'resolvido', 'descartado']
 const STAGE_TABS = [...LEAD_STAGES.map((s) => ({ value: s.value as LeadStage, label: s.label, dot: s.dot as string | null })), { value: 'todos' as LeadStage, label: 'Todos', dot: null }]
 const TIPO_OPTIONS = [...LEAD_TIPOS.map((t) => ({ value: t.value as string, label: t.long, icon: <span>{t.icon}</span> })), { value: 'sem', label: 'A classificar', icon: <span>❔</span> }]
 const EXPORT_OPTIONS = [
@@ -119,6 +120,12 @@ const Icon = {
   phone: (
     <svg viewBox="0 0 24 24" aria-hidden>
       <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" />
+    </svg>
+  ),
+  copy: (
+    <svg viewBox="0 0 24 24" aria-hidden>
+      <rect x="8.5" y="8.5" width="12" height="12" rx="2.5" />
+      <path d="M15.5 8.5V6a2.5 2.5 0 0 0-2.5-2.5H6A2.5 2.5 0 0 0 3.5 6v7A2.5 2.5 0 0 0 6 15.5h2.5" />
     </svg>
   ),
   mail: (
@@ -184,10 +191,21 @@ export function LeadsInboxClient({ leads, stageCounts, tipoCounts, etapa, tipo, 
     }
   }
 
-  // Respondeu por WhatsApp, telefone ou e-mail: sai de "Para responder".
-  const contacted = (lead: InboxLead) => {
+  const markSent = (lead: InboxLead) => setStatus(lead, 'enviado', `${first(lead.nome)}: ${sendTo(lead.tipo).sent.toLowerCase()}`)
+
+  // Copia os dados para colar no WhatsApp ou e-mail de quem vai atender.
+  const copySummary = async (lead: InboxLead) => {
+    try {
+      await navigator.clipboard.writeText(leadSummary(lead))
+    } catch {
+      toast.error('Não foi possível copiar. Abra os detalhes e copie à mão.')
+      return
+    }
     const status = local[lead.id]?.status ?? lead.status
-    if (status === 'novo') void setStatus(lead, 'em-contato', `${first(lead.nome)} foi para "Em conversa"`)
+    if (status !== 'novo') return void toast.success('Dados copiados')
+    toast.success(`Dados de ${first(lead.nome)} copiados. Depois de mandar, marque como enviado.`, {
+      action: { label: 'Marcar como enviado', onClick: () => void markSent(lead) },
+    })
   }
 
   const setTipo = async (lead: InboxLead, value: string) => {
@@ -228,9 +246,9 @@ export function LeadsInboxClient({ leads, stageCounts, tipoCounts, etapa, tipo, 
         <div>
           <h1>Leads</h1>
           <p>
-            {stageCounts.responder
-              ? `${stageCounts.responder} ${stageCounts.responder === 1 ? 'pessoa esperando' : 'pessoas esperando'} resposta`
-              : 'Ninguém esperando resposta'}
+            {stageCounts.aguardando
+              ? `${stageCounts.aguardando} ${stageCounts.aguardando === 1 ? 'contato aguardando' : 'contatos aguardando'} envio ao comercial`
+              : 'Nenhum contato aguardando envio'}
           </p>
         </div>
         <div className="jl-head__actions">
@@ -276,7 +294,7 @@ export function LeadsInboxClient({ leads, stageCounts, tipoCounts, etapa, tipo, 
           >
             {t.dot && <span className="jl-tab__dot" style={{ background: t.dot }} />}
             {t.label}
-            <span className={`jl-tab__count${t.value === 'responder' && stageCounts.responder ? ' is-alert' : ''}`}>{stageCounts[t.value] ?? 0}</span>
+            <span className={`jl-tab__count${t.value === 'aguardando' && stageCounts.aguardando ? ' is-alert' : ''}`}>{stageCounts[t.value] ?? 0}</span>
           </Link>
         ))}
       </nav>
@@ -317,7 +335,7 @@ export function LeadsInboxClient({ leads, stageCounts, tipoCounts, etapa, tipo, 
           {leads.map((lead0) => {
             const lead = { ...lead0, ...local[lead0.id] } as InboxLead
             const st = statusMeta(lead.status)
-            const close = closeFor(lead.tipo)
+            const team = sendTo(lead.tipo)
             const tp = tipoMeta(lead.tipo)
             const phone = intlPhone(lead.site, lead.telefone)
             const isOpen = open === lead.id
@@ -365,20 +383,22 @@ export function LeadsInboxClient({ leads, stageCounts, tipoCounts, etapa, tipo, 
                       }
                     />
                     <div className="jli-contact">
+                      <button type="button" className="jli-btn" onClick={() => copySummary(lead)} title={`Copiar os dados para mandar ao ${team.team}`} aria-label="Copiar dados">
+                        {Icon.copy}
+                      </button>
                       {phone && (
                         <a
                           className="jli-btn jli-btn--wa"
                           href={`https://wa.me/${phone}?text=${encodeURIComponent(leadGreeting(lead))}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          onClick={() => contacted(lead)}
                           title="Abrir conversa no WhatsApp com uma saudação pronta"
                         >
                           {Icon.whatsapp} <span>WhatsApp</span>
                         </a>
                       )}
                       {phone && (
-                        <a className="jli-btn" href={`tel:+${phone}`} onClick={() => contacted(lead)} title={`Ligar: +${phone}`} aria-label="Ligar">
+                        <a className="jli-btn" href={`tel:+${phone}`} title={`Ligar: +${phone}`} aria-label="Ligar">
                           {Icon.phone}
                         </a>
                       )}
@@ -386,7 +406,6 @@ export function LeadsInboxClient({ leads, stageCounts, tipoCounts, etapa, tipo, 
                         <a
                           className="jli-btn"
                           href={`mailto:${lead.email}?subject=${encodeURIComponent(lead.site === 'us' ? 'Juma-Agro: your message' : 'Juma Agro: seu contato pelo site')}&body=${encodeURIComponent(`${leadGreeting(lead)}\n\n`)}`}
-                          onClick={() => contacted(lead)}
                           title={`E-mail: ${lead.email}`}
                           aria-label="E-mail"
                         >
@@ -448,33 +467,36 @@ export function LeadsInboxClient({ leads, stageCounts, tipoCounts, etapa, tipo, 
                           <span className="jli-status" style={{ background: st.bg, color: st.fg }}>
                             {statusLabel(lead.status, lead.tipo)}
                           </span>
-                          {leadStage === 'responder' && (
-                            <button type="button" className="jli-act jli-act--ok" onClick={() => setStatus(lead, 'em-contato', `${first(lead.nome)} foi para "Em conversa"`)}>
-                              Já respondi
-                            </button>
-                          )}
-                          {leadStage === 'conversa' && (
+                          {leadStage === 'aguardando' && (
                             <>
-                              <button type="button" className="jli-act jli-act--ok" onClick={() => setStatus(lead, 'convertido', `${first(lead.nome)}: ${close.winState.toLowerCase()}`)}>
-                                {close.win}
+                              <button type="button" className="jli-act jli-act--ok" onClick={() => markSent(lead)}>
+                                Já enviei ao {team.team}
                               </button>
-                              <button type="button" className="jli-act" onClick={() => setStatus(lead, 'descartado', `${first(lead.nome)}: ${close.loseState.toLowerCase()}`)}>
-                                {close.lose}
+                              <button type="button" className="jli-act" onClick={() => setStatus(lead, 'descartado', `${first(lead.nome)}: descartado`)} title="Spam, teste ou contato repetido">
+                                Descartar
                               </button>
                             </>
                           )}
+                          {leadStage === 'enviados' && (
+                            <button type="button" className="jli-act jli-act--ok" onClick={() => setStatus(lead, 'resolvido', `${first(lead.nome)}: resolvido`)} title={`O ${team.team} confirmou que atendeu`}>
+                              Confirmar resolvido
+                            </button>
+                          )}
                           {leadStage === 'encerrados' && (
-                            <button type="button" className="jli-act" onClick={() => setStatus(lead, 'em-contato', `${first(lead.nome)} voltou para "Em conversa"`)}>
-                              Reabrir conversa
+                            <button type="button" className="jli-act" onClick={() => markSent(lead)}>
+                              Reabrir (voltar para enviado)
                             </button>
                           )}
                         </div>
-                        {/* Clicou errado? Qualquer situação, inclusive voltar para "Para responder". */}
+                        {leadStage === 'aguardando' && (
+                          <p className="jli-hint">Copie os dados (botão ao lado do WhatsApp), mande para o {team.team} e marque como enviado.</p>
+                        )}
+                        {/* Clicou errado? Qualquer situação, inclusive voltar para "Aguardando envio". */}
                         <Dropdown
                           className="jli-move"
                           label={`Mudar a situação de ${lead.nome}`}
                           value={lead.status}
-                          options={STATUS_ORDER.filter((v) => v !== 'qualificado' || closeFor(lead.tipo).talking !== 'Em conversa' || lead.status === v).map((v) => ({
+                          options={STATUS_ORDER.map((v) => ({
                             value: v,
                             label: statusLabel(v, lead.tipo),
                             dot: statusMeta(v).dot,
@@ -508,7 +530,7 @@ export function LeadsInboxClient({ leads, stageCounts, tipoCounts, etapa, tipo, 
                             rows={2}
                             value={note[lead.id] ?? ''}
                             onChange={(e) => setNote((n) => ({ ...n, [lead.id]: e.target.value }))}
-                            placeholder="Anotar o que foi conversado (só a equipe vê)"
+                            placeholder="Anotar para quem foi enviado ou o retorno do comercial (só a equipe vê)"
                           />
                           <button type="button" className="jli-act" disabled={!(note[lead.id] ?? '').trim()} onClick={() => addNote(lead)}>
                             Salvar nota

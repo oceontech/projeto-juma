@@ -151,10 +151,10 @@ export interface UserAuthOperations {
  */
 export interface Lead {
   id: number;
-  status: 'novo' | 'em-contato' | 'qualificado' | 'convertido' | 'descartado';
+  status: 'novo' | 'enviado' | 'resolvido' | 'descartado';
   tipo?: ('cliente' | 'revenda' | 'emprego' | 'fornecedor' | 'outro') | null;
   /**
-   * Preenchido sozinho quando o lead sai de "Para responder".
+   * Preenchido sozinho quando o lead é marcado como enviado.
    */
   respondidoEm?: string | null;
   responsavel?: (number | null) | User;

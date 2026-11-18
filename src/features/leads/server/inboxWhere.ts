@@ -4,7 +4,7 @@ import { LEAD_STAGES, LEAD_TIPOS } from '../../../components/admin/leadMeta'
 
 /**
  * Filtro da caixa de entrada de leads, o mesmo para a lista e para a planilha:
- * situação (para responder, em conversa, encerrados), tipo de contato e busca.
+ * situação (aguardando envio, enviados, encerrados), tipo de contato e busca.
  */
 export function inboxWhere({ etapa, tipo, search }: { etapa?: string | null; tipo?: string | null; search?: string | null }): Where[] {
   const and: Where[] = []

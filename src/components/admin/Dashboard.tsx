@@ -5,13 +5,13 @@ import { SITES, selectedSite, type Site } from '@/access/roles'
 import { loadTraffic, type Traffic } from '@/features/analytics/umami'
 import { leadChannel } from '@/features/leads/channel'
 
-import { tipoMeta, waitingFor } from './leadMeta'
+import { FORWARDED, tipoMeta, waitingFor, type LeadStatus } from './leadMeta'
 import { Flag } from './ui/Flag'
 
 /**
  * Visão geral do painel (views.dashboard): o que precisa de atenção agora
- * (quem espera resposta), como vão os contatos (interessados, tempo de
- * resposta, clientes) e as visitas. Tudo no horário de Brasília e no período
+ * (contatos ainda não passados ao comercial), como vão os contatos
+ * (interessados, tempo até o envio, enviados) e as visitas. Tudo no horário de Brasília e no período
  * escolhido (7, 30 ou 90 dias), comparado com o período anterior do mesmo
  * tamanho. As consultas usam o `req` com overrideAccess: false: respeitam o
  * papel do usuário e o site escolhido no seletor.
@@ -29,6 +29,7 @@ type LeadRow = {
   rastreamento?: { utmSource?: string | null; referrer?: string | null; gclid?: string | null; fbclid?: string | null } | null
   geo?: { regiao?: string | null } | null
   respondidoEm?: string | null
+  duplicadoDe?: number | { id: number } | null
   createdAt: string
 }
 
@@ -119,10 +120,15 @@ function Rank({ rows, total, empty }: { rows: [string, number][]; total: number;
   )
 }
 
+/**
+ * Leads que chegaram desde `since` e os que foram enviados desde `since`
+ * (um lead antigo enviado agora conta no tempo de envio e nos enviados).
+ */
 async function loadLeads(req: PayloadRequest, since: number) {
+  const iso = new Date(since).toISOString()
   const { docs } = await req.payload.find({
     collection: 'leads',
-    where: { createdAt: { greater_than_equal: new Date(since).toISOString() } },
+    where: { or: [{ createdAt: { greater_than_equal: iso } }, { respondidoEm: { greater_than_equal: iso } }] },
     sort: '-createdAt',
     limit: 5000,
     depth: 0,
@@ -133,7 +139,7 @@ async function loadLeads(req: PayloadRequest, since: number) {
   return docs as unknown as LeadRow[]
 }
 
-/** Quem espera resposta, de qualquer data (os mais antigos primeiro). */
+/** Quem ainda não foi passado ao comercial, de qualquer data (os mais antigos primeiro). */
 async function loadWaiting(req: PayloadRequest) {
   const res = await req.payload.find({
     collection: 'leads',
@@ -339,20 +345,29 @@ export async function Dashboard({ initPageResult, searchParams }: AdminViewServe
     loadTraffic(sites, new Date(start), new Date(Math.floor(now / 300_000) * 300_000)),
   ])
 
-  const current = leads.filter((l) => Date.parse(l.createdAt) >= start)
-  const previous = leads.filter((l) => Date.parse(l.createdAt) < start)
+  // Contatos contam uma vez por pessoa: quem escreveu de novo ("Repetição de") fica de fora.
+  const arrived = (l: LeadRow, from: number, to: number) => {
+    const t = Date.parse(l.createdAt)
+    return t >= from && t < to && !l.duplicadoDe
+  }
+  const current = leads.filter((l) => arrived(l, start, Infinity))
+  const previous = leads.filter((l) => arrived(l, prevStart, start))
   const buyers = current.filter(isBuyer)
   const buyersPrev = previous.filter(isBuyer)
   const others = current.length - buyers.length
-  // Só clientes e revendas: vaga encaminhada ao RH também é "convertido", mas não é venda.
-  const clients = current.filter((l) => l.status === 'convertido' && isBuyer(l))
-  const clientsPrev = previous.filter((l) => l.status === 'convertido' && isBuyer(l))
 
-  // Tempo de resposta: da chegada até sair de "Para responder" (leads respondidos no período).
-  const responseTimes = leads
-    .filter((l) => l.respondidoEm && Date.parse(l.respondidoEm) >= start)
-    .map((l) => Date.parse(l.respondidoEm!) - Date.parse(l.createdAt))
-    .filter((ms) => ms >= 0)
+  // Enviados ao comercial (ou RH, compras) no período, pela data do envio.
+  const sentIn = (from: number, to: number) =>
+    leads.filter((l) => {
+      const t = l.respondidoEm ? Date.parse(l.respondidoEm) : NaN
+      return t >= from && t < to && FORWARDED.includes(l.status as LeadStatus)
+    })
+  const sent = sentIn(start, Infinity)
+  const sentPrev = sentIn(prevStart, start)
+  const resolved = sent.filter((l) => l.status === 'resolvido').length
+
+  // Tempo de envio: da chegada até ser marcado como enviado (leads enviados no período).
+  const responseTimes = sent.map((l) => Date.parse(l.respondidoEm!) - Date.parse(l.createdAt)).filter((ms) => ms >= 0)
   const medianResponse = median(responseTimes)
   const oldestWait = waiting.oldest[0] ? now - Date.parse(waiting.oldest[0].createdAt) : 0
 
@@ -394,16 +409,16 @@ export async function Dashboard({ initPageResult, searchParams }: AdminViewServe
 
       {canSeeLeads && (
         <section className="jd-kpis jd-kpis--4">
-          <Link href="/admin/collections/leads?etapa=responder" className={`jd-card jd-card--dark jd-kpi-card${waiting.total ? ' is-alert' : ''}`}>
-            <p className="jd-label">Esperando resposta</p>
+          <Link href="/admin/collections/leads?etapa=aguardando" className={`jd-card jd-card--dark jd-kpi-card${waiting.total ? ' is-alert' : ''}`}>
+            <p className="jd-label">Aguardando envio</p>
             <strong className="jd-kpi">{fmt.format(waiting.total)}</strong>
             <span className="jd-trend">
               {waiting.total ? (
                 <>
-                  o mais antigo espera há <b style={{ color: oldestWait > DAY ? '#fca5a5' : '#86efac' }}>{waitingFor(waiting.oldest[0].createdAt)}</b> · responder →
+                  o mais antigo espera há <b style={{ color: oldestWait > DAY ? '#fca5a5' : '#86efac' }}>{waitingFor(waiting.oldest[0].createdAt)}</b> · enviar →
                 </>
               ) : (
-                'Tudo respondido'
+                'Tudo enviado ao comercial'
               )}
             </span>
           </Link>
@@ -418,23 +433,25 @@ export async function Dashboard({ initPageResult, searchParams }: AdminViewServe
             )}
           </article>
           <article className="jd-card">
-            <p className="jd-label">Tempo para responder</p>
+            <p className="jd-label">Tempo até o envio</p>
             <strong className="jd-kpi" style={{ color: medianResponse === null ? undefined : medianResponse <= DAY ? '#15803d' : medianResponse <= 3 * DAY ? '#b45309' : '#b91c1c' }}>
               {medianResponse === null ? '—' : hours(medianResponse)}
             </strong>
             <span className="jd-trend">
               {responseTimes.length === 1
-                ? 'um lead respondido no período'
+                ? 'um lead enviado ao comercial no período'
                 : responseTimes.length
-                  ? `metade dos ${fmt.format(responseTimes.length)} leads respondidos teve resposta em até esse tempo`
-                  : 'aparece quando os leads forem respondidos pela tela de Leads'}
+                  ? `metade dos ${fmt.format(responseTimes.length)} leads enviados chegou ao comercial em até esse tempo`
+                  : 'aparece quando os leads forem marcados como enviados em Leads'}
             </span>
           </article>
           <article className="jd-card">
-            <p className="jd-label">Viraram clientes</p>
-            <strong className="jd-kpi">{fmt.format(clients.length)}</strong>
-            <Trend d={delta(clients.length, clientsPrev.length)} label={vsLabel} />
-            <span className="jd-trend">marcados como “Virou cliente” em Leads</span>
+            <p className="jd-label">Enviados ao comercial</p>
+            <strong className="jd-kpi">{fmt.format(sent.length)}</strong>
+            <Trend d={delta(sent.length, sentPrev.length)} label={vsLabel} />
+            <span className="jd-trend">
+              {resolved ? `${fmt.format(resolved)} já confirmado${resolved === 1 ? '' : 's'} como resolvido${resolved === 1 ? '' : 's'}` : 'inclui vagas (RH) e fornecedores (compras)'}
+            </span>
           </article>
         </section>
       )}
@@ -442,8 +459,8 @@ export async function Dashboard({ initPageResult, searchParams }: AdminViewServe
       {canSeeLeads && waiting.total > 0 && (
         <article className="jd-card jd-waiting">
           <div className="jd-card__head">
-            <h2>Responder primeiro</h2>
-            <Link className="jd-chip jd-chip--dark" href="/admin/collections/leads?etapa=responder">
+            <h2>Enviar ao comercial primeiro</h2>
+            <Link className="jd-chip jd-chip--dark" href="/admin/collections/leads?etapa=aguardando">
               Abrir Leads
             </Link>
           </div>
@@ -452,7 +469,7 @@ export async function Dashboard({ initPageResult, searchParams }: AdminViewServe
               const tp = tipoMeta(l.tipo)
               return (
                 <li key={l.id}>
-                  <Link href="/admin/collections/leads?etapa=responder">
+                  <Link href="/admin/collections/leads?etapa=aguardando">
                     <Flag site={l.site} size={22} />
                     <span className="jd-waiting__who">
                       <b>{l.nome}</b>
